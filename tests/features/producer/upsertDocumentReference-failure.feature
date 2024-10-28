@@ -48,7 +48,6 @@ Feature: Producer - upsertDocumentReference - Failure Scenarios
     When producer 'X26' upserts a DocumentReference with values:
       | property  | value                          |
       | subject   | 9999999999                     |
-      | status    | current                        |
       | type      | 736253002                      |
       | category  | 734163000                      |
       | custodian | X26                            |
