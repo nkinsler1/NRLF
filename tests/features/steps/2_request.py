@@ -148,7 +148,7 @@ def update_put_document_reference_step(
 
     context.response = client.update(doc_ref, doc_ref_id)
 
-    if context.response.status_code == 201:
+    if context.response.status_code == 200:
         context.add_cleanup(lambda: context.repository.delete_by_id(doc_ref_id))
 
 
