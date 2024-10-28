@@ -131,6 +131,27 @@ def create_put_document_reference_step(context: Context, ods_code: str):
         context.add_cleanup(lambda: context.repository.delete_by_id(doc_ref_id))
 
 
+@when("producer '{ods_code}' updates a DocumentReference '{doc_ref_id}' with values")
+def update_put_document_reference_step(
+    context: Context, ods_code: str, doc_ref_id: str
+):
+    client = producer_client_from_context(context, ods_code)
+
+    if not context.table:
+        raise ValueError("No document reference data table provided")
+
+    items = {row["property"]: row["value"] for row in context.table}
+
+    doc_ref = client.read(doc_ref_id).json()
+    for key, value in items.items():
+        doc_ref.update({key: value})
+
+    context.response = client.update(doc_ref, doc_ref_id)
+
+    if context.response.status_code == 201:
+        context.add_cleanup(lambda: context.repository.delete_by_id(doc_ref_id))
+
+
 @when(
     "producer '{ods_code}' requests to delete DocumentReference with id '{doc_ref_id}'"
 )
