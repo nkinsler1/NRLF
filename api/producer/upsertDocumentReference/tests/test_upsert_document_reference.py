@@ -145,6 +145,54 @@ def test_upsert_document_reference_happy_path_with_ssp(
     }
 
 
+@mock_aws
+@mock_repository
+def test_upsert_document_reference_cannot_set_status_to_not_current(repository):
+    doc_ref = load_document_reference("Y05868-736253002-Valid")
+    doc_pointer = DocumentPointer.from_document_reference(doc_ref)
+    repository.create(doc_pointer)
+
+    doc_ref.status = "somethingElse"
+
+    event = create_test_api_gateway_event(
+        headers=create_headers(),
+        path_parameters={"id": "Y05868-99999-99999-999999"},
+        body=doc_ref.model_dump_json(exclude_none=True),
+    )
+
+    result = handler(event, create_mock_context())
+
+    body = result.pop("body")
+
+    assert result == {
+        "statusCode": "400",
+        "headers": default_response_headers(),
+        "isBase64Encoded": False,
+    }
+    parsed_body = json.loads(body)
+
+    assert parsed_body == {
+        "resourceType": "OperationOutcome",
+        "issue": [
+            {
+                "severity": "error",
+                "code": "invalid",
+                "details": {
+                    "coding": [
+                        {
+                            "code": "MESSAGE_NOT_WELL_FORMED",
+                            "display": "Message not well formed",
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                        }
+                    ]
+                },
+                "diagnostics": "Request body could not be parsed (status: String should match pattern '^current$')",
+                "expression": ["status"],
+            }
+        ],
+    }
+
+
 def test_upsert_document_reference_invalid_category_type():
     doc_ref = load_document_reference("Y05868-736253002-Valid")
 

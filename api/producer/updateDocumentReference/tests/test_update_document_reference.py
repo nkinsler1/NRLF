@@ -9,7 +9,7 @@ from api.producer.updateDocumentReference.update_document_reference import (
     handler,
 )
 from nrlf.core.dynamodb.repository import DocumentPointer, DocumentPointerRepository
-from nrlf.producer.fhir.r4.model import DocumentReference
+from nrlf.producer.fhir.r4.model import CodeableConcept, Coding, DocumentReference
 from nrlf.tests.data import load_document_reference
 from nrlf.tests.dynamodb import mock_repository
 from nrlf.tests.events import (
@@ -478,7 +478,22 @@ def test_update_document_reference_immutable_fields(repository):
     doc_pointer = DocumentPointer.from_document_reference(doc_ref)
     repository.create(doc_pointer)
 
-    doc_ref.status = "draft"
+    doc_ref.type = CodeableConcept(
+        id=None,
+        coding=[
+            Coding(
+                id=None,
+                system="http://snomed.info/sct",
+                version=None,
+                code="1213324",
+                display="Some Code",
+                userSelected=None,
+            )
+        ],
+        text=None,
+        extension=None,
+    )
+
     event = create_test_api_gateway_event(
         headers=create_headers(),
         path_parameters={"id": "Y05868-99999-99999-999999"},
@@ -511,7 +526,55 @@ def test_update_document_reference_immutable_fields(repository):
                         }
                     ]
                 },
-                "diagnostics": "The field 'status' is immutable and cannot be updated",
+                "diagnostics": "The field 'type' is immutable and cannot be updated",
+                "expression": ["type"],
+            }
+        ],
+    }
+
+
+@mock_aws
+@mock_repository
+def test_update_document_reference_cannot_change_status_to_not_current(repository):
+    doc_ref = load_document_reference("Y05868-736253002-Valid")
+    doc_pointer = DocumentPointer.from_document_reference(doc_ref)
+    repository.create(doc_pointer)
+
+    doc_ref.status = "somethingElse"
+
+    event = create_test_api_gateway_event(
+        headers=create_headers(),
+        path_parameters={"id": "Y05868-99999-99999-999999"},
+        body=doc_ref.model_dump_json(exclude_none=True),
+    )
+
+    result = handler(event, create_mock_context())
+
+    body = result.pop("body")
+
+    assert result == {
+        "statusCode": "400",
+        "headers": default_response_headers(),
+        "isBase64Encoded": False,
+    }
+    parsed_body = json.loads(body)
+
+    assert parsed_body == {
+        "resourceType": "OperationOutcome",
+        "issue": [
+            {
+                "severity": "error",
+                "code": "invalid",
+                "details": {
+                    "coding": [
+                        {
+                            "code": "MESSAGE_NOT_WELL_FORMED",
+                            "display": "Message not well formed",
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                        }
+                    ]
+                },
+                "diagnostics": "Request body could not be parsed (status: String should match pattern '^current$')",
                 "expression": ["status"],
             }
         ],
@@ -820,8 +883,6 @@ def test_update_document_reference_existing_invalid_json(
     doc_pointer = DocumentPointer.from_document_reference(doc_ref)
     doc_pointer.document = "invalid json"
     repository.create(doc_pointer)
-
-    doc_ref.status = "draft"
 
     event = create_test_api_gateway_event(
         headers=create_headers(),

@@ -24,7 +24,7 @@ from tests.features.utils.constants import (
 
 
 def create_test_document_reference(items: dict) -> DocumentReference:
-    base_doc_ref = DocumentReference(
+    base_doc_ref = DocumentReference.model_construct(
         resourceType="DocumentReference",
         status=items.get("status", "current"),
         content=[
