@@ -14,9 +14,11 @@ module "consumer__readDocumentReference" {
     SPLUNK_INDEX         = module.firehose__processor.splunk.index
     AUTH_STORE           = local.auth_store_id
     TABLE_NAME           = local.pointers_table_name
+    ODS_TABLE            = local.ods_table_name
   }
   additional_policies = [
     local.pointers_table_read_policy_arn,
+    local.ods_table_read_policy_arn,
     local.pointers_kms_read_write_arn,
     local.auth_store_read_policy_arn
   ]
@@ -43,9 +45,11 @@ module "consumer__countDocumentReference" {
     POWERTOOLS_LOG_LEVEL = local.log_level
     SPLUNK_INDEX         = module.firehose__processor.splunk.index
     TABLE_NAME           = local.pointers_table_name
+    ODS_TABLE            = local.ods_table_name
   }
   additional_policies = [
     local.pointers_table_read_policy_arn,
+    local.ods_table_read_policy_arn,
     local.pointers_kms_read_write_arn,
     local.auth_store_read_policy_arn
   ]
@@ -72,10 +76,12 @@ module "consumer__searchDocumentReference" {
     POWERTOOLS_LOG_LEVEL = local.log_level
     SPLUNK_INDEX         = module.firehose__processor.splunk.index
     TABLE_NAME           = local.pointers_table_name
+    ODS_TABLE            = local.ods_table_name
   }
   additional_policies = [
     local.pointers_table_read_policy_arn,
     local.pointers_kms_read_write_arn,
+    local.ods_table_read_policy_arn,
     local.auth_store_read_policy_arn
   ]
   firehose_subscriptions = [
@@ -101,9 +107,11 @@ module "consumer__searchPostDocumentReference" {
     POWERTOOLS_LOG_LEVEL = local.log_level
     SPLUNK_INDEX         = module.firehose__processor.splunk.index
     TABLE_NAME           = local.pointers_table_name
+    ODS_TABLE            = local.ods_table_name
   }
   additional_policies = [
     local.pointers_table_read_policy_arn,
+    local.ods_table_read_policy_arn,
     local.pointers_kms_read_write_arn,
     local.auth_store_read_policy_arn
   ]
@@ -130,10 +138,12 @@ module "producer__createDocumentReference" {
     SPLUNK_INDEX         = module.firehose__processor.splunk.index
     POWERTOOLS_LOG_LEVEL = local.log_level
     TABLE_NAME           = local.pointers_table_name
+    ODS_TABLE            = local.ods_table_name
   }
   additional_policies = [
     local.pointers_table_write_policy_arn,
     local.pointers_table_read_policy_arn,
+    local.ods_table_read_policy_arn,
     local.pointers_kms_read_write_arn,
     local.auth_store_read_policy_arn
   ]
@@ -160,10 +170,12 @@ module "producer__deleteDocumentReference" {
     POWERTOOLS_LOG_LEVEL = local.log_level
     SPLUNK_INDEX         = module.firehose__processor.splunk.index
     TABLE_NAME           = local.pointers_table_name
+    ODS_TABLE            = local.ods_table_name
   }
   additional_policies = [
     local.pointers_table_write_policy_arn,
     local.pointers_table_read_policy_arn,
+    local.ods_table_read_policy_arn,
     local.pointers_kms_read_write_arn,
     local.auth_store_read_policy_arn
   ]
@@ -190,9 +202,11 @@ module "producer__readDocumentReference" {
     POWERTOOLS_LOG_LEVEL = local.log_level
     SPLUNK_INDEX         = module.firehose__processor.splunk.index
     TABLE_NAME           = local.pointers_table_name
+    ODS_TABLE            = local.ods_table_name
   }
   additional_policies = [
     local.pointers_table_read_policy_arn,
+    local.ods_table_read_policy_arn,
     local.pointers_kms_read_write_arn,
     local.auth_store_read_policy_arn
   ]
@@ -219,9 +233,11 @@ module "producer__searchDocumentReference" {
     POWERTOOLS_LOG_LEVEL = local.log_level
     SPLUNK_INDEX         = module.firehose__processor.splunk.index
     TABLE_NAME           = local.pointers_table_name
+    ODS_TABLE            = local.ods_table_name
   }
   additional_policies = [
     local.pointers_table_read_policy_arn,
+    local.ods_table_read_policy_arn,
     local.pointers_kms_read_write_arn,
     local.auth_store_read_policy_arn
   ]
@@ -248,9 +264,11 @@ module "producer__searchPostDocumentReference" {
     POWERTOOLS_LOG_LEVEL = local.log_level
     SPLUNK_INDEX         = module.firehose__processor.splunk.index
     TABLE_NAME           = local.pointers_table_name
+    ODS_TABLE            = local.ods_table_name
   }
   additional_policies = [
     local.pointers_table_read_policy_arn,
+    local.ods_table_read_policy_arn,
     local.pointers_kms_read_write_arn,
     local.auth_store_read_policy_arn
   ]
@@ -277,10 +295,12 @@ module "producer__updateDocumentReference" {
     POWERTOOLS_LOG_LEVEL = local.log_level
     SPLUNK_INDEX         = module.firehose__processor.splunk.index
     TABLE_NAME           = local.pointers_table_name
+    ODS_TABLE            = local.ods_table_name
   }
   additional_policies = [
     local.pointers_table_read_policy_arn,
     local.pointers_table_write_policy_arn,
+    local.ods_table_read_policy_arn,
     local.pointers_kms_read_write_arn,
     local.auth_store_read_policy_arn
   ]
@@ -307,10 +327,12 @@ module "producer__upsertDocumentReference" {
     POWERTOOLS_LOG_LEVEL = local.log_level
     SPLUNK_INDEX         = module.firehose__processor.splunk.index
     TABLE_NAME           = local.pointers_table_name
+    ODS_TABLE            = local.ods_table_name
   }
   additional_policies = [
     local.pointers_table_write_policy_arn,
     local.pointers_table_read_policy_arn,
+    local.ods_table_read_policy_arn,
     local.pointers_kms_read_write_arn,
     local.auth_store_read_policy_arn
   ]
@@ -338,9 +360,11 @@ module "consumer__status" {
     SPLUNK_INDEX         = module.firehose__processor.splunk.index
     DYNAMODB_TIMEOUT     = local.dynamodb_timeout_seconds
     TABLE_NAME           = local.pointers_table_name
+    ODS_TABLE            = local.ods_table_name
   }
   additional_policies = [
     local.pointers_table_read_policy_arn,
+    local.ods_table_read_policy_arn,
     local.pointers_kms_read_write_arn,
     local.auth_store_read_policy_arn
   ]
@@ -369,9 +393,11 @@ module "producer__status" {
     SPLUNK_INDEX         = module.firehose__processor.splunk.index
     DYNAMODB_TIMEOUT     = local.dynamodb_timeout_seconds
     TABLE_NAME           = local.pointers_table_name
+    ODS_TABLE            = local.ods_table_name
   }
   additional_policies = [
     local.pointers_table_read_policy_arn,
+    local.ods_table_read_policy_arn,
     local.pointers_kms_read_write_arn,
     local.auth_store_read_policy_arn
   ]

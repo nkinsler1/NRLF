@@ -7,7 +7,11 @@ from nrlf.core.constants import (
     TYPE_CATEGORIES,
 )
 from nrlf.core.decorators import request_handler
-from nrlf.core.dynamodb.repository import DocumentPointer, DocumentPointerRepository
+from nrlf.core.dynamodb.repository import (
+    DocumentPointer,
+    DocumentPointerRepository,
+    OdsCodeRepository,
+)
 from nrlf.core.errors import OperationOutcomeError
 from nrlf.core.logger import LogReference, logger
 from nrlf.core.model import ConnectionMetadata
@@ -227,6 +231,7 @@ def handler(
     metadata: ConnectionMetadata,
     repository: DocumentPointerRepository,
     body: DocumentReference,
+    ods_repository: OdsCodeRepository,
 ) -> Response:
     """
     Creates a document reference.
@@ -256,6 +261,12 @@ def handler(
     if error_response := _check_permissions(core_model, metadata):
         return error_response
 
+    does_ods_exist = ods_repository.get_by_id(core_model.author)
+
+    if not does_ods_exist:
+        return SpineErrorResponse.NO_RECORD_FOUND(
+            diagnostics="The requested DocumentReference Author ODS Code could not be found",
+        )
     can_ignore_delete_fail = (
         PERMISSION_SUPERSEDE_IGNORE_DELETE_FAIL in metadata.nrl_permissions
     )

@@ -21,3 +21,4 @@ class Config(BaseSettings):
     SOURCE: str = Field(default=...)
     AUTH_STORE: str = Field(default=...)
     TABLE_NAME: str = Field(default=...)
+    ODS_TABLE: str = Field(default=...)

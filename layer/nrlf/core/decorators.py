@@ -21,7 +21,7 @@ from nrlf.core.constants import (
     X_REQUEST_ID_HEADER,
     PointerTypes,
 )
-from nrlf.core.dynamodb.repository import DocumentPointerRepository
+from nrlf.core.dynamodb.repository import DocumentPointerRepository, OdsCodeRepository
 from nrlf.core.errors import OperationOutcomeError, ParseError
 from nrlf.core.logger import LogReference, logger
 from nrlf.core.request import parse_body, parse_headers, parse_params, parse_path
@@ -220,6 +220,7 @@ def request_handler(
     body: Optional[Type[BaseModel]] = None,
     path: Optional[Type[BaseModel]] = None,
     repository: RepositoryType = DocumentPointerRepository,
+    ods_repository: Optional[Type[RepositoryType]] = OdsCodeRepository,
     skip_request_verification: bool = False,
 ) -> Callable[[RequestHandler], Callable[..., Dict[str, str]]]:
     """
@@ -282,6 +283,9 @@ def request_handler(
 
             if repository is not None:
                 kwargs["repository"] = repository(table_name=config.TABLE_NAME)
+
+            if ods_repository is not None:
+                kwargs["ods_repository"] = ods_repository(table_name=config.ODS_TABLE)
 
             function_kwargs = filter_kwargs(func, kwargs)
 

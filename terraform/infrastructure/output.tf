@@ -14,6 +14,9 @@ output "dynamodb" {
   value = {
     document_pointer = {
       name = local.pointers_table_name
+    },
+    ods_code = {
+      name = local.ods_table_name
     }
   }
 }

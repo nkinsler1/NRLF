@@ -35,6 +35,26 @@ data "aws_iam_policy" "pointers-kms-read-write" {
   name  = "${local.shared_prefix}-pointers-kms-read-write"
 }
 
+data "aws_dynamodb_table" "ods-table" {
+  count = var.use_shared_resources ? 1 : 0
+  name  = "${local.shared_prefix}-ods-table"
+}
+
+data "aws_iam_policy" "ods-table-read" {
+  count = var.use_shared_resources ? 1 : 0
+  name  = "${local.shared_prefix}-ods-table-read"
+}
+
+data "aws_iam_policy" "ods-table-write" {
+  count = var.use_shared_resources ? 1 : 0
+  name  = "${local.shared_prefix}-ods-table-write"
+}
+
+data "aws_iam_policy" "ods-kms-read-write" {
+  count = var.use_shared_resources ? 1 : 0
+  name  = "${local.shared_prefix}-ods-kms-read-write"
+}
+
 data "external" "current-info" {
   program = [
     "bash",

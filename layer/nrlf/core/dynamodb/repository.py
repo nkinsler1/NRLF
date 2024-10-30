@@ -8,7 +8,7 @@ from pydantic import ValidationError
 from nrlf.core.boto import get_dynamodb_resource, get_dynamodb_table
 from nrlf.core.codes import SpineErrorConcept
 from nrlf.core.constants import SYSTEM_SHORT_IDS, TYPE_CATEGORIES
-from nrlf.core.dynamodb.model import DocumentPointer, DynamoDBModel
+from nrlf.core.dynamodb.model import DocumentPointer, DynamoDBModel, OdsCode
 from nrlf.core.errors import OperationOutcomeError
 from nrlf.core.logger import LogReference, logger
 
@@ -45,6 +45,39 @@ class Repository(ABC, Generic[RepositoryModel]):
             table_name=self.table_name,
             item_type=self.ITEM_TYPE.__name__,
         )
+
+
+class OdsCodeRepository(Repository[OdsCode]):
+    ITEM_TYPE = OdsCode
+
+    def get_by_id(self, id: str) -> Optional[DocumentPointer]:
+        """
+        Get a OdsCode resource by ID
+        """
+        ods_key = f"OC#{id}"
+
+        try:
+            result = self.table.get_item(
+                Key={"pk": ods_key, "sk": ods_key},
+                ReturnConsumedCapacity="INDEXES",
+            )
+        except ClientError as exc:
+            logger.log(
+                LogReference.REPOSITORY007,
+                exc_info=sys.exc_info(),
+                stacklevel=5,
+                error=str(exc),
+            )
+            raise exc
+
+        if "Item" not in result:
+            logger.log(LogReference.REPOSITORY012)
+            return None
+
+        item = result["Item"]
+
+        logger.log(LogReference.REPOSITORY011)
+        return item
 
 
 class DocumentPointerRepository(Repository[DocumentPointer]):

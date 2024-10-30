@@ -10,3 +10,9 @@ module "ephemeral-pointers-table" {
   source      = "./modules/pointers-table"
   name_prefix = local.prefix
 }
+
+module "ephemeral-ods-table" {
+  count       = var.use_shared_resources ? 0 : 1
+  source      = "./modules/ods-table"
+  name_prefix = local.prefix
+}

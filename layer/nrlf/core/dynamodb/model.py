@@ -20,6 +20,7 @@ from nrlf.core.utils import create_fhir_instant
 
 
 class DBPrefix(str, Enum):
+    OdsCode = "OC"
     DocumentPointer = "D"
     Patient = "P"
     CreatedOn = "CO"
@@ -52,6 +53,28 @@ class DynamoDBModel(BaseModel):
     @classmethod
     def public_alias(cls) -> str:
         return cls.__name__
+
+
+class OdsCode(DynamoDBModel):
+    ods_code: str
+
+    @property
+    def pk(self) -> str:
+        """
+        Returns the pk (partition key) for the DocumentPointer
+        """
+        return "#".join([DBPrefix.OdsCode.value, self.id])
+
+    @property
+    def sk(self) -> str:
+        """
+        Returns the sk (sort key) for the DocumentPointer
+        """
+        return "#".join([DBPrefix.OdsCode.value, self.id])
+
+    @classmethod
+    def public_alias(cls) -> str:
+        return "ODS Code"
 
 
 class DocumentPointer(DynamoDBModel):
