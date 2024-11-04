@@ -685,8 +685,8 @@ def test_validate_author_system_invalid():
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "INVALID_IDENTIFIER_SYSTEM",
+                    "display": "Invalid identifier system",
                 }
             ]
         },
