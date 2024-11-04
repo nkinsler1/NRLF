@@ -2,8 +2,10 @@ import json
 
 import pytest
 
-from nrlf.core.errors import OperationOutcomeError
-from nrlf.core.request import parse_headers
+from nrlf.core.errors import OperationOutcomeError, ParseError
+from nrlf.core.request import parse_body, parse_headers
+from nrlf.producer.fhir.r4.model import DocumentReference
+from nrlf.tests.data import load_document_reference_data
 
 
 def test_parse_headers_empty_headers():
@@ -129,3 +131,149 @@ def test_parse_headers_case_insensitive():
     assert metadata.client_rp_details.developer_app_name == "TestApp"
     assert metadata.client_rp_details.developer_app_id == "12345"
     assert metadata.ods_code_parts == ("X26", "001")
+
+
+def test_parse_body_no_model_no_body():
+    body = None
+    model = None
+
+    result = parse_body(model, body)
+
+    assert result is None
+
+
+def test_parse_body_valid_docref():
+    model = DocumentReference
+    docref_body = load_document_reference_data("Y05868-736253002-Valid")
+
+    result = parse_body(model, docref_body)
+
+    assert isinstance(result, DocumentReference)
+
+
+def test_parse_body_no_body():
+    model = DocumentReference
+    body = None
+
+    with pytest.raises(OperationOutcomeError) as error:
+        parse_body(model, body)
+
+    exc = error.value
+
+    assert exc.status_code == "400"
+    assert exc.operation_outcome.model_dump(exclude_none=True) == {
+        "resourceType": "OperationOutcome",
+        "issue": [
+            {
+                "severity": "error",
+                "code": "invalid",
+                "details": {
+                    "coding": [
+                        {
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                            "code": "BAD_REQUEST",
+                            "display": "Bad request",
+                        }
+                    ],
+                },
+                "diagnostics": "Request body is required",
+            }
+        ],
+    }
+
+
+def test_parse_body_invalid_docref_json():
+    model = DocumentReference
+    docref_body = load_document_reference_data("Y05868-736253002-Valid")
+
+    docref_body = docref_body.replace('unstructured"', "unstructured")
+
+    with pytest.raises(ParseError) as error:
+        parse_body(model, docref_body)
+
+    response = error.value.response.model_dump()
+
+    assert response["statusCode"] == "400"
+    assert response["body"] == json.dumps(
+        {
+            "resourceType": "OperationOutcome",
+            "issue": [
+                {
+                    "severity": "error",
+                    "code": "invalid",
+                    "details": {
+                        "coding": [
+                            {
+                                "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                                "code": "MESSAGE_NOT_WELL_FORMED",
+                                "display": "Message not well formed",
+                            }
+                        ],
+                    },
+                    "diagnostics": "Request body could not be parsed ((): Invalid JSON: control character (\\\\u0000-\\\\u001F) found while parsing a string at line 72 column 0)",
+                }
+            ],
+        }
+    )
+
+
+def test_parse_body_invalid_json():
+    model = DocumentReference
+    body = '{ "type": "is-not-a-docref" }'
+
+    with pytest.raises(ParseError) as error:
+        parse_body(model, body)
+
+    response = error.value.response
+
+    assert response.statusCode == "400"
+    assert json.loads(response.body) == {
+        "resourceType": "OperationOutcome",
+        "issue": [
+            {
+                "severity": "error",
+                "code": "invalid",
+                "details": {
+                    "coding": [
+                        {
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                            "code": "MESSAGE_NOT_WELL_FORMED",
+                            "display": "Message not well formed",
+                        }
+                    ],
+                },
+                "diagnostics": "",
+            }
+        ],
+    }
+
+
+def test_parse_body_not_json():
+    model = DocumentReference
+    body = "is not json"
+
+    with pytest.raises(OperationOutcomeError) as error:
+        parse_body(model, body)
+
+    exc = error.value
+
+    assert exc.status_code == "400"
+    assert exc.operation_outcome.model_dump(exclude_none=True) == {
+        "resourceType": "OperationOutcome",
+        "issue": [
+            {
+                "severity": "error",
+                "code": "invalid",
+                "details": {
+                    "coding": [
+                        {
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                            "code": "INVALID_PARAMETER",
+                            "display": "The parameter value is not valid",
+                        }
+                    ],
+                },
+                "diagnostics": "Invalid query parameter",
+            }
+        ],
+    }

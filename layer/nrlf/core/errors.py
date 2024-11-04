@@ -59,8 +59,8 @@ class ParseError(Exception):
                 severity="error",
                 code="invalid",
                 details=details,  # type: ignore
-                diagnostics=f"{msg} ({error['loc'][0]}: {error['msg']})",
-                expression=[str(error["loc"][0])],  # type: ignore
+                diagnostics=f"{msg} ({error['loc']}: {error['msg']})",
+                expression=[str(error["loc"])],  # type: ignore
             )
             for error in exc.errors()
         ]
