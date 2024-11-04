@@ -250,6 +250,21 @@ def test_create_document_reference_invalid_body():
                         }
                     ],
                 },
+                "diagnostics": "Request body could not be parsed (author: Field required)",
+                "expression": ["author"],
+            },
+            {
+                "severity": "error",
+                "code": "invalid",
+                "details": {
+                    "coding": [
+                        {
+                            "code": "MESSAGE_NOT_WELL_FORMED",
+                            "display": "Message not well formed",
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                        }
+                    ],
+                },
                 "diagnostics": "Request body could not be parsed (content: Field required)",
                 "expression": ["content"],
             },
