@@ -511,3 +511,26 @@ Once you have a new release version ready, you can deploy it through our environ
 2. If any issues arise in the deployment, fix the issues, create a new release version and start this process again.
 3. Once the deployments are complete, use the "Persistent Environment Deploy" Github Action workflow to deploy the release version to `ref`.
 4. Once that is complete, use the "Persistent Environment Deploy" workflow to deploy the release version to `prod`.
+
+## Reports
+
+Reports are provided as scripts in the `reports/` directory. To run a report:
+
+1. Login to your AWS account on the command line, choosing the account that contains the resources you want to report on.
+2. Run your chosen report script, giving the script the resource names and parameters it requires. See each report script for details.
+
+For example, to count the number of pointers from X26 in the pointers table in the dev environment:
+
+```
+$ poetry run python ./scripts/count_pointers_for_custodian.py \
+   nhsd-nrlf--dev-pointers-table \
+   X26
+```
+
+### Running reports in the prod environment
+
+The reports scripts may require resources that could affect the performance of the live production system. Because of this, it is recommended that you take steps to minimise this impact before running reports.
+
+If you are running a report against the DynamoDB pointers table in prod, you should create a copy (or restore a PITR backup) of the table and run your report against the copy.
+
+Please ensure any duplicated resource/data is deleted from the prod environment once you have finished using it.
