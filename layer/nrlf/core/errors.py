@@ -1,11 +1,23 @@
 from typing import List, Optional
 
 from pydantic import ValidationError
+from pydantic_core import ErrorDetails
 
 from nrlf.core.response import Response
 from nrlf.core.types import CodeableConcept
 from nrlf.producer.fhir.r4 import model as producer_model
 from nrlf.producer.fhir.r4.model import OperationOutcome, OperationOutcomeIssue
+
+
+def diag_for_error(error: ErrorDetails) -> str:
+    if error["loc"]:
+        return f"{error['loc'][0]}: {error['msg']}"
+    else:
+        return f"root: {error['msg']}"
+
+
+def expression_for_error(error: ErrorDetails) -> Optional[str]:
+    return str(error["loc"][0] if error["loc"] else "root")
 
 
 class OperationOutcomeError(Exception):
@@ -59,8 +71,8 @@ class ParseError(Exception):
                 severity="error",
                 code="invalid",
                 details=details,  # type: ignore
-                diagnostics=f"{msg} ({error['loc']}: {error['msg']})",
-                expression=[str(error["loc"])],  # type: ignore
+                diagnostics=f"{msg} ({diag_for_error(error)})",
+                expression=[expression_for_error(error)],  # type: ignore
             )
             for error in exc.errors()
         ]

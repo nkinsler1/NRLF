@@ -194,32 +194,108 @@ def test_parse_body_invalid_docref_json():
     response = error.value.response.model_dump()
 
     assert response["statusCode"] == "400"
-    assert response["body"] == json.dumps(
-        {
-            "resourceType": "OperationOutcome",
-            "issue": [
-                {
-                    "severity": "error",
-                    "code": "invalid",
-                    "details": {
-                        "coding": [
-                            {
-                                "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                                "code": "MESSAGE_NOT_WELL_FORMED",
-                                "display": "Message not well formed",
-                            }
-                        ],
-                    },
-                    "diagnostics": "Request body could not be parsed ((): Invalid JSON: control character (\\\\u0000-\\\\u001F) found while parsing a string at line 72 column 0)",
-                }
-            ],
-        }
-    )
+    assert json.loads(response["body"]) == {
+        "resourceType": "OperationOutcome",
+        "issue": [
+            {
+                "severity": "error",
+                "code": "invalid",
+                "details": {
+                    "coding": [
+                        {
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                            "code": "MESSAGE_NOT_WELL_FORMED",
+                            "display": "Message not well formed",
+                        }
+                    ],
+                },
+                "diagnostics": "Request body could not be parsed (root: Invalid JSON: control character (\\u0000-\\u001F) found while parsing a string at line 72 column 0)",
+                "expression": ["root"],
+            }
+        ],
+    }
 
 
 def test_parse_body_invalid_json():
     model = DocumentReference
     body = '{ "type": "is-not-a-docref" }'
+
+    with pytest.raises(ParseError) as error:
+        parse_body(model, body)
+
+    response = error.value.response.model_dump()
+
+    assert response["statusCode"] == "400"
+    assert json.loads(response["body"]) == {
+        "resourceType": "OperationOutcome",
+        "issue": [
+            {
+                "severity": "error",
+                "code": "invalid",
+                "details": {
+                    "coding": [
+                        {
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                            "code": "MESSAGE_NOT_WELL_FORMED",
+                            "display": "Message not well formed",
+                        }
+                    ]
+                },
+                "diagnostics": "Request body could not be parsed (resourceType: Field required)",
+                "expression": ["resourceType"],
+            },
+            {
+                "severity": "error",
+                "code": "invalid",
+                "details": {
+                    "coding": [
+                        {
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                            "code": "MESSAGE_NOT_WELL_FORMED",
+                            "display": "Message not well formed",
+                        }
+                    ]
+                },
+                "diagnostics": "Request body could not be parsed (status: Field required)",
+                "expression": ["status"],
+            },
+            {
+                "severity": "error",
+                "code": "invalid",
+                "details": {
+                    "coding": [
+                        {
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                            "code": "MESSAGE_NOT_WELL_FORMED",
+                            "display": "Message not well formed",
+                        }
+                    ]
+                },
+                "diagnostics": "Request body could not be parsed (type: Input should be an object)",
+                "expression": ["type"],
+            },
+            {
+                "severity": "error",
+                "code": "invalid",
+                "details": {
+                    "coding": [
+                        {
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                            "code": "MESSAGE_NOT_WELL_FORMED",
+                            "display": "Message not well formed",
+                        }
+                    ]
+                },
+                "diagnostics": "Request body could not be parsed (content: Field required)",
+                "expression": ["content"],
+            },
+        ],
+    }
+
+
+def test_parse_body_not_json():
+    model = DocumentReference
+    body = "is not json"
 
     with pytest.raises(ParseError) as error:
         parse_body(model, body)
@@ -240,40 +316,10 @@ def test_parse_body_invalid_json():
                             "code": "MESSAGE_NOT_WELL_FORMED",
                             "display": "Message not well formed",
                         }
-                    ],
+                    ]
                 },
-                "diagnostics": "",
-            }
-        ],
-    }
-
-
-def test_parse_body_not_json():
-    model = DocumentReference
-    body = "is not json"
-
-    with pytest.raises(OperationOutcomeError) as error:
-        parse_body(model, body)
-
-    exc = error.value
-
-    assert exc.status_code == "400"
-    assert exc.operation_outcome.model_dump(exclude_none=True) == {
-        "resourceType": "OperationOutcome",
-        "issue": [
-            {
-                "severity": "error",
-                "code": "invalid",
-                "details": {
-                    "coding": [
-                        {
-                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                            "code": "INVALID_PARAMETER",
-                            "display": "The parameter value is not valid",
-                        }
-                    ],
-                },
-                "diagnostics": "Invalid query parameter",
+                "diagnostics": "Request body could not be parsed (root: Invalid JSON: expected value at line 1 column 1)",
+                "expression": ["root"],
             }
         ],
     }
