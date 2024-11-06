@@ -598,6 +598,7 @@ def test_validate_category_coding_invalid_system():
         "expression": ["category[0].coding[0].system"],
     }
 
+
 def test_validate_content_extension_too_many_extensions():
     validator = DocumentReferenceValidator()
     document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
@@ -637,6 +638,7 @@ def test_validate_content_extension_too_many_extensions():
         "diagnostics": "Invalid content extension length: 2 Extension must only contain a single value",
         "expression": ["content[0].extension"],
     }
+
 
 def test_validate_author_too_many_authors():
     validator = DocumentReferenceValidator()
