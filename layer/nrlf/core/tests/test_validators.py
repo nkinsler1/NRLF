@@ -2,7 +2,13 @@ from unittest.mock import Mock
 
 import pytest
 
-from nrlf.core.constants import ODS_SYSTEM, PointerTypes
+from nrlf.core.constants import (
+    CATEGORY_ATTRIBUTES,
+    ODS_SYSTEM,
+    TYPE_ATTRIBUTES,
+    TYPE_CATEGORIES,
+    PointerTypes,
+)
 from nrlf.core.errors import ParseError
 from nrlf.core.validators import (
     DocumentReferenceValidator,
@@ -413,6 +419,7 @@ def test_validate_category_too_many_category():
     }
 
 
+# TODO: Parameterize this test and the one below
 def test_validate_category_coding_display_mismatch_care_plan():
     validator = DocumentReferenceValidator()
     document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
@@ -485,6 +492,7 @@ def test_validate_category_coding_display_mismatch_observations():
     }
 
 
+# TODO: FIX name of this test to multiple codings
 def test_validate_category_coding_invalid_code():
     validator = DocumentReferenceValidator()
     document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
@@ -531,6 +539,7 @@ def test_validate_category_coding_invalid_code():
     }
 
 
+# TODO: FIX name of this test to invalid code
 def test_validate_category_coding_multiple_codings():
     validator = DocumentReferenceValidator()
     document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
@@ -594,8 +603,213 @@ def test_validate_category_coding_invalid_system():
                 }
             ]
         },
-        "diagnostics": "Invalid category system: http://snoooooomed/sctfffffg Category system must be 'http://snomed.info/sct'",
+        "diagnostics": "Invalid category system: http://snoooooomed/sctfffffg Category system must be either 'http://snomed.info/sct' or 'https://nicip.nhs.uk'",
         "expression": ["category[0].coding[0].system"],
+    }
+
+
+def test_validate_type_coding_invalid_code():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["type"] = {
+        "coding": [
+            {"system": "http://snomed.info/sct", "code": "1234", "display": "Care plan"}
+        ]
+    }
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert result.resource.id == "Y05868-99999-99999-999999"
+    assert len(result.issues) == 2
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Invalid type code: 1234 Type must be a member of the England-NRLRecordType value set (https://fhir.nhs.uk/England/CodeSystem/England-NRLRecordType)",
+        "expression": ["type.coding[0].code"],
+    }
+    assert result.issues[1].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "type (http://snomed.info/sct|1234) does not map to the category: http://snomed.info/sct|734163000",
+        "expression": ["type.coding[0]"],
+    }
+
+
+def test_validate_type_coding_multiple_codings():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["type"] = {
+        "coding": [
+            {
+                "system": "http://snomed.info/sct",
+                "code": "736253002",
+                "display": "Mental health crisis plan",
+            },
+            {
+                "system": "http://snomed.info/sct",
+                "code": "736253002",
+                "display": "Mental health crisis plan",
+            },
+            {
+                "system": "http://snomed.info/sct",
+                "code": "736253002",
+                "display": "Mental health crisis plan",
+            },
+        ]
+    }
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert result.resource.id == "Y05868-99999-99999-999999"
+    assert len(result.issues) == 1
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "invalid",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Invalid type coding length: 3 Type Coding must only contain a single value",
+        "expression": ["type.coding"],
+    }
+
+
+def test_validate_type_coding_invalid_system():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["type"] = {
+        "coding": [
+            {
+                "system": "http://snoooooomed/sctfffffg",
+                "code": "734163000",
+                "display": "Care plan",
+            }
+        ]
+    }
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert result.resource.id == "Y05868-99999-99999-999999"
+    assert len(result.issues) == 2
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Invalid type system: http://snoooooomed/sctfffffg Type system must be either 'http://snomed.info/sct' or 'https://nicip.nhs.uk'",
+        "expression": ["type.coding[0].system"],
+    }
+    assert result.issues[1].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "type (http://snoooooomed/sctfffffg|734163000) does not map to the category: http://snomed.info/sct|734163000",
+        "expression": ["type.coding[0]"],
+    }
+
+
+@pytest.mark.parametrize(
+    "type_str, display",
+    [
+        (type_str, display_dict["display"])
+        for type_str, display_dict in TYPE_ATTRIBUTES.items()
+    ],
+)
+def test_validate_type_coding_display_mismatch(type_str: str, display: str):
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+    type_parts = type_str.split("|")
+    type_system = type_parts[0]
+    type_code = type_parts[1]
+
+    document_ref_data["type"] = {
+        "coding": [
+            {
+                "system": type_system,
+                "code": type_code,
+                "display": "some random display name",
+            }
+        ]
+    }
+
+    # match type to category to avoid getting that error
+    # TODO: Discuss in review if I should just ignore the error that happens to simplify test
+    category_str = TYPE_CATEGORIES[type_str]
+    category_parts = category_str.split("|")
+    category_system = category_parts[0]
+    category_code = category_parts[1]
+    document_ref_data["category"][0] = {
+        "coding": [
+            {
+                "system": category_system,
+                "code": category_code,
+                "display": CATEGORY_ATTRIBUTES[category_str]["display"],
+            }
+        ]
+    }
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert result.resource.id == "Y05868-99999-99999-999999"
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": f"type code '{type_code}' must have a display value of '{display}'",
+        "expression": ["type.coding[0].display"],
     }
 
 

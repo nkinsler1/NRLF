@@ -364,11 +364,12 @@ class DocumentReferenceValidator:
         """
         logger.log(LogReference.VALIDATOR001, step="type")
 
+        # TODO: Discuss whether to add a period after the error, before Type, this should be applied to category as well
         if len(model.type.coding) > 1:
             self.result.add_error(
                 issue_code="invalid",
                 error_code="INVALID_RESOURCE",
-                diagnostics=f"Invalid type coding length: {len(model.type[0].coding)} Type Coding must only contain a single value",
+                diagnostics=f"Invalid type coding length: {len(model.type.coding)} Type Coding must only contain a single value",
                 field=f"type.coding",
             )
             return
@@ -388,7 +389,7 @@ class DocumentReferenceValidator:
             self.result.add_error(
                 issue_code="value",
                 error_code="INVALID_RESOURCE",
-                diagnostics=f"Invalid type code: {coding.code} Type must be a member of the England-NRLRecordCategory value set (https://fhir.nhs.uk/England/CodeSystem/England-NRLRecordType)",
+                diagnostics=f"Invalid type code: {coding.code} Type must be a member of the England-NRLRecordType value set (https://fhir.nhs.uk/England/CodeSystem/England-NRLRecordType)",
                 field="type.coding[0].code",
             )
             return
@@ -473,7 +474,7 @@ class DocumentReferenceValidator:
                 issue_code="value",
                 error_code="INVALID_RESOURCE",
                 diagnostics=f"type ({type_id}) does not map to the category: {category_id}",
-                field=f"type.coding[0].display",
+                field=f"type.coding[0]",
             )
 
     def _validate_content_extension(self, model: DocumentReference):
