@@ -222,12 +222,12 @@ def test_upsert_document_reference_invalid_category_type():
         "issue": [
             {
                 "severity": "error",
-                "code": "invalid",
+                "code": "value",
                 "details": {
                     "coding": [
                         {
-                            "code": "BAD_REQUEST",
-                            "display": "Bad request",
+                            "code": "INVALID_RESOURCE",
+                            "display": "Invalid validation of resource",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
                     ]
@@ -564,21 +564,6 @@ def test_upsert_document_reference_invalid_pointer_type():
                 },
                 "diagnostics": "Invalid type code: invalid Type must be a member of the England-NRLRecordType value set (https://fhir.nhs.uk/England/CodeSystem/England-NRLRecordType)",
                 "expression": ["type.coding[0].code"],
-            },
-            {
-                "severity": "error",
-                "code": "value",
-                "details": {
-                    "coding": [
-                        {
-                            "code": "INVALID_RESOURCE",
-                            "display": "Invalid validation of resource",
-                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                        }
-                    ]
-                },
-                "diagnostics": "type (http://snomed.info/sct|invalid) does not map to the category: http://snomed.info/sct|734163000",
-                "expression": ["type.coding[0]"],
             },
         ],
     }

@@ -460,6 +460,16 @@ def test_validate_category_coding_display_mismatch_observations():
     validator = DocumentReferenceValidator()
     document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
 
+    document_ref_data["type"] = {
+        "coding": [
+            {
+                "system": "http://snomed.info/sct",
+                "code": "1363501000000100",
+                "display": "Royal College of Physicians NEWS2 (National Early Warning Score 2) chart",
+            }
+        ]
+    }
+
     document_ref_data["category"][0] = {
         "coding": [
             {
@@ -614,7 +624,11 @@ def test_validate_type_coding_invalid_code():
 
     document_ref_data["type"] = {
         "coding": [
-            {"system": "http://snomed.info/sct", "code": "1234", "display": "Care plan"}
+            {
+                "system": "http://snomed.info/sct",
+                "code": "1234",
+                "display": "Mental health crisis plan",
+            }
         ]
     }
 
@@ -622,7 +636,7 @@ def test_validate_type_coding_invalid_code():
 
     assert result.is_valid is False
     assert result.resource.id == "Y05868-99999-99999-999999"
-    assert len(result.issues) == 2
+    assert len(result.issues) == 1
     assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
         "code": "value",
@@ -637,21 +651,6 @@ def test_validate_type_coding_invalid_code():
         },
         "diagnostics": "Invalid type code: 1234 Type must be a member of the England-NRLRecordType value set (https://fhir.nhs.uk/England/CodeSystem/England-NRLRecordType)",
         "expression": ["type.coding[0].code"],
-    }
-    assert result.issues[1].model_dump(exclude_none=True) == {
-        "severity": "error",
-        "code": "value",
-        "details": {
-            "coding": [
-                {
-                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
-                }
-            ]
-        },
-        "diagnostics": "type (http://snomed.info/sct|1234) does not map to the category: http://snomed.info/sct|734163000",
-        "expression": ["type.coding[0]"],
     }
 
 
@@ -709,8 +708,8 @@ def test_validate_type_coding_invalid_system():
         "coding": [
             {
                 "system": "http://snoooooomed/sctfffffg",
-                "code": "734163000",
-                "display": "Care plan",
+                "code": "736253002",
+                "display": "Mental health crisis plan",
             }
         ]
     }
@@ -719,7 +718,7 @@ def test_validate_type_coding_invalid_system():
 
     assert result.is_valid is False
     assert result.resource.id == "Y05868-99999-99999-999999"
-    assert len(result.issues) == 2
+    assert len(result.issues) == 1
     assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
         "code": "value",
@@ -734,21 +733,6 @@ def test_validate_type_coding_invalid_system():
         },
         "diagnostics": "Invalid type system: http://snoooooomed/sctfffffg Type system must be either 'http://snomed.info/sct' or 'https://nicip.nhs.uk'",
         "expression": ["type.coding[0].system"],
-    }
-    assert result.issues[1].model_dump(exclude_none=True) == {
-        "severity": "error",
-        "code": "value",
-        "details": {
-            "coding": [
-                {
-                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
-                }
-            ]
-        },
-        "diagnostics": "type (http://snoooooomed/sctfffffg|734163000) does not map to the category: http://snomed.info/sct|734163000",
-        "expression": ["type.coding[0]"],
     }
 
 

@@ -13,6 +13,7 @@ from nrlf.core.constants import (
     TYPE_ATTRIBUTES,
     TYPE_CATEGORIES,
     Categories,
+    PointerTypes,
 )
 from nrlf.core.errors import ParseError
 from nrlf.core.logger import LogReference, logger
@@ -460,7 +461,7 @@ class DocumentReferenceValidator:
 
     def _validate_type_category_mapping(self, model: DocumentReference):
         """
-        Validate the type field contains an appropriate coding system, code and display.
+        Validate the type field matches the expected category
         """
         logger.log(LogReference.VALIDATOR001, step="type_category_mapping")
 
@@ -469,12 +470,16 @@ class DocumentReferenceValidator:
         category_coding = model.category[0].coding[0]
         category_id = f"{category_coding.system}|{category_coding.code}"
 
-        if not TYPE_CATEGORIES.get(type_id):
+        if type_id not in PointerTypes.list() or category_id not in Categories.list():
+            return  # No point mapping to an unexisting/unsupported type/category
+
+        type_category = TYPE_CATEGORIES.get(type_id)
+        if type_category != category_id:
             self.result.add_error(
                 issue_code="value",
                 error_code="INVALID_RESOURCE",
-                diagnostics=f"type ({type_id}) does not map to the category: {category_id}",
-                field=f"type.coding[0]",
+                diagnostics=f"The Category code of the provided document '{category_id}' must match the allowed category for pointer type '{type_id}' with a category value of '{type_category}'",
+                field=f"category.coding[0].code",
             )
 
     def _validate_content_extension(self, model: DocumentReference):
