@@ -341,7 +341,7 @@ Feature: Producer - createDocumentReference - Failure Scenarios
       | property  | value                          |
       | subject   | 9999999999                     |
       | status    | current                        |
-      | type      | 1363501000000100               |
+      | type      | 887701000000100                |
       | category  | 734163000                      |
       | custodian | ANGY1                          |
       | author    | HAR1                           |
@@ -390,13 +390,13 @@ Feature: Producer - createDocumentReference - Failure Scenarios
       """
       {
         "severity": "error",
-        "code": "invalid",
+        "code": "value",
         "details": {
         "coding": [
         {
         "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-        "code": "BAD_REQUEST",
-        "display": "Bad request"
+        "code": "INVALID_RESOURCE",
+        "display": "Invalid validation of resource"
         }
         ]
         },

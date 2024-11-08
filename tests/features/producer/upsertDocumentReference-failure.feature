@@ -22,13 +22,13 @@ Feature: Producer - upsertDocumentReference - Failure Scenarios
       """
       {
         "severity": "error",
-        "code": "invalid",
+        "code": "value",
         "details": {
         "coding": [
         {
         "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-        "code": "BAD_REQUEST",
-        "display": "Bad request"
+        "code": "INVALID_RESOURCE",
+        "display": "Invalid validation of resource"
         }
         ]
         },
