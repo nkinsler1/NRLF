@@ -151,7 +151,7 @@ TYPE_ATTRIBUTES = {
         "display": "Personalised Care and Support Plan",
     },
     PointerTypes.MRA_UPPER_LIMB_ARTERY.value: {
-        "display": "MRA Upper Limb Artery",
+        "display": "MRA Upper Limb Rt",
     },
     PointerTypes.MRI_AXILLA_BOTH.value: {
         "display": "MRI Axilla Both",
