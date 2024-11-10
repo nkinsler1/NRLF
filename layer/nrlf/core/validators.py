@@ -2,9 +2,9 @@ from dataclasses import dataclass
 from re import match
 from typing import Any, Dict, List, Optional
 
-from consumer.fhir.r4.model import RequestQueryCategory
 from pydantic import ValidationError
 
+from nrlf.consumer.fhir.r4.model import RequestQueryCategory
 from nrlf.core.codes import SpineErrorConcept
 from nrlf.core.constants import CATEGORY_ATTRIBUTES, REQUIRED_CREATE_FIELDS, Categories
 from nrlf.core.errors import ParseError
