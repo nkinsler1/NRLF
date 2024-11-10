@@ -33,6 +33,15 @@ def _get_sk_ids_for_type(pointer_type: str) -> tuple:
     return category_id, type_id
 
 
+def _get_sk_id_for_category(category: str) -> tuple:
+    category_system, category_code = category.split("|")
+    if category_system not in SYSTEM_SHORT_IDS:
+        raise ValueError(f"Unknown system for category: {category_system}")
+    category_id = SYSTEM_SHORT_IDS[category_system] + "-" + category_code
+
+    return category_id
+
+
 class Repository(ABC, Generic[RepositoryModel]):
     ITEM_TYPE: Type[RepositoryModel]
 
@@ -218,6 +227,7 @@ class DocumentPointerRepository(Repository[DocumentPointer]):
         custodian: Optional[str] = None,
         custodian_suffix: Optional[str] = None,
         pointer_types: Optional[List[str]] = [],
+        categories: Optional[List[str]] = [],
     ) -> Iterator[DocumentPointer]:
         """"""
         logger.log(
@@ -238,6 +248,24 @@ class DocumentPointerRepository(Repository[DocumentPointer]):
             patient_sort = f"C#{category_id}#T#{type_id}"
             key_conditions.append("begins_with(patient_sort, :patient_sort)")
             expression_values[":patient_sort"] = patient_sort
+
+        if len(categories) == 1:
+            # Optimisation for single category
+            category_id = _get_sk_id_for_category(categories[0])
+            patient_sort = f"C#{category_id}"
+            key_conditions.append("begins_with(patient_sort, :patient_sort)")
+            expression_values[":patient_sort"] = patient_sort
+
+        if len(categories) > 1:
+            expression_names["#category"] = "category"
+            category_filters = [
+                f"#category = :category_{i}" for i in range(len(categories))
+            ]
+            caetgory_filter_values = {
+                f":category_{i}": categories[i] for i in range(len(categories))
+            }
+            filter_expressions.append(f"({' OR '.join(category_filters)})")
+            expression_values.update(caetgory_filter_values)
 
         # Handle multiple categories and pointer types with filter expressions
         if len(pointer_types) > 1:

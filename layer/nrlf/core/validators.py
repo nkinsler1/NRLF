@@ -2,10 +2,11 @@ from dataclasses import dataclass
 from re import match
 from typing import Any, Dict, List, Optional
 
+from consumer.fhir.r4.model import RequestQueryCategory
 from pydantic import ValidationError
 
 from nrlf.core.codes import SpineErrorConcept
-from nrlf.core.constants import CATEGORY_ATTRIBUTES, REQUIRED_CREATE_FIELDS
+from nrlf.core.constants import CATEGORY_ATTRIBUTES, REQUIRED_CREATE_FIELDS, Categories
 from nrlf.core.errors import ParseError
 from nrlf.core.logger import LogReference, logger
 from nrlf.core.types import DocumentReference, OperationOutcomeIssue, RequestQueryType
@@ -27,6 +28,27 @@ def validate_type_system(
     ]
 
     return type_system in pointer_type_systems
+
+
+# TODO - Validate category is in set permissions once permissioning by category is done.
+def validate_category(category_: Optional[RequestQueryCategory]) -> bool:
+    """
+    Validates if the given category is valid.
+    """
+    if not category_:
+        return True
+
+    category_system = category_.root.split("|", 1)[0]
+    category_code = category_.root.split("|", 1)[1]
+
+    category_list = Categories.list()
+    category_systems = [category.split("|", 1)[0] for category in category_list]
+    category_codes = [category.split("|", 1)[1] for category in category_list]
+
+    if not category_system in category_systems:
+        return False
+
+    return category_code in category_codes
 
 
 @dataclass

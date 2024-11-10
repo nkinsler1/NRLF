@@ -6,7 +6,7 @@ from nrlf.core.errors import OperationOutcomeError
 from nrlf.core.logger import LogReference, logger
 from nrlf.core.model import ConnectionMetadata, ProducerRequestParams
 from nrlf.core.response import Response, SpineErrorResponse
-from nrlf.core.validators import validate_type_system
+from nrlf.core.validators import validate_category, validate_type_system
 from nrlf.producer.fhir.r4.model import Bundle, DocumentReference
 
 
@@ -53,6 +53,16 @@ def handler(
             expression="type",
         )
 
+    if not validate_category(body.category):
+        logger.log(
+            LogReference.PROPOSTSEARCH002b,
+            type=body.category,
+        )  # TODO - Should update error message once permissioning by category is implemented
+        return SpineErrorResponse.INVALID_CODE_SYSTEM(
+            diagnostics="Invalid query parameter (The provided category is not valid)",
+            expression="category",
+        )
+
     pointer_types = [body.type.root] if body.type else metadata.pointer_types
     bundle = {"resourceType": "Bundle", "type": "searchset", "total": 0, "entry": []}
 
@@ -62,6 +72,7 @@ def handler(
         custodian_suffix=metadata.ods_code_extension,
         nhs_number=body.nhs_number,
         pointer_types=pointer_types,
+        categories=[body.category.root] if body.category else [],
     )
 
     for result in repository.search(
@@ -69,6 +80,7 @@ def handler(
         custodian_suffix=metadata.ods_code_extension,
         nhs_number=body.nhs_number,
         pointer_types=pointer_types,
+        categories=[body.category.root] if body.category else [],
     ):
         try:
             document_reference = DocumentReference.model_validate_json(result.document)
