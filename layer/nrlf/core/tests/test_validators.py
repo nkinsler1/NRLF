@@ -613,7 +613,7 @@ def test_validate_category_coding_invalid_system():
                 }
             ]
         },
-        "diagnostics": "Invalid category system: http://snoooooomed/sctfffffg Category system must be either 'http://snomed.info/sct' or 'https://nicip.nhs.uk'",
+        "diagnostics": "Invalid category system: http://snoooooomed/sctfffffg Category system must be 'http://snomed.info/sct'",
         "expression": ["category[0].coding[0].system"],
     }
 

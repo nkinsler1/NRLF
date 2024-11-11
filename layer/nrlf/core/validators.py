@@ -431,11 +431,11 @@ class DocumentReferenceValidator:
             return
 
         coding = model.category[0].coding[0]
-        if coding.system not in ["http://snomed.info/sct", "https://nicip.nhs.uk"]:
+        if coding.system != "http://snomed.info/sct":
             self.result.add_error(
                 issue_code="value",
                 error_code="INVALID_RESOURCE",
-                diagnostics=f"Invalid category system: {coding.system} Category system must be either 'http://snomed.info/sct' or 'https://nicip.nhs.uk'",
+                diagnostics=f"Invalid category system: {coding.system} Category system must be 'http://snomed.info/sct'",
                 field="category[0].coding[0].system",
             )
             return
