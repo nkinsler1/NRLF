@@ -43,7 +43,9 @@ def create_test_document_reference(items: dict) -> DocumentReference:
     if type_code := items.get("type"):
         type_system = items.get("type_system", "http://snomed.info/sct")
         type_str = f"{type_system}|{type_code}"
-        type_display = TYPE_ATTRIBUTES.get(type_str, {}).get("display")
+        type_display = items.get(
+            "type_display", TYPE_ATTRIBUTES.get(type_str, {}).get("display")
+        )
 
         base_doc_ref.type = CodeableConcept(
             coding=[Coding(system=type_system, code=type_code, display=type_display)]
