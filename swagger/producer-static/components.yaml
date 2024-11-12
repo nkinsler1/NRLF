@@ -18,6 +18,11 @@ components:
       in: query
       schema:
         $ref: "#/components/schemas/RequestQueryType"
+    category:
+      name: type
+      in: query
+      schema:
+        $ref: "#/components/schemas/RequestQueryCategory"
     nextPageToken:
       name: next-page-token
       in: query
