@@ -186,12 +186,16 @@ components:
           $ref: "#/components/schemas/RequestQuerySubject"
         type:
           $ref: "#/components/schemas/RequestQueryType"
+        category:
+          $ref: "#/components/schemas/RequestQueryCategory"
         next-page-token:
           $ref: "#/components/schemas/NextPageToken"
     RequestQuerySubject:
       type: string
       pattern: ^https\:\/\/fhir\.nhs\.uk\/Id\/nhs-number\|(\d+)$
     RequestQueryType:
+      type: string
+    RequestQueryCategory:
       type: string
     NextPageToken:
       type: string

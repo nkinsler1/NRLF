@@ -1195,6 +1195,8 @@ components:
       example: "https://fhir.nhs.uk/Id/nhs-number|4409815415"
     RequestQueryType:
       example: "http://snomed.info/sct|736253002"
+    RequestQueryCategory:
+      example: "http://snomed.info/sct|734163000"
     RequestHeaderRequestId:
       example: 60E0B220-8136-4CA5-AE46-1D97EF59D068
     RequestHeaderCorrelationId:
