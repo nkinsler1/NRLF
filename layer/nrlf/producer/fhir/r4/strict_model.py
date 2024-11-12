@@ -510,7 +510,7 @@ class DocumentReference(BaseModel):
         Optional[StrictStr],
         Field(description="When the document reference was created."),
     ] = None
-    author: Optional[List[Reference]] = None
+    author: List[Reference]
     authenticator: Annotated[
         Optional[Reference],
         Field(

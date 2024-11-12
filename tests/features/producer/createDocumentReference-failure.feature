@@ -120,6 +120,80 @@ Feature: Producer - createDocumentReference - Failure Scenarios
       }
       """
 
+  Scenario: Invalid Author
+    Given the application 'DataShare' (ID 'z00z-y11y-x22x') is registered to access the API
+    And the organisation 'TSTCUS' is authorised to access pointer types:
+      | system                 | value     |
+      | http://snomed.info/sct | 736253002 |
+    When producer 'TSTCUS' requests creation of a DocumentReference with default test values except 'author' is:
+      """
+      "author":[{
+        "identifier": {
+            "system": "https://fhir.nhs.uk/Id/ods-organization-code",
+            "value": "!!!!!"
+        }
+      }]
+      """
+    Then the response status code is 400
+    And the response is an OperationOutcome with 1 issue
+    And the OperationOutcome contains the issue:
+      """
+      {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+            {
+                "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                "code": "INVALID_RESOURCE",
+                "display": "Invalid validation of resource"
+            }
+            ]
+        },
+        "diagnostics": "Invalid author value: '!!!!!' Author value must be alphanumeric",
+        "expression": [
+            "author[0].identifier.value"
+        ]
+      }
+      """
+
+  Scenario: Invalid Author System
+    Given the application 'DataShare' (ID 'z00z-y11y-x22x') is registered to access the API
+    And the organisation 'TSTCUS' is authorised to access pointer types:
+      | system                 | value     |
+      | http://snomed.info/sct | 736253002 |
+    When producer 'TSTCUS' requests creation of a DocumentReference with default test values except 'author' is:
+      """
+      "author":[{
+        "identifier": {
+            "system": "ddddd",
+            "value": "123"
+        }
+      }]
+      """
+    Then the response status code is 400
+    And the response is an OperationOutcome with 1 issue
+    And the OperationOutcome contains the issue:
+      """
+      {
+        "severity": "error",
+        "code": "invalid",
+        "details": {
+            "coding": [
+            {
+                "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                "code": "INVALID_IDENTIFIER_SYSTEM",
+                "display": "Invalid identifier system"
+            }
+            ]
+        },
+        "diagnostics": "Invalid author system: 'ddddd' Author system must be 'https://fhir.nhs.uk/Id/ods-organization-code'",
+        "expression": [
+            "author[0].identifier.system"
+        ]
+      }
+      """
+
   # Invalid document reference - invalid custodian ID
   # Invalid document reference - invalid relatesTo target
   # Invalid document reference - invalid producer ID in relatesTo target
