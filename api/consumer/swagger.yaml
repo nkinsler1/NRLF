@@ -257,6 +257,7 @@ paths:
         - $ref: "#/components/parameters/subject"
         - $ref: "#/components/parameters/custodian"
         - $ref: "#/components/parameters/type"
+        - $ref: "#/components/parameters/category"
         - $ref: "#/components/parameters/nextPageToken"
         - $ref: "#/components/parameters/odsCode"
         - $ref: "#/components/parameters/odsCodeExtension"
