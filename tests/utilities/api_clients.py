@@ -3,7 +3,7 @@ import json
 import requests
 from pydantic import BaseModel
 
-from nrlf.core.constants import PointerTypes
+from nrlf.core.constants import Categories, PointerTypes
 from nrlf.core.model import ConnectionMetadata
 
 
@@ -80,6 +80,7 @@ class ConsumerTestClient:
         nhs_number: str | None = None,
         custodian: str | None = None,
         pointer_type: PointerTypes | None = None,
+        category: Categories | None = None,
         extra_params: dict[str, str] | None = None,
     ):
         params = {**(extra_params or {})}
@@ -100,6 +101,12 @@ class ConsumerTestClient:
             else:
                 params["type"] = f"http://snomed.info/sct|{pointer_type}"
 
+        if category:
+            if "|" in category:
+                params["category"] = category
+            else:
+                params["category"] = f"http://snomed.info/sct|{category}"
+
         return requests.get(
             f"{self.api_url}/DocumentReference",
             params=params,
@@ -112,6 +119,7 @@ class ConsumerTestClient:
         nhs_number: str | None = None,
         custodian: str | None = None,
         pointer_type: PointerTypes | None = None,
+        category: Categories | None = None,
         extra_fields: dict[str, str] | None = None,
     ):
         body = {**(extra_fields or {})}
@@ -131,6 +139,12 @@ class ConsumerTestClient:
                 body["type"] = pointer_type
             else:
                 body["type"] = f"http://snomed.info/sct|{pointer_type}"
+
+        if category:
+            if "|" in category:
+                body["category"] = category
+            else:
+                body["category"] = f"http://snomed.info/sct|{category}"
 
         return requests.post(
             f"{self.api_url}/DocumentReference/_search",

@@ -64,6 +64,7 @@ def test_consumer_request_params():
             "subject:identifier": "https://fhir.nhs.uk/Id/nhs-number|9999999999",
             "custodian:identifier": "https://fhir.nhs.uk/Id/ods-organization-code|test",
             "type": "test-type",
+            "category": "test-category",
             "next-page-token": "page-token",
         }
     )

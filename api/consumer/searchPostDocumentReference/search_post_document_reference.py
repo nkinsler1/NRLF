@@ -67,7 +67,7 @@ def handler(
             type=body.category,
         )  # TODO - Should update error message once permissioning by category is implemented
         return SpineErrorResponse.INVALID_CODE_SYSTEM(
-            diagnostics="Invalid query parameter (The provided category is not valid)",
+            diagnostics="The provided category is not valid",
             expression="category",
         )
 
