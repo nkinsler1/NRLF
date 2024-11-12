@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional
 from pydantic import ValidationError
 
 from nrlf.core.codes import SpineErrorConcept
-from nrlf.core.constants import CATEGORY_ATTRIBUTES, REQUIRED_CREATE_FIELDS
+from nrlf.core.constants import CATEGORY_ATTRIBUTES, ODS_SYSTEM, REQUIRED_CREATE_FIELDS
 from nrlf.core.errors import ParseError
 from nrlf.core.logger import LogReference, logger
 from nrlf.core.types import DocumentReference, OperationOutcomeIssue, RequestQueryType
@@ -118,6 +118,7 @@ class DocumentReferenceValidator:
             self._validate_relates_to(resource)
             self._validate_ssp_asid(resource)
             self._validate_category(resource)
+            self._validate_author(resource)
             if resource.content[0].extension:
                 self._validate_content_extension(resource)
 
@@ -464,3 +465,48 @@ class DocumentReferenceValidator:
                     field=f"content[{i}].extension[0].url",
                 )
                 return
+
+    def _validate_author(self, model: DocumentReference):
+        """
+        Validate the author field contains an appropriate coding system and code.
+        """
+        logger.log(LogReference.VALIDATOR001, step="author")
+
+        if len(model.author) > 1:
+            self.result.add_error(
+                issue_code="invalid",
+                error_code="INVALID_RESOURCE",
+                diagnostics=f"Invalid author length: {len(model.author)} Author must only contain a single value",
+                field=f"author",
+            )
+            return
+
+        logger.debug("Validating author")
+        identifier = model.author[0].identifier
+
+        if identifier.system != ODS_SYSTEM:
+            self.result.add_error(
+                issue_code="invalid",
+                error_code="INVALID_IDENTIFIER_SYSTEM",
+                diagnostics=f"Invalid author system: '{identifier.system}' Author system must be '{ODS_SYSTEM}'",
+                field=f"author[0].identifier.system",
+            )
+            return
+
+        if not identifier.value.isalnum():
+            self.result.add_error(
+                issue_code="value",
+                error_code="INVALID_RESOURCE",
+                diagnostics=f"Invalid author value: '{identifier.value}' Author value must be alphanumeric",
+                field=f"author[0].identifier.value",
+            )
+            return
+
+        if len(identifier.value) > 12:
+            self.result.add_error(
+                issue_code="value",
+                error_code="INVALID_RESOURCE",
+                diagnostics=f"Invalid author value: '{identifier.value}' Author value must be less than 13 characters",
+                field=f"author[0].identifier.value",
+            )
+            return
