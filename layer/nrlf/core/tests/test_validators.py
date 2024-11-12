@@ -2,7 +2,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from nrlf.core.constants import PointerTypes
+from nrlf.core.constants import ODS_SYSTEM, PointerTypes
 from nrlf.core.errors import ParseError
 from nrlf.core.validators import (
     DocumentReferenceValidator,
@@ -637,6 +637,140 @@ def test_validate_content_extension_too_many_extensions():
         },
         "diagnostics": "Invalid content extension length: 2 Extension must only contain a single value",
         "expression": ["content[0].extension"],
+    }
+
+
+def test_validate_author_too_many_authors():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["author"].append(
+        {
+            "identifier": {
+                "system": ODS_SYSTEM,
+                "value": "someODSCode",
+            }
+        }
+    )
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert result.resource.id == "Y05868-99999-99999-999999"
+    assert len(result.issues) == 1
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "invalid",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Invalid author length: 2 Author must only contain a single value",
+        "expression": ["author"],
+    }
+
+
+def test_validate_author_system_invalid():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["author"][0] = {
+        "identifier": {
+            "system": "some system",
+            "value": "someODSCode",
+        }
+    }
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert result.resource.id == "Y05868-99999-99999-999999"
+    assert len(result.issues) == 1
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "invalid",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_IDENTIFIER_SYSTEM",
+                    "display": "Invalid identifier system",
+                }
+            ]
+        },
+        "diagnostics": f"Invalid author system: 'some system' Author system must be 'https://fhir.nhs.uk/Id/ods-organization-code'",
+        "expression": ["author[0].identifier.system"],
+    }
+
+
+def test_validate_author_value_invalid():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["author"][0] = {
+        "identifier": {
+            "system": ODS_SYSTEM,
+            "value": "!!!!!!12sd",
+        }
+    }
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert result.resource.id == "Y05868-99999-99999-999999"
+    assert len(result.issues) == 1
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": f"Invalid author value: '!!!!!!12sd' Author value must be alphanumeric",
+        "expression": ["author[0].identifier.value"],
+    }
+
+
+def test_validate_author_value_too_long():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["author"][0] = {
+        "identifier": {
+            "system": ODS_SYSTEM,
+            "value": "d1111111111111111111111111111111111111111111111",
+        }
+    }
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert result.resource.id == "Y05868-99999-99999-999999"
+    assert len(result.issues) == 1
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": f"Invalid author value: 'd1111111111111111111111111111111111111111111111' Author value must be less than 13 characters",
+        "expression": ["author[0].identifier.value"],
     }
 
 

@@ -1383,6 +1383,7 @@ components:
         - resourceType
         - status
         - content
+        - author
     Bundle:
       type: object
       properties:
