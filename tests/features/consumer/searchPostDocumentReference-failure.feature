@@ -191,3 +191,32 @@ Feature: Consumer - searchDocumentReference - Failure Scenarios
         "diagnostics": "Your organisation 'RX898' does not have permission to access this resource. Contact the onboarding team."
       }
       """
+
+  Scenario: Search for multiple DocumentReferences by NHS number and an invalid Category
+    Given the application 'DataShare' (ID 'z00z-y11y-x22x') is registered to access the API
+    And the organisation 'RX898' is authorised to access pointer types:
+      | system                 | value            |
+      | http://snomed.info/sct | 736253002        |
+      | http://snomed.info/sct | 1363501000000100 |
+    When consumer 'RX898' searches for DocumentReferences with parameters:
+      | parameter | value      |
+      | subject   | 9278693472 |
+      | category  | invalid    |
+    Then the response status code is 400
+    And the response is an OperationOutcome with 1 issue
+    And the OperationOutcome contains the issue:
+      """
+      {
+        "severity": "error",
+        "code": "code-invalid",
+        "details": {
+          "coding": [{
+            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+            "code": "INVALID_CODE_SYSTEM",
+            "display": "Invalid code system"
+          }]
+        },
+        "diagnostics": "Invalid category (The provided category is not valid)",
+        "expression": ["category"]
+      }
+      """
