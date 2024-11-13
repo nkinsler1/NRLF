@@ -194,14 +194,14 @@ Feature: Consumer - searchDocumentReference - Failure Scenarios
 
   Scenario: Search for multiple DocumentReferences by NHS number and an invalid Category
     Given the application 'DataShare' (ID 'z00z-y11y-x22x') is registered to access the API
-    And the organisation 'RX898' is authorised to access pointer types:
+    When consumer 'RX898' searches for DocumentReferences using POST with request body:
       | system                 | value            |
       | http://snomed.info/sct | 736253002        |
       | http://snomed.info/sct | 1363501000000100 |
-    When consumer 'RX898' searches for DocumentReferences with parameters:
-      | parameter | value                                |
-      | subject   | 9278693472                           |
-      | category  | http://incorrect.info/sct\|736253002 |
+    When consumer 'RX898' searches for DocumentReferences with body:
+      | key      | value                                |
+      | subject  | 9278693472                           |
+      | category | http://incorrect.info/sct\|736253002 |
     Then the response status code is 400
     And the response is an OperationOutcome with 1 issue
     And the OperationOutcome contains the issue:
