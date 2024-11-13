@@ -240,26 +240,13 @@ class DocumentPointerRepository(Repository[DocumentPointer]):
             key_conditions.append("begins_with(patient_sort, :patient_sort)")
             expression_values[":patient_sort"] = patient_sort
 
-        # Handle multiple categories and pointer types with filter expressions
-        if len(pointer_types) > 1:
-            expression_names["#pointer_type"] = "type"
-            types_filters = [
-                f"#pointer_type = :type_{i}" for i in range(len(pointer_types))
-            ]
-            types_filter_values = {
-                f":type_{i}": pointer_types[i] for i in range(len(pointer_types))
-            }
-            filter_expressions.append(f"({' OR '.join(types_filters)})")
-            expression_values.update(types_filter_values)
-
-        # if pointer_types then category filter is not needed
-        if not pointer_types and len(categories) == 1:
+        if len(categories) == 1:
             category_id = categories[0].replace("|", "-")
             patient_sort = f"C#{category_id}"
             key_conditions.append("begins_with(patient_sort, :patient_sort)")
             expression_values[":patient_sort"] = patient_sort
 
-        if not pointer_types and len(categories) > 1:
+        if len(categories) > 1:
             expression_names["#category"] = "category"
             category_filters = [
                 f"#category = :category_{i}" for i in range(len(categories))
@@ -269,6 +256,18 @@ class DocumentPointerRepository(Repository[DocumentPointer]):
             }
             filter_expressions.append(f"({' OR '.join(category_filters)})")
             expression_values.update(caetgory_filter_values)
+
+        # Handle multiple types if no category filter
+        if not categories and len(pointer_types) > 1:
+            expression_names["#pointer_type"] = "type"
+            types_filters = [
+                f"#pointer_type = :type_{i}" for i in range(len(pointer_types))
+            ]
+            types_filter_values = {
+                f":type_{i}": pointer_types[i] for i in range(len(pointer_types))
+            }
+            filter_expressions.append(f"({' OR '.join(types_filters)})")
+            expression_values.update(types_filter_values)
 
         if custodian:
             logger.log(
