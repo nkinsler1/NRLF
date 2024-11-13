@@ -241,7 +241,8 @@ class DocumentPointerRepository(Repository[DocumentPointer]):
             expression_values[":patient_sort"] = patient_sort
 
         if len(categories) == 1:
-            category_id = categories[0].replace("|", "-")
+            split_category = categories[0].split("|")
+            category_id = SYSTEM_SHORT_IDS[split_category[0]] + "-" + split_category[1]
             patient_sort = f"C#{category_id}"
             key_conditions.append("begins_with(patient_sort, :patient_sort)")
             expression_values[":patient_sort"] = patient_sort
