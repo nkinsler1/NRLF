@@ -6,7 +6,6 @@ import {
   POINTER_IDS,
   POINTER_DOCUMENTS,
   POINTERS_TO_DELETE,
-  CATEGORIES,
 } from "../constants.js";
 import { check } from "k6";
 import { randomItem } from "https://jslib.k6.io/k6-utils/1.2.0/index.js";

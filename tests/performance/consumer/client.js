@@ -3,6 +3,7 @@ import {
   POINTER_IDS,
   POINTER_TYPES,
   ODS_CODE,
+  CATEGORIES,
 } from "../constants.js";
 import http from "k6/http";
 import { check } from "k6";
