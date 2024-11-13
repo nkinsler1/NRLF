@@ -216,7 +216,7 @@ Feature: Consumer - searchDocumentReference - Failure Scenarios
             "display": "Invalid code system"
           }]
         },
-        "diagnostics": "Invalid category (The provided category is not valid)",
+        "diagnostics": "The provided category is not valid",
         "expression": ["category"]
       }
       """
