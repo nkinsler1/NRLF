@@ -194,11 +194,11 @@ Feature: Consumer - searchDocumentReference - Failure Scenarios
 
   Scenario: Search for multiple DocumentReferences by NHS number and an invalid Category
     Given the application 'DataShare' (ID 'z00z-y11y-x22x') is registered to access the API
-    When consumer 'RX898' searches for DocumentReferences using POST with request body:
+    And the organisation 'RX898' is authorised to access pointer types:
       | system                 | value            |
       | http://snomed.info/sct | 736253002        |
       | http://snomed.info/sct | 1363501000000100 |
-    When consumer 'RX898' searches for DocumentReferences with body:
+    When consumer 'RX898' searches for DocumentReferences using POST with request body:
       | key      | value                                |
       | subject  | 9278693472                           |
       | category | http://incorrect.info/sct\|736253002 |
