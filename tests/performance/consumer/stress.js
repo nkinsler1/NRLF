@@ -37,17 +37,24 @@ export const options = {
     },
     searchDocumentReferenceByCategory: {
       exec: "searchDocumentReferenceByCategory",
-      executor: "ramping-arrival-rate",
-      startRate: 1,
-      timeUnit: "1s",
-      preAllocatedVUs: 5,
+      executor: "ramping-vus",
+      startVUs: 1,
       stages: [
-        { target: 5, duration: "30s" },
-        { target: 5, duration: "1m" },
+        { target: 10, duration: "30s" },
+        { target: 10, duration: "1m" },
       ],
     },
     searchPostDocumentReference: {
       exec: "searchPostDocumentReference",
+      executor: "ramping-vus",
+      startVUs: 1,
+      stages: [
+        { target: 10, duration: "30s" },
+        { target: 10, duration: "1m" },
+      ],
+    },
+    searchPostDocumentReferenceByCategory: {
+      exec: "searchPostDocumentReferenceByCategory",
       executor: "ramping-vus",
       startVUs: 1,
       stages: [

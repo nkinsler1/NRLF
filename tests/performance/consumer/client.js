@@ -123,3 +123,22 @@ export function searchPostDocumentReference() {
   );
   checkResponse(res);
 }
+
+export function searchPostDocumentReferenceByCategory() {
+  const nhsNumber = NHS_NUMBERS[Math.floor(Math.random() * NHS_NUMBERS.length)];
+  const category = CATEGORIES[Math.floor(Math.random() * CATEGORIES.length)];
+
+  const body = JSON.stringify({
+    "subject:identifier": `https://fhir.nhs.uk/Id/nhs-number|${nhsNumber}`,
+    category: `http://snomed.info/sct|${category}`,
+  });
+
+  const res = http.post(
+    `https://${__ENV.HOST}/consumer/DocumentReference/_search`,
+    body,
+    {
+      headers: getHeaders(),
+    }
+  );
+  checkResponse(res);
+}
