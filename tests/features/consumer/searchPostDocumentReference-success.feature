@@ -283,9 +283,9 @@ Feature: Consumer - searchDocumentReference - Success Scenarios
       | custodian   | x26                                   |
       | author      | x26                                   |
     When consumer 'RX898' searches for DocumentReferences using POST with request body:
-      | key      | value      |
-      | subject  | 9278693472 |
-      | category | 734163000  |
+      | key      | value                             |
+      | subject  | 9278693472                        |
+      | category | http://snomed.info/sct\|734163000 |
     Then the response status code is 200
     And the response is a searchset Bundle
     And the Bundle has a total of 2

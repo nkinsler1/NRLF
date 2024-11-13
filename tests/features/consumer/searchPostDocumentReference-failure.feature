@@ -199,9 +199,9 @@ Feature: Consumer - searchDocumentReference - Failure Scenarios
       | http://snomed.info/sct | 736253002        |
       | http://snomed.info/sct | 1363501000000100 |
     When consumer 'RX898' searches for DocumentReferences with parameters:
-      | parameter | value      |
-      | subject   | 9278693472 |
-      | category  | invalid    |
+      | parameter | value                                |
+      | subject   | 9278693472                           |
+      | category  | http://incorrect.info/sct\|736253002 |
     Then the response status code is 400
     And the response is an OperationOutcome with 1 issue
     And the OperationOutcome contains the issue:

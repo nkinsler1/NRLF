@@ -311,9 +311,9 @@ Feature: Consumer - searchDocumentReference - Success Scenarios
       | custodian   | 02V                                   |
       | author      | 02V                                   |
     When consumer 'RX898' searches for DocumentReferences with parameters:
-      | parameter | value      |
-      | subject   | 9278693472 |
-      | category  | 734163000  |
+      | parameter | value                             |
+      | subject   | 9278693472                        |
+      | category  | http://snomed.info/sct\|734163000 |
     Then the response status code is 200
     And the response is a searchset Bundle
     And the Bundle has a self link matching 'DocumentReference?subject:identifier=https://fhir.nhs.uk/Id/nhs-number|9278693472&category=http://snomed.info/sct|734163000'

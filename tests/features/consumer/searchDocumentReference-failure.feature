@@ -216,6 +216,6 @@ Feature: Consumer - searchDocumentReference - Failure Scenarios
           }]
         },
         "diagnostics": "Invalid query parameter (The provided category is not valid)",
-        "expression": ["type"]
+        "expression": ["category"]
       }
       """
