@@ -41,6 +41,17 @@ export const options = {
         { target: 5, duration: "1m" },
       ],
     },
+    searchDocumentReferenceByCategory: {
+      exec: "searchDocumentReferenceByCategory",
+      executor: "ramping-arrival-rate",
+      startRate: 1,
+      timeUnit: "1s",
+      preAllocatedVUs: 5,
+      stages: [
+        { target: 5, duration: "30s" },
+        { target: 5, duration: "1m" },
+      ],
+    },
     searchPostDocumentReference: {
       exec: "searchPostDocumentReference",
       executor: "ramping-arrival-rate",

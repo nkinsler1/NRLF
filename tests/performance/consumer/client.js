@@ -82,6 +82,27 @@ export function searchDocumentReference() {
   checkResponse(res);
 }
 
+export function searchDocumentReferenceByCategory() {
+  const nhsNumber = NHS_NUMBERS[Math.floor(Math.random() * NHS_NUMBERS.length)];
+  const randomCategory =
+    CATEGORIES[Math.floor(Math.random() * CATEGORIES.length)];
+
+  const identifier = encodeURIComponent(
+    `https://fhir.nhs.uk/Id/nhs-number|${nhsNumber}`
+  );
+  const category = encodeURIComponent(
+    `http://snomed.info/sct|${randomCategory}`
+  );
+
+  const res = http.get(
+    `https://${__ENV.HOST}/consumer/DocumentReference?subject:identifier=${identifier}&category=${category}`,
+    {
+      headers: getHeaders(),
+    }
+  );
+  checkResponse(res);
+}
+
 export function searchPostDocumentReference() {
   const nhsNumber = NHS_NUMBERS[Math.floor(Math.random() * NHS_NUMBERS.length)];
   const pointer_type =
