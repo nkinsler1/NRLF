@@ -319,7 +319,7 @@ def test_search_document_reference_filters_by_type(
 
 @mock_aws
 @mock_repository
-def test_search_document_reference_filters_by_type(
+def test_search_document_reference_filters_by_category(
     repository: DocumentPointerRepository,
 ):
     doc_ref = load_document_reference("Y05868-736253002-Valid")

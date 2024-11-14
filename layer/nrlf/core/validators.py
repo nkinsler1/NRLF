@@ -43,17 +43,7 @@ def validate_category(category_: Optional[RequestQueryCategory]) -> bool:
     if not category_:
         return True
 
-    category_system = category_.root.split("|", 1)[0]
-    category_code = category_.root.split("|", 1)[1]
-
-    category_list = Categories.list()
-    category_systems = [category.split("|", 1)[0] for category in category_list]
-    category_codes = [category.split("|", 1)[1] for category in category_list]
-
-    if not category_system in category_systems:
-        return False
-
-    return category_code in category_codes
+    return category_.root in Categories.list()
 
 
 @dataclass

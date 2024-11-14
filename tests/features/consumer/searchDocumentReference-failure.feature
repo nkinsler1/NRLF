@@ -192,7 +192,7 @@ Feature: Consumer - searchDocumentReference - Failure Scenarios
       }
       """
 
-  Scenario: Search rejects request with type system they are not allowed to use
+  Scenario: Search rejects request with invalid category system
     Given the application 'DataShare' (ID 'z00z-y11y-x22x') is registered to access the API
     And the organisation 'RX898' is authorised to access pointer types:
       | system                 | value     |

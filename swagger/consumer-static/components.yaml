@@ -37,7 +37,7 @@ components:
       schema:
         $ref: "#/components/schemas/RequestQueryType"
     category:
-      name: type
+      name: category
       in: query
       schema:
         $ref: "#/components/schemas/RequestQueryCategory"

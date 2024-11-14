@@ -2066,7 +2066,7 @@ components:
           summary: Diagnostic studies report
           value: http://snomed.info/sct|721981007
         SNOMED_CODES_DIAGNOSTIC_PROCEDURE:
-          summary: RDiagnostic procedure
+          summary: Diagnostic procedure
           value: http://snomed.info/sct|103693007
         invalid:
           summary: Unknown

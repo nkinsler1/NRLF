@@ -255,11 +255,11 @@ class DocumentPointerRepository(Repository[DocumentPointer]):
                 category_filters = [
                     f"#category = :category_{i}" for i in range(len(categories))
                 ]
-                caetgory_filter_values = {
+                category_filter_values = {
                     f":category_{i}": categories[i] for i in range(len(categories))
                 }
                 filter_expressions.append(f"({' OR '.join(category_filters)})")
-                expression_values.update(caetgory_filter_values)
+                expression_values.update(category_filter_values)
 
             expression_names["#pointer_type"] = "type"
             types_filters = [

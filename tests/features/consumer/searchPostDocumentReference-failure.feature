@@ -192,7 +192,7 @@ Feature: Consumer - searchDocumentReference - Failure Scenarios
       }
       """
 
-  Scenario: Search for multiple DocumentReferences by NHS number and an invalid Category
+  Scenario: Search rejects request with category system they are not allowed to use
     Given the application 'DataShare' (ID 'z00z-y11y-x22x') is registered to access the API
     And the organisation 'RX898' is authorised to access pointer types:
       | system                 | value            |
