@@ -30,9 +30,7 @@ locals {
   destination_account_id = data.aws_secretsmanager_secret_version.destination_account_id.secret_string
 }
 
-# First, we create an S3 bucket for compliance reports. You may already have a module for creating
-# S3 buckets with more refined access rules, which you may prefer to use.
-
+# First, we create an S3 bucket for compliance reports.
 resource "aws_s3_bucket" "backup_reports" {
   bucket_prefix = "${local.project_name}-backup-reports"
 }
@@ -55,7 +53,33 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "backup_reports" {
     }
   }
 }
-# Now we have to configure access to the report bucket.
+
+resource "aws_s3_bucket_policy" "backup_reports_bucket_policy" {
+  bucket = aws_s3_bucket.backup_reports.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Id      = "backup_reports_bucket_policy"
+    Statement = [
+      {
+        Sid       = "HTTPSOnly"
+        Effect    = "Deny"
+        Principal = "*"
+        Action    = "s3:*"
+        Resource = [
+          aws_s3_bucket.backup_reports.arn,
+          "${aws_s3_bucket.backup_reports.arn}/*",
+        ]
+        Condition = {
+          Bool = {
+            "aws:SecureTransport" = "false"
+          }
+        }
+      },
+    ]
+  })
+}
+
 
 resource "aws_s3_bucket_ownership_controls" "backup_reports" {
   bucket = aws_s3_bucket.backup_reports.id

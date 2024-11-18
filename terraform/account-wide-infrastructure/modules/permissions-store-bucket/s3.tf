@@ -27,6 +27,32 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "authorization-sto
   }
 }
 
+resource "aws_s3_bucket_policy" "authorization_store_bucket_policy" {
+  bucket = aws_s3_bucket.authorization-store.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Id      = "authorization_store_bucket_policy"
+    Statement = [
+      {
+        Sid       = "HTTPSOnly"
+        Effect    = "Deny"
+        Principal = "*"
+        Action    = "s3:*"
+        Resource = [
+          aws_s3_bucket.authorization-store.arn,
+          "${aws_s3_bucket.authorization-store.arn}/*",
+        ]
+        Condition = {
+          Bool = {
+            "aws:SecureTransport" = "false"
+          }
+        }
+      },
+    ]
+  })
+}
+
 resource "aws_s3_bucket_versioning" "authorization-store" {
   bucket = aws_s3_bucket.authorization-store.id
   versioning_configuration {
