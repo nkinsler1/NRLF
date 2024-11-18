@@ -8,10 +8,10 @@ variable "environment_name" {
   type        = string
 }
 
-variable "notifications_target_email_address" {
-  description = "The email address to which backup notifications will be sent via SNS."
-  type        = string
-  default     = ""
+variable "notification_target_email_addresses" {
+  description = "The email addresses to which backup notifications will be sent via SNS."
+  type        = set(string)
+  default     = []
 }
 
 variable "bootstrap_kms_key_arn" {

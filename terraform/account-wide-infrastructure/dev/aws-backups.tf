@@ -104,6 +104,8 @@ module "source" {
   #terraform_role_arn                = data.aws_caller_identity.current.arn
   terraform_role_arn = "arn:aws:iam::${var.assume_account}:role/${var.assume_role}"
 
+  notification_target_email_addresses = local.notification_emails
+
   backup_plan_config = {
     "compliance_resource_types" : [
       "S3"
