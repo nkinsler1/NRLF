@@ -365,7 +365,6 @@ class DocumentReferenceValidator:
         """
         logger.log(LogReference.VALIDATOR001, step="type")
 
-        # TODO: Discuss whether to add a period after the error, before Type, this should be applied to category as well
         if len(model.type.coding) > 1:
             self.result.add_error(
                 issue_code="invalid",

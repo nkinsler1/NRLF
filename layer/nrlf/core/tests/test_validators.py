@@ -419,8 +419,16 @@ def test_validate_category_too_many_category():
     }
 
 
-# TODO: Parameterize this test and the one below
-def test_validate_category_coding_display_mismatch_care_plan():
+@pytest.mark.parametrize(
+    "category_code, category_display",
+    [
+        (category_str.split("|")[1], display_dict["display"])
+        for category_str, display_dict in CATEGORY_ATTRIBUTES.items()
+    ],
+)
+def test_validate_category_coding_display_mismatch(
+    category_code: str, category_display: str
+):
     validator = DocumentReferenceValidator()
     document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
 
@@ -428,11 +436,35 @@ def test_validate_category_coding_display_mismatch_care_plan():
         "coding": [
             {
                 "system": "http://snomed.info/sct",
-                "code": "734163000",
+                "code": category_code,
                 "display": "some random display name",
             }
         ]
     }
+
+    # Find the type string that matches the type code to avoid that error
+    category_str = f"http://snomed.info/sct|{category_code}"
+    matching_type_str = next(
+        (
+            type_str
+            for type_str in TYPE_CATEGORIES
+            if TYPE_CATEGORIES[type_str] == category_str
+        ),
+        None,
+    )
+    if matching_type_str:
+        type_parts = matching_type_str.split("|")
+        type_system = type_parts[0]
+        type_code = type_parts[1]
+        document_ref_data["type"] = {
+            "coding": [
+                {
+                    "system": type_system,
+                    "code": type_code,
+                    "display": TYPE_ATTRIBUTES[matching_type_str]["display"],
+                }
+            ]
+        }
 
     result = validator.validate(document_ref_data)
 
@@ -451,53 +483,7 @@ def test_validate_category_coding_display_mismatch_care_plan():
                 }
             ]
         },
-        "diagnostics": "category code '734163000' must have a display value of 'Care plan'",
-        "expression": ["category[0].coding[0].display"],
-    }
-
-
-def test_validate_category_coding_display_mismatch_observations():
-    validator = DocumentReferenceValidator()
-    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
-
-    document_ref_data["type"] = {
-        "coding": [
-            {
-                "system": "http://snomed.info/sct",
-                "code": "1363501000000100",
-                "display": "Royal College of Physicians NEWS2 (National Early Warning Score 2) chart",
-            }
-        ]
-    }
-
-    document_ref_data["category"][0] = {
-        "coding": [
-            {
-                "system": "http://snomed.info/sct",
-                "code": "1102421000000108",
-                "display": "some random display name",
-            }
-        ]
-    }
-
-    result = validator.validate(document_ref_data)
-
-    assert result.is_valid is False
-    assert result.resource.id == "Y05868-99999-99999-999999"
-    assert len(result.issues) == 1
-    assert result.issues[0].model_dump(exclude_none=True) == {
-        "severity": "error",
-        "code": "value",
-        "details": {
-            "coding": [
-                {
-                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
-                }
-            ]
-        },
-        "diagnostics": "category code '1102421000000108' must have a display value of 'Observations'",
+        "diagnostics": f"category code '{category_code}' must have a display value of '{category_display}'",
         "expression": ["category[0].coding[0].display"],
     }
 
@@ -758,8 +744,7 @@ def test_validate_type_coding_display_mismatch(type_str: str, display: str):
         ]
     }
 
-    # match type to category to avoid getting that error
-    # TODO: Discuss in review if I should just ignore the error that happens to simplify test
+    # Find the category string that matches the category code to avoid that error
     category_str = TYPE_CATEGORIES[type_str]
     category_parts = category_str.split("|")
     category_system = category_parts[0]
@@ -778,6 +763,7 @@ def test_validate_type_coding_display_mismatch(type_str: str, display: str):
 
     assert result.is_valid is False
     assert result.resource.id == "Y05868-99999-99999-999999"
+    assert len(result.issues) == 1
     assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
         "code": "value",
