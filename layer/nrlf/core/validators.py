@@ -10,6 +10,8 @@ from nrlf.core.constants import (
     CATEGORY_ATTRIBUTES,
     ODS_SYSTEM,
     REQUIRED_CREATE_FIELDS,
+    TYPE_ATTRIBUTES,
+    TYPE_CATEGORIES,
     Categories,
 )
 from nrlf.core.errors import ParseError
@@ -134,8 +136,10 @@ class DocumentReferenceValidator:
             self._validate_identifiers(resource)
             self._validate_relates_to(resource)
             self._validate_ssp_asid(resource)
+            self._validate_type(resource)
             self._validate_category(resource)
             self._validate_author(resource)
+            self._validate_type_category_mapping(resource)
             if resource.content[0].extension:
                 self._validate_content_extension(resource)
 
@@ -354,6 +358,40 @@ class DocumentReferenceValidator:
             )
             return
 
+    def _validate_type(self, model: DocumentReference):
+        """
+        Validate the type field contains an appropriate coding system, code and display.
+        """
+        logger.log(LogReference.VALIDATOR001, step="type")
+
+        if len(model.type.coding) > 1:
+            self.result.add_error(
+                issue_code="invalid",
+                error_code="INVALID_RESOURCE",
+                diagnostics=f"Invalid type coding length: {len(model.type[0].coding)} Type Coding must only contain a single value",
+                field=f"type.coding",
+            )
+            return
+
+        coding = model.type.coding[0]
+        if coding.system != "http://snomed.info/sct":
+            self.result.add_error(
+                issue_code="value",
+                error_code="INVALID_RESOURCE",
+                diagnostics=f"Invalid type system: {coding.system} Type system must be 'http://snomed.info/sct'",
+                field="type.coding[0].system",
+            )
+            return
+
+        type_attributes = TYPE_ATTRIBUTES.get(type_id, {})
+        if coding.display != type_attributes.get("display"):
+            self.result.add_error(
+                issue_code="value",
+                error_code="INVALID_RESOURCE",
+                diagnostics=f"type code '{coding.code}' must have a display value of '{type_attributes.get('display')}'",
+                field="type.coding[0].display",
+            )
+
     def _validate_category(self, model: DocumentReference):
         """
         Validate the category field contains an appropriate coding system, code and display.
@@ -386,17 +424,17 @@ class DocumentReferenceValidator:
                 issue_code="value",
                 error_code="INVALID_RESOURCE",
                 diagnostics=f"Invalid category system: {coding.system} Category system must be 'http://snomed.info/sct'",
-                field=f"category[0].coding[{0}].system",
+                field="category[0].coding[0].system",
             )
             return
 
-        category_id = f"http://snomed.info/sct|{coding.code}"
+        category_id = f"{coding.system}|{coding.code}"
         if category_id not in CATEGORY_ATTRIBUTES.keys():
             self.result.add_error(
                 issue_code="value",
                 error_code="INVALID_RESOURCE",
                 diagnostics=f"Invalid category code: {coding.code} Category must be a member of the England-NRLRecordCategory value set (https://fhir.nhs.uk/England/CodeSystem/England-NRLRecordCategory)",
-                field=f"category[0].coding[{0}].code",
+                field="category[0].coding[0].code",
             )
             return
 
@@ -406,7 +444,26 @@ class DocumentReferenceValidator:
                 issue_code="value",
                 error_code="INVALID_RESOURCE",
                 diagnostics=f"category code '{coding.code}' must have a display value of '{category_attributes.get('display')}'",
-                field=f"category[0].coding[{0}].display",
+                field="category[0].coding[0].display",
+            )
+
+    def _validate_type_category_mapping(self, model: DocumentReference):
+        """
+        Validate the type field contains an appropriate coding system, code and display.
+        """
+        logger.log(LogReference.VALIDATOR001, step="type_category_mapping")
+
+        type_coding = model.type.coding[0]
+        type_id = f"{type_coding.system}|{type_coding.code}"
+        category_coding = model.category[0].coding[0]
+        category_id = f"{category_coding.system}|{category_coding.code}"
+
+        if not TYPE_CATEGORIES.get(type_id):
+            self.result.add_error(
+                issue_code="value",
+                error_code="INVALID_RESOURCE",
+                diagnostics=f"type ({type_id}) does not map to the category: {category_id}",
+                field=f"type.coding[0].display",
             )
 
     def _validate_content_extension(self, model: DocumentReference):
