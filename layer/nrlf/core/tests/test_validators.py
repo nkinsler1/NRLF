@@ -502,8 +502,7 @@ def test_validate_category_coding_display_mismatch_observations():
     }
 
 
-# TODO: FIX name of this test to multiple codings
-def test_validate_category_coding_invalid_code():
+def test_validate_category_coding_multiple_codings():
     validator = DocumentReferenceValidator()
     document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
 
@@ -549,8 +548,7 @@ def test_validate_category_coding_invalid_code():
     }
 
 
-# TODO: FIX name of this test to invalid code
-def test_validate_category_coding_multiple_codings():
+def test_validate_category_coding_invalid_code():
     validator = DocumentReferenceValidator()
     document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
 
