@@ -51,5 +51,6 @@ resource "aws_dynamodb_table" "pointers" {
   point_in_time_recovery {
     enabled = var.enable_pitr
   }
-  #tags conditional
+
+  tags = var.enable_backups ? { NHSE-Enable-Backup : daily } : {}
 }
