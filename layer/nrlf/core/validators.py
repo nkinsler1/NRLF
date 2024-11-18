@@ -374,11 +374,11 @@ class DocumentReferenceValidator:
             return
 
         coding = model.type.coding[0]
-        if coding.system != "http://snomed.info/sct":
+        if coding.system not in ["http://snomed.info/sct", "https://nicip.nhs.uk"]:
             self.result.add_error(
                 issue_code="value",
                 error_code="INVALID_RESOURCE",
-                diagnostics=f"Invalid type system: {coding.system} Type system must be 'http://snomed.info/sct'",
+                diagnostics=f"Invalid type system: {coding.system} Type system must be either 'http://snomed.info/sct' or 'https://nicip.nhs.uk'",
                 field="type.coding[0].system",
             )
             return
@@ -429,11 +429,11 @@ class DocumentReferenceValidator:
             return
 
         coding = model.category[0].coding[0]
-        if coding.system != "http://snomed.info/sct":
+        if coding.system not in ["http://snomed.info/sct", "https://nicip.nhs.uk"]:
             self.result.add_error(
                 issue_code="value",
                 error_code="INVALID_RESOURCE",
-                diagnostics=f"Invalid category system: {coding.system} Category system must be 'http://snomed.info/sct'",
+                diagnostics=f"Invalid category system: {coding.system} Category system must be either 'http://snomed.info/sct' or 'https://nicip.nhs.uk'",
                 field="category[0].coding[0].system",
             )
             return
