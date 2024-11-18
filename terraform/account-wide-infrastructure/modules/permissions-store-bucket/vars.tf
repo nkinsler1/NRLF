@@ -11,6 +11,6 @@ variable "enable_bucket_force_destroy" {
 
 variable "enable_backups" {
   type        = bool
-  descirption = "enable AWS cloud backups"
+  description = "enable AWS cloud backups"
   default     = false
 }
