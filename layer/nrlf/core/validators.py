@@ -383,6 +383,16 @@ class DocumentReferenceValidator:
             )
             return
 
+        type_id = f"{coding.system}|{coding.code}"
+        if type_id not in TYPE_ATTRIBUTES.keys():
+            self.result.add_error(
+                issue_code="value",
+                error_code="INVALID_RESOURCE",
+                diagnostics=f"Invalid type code: {coding.code} Type must be a member of the England-NRLRecordCategory value set (https://fhir.nhs.uk/England/CodeSystem/England-NRLRecordType)",
+                field="type.coding[0].code",
+            )
+            return
+
         type_attributes = TYPE_ATTRIBUTES.get(type_id, {})
         if coding.display != type_attributes.get("display"):
             self.result.add_error(
