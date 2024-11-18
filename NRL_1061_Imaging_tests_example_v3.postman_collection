@@ -1,0 +1,2921 @@
+{
+	"info": {
+		"_postman_id": "cac54c9e-0794-44fd-9366-b107ce89c375",
+		"name": "NRL-1061- Imaging tests example 13-11-24",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "29478538"
+	},
+	"item": [
+		{
+			"name": "Validation tests",
+			"item": [
+				{
+					"name": "Missing segments",
+					"item": [
+						{
+							"name": "Create imaging pointer without type section",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 400\", function () {\r",
+											"  pm.expect(pm.response.code).to.equal(400);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"accept": true
+								}
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{auth_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json; version=1.0",
+										"type": "text"
+									},
+									{
+										"key": "X-Correlation-Id",
+										"value": "xcorrelationid-example",
+										"type": "text"
+									},
+									{
+										"key": "X-Request-Id",
+										"value": "xrequestID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Correlation-ID",
+										"value": "nhs-correlationID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-End-User-Organisation-ODS",
+										"value": "{{ods_code}}",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Request-ID",
+										"value": "nhsRequestID-example",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"resourceType\": \"DocumentReference\",\r\n    \"id\": \"{{ods_code}}-123\",\r\n    \"meta\": {\r\n        \"lastUpdated\": \"2024-04-29T14:45:49.852Z\"\r\n    },\r\n    \"status\": \"current\",\r\n    \"category\": [\r\n        {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"721981007\",\r\n                    \"display\": \"Diagnostic studies report\"\r\n                }\r\n            ]\r\n        }\r\n    ],\r\n    \"subject\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/nhs-number\",\r\n            \"value\": \"9693892992\"\r\n        }\r\n    },\r\n    \"date\": \"2024-04-11T14:31:11+00:00\",\r\n    \"author\": [\r\n        {\r\n            \"identifier\": {\r\n                \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n                \"value\": \"{{ods_code}}\"\r\n            }\r\n        }\r\n    ],\r\n    \"custodian\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n            \"value\": \"{{ods_code}}\"\r\n        }\r\n    },\r\n    \"content\": [\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"application/pdf\",\r\n                \"url\": \"{{document_url}}\",\r\n                \"creation\": \"2024-04-23T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:unstructured\",\r\n                \"display\": \"Unstructured Document\"\r\n            }\r\n        },\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"text/html\",\r\n                \"url\": \"{{contact_url}}\",\r\n                \"creation\": \"2024-04-11T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:record-contact\",\r\n                \"display\": \"Contact details (HTTP Unsecured)\"\r\n            }\r\n        }\r\n    ],\r\n    \"context\": {\r\n        \"period\": {\r\n            \"start\": \"2022-02-28T12:04:38.3143068+00:00\",\r\n            \"end\": \"2023-08-15T11:12:53Z\"\r\n        },\r\n        \"practiceSetting\": {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"310167005\",\r\n                    \"display\": \"Urology service\"\r\n                }\r\n            ]\r\n        },\r\n        \"related\": [\r\n            {\r\n                \"identifier\": {\r\n                    \"system\": \"https://fhir.nhs.uk/Id/nhsSpineASID\",\r\n                    \"value\": \"200000000610\"\r\n                }\r\n            }\r\n        ]\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{int_url}}record-locator/producer/FHIR/R4/DocumentReference/",
+									"host": [
+										"{{int_url}}record-locator"
+									],
+									"path": [
+										"producer",
+										"FHIR",
+										"R4",
+										"DocumentReference",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create imaging pointer without category section",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 400\", function () {\r",
+											"  pm.expect(pm.response.code).to.equal(400);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"accept": true
+								}
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{auth_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json; version=1.0",
+										"type": "text"
+									},
+									{
+										"key": "X-Correlation-Id",
+										"value": "xcorrelationid-example",
+										"type": "text"
+									},
+									{
+										"key": "X-Request-Id",
+										"value": "xrequestID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Correlation-ID",
+										"value": "nhs-correlationID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-End-User-Organisation-ODS",
+										"value": "{{ods_code}}",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Request-ID",
+										"value": "nhsRequestID-example",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"resourceType\": \"DocumentReference\",\r\n    \"id\": \"{{ods_code}}-123\",\r\n    \"meta\": {\r\n        \"lastUpdated\": \"2024-04-29T14:45:49.852Z\"\r\n    },\r\n    \"status\": \"current\",\r\n    \"type\": {\r\n        \"coding\": [\r\n            {\r\n                \"system\": \"https://nicip.nhs.uk\",\r\n                \"code\": \"MAULR\",\r\n                \"display\": \"MRA Upper Limb Rt\"\r\n            }\r\n        ]\r\n    },\r\n    \"subject\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/nhs-number\",\r\n            \"value\": \"9693892992\"\r\n        }\r\n    },\r\n    \"date\": \"2024-04-11T14:31:11+00:00\",\r\n    \"author\": [\r\n        {\r\n            \"identifier\": {\r\n                \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n                \"value\": \"{{ods_code}}\"\r\n            }\r\n        }\r\n    ],\r\n    \"custodian\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n            \"value\": \"{{ods_code}}\"\r\n        }\r\n    },\r\n    \"content\": [\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"application/pdf\",\r\n                \"url\": \"{{document_url}}\",\r\n                \"creation\": \"2024-04-23T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:unstructured\",\r\n                \"display\": \"Unstructured Document\"\r\n            }\r\n        },\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"text/html\",\r\n                \"url\": \"{{contact_url}}\",\r\n                \"creation\": \"2024-04-11T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:record-contact\",\r\n                \"display\": \"Contact details (HTTP Unsecured)\"\r\n            }\r\n        }\r\n    ],\r\n    \"context\": {\r\n        \"period\": {\r\n            \"start\": \"2022-02-28T12:04:38.3143068+00:00\",\r\n            \"end\": \"2023-08-15T11:12:53Z\"\r\n        },\r\n        \"practiceSetting\": {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"310167005\",\r\n                    \"display\": \"Urology service\"\r\n                }\r\n            ]\r\n        },\r\n        \"related\": [\r\n            {\r\n                \"identifier\": {\r\n                    \"system\": \"https://fhir.nhs.uk/Id/nhsSpineASID\",\r\n                    \"value\": \"200000000610\"\r\n                }\r\n            }\r\n        ]\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{int_url}}record-locator/producer/FHIR/R4/DocumentReference/",
+									"host": [
+										"{{int_url}}record-locator"
+									],
+									"path": [
+										"producer",
+										"FHIR",
+										"R4",
+										"DocumentReference",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Null values",
+					"item": [
+						{
+							"name": "Create imaging pointer with null type.coding.system field",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 400\", function () {\r",
+											"  pm.expect(pm.response.code).to.equal(400);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"accept": true
+								}
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{auth_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json; version=1.0",
+										"type": "text"
+									},
+									{
+										"key": "X-Correlation-Id",
+										"value": "xcorrelationid-example",
+										"type": "text"
+									},
+									{
+										"key": "X-Request-Id",
+										"value": "xrequestID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Correlation-ID",
+										"value": "nhs-correlationID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-End-User-Organisation-ODS",
+										"value": "{{ods_code}}",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Request-ID",
+										"value": "nhsRequestID-example",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"resourceType\": \"DocumentReference\",\r\n    \"id\": \"{{ods_code}}-123\",\r\n    \"meta\": {\r\n        \"lastUpdated\": \"2024-04-29T14:45:49.852Z\"\r\n    },\r\n    \"status\": \"current\",\r\n    \"type\": {\r\n        \"coding\": [\r\n            {\r\n                \"system\": \"\",\r\n                \"code\": \"MAULR\",\r\n                \"display\": \"MRA Upper Limb Rt\"\r\n            }\r\n        ]\r\n    },\r\n    \"category\": [\r\n        {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"721981007\",\r\n                    \"display\": \"Diagnostic studies report\"\r\n                }\r\n            ]\r\n        }\r\n    ],\r\n    \"subject\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/nhs-number\",\r\n            \"value\": \"9693892992\"\r\n        }\r\n    },\r\n    \"date\": \"2024-04-11T14:31:11+00:00\",\r\n    \"author\": [\r\n        {\r\n            \"identifier\": {\r\n                \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n                \"value\": \"{{ods_code}}\"\r\n            }\r\n        }\r\n    ],\r\n    \"custodian\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n            \"value\": \"{{ods_code}}\"\r\n        }\r\n    },\r\n    \"content\": [\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"application/pdf\",\r\n                \"url\": \"{{document_url}}\",\r\n                \"creation\": \"2024-04-23T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:unstructured\",\r\n                \"display\": \"Unstructured Document\"\r\n            }\r\n        },\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"text/html\",\r\n                \"url\": \"{{contact_url}}\",\r\n                \"creation\": \"2024-04-11T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:record-contact\",\r\n                \"display\": \"Contact details (HTTP Unsecured)\"\r\n            }\r\n        }\r\n    ],\r\n    \"context\": {\r\n        \"period\": {\r\n            \"start\": \"2022-02-28T12:04:38.3143068+00:00\",\r\n            \"end\": \"2023-08-15T11:12:53Z\"\r\n        },\r\n        \"practiceSetting\": {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"310167005\",\r\n                    \"display\": \"Urology service\"\r\n                }\r\n            ]\r\n        },\r\n        \"related\": [\r\n            {\r\n                \"identifier\": {\r\n                    \"system\": \"https://fhir.nhs.uk/Id/nhsSpineASID\",\r\n                    \"value\": \"200000000610\"\r\n                }\r\n            }\r\n        ]\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{int_url}}record-locator/producer/FHIR/R4/DocumentReference/",
+									"host": [
+										"{{int_url}}record-locator"
+									],
+									"path": [
+										"producer",
+										"FHIR",
+										"R4",
+										"DocumentReference",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create imaging pointer with null type.coding.code value",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 400\", function () {\r",
+											"  pm.expect(pm.response.code).to.equal(400);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"accept": true
+								}
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{auth_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json; version=1.0",
+										"type": "text"
+									},
+									{
+										"key": "X-Correlation-Id",
+										"value": "xcorrelationid-example",
+										"type": "text"
+									},
+									{
+										"key": "X-Request-Id",
+										"value": "xrequestID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Correlation-ID",
+										"value": "nhs-correlationID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-End-User-Organisation-ODS",
+										"value": "{{ods_code}}",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Request-ID",
+										"value": "nhsRequestID-example",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"resourceType\": \"DocumentReference\",\r\n    \"id\": \"{{ods_code}}-123\",\r\n    \"meta\": {\r\n        \"lastUpdated\": \"2024-04-29T14:45:49.852Z\"\r\n    },\r\n    \"status\": \"current\",\r\n    \"type\": {\r\n        \"coding\": [\r\n            {\r\n                \"system\": \"https://nicip.nhs.uk\",\r\n                \"code\": \"\",\r\n                \"display\": \"MRA Upper Limb Rt\"\r\n            }\r\n        ]\r\n    },\r\n    \"category\": [\r\n        {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"721981007\",\r\n                    \"display\": \"Diagnostic studies report\"\r\n                }\r\n            ]\r\n        }\r\n    ],\r\n    \"subject\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/nhs-number\",\r\n            \"value\": \"9693892992\"\r\n        }\r\n    },\r\n    \"date\": \"2024-04-11T14:31:11+00:00\",\r\n    \"author\": [\r\n        {\r\n            \"identifier\": {\r\n                \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n                \"value\": \"{{ods_code}}\"\r\n            }\r\n        }\r\n    ],\r\n    \"custodian\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n            \"value\": \"{{ods_code}}\"\r\n        }\r\n    },\r\n    \"content\": [\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"application/pdf\",\r\n                \"url\": \"{{document_url}}\",\r\n                \"creation\": \"2024-04-23T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:unstructured\",\r\n                \"display\": \"Unstructured Document\"\r\n            }\r\n        },\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"text/html\",\r\n                \"url\": \"{{contact_url}}\",\r\n                \"creation\": \"2024-04-11T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:record-contact\",\r\n                \"display\": \"Contact details (HTTP Unsecured)\"\r\n            }\r\n        }\r\n    ],\r\n    \"context\": {\r\n        \"period\": {\r\n            \"start\": \"2022-02-28T12:04:38.3143068+00:00\",\r\n            \"end\": \"2023-08-15T11:12:53Z\"\r\n        },\r\n        \"practiceSetting\": {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"310167005\",\r\n                    \"display\": \"Urology service\"\r\n                }\r\n            ]\r\n        },\r\n        \"related\": [\r\n            {\r\n                \"identifier\": {\r\n                    \"system\": \"https://fhir.nhs.uk/Id/nhsSpineASID\",\r\n                    \"value\": \"200000000610\"\r\n                }\r\n            }\r\n        ]\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{int_url}}record-locator/producer/FHIR/R4/DocumentReference/",
+									"host": [
+										"{{int_url}}record-locator"
+									],
+									"path": [
+										"producer",
+										"FHIR",
+										"R4",
+										"DocumentReference",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create imaging pointer with null type.coding.display value",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 400\", function () {\r",
+											"  pm.expect(pm.response.code).to.equal(400);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"accept": true
+								}
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{auth_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json; version=1.0",
+										"type": "text"
+									},
+									{
+										"key": "X-Correlation-Id",
+										"value": "xcorrelationid-example",
+										"type": "text"
+									},
+									{
+										"key": "X-Request-Id",
+										"value": "xrequestID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Correlation-ID",
+										"value": "nhs-correlationID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-End-User-Organisation-ODS",
+										"value": "{{ods_code}}",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Request-ID",
+										"value": "nhsRequestID-example",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"resourceType\": \"DocumentReference\",\r\n    \"id\": \"{{ods_code}}-123\",\r\n    \"meta\": {\r\n        \"lastUpdated\": \"2024-04-29T14:45:49.852Z\"\r\n    },\r\n    \"status\": \"current\",\r\n    \"type\": {\r\n        \"coding\": [\r\n            {\r\n                \"system\": \"https://nicip.nhs.uk\",\r\n                \"code\": \"MAULR\",\r\n                \"display\": \"\"\r\n            }\r\n        ]\r\n    },\r\n    \"category\": [\r\n        {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"721981007\",\r\n                    \"display\": \"Diagnostic studies report\"\r\n                }\r\n            ]\r\n        }\r\n    ],\r\n    \"subject\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/nhs-number\",\r\n            \"value\": \"9693892992\"\r\n        }\r\n    },\r\n    \"date\": \"2024-04-11T14:31:11+00:00\",\r\n    \"author\": [\r\n        {\r\n            \"identifier\": {\r\n                \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n                \"value\": \"{{ods_code}}\"\r\n            }\r\n        }\r\n    ],\r\n    \"custodian\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n            \"value\": \"{{ods_code}}\"\r\n        }\r\n    },\r\n    \"content\": [\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"application/pdf\",\r\n                \"url\": \"{{document_url}}\",\r\n                \"creation\": \"2024-04-23T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:unstructured\",\r\n                \"display\": \"Unstructured Document\"\r\n            }\r\n        },\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"text/html\",\r\n                \"url\": \"{{contact_url}}\",\r\n                \"creation\": \"2024-04-11T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:record-contact\",\r\n                \"display\": \"Contact details (HTTP Unsecured)\"\r\n            }\r\n        }\r\n    ],\r\n    \"context\": {\r\n        \"period\": {\r\n            \"start\": \"2022-02-28T12:04:38.3143068+00:00\",\r\n            \"end\": \"2023-08-15T11:12:53Z\"\r\n        },\r\n        \"practiceSetting\": {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"310167005\",\r\n                    \"display\": \"Urology service\"\r\n                }\r\n            ]\r\n        },\r\n        \"related\": [\r\n            {\r\n                \"identifier\": {\r\n                    \"system\": \"https://fhir.nhs.uk/Id/nhsSpineASID\",\r\n                    \"value\": \"200000000610\"\r\n                }\r\n            }\r\n        ]\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{int_url}}record-locator/producer/FHIR/R4/DocumentReference/",
+									"host": [
+										"{{int_url}}record-locator"
+									],
+									"path": [
+										"producer",
+										"FHIR",
+										"R4",
+										"DocumentReference",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create imaging pointer with null category.coding.system value",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 400\", function () {\r",
+											"  pm.expect(pm.response.code).to.equal(400);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"accept": true
+								}
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{auth_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json; version=1.0",
+										"type": "text"
+									},
+									{
+										"key": "X-Correlation-Id",
+										"value": "xcorrelationid-example",
+										"type": "text"
+									},
+									{
+										"key": "X-Request-Id",
+										"value": "xrequestID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Correlation-ID",
+										"value": "nhs-correlationID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-End-User-Organisation-ODS",
+										"value": "{{ods_code}}",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Request-ID",
+										"value": "nhsRequestID-example",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"resourceType\": \"DocumentReference\",\r\n    \"id\": \"{{ods_code}}-123\",\r\n    \"meta\": {\r\n        \"lastUpdated\": \"2024-04-29T14:45:49.852Z\"\r\n    },\r\n    \"status\": \"current\",\r\n    \"type\": {\r\n        \"coding\": [\r\n            {\r\n                \"system\": \"https://nicip.nhs.uk\",\r\n                \"code\": \"MAULR\",\r\n                \"display\": \"MRA Upper Limb Rt\"\r\n            }\r\n        ]\r\n    },\r\n    \"category\": [\r\n        {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"\",\r\n                    \"code\": \"721981007\",\r\n                    \"display\": \"Diagnostic studies report\"\r\n                }\r\n            ]\r\n        }\r\n    ],\r\n    \"subject\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/nhs-number\",\r\n            \"value\": \"9693892992\"\r\n        }\r\n    },\r\n    \"date\": \"2024-04-11T14:31:11+00:00\",\r\n    \"author\": [\r\n        {\r\n            \"identifier\": {\r\n                \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n                \"value\": \"{{ods_code}}\"\r\n            }\r\n        }\r\n    ],\r\n    \"custodian\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n            \"value\": \"{{ods_code}}\"\r\n        }\r\n    },\r\n    \"content\": [\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"application/pdf\",\r\n                \"url\": \"{{document_url}}\",\r\n                \"creation\": \"2024-04-23T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:unstructured\",\r\n                \"display\": \"Unstructured Document\"\r\n            }\r\n        },\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"text/html\",\r\n                \"url\": \"{{contact_url}}\",\r\n                \"creation\": \"2024-04-11T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:record-contact\",\r\n                \"display\": \"Contact details (HTTP Unsecured)\"\r\n            }\r\n        }\r\n    ],\r\n    \"context\": {\r\n        \"period\": {\r\n            \"start\": \"2022-02-28T12:04:38.3143068+00:00\",\r\n            \"end\": \"2023-08-15T11:12:53Z\"\r\n        },\r\n        \"practiceSetting\": {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"310167005\",\r\n                    \"display\": \"Urology service\"\r\n                }\r\n            ]\r\n        },\r\n        \"related\": [\r\n            {\r\n                \"identifier\": {\r\n                    \"system\": \"https://fhir.nhs.uk/Id/nhsSpineASID\",\r\n                    \"value\": \"200000000610\"\r\n                }\r\n            }\r\n        ]\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{int_url}}record-locator/producer/FHIR/R4/DocumentReference/",
+									"host": [
+										"{{int_url}}record-locator"
+									],
+									"path": [
+										"producer",
+										"FHIR",
+										"R4",
+										"DocumentReference",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create imaging pointer with null category.coding.code value",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 400\", function () {\r",
+											"  pm.expect(pm.response.code).to.equal(400);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"accept": true
+								}
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{auth_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json; version=1.0",
+										"type": "text"
+									},
+									{
+										"key": "X-Correlation-Id",
+										"value": "xcorrelationid-example",
+										"type": "text"
+									},
+									{
+										"key": "X-Request-Id",
+										"value": "xrequestID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Correlation-ID",
+										"value": "nhs-correlationID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-End-User-Organisation-ODS",
+										"value": "{{ods_code}}",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Request-ID",
+										"value": "nhsRequestID-example",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"resourceType\": \"DocumentReference\",\r\n    \"id\": \"{{ods_code}}-123\",\r\n    \"meta\": {\r\n        \"lastUpdated\": \"2024-04-29T14:45:49.852Z\"\r\n    },\r\n    \"status\": \"current\",\r\n    \"type\": {\r\n        \"coding\": [\r\n            {\r\n                \"system\": \"https://nicip.nhs.uk\",\r\n                \"code\": \"MAULR\",\r\n                \"display\": \"MRA Upper Limb Rt\"\r\n            }\r\n        ]\r\n    },\r\n    \"category\": [\r\n        {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"\",\r\n                    \"display\": \"Diagnostic studies report\"\r\n                }\r\n            ]\r\n        }\r\n    ],\r\n    \"subject\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/nhs-number\",\r\n            \"value\": \"9693892992\"\r\n        }\r\n    },\r\n    \"date\": \"2024-04-11T14:31:11+00:00\",\r\n    \"author\": [\r\n        {\r\n            \"identifier\": {\r\n                \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n                \"value\": \"{{ods_code}}\"\r\n            }\r\n        }\r\n    ],\r\n    \"custodian\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n            \"value\": \"{{ods_code}}\"\r\n        }\r\n    },\r\n    \"content\": [\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"application/pdf\",\r\n                \"url\": \"{{document_url}}\",\r\n                \"creation\": \"2024-04-23T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:unstructured\",\r\n                \"display\": \"Unstructured Document\"\r\n            }\r\n        },\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"text/html\",\r\n                \"url\": \"{{contact_url}}\",\r\n                \"creation\": \"2024-04-11T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:record-contact\",\r\n                \"display\": \"Contact details (HTTP Unsecured)\"\r\n            }\r\n        }\r\n    ],\r\n    \"context\": {\r\n        \"period\": {\r\n            \"start\": \"2022-02-28T12:04:38.3143068+00:00\",\r\n            \"end\": \"2023-08-15T11:12:53Z\"\r\n        },\r\n        \"practiceSetting\": {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"310167005\",\r\n                    \"display\": \"Urology service\"\r\n                }\r\n            ]\r\n        },\r\n        \"related\": [\r\n            {\r\n                \"identifier\": {\r\n                    \"system\": \"https://fhir.nhs.uk/Id/nhsSpineASID\",\r\n                    \"value\": \"200000000610\"\r\n                }\r\n            }\r\n        ]\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{int_url}}record-locator/producer/FHIR/R4/DocumentReference/",
+									"host": [
+										"{{int_url}}record-locator"
+									],
+									"path": [
+										"producer",
+										"FHIR",
+										"R4",
+										"DocumentReference",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create imaging pointer with null category.coding.display value",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 400\", function () {\r",
+											"  pm.expect(pm.response.code).to.equal(400);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"accept": true
+								}
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{auth_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json; version=1.0",
+										"type": "text"
+									},
+									{
+										"key": "X-Correlation-Id",
+										"value": "xcorrelationid-example",
+										"type": "text"
+									},
+									{
+										"key": "X-Request-Id",
+										"value": "xrequestID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Correlation-ID",
+										"value": "nhs-correlationID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-End-User-Organisation-ODS",
+										"value": "{{ods_code}}",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Request-ID",
+										"value": "nhsRequestID-example",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"resourceType\": \"DocumentReference\",\r\n    \"id\": \"{{ods_code}}-123\",\r\n    \"meta\": {\r\n        \"lastUpdated\": \"2024-04-29T14:45:49.852Z\"\r\n    },\r\n    \"status\": \"current\",\r\n    \"type\": {\r\n        \"coding\": [\r\n            {\r\n                \"system\": \"https://nicip.nhs.uk\",\r\n                \"code\": \"MAULR\",\r\n                \"display\": \"MRA Upper Limb Rt\"\r\n            }\r\n        ]\r\n    },\r\n    \"category\": [\r\n        {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"721981007\",\r\n                    \"display\": \"\"\r\n                }\r\n            ]\r\n        }\r\n    ],\r\n    \"subject\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/nhs-number\",\r\n            \"value\": \"9693892992\"\r\n        }\r\n    },\r\n    \"date\": \"2024-04-11T14:31:11+00:00\",\r\n    \"author\": [\r\n        {\r\n            \"identifier\": {\r\n                \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n                \"value\": \"{{ods_code}}\"\r\n            }\r\n        }\r\n    ],\r\n    \"custodian\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n            \"value\": \"{{ods_code}}\"\r\n        }\r\n    },\r\n    \"content\": [\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"application/pdf\",\r\n                \"url\": \"ssp://Test1-D4V3N.bettercare.thirdparty.nhs.uk/Binary/D4V3N/documents/london-scpa-uat/4ffebd3d-4e94-43c9-86f6-75352e4fc8e9\",\r\n                \"creation\": \"2024-04-23T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:unstructured\",\r\n                \"display\": \"Unstructured Document\"\r\n            }\r\n        },\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"text/html\",\r\n                \"url\": \"https://www.google.com\",\r\n                \"creation\": \"2024-04-11T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:record-contact\",\r\n                \"display\": \"Contact details (HTTP Unsecured)\"\r\n            }\r\n        }\r\n    ],\r\n    \"context\": {\r\n        \"period\": {\r\n            \"start\": \"2022-02-28T12:04:38.3143068+00:00\",\r\n            \"end\": \"2023-08-15T11:12:53Z\"\r\n        },\r\n        \"practiceSetting\": {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"310167005\",\r\n                    \"display\": \"Urology service\"\r\n                }\r\n            ]\r\n        },\r\n        \"related\": [\r\n            {\r\n                \"identifier\": {\r\n                    \"system\": \"https://fhir.nhs.uk/Id/nhsSpineASID\",\r\n                    \"value\": \"200000000610\"\r\n                }\r\n            }\r\n        ]\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{int_url}}record-locator/producer/FHIR/R4/DocumentReference/",
+									"host": [
+										"{{int_url}}record-locator"
+									],
+									"path": [
+										"producer",
+										"FHIR",
+										"R4",
+										"DocumentReference",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Value matching",
+					"item": [
+						{
+							"name": "Create pointer with valid type.coding.display value that is incompatible with type.coding.code,code.provided",
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"accept": true
+								}
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{auth_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json; version=1.0",
+										"type": "text"
+									},
+									{
+										"key": "X-Correlation-Id",
+										"value": "xcorrelationid-example",
+										"type": "text"
+									},
+									{
+										"key": "X-Request-Id",
+										"value": "xrequestID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Correlation-ID",
+										"value": "nhs-correlationID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-End-User-Organisation-ODS",
+										"value": "{{ods_code}}",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Request-ID",
+										"value": "nhsRequestID-example",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"resourceType\": \"DocumentReference\",\r\n    \"id\": \"{{ods_code}}-123\",\r\n    \"meta\": {\r\n        \"lastUpdated\": \"2024-04-29T14:45:49.852Z\"\r\n    },\r\n    \"status\": \"current\",\r\n    \"type\": {\r\n        \"coding\": [\r\n            {\r\n                \"system\": \"https://nicip.nhs.uk\",\r\n                \"code\": \"MAULR\",\r\n                \"display\": \"MRI Axilla Both\"\r\n            }\r\n        ]\r\n    },\r\n    \"category\": [\r\n        {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"721981007\",\r\n                    \"display\": \"Diagnostic studies report\"\r\n                }\r\n            ]\r\n        }\r\n    ],\r\n    \"subject\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/nhs-number\",\r\n            \"value\": \"9693892992\"\r\n        }\r\n    },\r\n    \"date\": \"2024-04-11T14:31:11+00:00\",\r\n    \"author\": [\r\n        {\r\n            \"identifier\": {\r\n                \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n                \"value\": \"{{ods_code}}\"\r\n            }\r\n        }\r\n    ],\r\n    \"custodian\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n            \"value\": \"{{ods_code}}\"\r\n        }\r\n    },\r\n    \"content\": [\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"application/pdf\",\r\n                \"url\": \"{{document_url}}\",\r\n                \"creation\": \"2024-04-23T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:unstructured\",\r\n                \"display\": \"Unstructured Document\"\r\n            }\r\n        },\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"text/html\",\r\n                \"url\": \"{{contact_url}}\",\r\n                \"creation\": \"2024-04-11T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:record-contact\",\r\n                \"display\": \"Contact details (HTTP Unsecured)\"\r\n            }\r\n        }\r\n    ],\r\n    \"context\": {\r\n        \"period\": {\r\n            \"start\": \"2022-02-28T12:04:38.3143068+00:00\",\r\n            \"end\": \"2023-08-15T11:12:53Z\"\r\n        },\r\n        \"practiceSetting\": {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"310167005\",\r\n                    \"display\": \"Urology service\"\r\n                }\r\n            ]\r\n        },\r\n        \"related\": [\r\n            {\r\n                \"identifier\": {\r\n                    \"system\": \"https://fhir.nhs.uk/Id/nhsSpineASID\",\r\n                    \"value\": \"200000000610\"\r\n                }\r\n            }\r\n        ]\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{int_url}}record-locator/producer/FHIR/R4/DocumentReference/",
+									"host": [
+										"{{int_url}}record-locator"
+									],
+									"path": [
+										"producer",
+										"FHIR",
+										"R4",
+										"DocumentReference",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Pointer with invalid \"system\" for category (NICP instead of snomed)",
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"accept": true
+								}
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{auth_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json; version=1.0",
+										"type": "text"
+									},
+									{
+										"key": "X-Correlation-Id",
+										"value": "xcorrelationid-example",
+										"type": "text"
+									},
+									{
+										"key": "X-Request-Id",
+										"value": "xrequestID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Correlation-ID",
+										"value": "nhs-correlationID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-End-User-Organisation-ODS",
+										"value": "{{ods_code}}",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Request-ID",
+										"value": "nhsRequestID-example",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"resourceType\": \"DocumentReference\",\r\n    \"id\": \"{{ods_code}}-123\",\r\n    \"meta\": {\r\n        \"lastUpdated\": \"2024-04-29T14:45:49.852Z\"\r\n    },\r\n    \"status\": \"current\",\r\n    \"type\": {\r\n        \"coding\": [\r\n            {\r\n                \"system\": \"https://nicip.nhs.uk\",\r\n                \"code\": \"MAULR\",\r\n                \"display\": \"MRA Upper Limb Rt\"\r\n            }\r\n        ]\r\n    },\r\n    \"category\": [\r\n        {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"https://nicip.nhs.uk\",\r\n                    \"code\": \"721981007\",\r\n                    \"display\": \"Diagnostic studies report\"\r\n                }\r\n            ]\r\n        }\r\n    ],\r\n    \"subject\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/nhs-number\",\r\n            \"value\": \"9693892992\"\r\n        }\r\n    },\r\n    \"date\": \"2024-04-11T14:31:11+00:00\",\r\n    \"author\": [\r\n        {\r\n            \"identifier\": {\r\n                \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n                \"value\": \"{{ods_code}}\"\r\n            }\r\n        }\r\n    ],\r\n    \"custodian\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n            \"value\": \"{{ods_code}}\"\r\n        }\r\n    },\r\n    \"content\": [\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"application/pdf\",\r\n                \"url\": \"{{document_url}}\",\r\n                \"creation\": \"2024-04-23T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:unstructured\",\r\n                \"display\": \"Unstructured Document\"\r\n            }\r\n        },\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"text/html\",\r\n                \"url\": \"{{contact_url}}\",\r\n                \"creation\": \"2024-04-11T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:record-contact\",\r\n                \"display\": \"Contact details (HTTP Unsecured)\"\r\n            }\r\n        }\r\n    ],\r\n    \"context\": {\r\n        \"period\": {\r\n            \"start\": \"2022-02-28T12:04:38.3143068+00:00\",\r\n            \"end\": \"2023-08-15T11:12:53Z\"\r\n        },\r\n        \"practiceSetting\": {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"310167005\",\r\n                    \"display\": \"Urology service\"\r\n                }\r\n            ]\r\n        },\r\n        \"related\": [\r\n            {\r\n                \"identifier\": {\r\n                    \"system\": \"https://fhir.nhs.uk/Id/nhsSpineASID\",\r\n                    \"value\": \"200000000610\"\r\n                }\r\n            }\r\n        ]\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{int_url}}record-locator/producer/FHIR/R4/DocumentReference/",
+									"host": [
+										"{{int_url}}record-locator"
+									],
+									"path": [
+										"producer",
+										"FHIR",
+										"R4",
+										"DocumentReference",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create pointer with snomed type.coding.system ( but NCIP code and display name",
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"accept": true
+								}
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{auth_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json; version=1.0",
+										"type": "text"
+									},
+									{
+										"key": "X-Correlation-Id",
+										"value": "xcorrelationid-example",
+										"type": "text"
+									},
+									{
+										"key": "X-Request-Id",
+										"value": "xrequestID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Correlation-ID",
+										"value": "nhs-correlationID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-End-User-Organisation-ODS",
+										"value": "{{ods_code}}",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Request-ID",
+										"value": "nhsRequestID-example",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"resourceType\": \"DocumentReference\",\r\n    \"id\": \"{{ods_code}}-123\",\r\n    \"meta\": {\r\n        \"lastUpdated\": \"2024-04-29T14:45:49.852Z\"\r\n    },\r\n    \"status\": \"current\",\r\n    \"type\": {\r\n        \"coding\": [\r\n            {\r\n                \"system\": \"http://snomed.info/sct\",\r\n                \"code\": \"MAULR\",\r\n                \"display\": \"MRA Upper Limb Rt\"\r\n            }\r\n        ]\r\n    },\r\n    \"category\": [\r\n        {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"721981007\",\r\n                    \"display\": \"Diagnostic studies report\"\r\n                }\r\n            ]\r\n        }\r\n    ],\r\n    \"subject\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/nhs-number\",\r\n            \"value\": \"9693892992\"\r\n        }\r\n    },\r\n    \"date\": \"2024-04-11T14:31:11+00:00\",\r\n    \"author\": [\r\n        {\r\n            \"identifier\": {\r\n                \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n                \"value\": \"{{ods_code}}\"\r\n            }\r\n        }\r\n    ],\r\n    \"custodian\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n            \"value\": \"{{ods_code}}\"\r\n        }\r\n    },\r\n    \"content\": [\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"application/pdf\",\r\n                \"url\": \"{{document_url}}\",\r\n                \"creation\": \"2024-04-23T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:unstructured\",\r\n                \"display\": \"Unstructured Document\"\r\n            }\r\n        },\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"text/html\",\r\n                \"url\": \"{{contact_url}}\",\r\n                \"creation\": \"2024-04-11T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:record-contact\",\r\n                \"display\": \"Contact details (HTTP Unsecured)\"\r\n            }\r\n        }\r\n    ],\r\n    \"context\": {\r\n        \"period\": {\r\n            \"start\": \"2022-02-28T12:04:38.3143068+00:00\",\r\n            \"end\": \"2023-08-15T11:12:53Z\"\r\n        },\r\n        \"practiceSetting\": {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"310167005\",\r\n                    \"display\": \"Urology service\"\r\n                }\r\n            ]\r\n        },\r\n        \"related\": [\r\n            {\r\n                \"identifier\": {\r\n                    \"system\": \"https://fhir.nhs.uk/Id/nhsSpineASID\",\r\n                    \"value\": \"200000000610\"\r\n                }\r\n            }\r\n        ]\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{int_url}}record-locator/producer/FHIR/R4/DocumentReference/",
+									"host": [
+										"{{int_url}}record-locator"
+									],
+									"path": [
+										"producer",
+										"FHIR",
+										"R4",
+										"DocumentReference",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Invalid casing",
+					"item": [
+						{
+							"name": "Create imaging pointer with invalid casing for type.coding.system value",
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"accept": true
+								}
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{auth_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json; version=1.0",
+										"type": "text"
+									},
+									{
+										"key": "X-Correlation-Id",
+										"value": "xcorrelationid-example",
+										"type": "text"
+									},
+									{
+										"key": "X-Request-Id",
+										"value": "xrequestID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Correlation-ID",
+										"value": "nhs-correlationID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-End-User-Organisation-ODS",
+										"value": "{{ods_code}}",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Request-ID",
+										"value": "nhsRequestID-example",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"resourceType\": \"DocumentReference\",\r\n    \"id\": \"{{ods_code}}-123\",\r\n    \"meta\": {\r\n        \"lastUpdated\": \"2024-04-29T14:45:49.852Z\"\r\n    },\r\n    \"status\": \"current\",\r\n    \"type\": {\r\n        \"coding\": [\r\n            {\r\n                \"system\": \"https://Nicip.nhs.uk\",\r\n                \"code\": \"MAULR\",\r\n                \"display\": \"MRA Upper Limb Rt\"\r\n            }\r\n        ]\r\n    },\r\n    \"category\": [\r\n        {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"721981007\",\r\n                    \"display\": \"Diagnostic studies report\"\r\n                }\r\n            ]\r\n        }\r\n    ],\r\n    \"subject\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/nhs-number\",\r\n            \"value\": \"9693892992\"\r\n        }\r\n    },\r\n    \"date\": \"2024-04-11T14:31:11+00:00\",\r\n    \"author\": [\r\n        {\r\n            \"identifier\": {\r\n                \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n                \"value\": \"{{ods_code}}\"\r\n            }\r\n        }\r\n    ],\r\n    \"custodian\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n            \"value\": \"{{ods_code}}\"\r\n        }\r\n    },\r\n    \"content\": [\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"application/pdf\",\r\n                \"url\": \"{{document_url}}\",\r\n                \"creation\": \"2024-04-23T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:unstructured\",\r\n                \"display\": \"Unstructured Document\"\r\n            }\r\n        },\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"text/html\",\r\n                \"url\": \"{{contact_url}}\",\r\n                \"creation\": \"2024-04-11T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:record-contact\",\r\n                \"display\": \"Contact details (HTTP Unsecured)\"\r\n            }\r\n        }\r\n    ],\r\n    \"context\": {\r\n        \"period\": {\r\n            \"start\": \"2022-02-28T12:04:38.3143068+00:00\",\r\n            \"end\": \"2023-08-15T11:12:53Z\"\r\n        },\r\n        \"practiceSetting\": {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"310167005\",\r\n                    \"display\": \"Urology service\"\r\n                }\r\n            ]\r\n        },\r\n        \"related\": [\r\n            {\r\n                \"identifier\": {\r\n                    \"system\": \"https://fhir.nhs.uk/Id/nhsSpineASID\",\r\n                    \"value\": \"200000000610\"\r\n                }\r\n            }\r\n        ]\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{int_url}}record-locator/producer/FHIR/R4/DocumentReference/",
+									"host": [
+										"{{int_url}}record-locator"
+									],
+									"path": [
+										"producer",
+										"FHIR",
+										"R4",
+										"DocumentReference",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create imaging pointer with invalid casing for type.coding.code value",
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"accept": true
+								}
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{auth_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json; version=1.0",
+										"type": "text"
+									},
+									{
+										"key": "X-Correlation-Id",
+										"value": "xcorrelationid-example",
+										"type": "text"
+									},
+									{
+										"key": "X-Request-Id",
+										"value": "xrequestID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Correlation-ID",
+										"value": "nhs-correlationID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-End-User-Organisation-ODS",
+										"value": "{{ods_code}}",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Request-ID",
+										"value": "nhsRequestID-example",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"resourceType\": \"DocumentReference\",\r\n    \"id\": \"{{ods_code}}-123\",\r\n    \"meta\": {\r\n        \"lastUpdated\": \"2024-04-29T14:45:49.852Z\"\r\n    },\r\n    \"status\": \"current\",\r\n    \"type\": {\r\n        \"coding\": [\r\n            {\r\n                \"system\": \"https://nicip.nhs.uk\",\r\n                \"code\": \"maulr\",\r\n                \"display\": \"MRA Upper Limb Rt\"\r\n            }\r\n        ]\r\n    },\r\n    \"category\": [\r\n        {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"721981007\",\r\n                    \"display\": \"Diagnostic studies report\"\r\n                }\r\n            ]\r\n        }\r\n    ],\r\n    \"subject\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/nhs-number\",\r\n            \"value\": \"9693892992\"\r\n        }\r\n    },\r\n    \"date\": \"2024-04-11T14:31:11+00:00\",\r\n    \"author\": [\r\n        {\r\n            \"identifier\": {\r\n                \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n                \"value\": \"{{ods_code}}\"\r\n            }\r\n        }\r\n    ],\r\n    \"custodian\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n            \"value\": \"{{ods_code}}\"\r\n        }\r\n    },\r\n    \"content\": [\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"application/pdf\",\r\n                \"url\": \"{{document_url}}\",\r\n                \"creation\": \"2024-04-23T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:unstructured\",\r\n                \"display\": \"Unstructured Document\"\r\n            }\r\n        },\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"text/html\",\r\n                \"url\": \"{{contact_url}}\",\r\n                \"creation\": \"2024-04-11T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:record-contact\",\r\n                \"display\": \"Contact details (HTTP Unsecured)\"\r\n            }\r\n        }\r\n    ],\r\n    \"context\": {\r\n        \"period\": {\r\n            \"start\": \"2022-02-28T12:04:38.3143068+00:00\",\r\n            \"end\": \"2023-08-15T11:12:53Z\"\r\n        },\r\n        \"practiceSetting\": {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"310167005\",\r\n                    \"display\": \"Urology service\"\r\n                }\r\n            ]\r\n        },\r\n        \"related\": [\r\n            {\r\n                \"identifier\": {\r\n                    \"system\": \"https://fhir.nhs.uk/Id/nhsSpineASID\",\r\n                    \"value\": \"200000000610\"\r\n                }\r\n            }\r\n        ]\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{int_url}}record-locator/producer/FHIR/R4/DocumentReference/",
+									"host": [
+										"{{int_url}}record-locator"
+									],
+									"path": [
+										"producer",
+										"FHIR",
+										"R4",
+										"DocumentReference",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create imaging pointer with invalid casing for type.coding.display value",
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"accept": true
+								}
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{auth_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json; version=1.0",
+										"type": "text"
+									},
+									{
+										"key": "X-Correlation-Id",
+										"value": "xcorrelationid-example",
+										"type": "text"
+									},
+									{
+										"key": "X-Request-Id",
+										"value": "xrequestID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Correlation-ID",
+										"value": "nhs-correlationID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-End-User-Organisation-ODS",
+										"value": "{{ods_code}}",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Request-ID",
+										"value": "nhsRequestID-example",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"resourceType\": \"DocumentReference\",\r\n    \"id\": \"{{ods_code}}-123\",\r\n    \"meta\": {\r\n        \"lastUpdated\": \"2024-04-29T14:45:49.852Z\"\r\n    },\r\n    \"status\": \"current\",\r\n    \"type\": {\r\n        \"coding\": [\r\n            {\r\n                \"system\": \"https://nicip.nhs.uk\",\r\n                \"code\": \"MAULR\",\r\n                \"display\": \"MRA Upper Limb rt\"\r\n            }\r\n        ]\r\n    },\r\n    \"category\": [\r\n        {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"721981007\",\r\n                    \"display\": \"Diagnostic studies report\"\r\n                }\r\n            ]\r\n        }\r\n    ],\r\n    \"subject\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/nhs-number\",\r\n            \"value\": \"9693892992\"\r\n        }\r\n    },\r\n    \"date\": \"2024-04-11T14:31:11+00:00\",\r\n    \"author\": [\r\n        {\r\n            \"identifier\": {\r\n                \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n                \"value\": \"{{ods_code}}\"\r\n            }\r\n        }\r\n    ],\r\n    \"custodian\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n            \"value\": \"{{ods_code}}\"\r\n        }\r\n    },\r\n    \"content\": [\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"application/pdf\",\r\n                \"url\": \"{{document_url}}\",\r\n                \"creation\": \"2024-04-23T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:unstructured\",\r\n                \"display\": \"Unstructured Document\"\r\n            }\r\n        },\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"text/html\",\r\n                \"url\": \"{{contact_url}}\",\r\n                \"creation\": \"2024-04-11T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:record-contact\",\r\n                \"display\": \"Contact details (HTTP Unsecured)\"\r\n            }\r\n        }\r\n    ],\r\n    \"context\": {\r\n        \"period\": {\r\n            \"start\": \"2022-02-28T12:04:38.3143068+00:00\",\r\n            \"end\": \"2023-08-15T11:12:53Z\"\r\n        },\r\n        \"practiceSetting\": {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"310167005\",\r\n                    \"display\": \"Urology service\"\r\n                }\r\n            ]\r\n        },\r\n        \"related\": [\r\n            {\r\n                \"identifier\": {\r\n                    \"system\": \"https://fhir.nhs.uk/Id/nhsSpineASID\",\r\n                    \"value\": \"200000000610\"\r\n                }\r\n            }\r\n        ]\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{int_url}}record-locator/producer/FHIR/R4/DocumentReference/",
+									"host": [
+										"{{int_url}}record-locator"
+									],
+									"path": [
+										"producer",
+										"FHIR",
+										"R4",
+										"DocumentReference",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create imaging pointer with invalid casing for category.coding.system value",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 400\", function () {\r",
+											"  pm.expect(pm.response.code).to.equal(400);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"accept": true
+								}
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{auth_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json; version=1.0",
+										"type": "text"
+									},
+									{
+										"key": "X-Correlation-Id",
+										"value": "xcorrelationid-example",
+										"type": "text"
+									},
+									{
+										"key": "X-Request-Id",
+										"value": "xrequestID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Correlation-ID",
+										"value": "nhs-correlationID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-End-User-Organisation-ODS",
+										"value": "{{ods_code}}",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Request-ID",
+										"value": "nhsRequestID-example",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"resourceType\": \"DocumentReference\",\r\n    \"id\": \"{{ods_code}}-123\",\r\n    \"meta\": {\r\n        \"lastUpdated\": \"2024-04-29T14:45:49.852Z\"\r\n    },\r\n    \"status\": \"current\",\r\n    \"type\": {\r\n        \"coding\": [\r\n            {\r\n                \"system\": \"https://nicip.nhs.uk\",\r\n                \"code\": \"MAULR\",\r\n                \"display\": \"MRA Upper Limb Rt\"\r\n            }\r\n        ]\r\n    },\r\n    \"category\": [\r\n        {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://Snomed.info/sct\",\r\n                    \"code\": \"721981007\",\r\n                    \"display\": \"Diagnostic studies report\"\r\n                }\r\n            ]\r\n        }\r\n    ],\r\n    \"subject\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/nhs-number\",\r\n            \"value\": \"9693892992\"\r\n        }\r\n    },\r\n    \"date\": \"2024-04-11T14:31:11+00:00\",\r\n    \"author\": [\r\n        {\r\n            \"identifier\": {\r\n                \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n                \"value\": \"{{ods_code}}\"\r\n            }\r\n        }\r\n    ],\r\n    \"custodian\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n            \"value\": \"{{ods_code}}\"\r\n        }\r\n    },\r\n    \"content\": [\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"application/pdf\",\r\n                \"url\": \"{{document_url}}\",\r\n                \"creation\": \"2024-04-23T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:unstructured\",\r\n                \"display\": \"Unstructured Document\"\r\n            }\r\n        },\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"text/html\",\r\n                \"url\": \"{{contact_url}}\",\r\n                \"creation\": \"2024-04-11T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:record-contact\",\r\n                \"display\": \"Contact details (HTTP Unsecured)\"\r\n            }\r\n        }\r\n    ],\r\n    \"context\": {\r\n        \"period\": {\r\n            \"start\": \"2022-02-28T12:04:38.3143068+00:00\",\r\n            \"end\": \"2023-08-15T11:12:53Z\"\r\n        },\r\n        \"practiceSetting\": {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"310167005\",\r\n                    \"display\": \"Urology service\"\r\n                }\r\n            ]\r\n        },\r\n        \"related\": [\r\n            {\r\n                \"identifier\": {\r\n                    \"system\": \"https://fhir.nhs.uk/Id/nhsSpineASID\",\r\n                    \"value\": \"200000000610\"\r\n                }\r\n            }\r\n        ]\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{int_url}}record-locator/producer/FHIR/R4/DocumentReference/",
+									"host": [
+										"{{int_url}}record-locator"
+									],
+									"path": [
+										"producer",
+										"FHIR",
+										"R4",
+										"DocumentReference",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create imaging pointer with invalid casing for category.coding.code value",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 400\", function () {\r",
+											"  pm.expect(pm.response.code).to.equal(400);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"accept": true
+								}
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{auth_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json; version=1.0",
+										"type": "text"
+									},
+									{
+										"key": "X-Correlation-Id",
+										"value": "xcorrelationid-example",
+										"type": "text"
+									},
+									{
+										"key": "X-Request-Id",
+										"value": "xrequestID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Correlation-ID",
+										"value": "nhs-correlationID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-End-User-Organisation-ODS",
+										"value": "{{ods_code}}",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Request-ID",
+										"value": "nhsRequestID-example",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"resourceType\": \"DocumentReference\",\r\n    \"id\": \"{{ods_code}}-123\",\r\n    \"meta\": {\r\n        \"lastUpdated\": \"2024-04-29T14:45:49.852Z\"\r\n    },\r\n    \"status\": \"current\",\r\n    \"type\": {\r\n        \"coding\": [\r\n            {\r\n                \"system\": \"https://nicip.nhs.uk\",\r\n                \"code\": \"MAULR\",\r\n                \"display\": \"MRA Upper Limb Rt\"\r\n            }\r\n        ]\r\n    },\r\n    \"category\": [\r\n        {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"abc\",\r\n                    \"display\": \"Diagnostic studies report\"\r\n                }\r\n            ]\r\n        }\r\n    ],\r\n    \"subject\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/nhs-number\",\r\n            \"value\": \"9693892992\"\r\n        }\r\n    },\r\n    \"date\": \"2024-04-11T14:31:11+00:00\",\r\n    \"author\": [\r\n        {\r\n            \"identifier\": {\r\n                \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n                \"value\": \"{{ods_code}}\"\r\n            }\r\n        }\r\n    ],\r\n    \"custodian\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n            \"value\": \"{{ods_code}}\"\r\n        }\r\n    },\r\n    \"content\": [\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"application/pdf\",\r\n                \"url\": \"{{document_url}}\",\r\n                \"creation\": \"2024-04-23T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:unstructured\",\r\n                \"display\": \"Unstructured Document\"\r\n            }\r\n        },\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"text/html\",\r\n                \"url\": \"{{contact_url}}\",\r\n                \"creation\": \"2024-04-11T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:record-contact\",\r\n                \"display\": \"Contact details (HTTP Unsecured)\"\r\n            }\r\n        }\r\n    ],\r\n    \"context\": {\r\n        \"period\": {\r\n            \"start\": \"2022-02-28T12:04:38.3143068+00:00\",\r\n            \"end\": \"2023-08-15T11:12:53Z\"\r\n        },\r\n        \"practiceSetting\": {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"310167005\",\r\n                    \"display\": \"Urology service\"\r\n                }\r\n            ]\r\n        },\r\n        \"related\": [\r\n            {\r\n                \"identifier\": {\r\n                    \"system\": \"https://fhir.nhs.uk/Id/nhsSpineASID\",\r\n                    \"value\": \"200000000610\"\r\n                }\r\n            }\r\n        ]\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{int_url}}record-locator/producer/FHIR/R4/DocumentReference/",
+									"host": [
+										"{{int_url}}record-locator"
+									],
+									"path": [
+										"producer",
+										"FHIR",
+										"R4",
+										"DocumentReference",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create imaging pointer with invalid casing for category.coding.display value",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 400\", function () {\r",
+											"  pm.expect(pm.response.code).to.equal(400);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"accept": true
+								}
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{auth_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json; version=1.0",
+										"type": "text"
+									},
+									{
+										"key": "X-Correlation-Id",
+										"value": "xcorrelationid-example",
+										"type": "text"
+									},
+									{
+										"key": "X-Request-Id",
+										"value": "xrequestID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Correlation-ID",
+										"value": "nhs-correlationID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-End-User-Organisation-ODS",
+										"value": "{{ods_code}}",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Request-ID",
+										"value": "nhsRequestID-example",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"resourceType\": \"DocumentReference\",\r\n    \"id\": \"{{ods_code}}-123\",\r\n    \"meta\": {\r\n        \"lastUpdated\": \"2024-04-29T14:45:49.852Z\"\r\n    },\r\n    \"status\": \"current\",\r\n    \"type\": {\r\n        \"coding\": [\r\n            {\r\n                \"system\": \"https://nicip.nhs.uk\",\r\n                \"code\": \"MAULR\",\r\n                \"display\": \"MRA Upper Limb Rt\"\r\n            }\r\n        ]\r\n    },\r\n    \"category\": [\r\n        {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"721981007\",\r\n                    \"display\": \"Diagnostic studies Report\"\r\n                }\r\n            ]\r\n        }\r\n    ],\r\n    \"subject\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/nhs-number\",\r\n            \"value\": \"9693892992\"\r\n        }\r\n    },\r\n    \"date\": \"2024-04-11T14:31:11+00:00\",\r\n    \"author\": [\r\n        {\r\n            \"identifier\": {\r\n                \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n                \"value\": \"{{ods_code}}\"\r\n            }\r\n        }\r\n    ],\r\n    \"custodian\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n            \"value\": \"{{ods_code}}\"\r\n        }\r\n    },\r\n    \"content\": [\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"application/pdf\",\r\n                \"url\": \"{{document_url}}\",\r\n                \"creation\": \"2024-04-23T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:unstructured\",\r\n                \"display\": \"Unstructured Document\"\r\n            }\r\n        },\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"text/html\",\r\n                \"url\": \"{{contact_url}}\",\r\n                \"creation\": \"2024-04-11T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:record-contact\",\r\n                \"display\": \"Contact details (HTTP Unsecured)\"\r\n            }\r\n        }\r\n    ],\r\n    \"context\": {\r\n        \"period\": {\r\n            \"start\": \"2022-02-28T12:04:38.3143068+00:00\",\r\n            \"end\": \"2023-08-15T11:12:53Z\"\r\n        },\r\n        \"practiceSetting\": {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"310167005\",\r\n                    \"display\": \"Urology service\"\r\n                }\r\n            ]\r\n        },\r\n        \"related\": [\r\n            {\r\n                \"identifier\": {\r\n                    \"system\": \"https://fhir.nhs.uk/Id/nhsSpineASID\",\r\n                    \"value\": \"200000000610\"\r\n                }\r\n            }\r\n        ]\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{int_url}}record-locator/producer/FHIR/R4/DocumentReference/",
+									"host": [
+										"{{int_url}}record-locator"
+									],
+									"path": [
+										"producer",
+										"FHIR",
+										"R4",
+										"DocumentReference",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Missing fields",
+					"item": [
+						{
+							"name": "Create imaging pointer with missing type.coding.system field",
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"accept": true
+								}
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{auth_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json; version=1.0",
+										"type": "text"
+									},
+									{
+										"key": "X-Correlation-Id",
+										"value": "xcorrelationid-example",
+										"type": "text"
+									},
+									{
+										"key": "X-Request-Id",
+										"value": "xrequestID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Correlation-ID",
+										"value": "nhs-correlationID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-End-User-Organisation-ODS",
+										"value": "{{ods_code}}",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Request-ID",
+										"value": "nhsRequestID-example",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"resourceType\": \"DocumentReference\",\r\n    \"id\": \"{{ods_code}}-123\",\r\n    \"meta\": {\r\n        \"lastUpdated\": \"2024-04-29T14:45:49.852Z\"\r\n    },\r\n    \"status\": \"current\",\r\n    \"type\": {\r\n        \"coding\": [\r\n            {\r\n                \"code\": \"MAULR\",\r\n                \"display\": \"MRA Upper Limb Rt\"\r\n            }\r\n        ]\r\n    },\r\n    \"category\": [\r\n        {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"721981007\",\r\n                    \"display\": \"Diagnostic studies report\"\r\n                }\r\n            ]\r\n        }\r\n    ],\r\n    \"subject\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/nhs-number\",\r\n            \"value\": \"9693892992\"\r\n        }\r\n    },\r\n    \"date\": \"2024-04-11T14:31:11+00:00\",\r\n    \"author\": [\r\n        {\r\n            \"identifier\": {\r\n                \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n                \"value\": \"{{ods_code}}\"\r\n            }\r\n        }\r\n    ],\r\n    \"custodian\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n            \"value\": \"{{ods_code}}\"\r\n        }\r\n    },\r\n    \"content\": [\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"application/pdf\",\r\n                \"url\": \"{{document_url}}\",\r\n                \"creation\": \"2024-04-23T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:unstructured\",\r\n                \"display\": \"Unstructured Document\"\r\n            }\r\n        },\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"text/html\",\r\n                \"url\": \"{{contact_url}}\",\r\n                \"creation\": \"2024-04-11T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:record-contact\",\r\n                \"display\": \"Contact details (HTTP Unsecured)\"\r\n            }\r\n        }\r\n    ],\r\n    \"context\": {\r\n        \"period\": {\r\n            \"start\": \"2022-02-28T12:04:38.3143068+00:00\",\r\n            \"end\": \"2023-08-15T11:12:53Z\"\r\n        },\r\n        \"practiceSetting\": {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"310167005\",\r\n                    \"display\": \"Urology service\"\r\n                }\r\n            ]\r\n        },\r\n        \"related\": [\r\n            {\r\n                \"identifier\": {\r\n                    \"system\": \"https://fhir.nhs.uk/Id/nhsSpineASID\",\r\n                    \"value\": \"200000000610\"\r\n                }\r\n            }\r\n        ]\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{int_url}}record-locator/producer/FHIR/R4/DocumentReference/",
+									"host": [
+										"{{int_url}}record-locator"
+									],
+									"path": [
+										"producer",
+										"FHIR",
+										"R4",
+										"DocumentReference",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create imaging pointer with missing type.coding.code field",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 400\", function () {\r",
+											"  pm.expect(pm.response.code).to.equal(400);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"accept": true
+								}
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{auth_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json; version=1.0",
+										"type": "text"
+									},
+									{
+										"key": "X-Correlation-Id",
+										"value": "xcorrelationid-example",
+										"type": "text"
+									},
+									{
+										"key": "X-Request-Id",
+										"value": "xrequestID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Correlation-ID",
+										"value": "nhs-correlationID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-End-User-Organisation-ODS",
+										"value": "{{ods_code}}",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Request-ID",
+										"value": "nhsRequestID-example",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"resourceType\": \"DocumentReference\",\r\n    \"id\": \"{{ods_code}}-123\",\r\n    \"meta\": {\r\n        \"lastUpdated\": \"2024-04-29T14:45:49.852Z\"\r\n    },\r\n    \"status\": \"current\",\r\n    \"type\": {\r\n        \"coding\": [\r\n            {\r\n                \"system\": \"https://nicip.nhs.uk\",\r\n                \"display\": \"MRA Upper Limb Rt\"\r\n            }\r\n        ]\r\n    },\r\n    \"category\": [\r\n        {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"721981007\",\r\n                    \"display\": \"Diagnostic studies report\"\r\n                }\r\n            ]\r\n        }\r\n    ],\r\n    \"subject\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/nhs-number\",\r\n            \"value\": \"9693892992\"\r\n        }\r\n    },\r\n    \"date\": \"2024-04-11T14:31:11+00:00\",\r\n    \"author\": [\r\n        {\r\n            \"identifier\": {\r\n                \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n                \"value\": \"{{ods_code}}\"\r\n            }\r\n        }\r\n    ],\r\n    \"custodian\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n            \"value\": \"{{ods_code}}\"\r\n        }\r\n    },\r\n    \"content\": [\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"application/pdf\",\r\n                \"url\": \"{{document_url}}\",\r\n                \"creation\": \"2024-04-23T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:unstructured\",\r\n                \"display\": \"Unstructured Document\"\r\n            }\r\n        },\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"text/html\",\r\n                \"url\": \"{{contact_url}}\",\r\n                \"creation\": \"2024-04-11T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:record-contact\",\r\n                \"display\": \"Contact details (HTTP Unsecured)\"\r\n            }\r\n        }\r\n    ],\r\n    \"context\": {\r\n        \"period\": {\r\n            \"start\": \"2022-02-28T12:04:38.3143068+00:00\",\r\n            \"end\": \"2023-08-15T11:12:53Z\"\r\n        },\r\n        \"practiceSetting\": {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"310167005\",\r\n                    \"display\": \"Urology service\"\r\n                }\r\n            ]\r\n        },\r\n        \"related\": [\r\n            {\r\n                \"identifier\": {\r\n                    \"system\": \"https://fhir.nhs.uk/Id/nhsSpineASID\",\r\n                    \"value\": \"200000000610\"\r\n                }\r\n            }\r\n        ]\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{int_url}}record-locator/producer/FHIR/R4/DocumentReference/",
+									"host": [
+										"{{int_url}}record-locator"
+									],
+									"path": [
+										"producer",
+										"FHIR",
+										"R4",
+										"DocumentReference",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create imaging pointer with missing type.coding.display field",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 400\", function () {\r",
+											"  pm.expect(pm.response.code).to.equal(400);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"accept": true
+								}
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{auth_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json; version=1.0",
+										"type": "text"
+									},
+									{
+										"key": "X-Correlation-Id",
+										"value": "xcorrelationid-example",
+										"type": "text"
+									},
+									{
+										"key": "X-Request-Id",
+										"value": "xrequestID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Correlation-ID",
+										"value": "nhs-correlationID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-End-User-Organisation-ODS",
+										"value": "{{ods_code}}",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Request-ID",
+										"value": "nhsRequestID-example",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"resourceType\": \"DocumentReference\",\r\n    \"id\": \"{{ods_code}}-123\",\r\n    \"meta\": {\r\n        \"lastUpdated\": \"2024-04-29T14:45:49.852Z\"\r\n    },\r\n    \"status\": \"current\",\r\n    \"type\": {\r\n        \"coding\": [\r\n            {\r\n                \"system\": \"https://nicip.nhs.uk\",\r\n                \"code\": \"MAULR\"\r\n            }\r\n        ]\r\n    },\r\n    \"category\": [\r\n        {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"721981007\",\r\n                    \"display\": \"Diagnostic studies report\"\r\n                }\r\n            ]\r\n        }\r\n    ],\r\n    \"subject\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/nhs-number\",\r\n            \"value\": \"9693892992\"\r\n        }\r\n    },\r\n    \"date\": \"2024-04-11T14:31:11+00:00\",\r\n    \"author\": [\r\n        {\r\n            \"identifier\": {\r\n                \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n                \"value\": \"{{ods_code}}\"\r\n            }\r\n        }\r\n    ],\r\n    \"custodian\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n            \"value\": \"{{ods_code}}\"\r\n        }\r\n    },\r\n    \"content\": [\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"application/pdf\",\r\n                \"url\": \"{{document_url}}\",\r\n                \"creation\": \"2024-04-23T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:unstructured\",\r\n                \"display\": \"Unstructured Document\"\r\n            }\r\n        },\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"text/html\",\r\n                \"url\": \"{{contact_url}}\",\r\n                \"creation\": \"2024-04-11T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:record-contact\",\r\n                \"display\": \"Contact details (HTTP Unsecured)\"\r\n            }\r\n        }\r\n    ],\r\n    \"context\": {\r\n        \"period\": {\r\n            \"start\": \"2022-02-28T12:04:38.3143068+00:00\",\r\n            \"end\": \"2023-08-15T11:12:53Z\"\r\n        },\r\n        \"practiceSetting\": {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"310167005\",\r\n                    \"display\": \"Urology service\"\r\n                }\r\n            ]\r\n        },\r\n        \"related\": [\r\n            {\r\n                \"identifier\": {\r\n                    \"system\": \"https://fhir.nhs.uk/Id/nhsSpineASID\",\r\n                    \"value\": \"200000000610\"\r\n                }\r\n            }\r\n        ]\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{int_url}}record-locator/producer/FHIR/R4/DocumentReference/",
+									"host": [
+										"{{int_url}}record-locator"
+									],
+									"path": [
+										"producer",
+										"FHIR",
+										"R4",
+										"DocumentReference",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create imaging pointer with missing category.coding.system field",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 400\", function () {\r",
+											"  pm.expect(pm.response.code).to.equal(400);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"accept": true
+								}
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{auth_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json; version=1.0",
+										"type": "text"
+									},
+									{
+										"key": "X-Correlation-Id",
+										"value": "xcorrelationid-example",
+										"type": "text"
+									},
+									{
+										"key": "X-Request-Id",
+										"value": "xrequestID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Correlation-ID",
+										"value": "nhs-correlationID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-End-User-Organisation-ODS",
+										"value": "{{ods_code}}",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Request-ID",
+										"value": "nhsRequestID-example",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"resourceType\": \"DocumentReference\",\r\n    \"id\": \"{{ods_code}}-123\",\r\n    \"meta\": {\r\n        \"lastUpdated\": \"2024-04-29T14:45:49.852Z\"\r\n    },\r\n    \"status\": \"current\",\r\n    \"type\": {\r\n        \"coding\": [\r\n            {\r\n                \"system\": \"https://nicip.nhs.uk\",\r\n                \"code\": \"MAULR\",\r\n                \"display\": \"MRA Upper Limb Rt\"\r\n            }\r\n        ]\r\n    },\r\n    \"category\": [\r\n        {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"\",\r\n                    \"code\": \"721981007\",\r\n                    \"display\": \"Diagnostic studies report\"\r\n                }\r\n            ]\r\n        }\r\n    ],\r\n    \"subject\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/nhs-number\",\r\n            \"value\": \"9693892992\"\r\n        }\r\n    },\r\n    \"date\": \"2024-04-11T14:31:11+00:00\",\r\n    \"author\": [\r\n        {\r\n            \"identifier\": {\r\n                \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n                \"value\": \"{{ods_code}}\"\r\n            }\r\n        }\r\n    ],\r\n    \"custodian\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n            \"value\": \"{{ods_code}}\"\r\n        }\r\n    },\r\n    \"content\": [\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"application/pdf\",\r\n                \"url\": \"{{document_url}}\",\r\n                \"creation\": \"2024-04-23T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:unstructured\",\r\n                \"display\": \"Unstructured Document\"\r\n            }\r\n        },\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"text/html\",\r\n                \"url\": \"{{contact_url}}\",\r\n                \"creation\": \"2024-04-11T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:record-contact\",\r\n                \"display\": \"Contact details (HTTP Unsecured)\"\r\n            }\r\n        }\r\n    ],\r\n    \"context\": {\r\n        \"period\": {\r\n            \"start\": \"2022-02-28T12:04:38.3143068+00:00\",\r\n            \"end\": \"2023-08-15T11:12:53Z\"\r\n        },\r\n        \"practiceSetting\": {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"310167005\",\r\n                    \"display\": \"Urology service\"\r\n                }\r\n            ]\r\n        },\r\n        \"related\": [\r\n            {\r\n                \"identifier\": {\r\n                    \"system\": \"https://fhir.nhs.uk/Id/nhsSpineASID\",\r\n                    \"value\": \"200000000610\"\r\n                }\r\n            }\r\n        ]\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{int_url}}record-locator/producer/FHIR/R4/DocumentReference/",
+									"host": [
+										"{{int_url}}record-locator"
+									],
+									"path": [
+										"producer",
+										"FHIR",
+										"R4",
+										"DocumentReference",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create imaging pointer with missing category.coding.code field",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 400\", function () {\r",
+											"  pm.expect(pm.response.code).to.equal(400);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"accept": true
+								}
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{auth_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json; version=1.0",
+										"type": "text"
+									},
+									{
+										"key": "X-Correlation-Id",
+										"value": "xcorrelationid-example",
+										"type": "text"
+									},
+									{
+										"key": "X-Request-Id",
+										"value": "xrequestID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Correlation-ID",
+										"value": "nhs-correlationID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-End-User-Organisation-ODS",
+										"value": "{{ods_code}}",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Request-ID",
+										"value": "nhsRequestID-example",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"resourceType\": \"DocumentReference\",\r\n    \"id\": \"{{ods_code}}-123\",\r\n    \"meta\": {\r\n        \"lastUpdated\": \"2024-04-29T14:45:49.852Z\"\r\n    },\r\n    \"status\": \"current\",\r\n    \"type\": {\r\n        \"coding\": [\r\n            {\r\n                \"system\": \"https://nicip.nhs.uk\",\r\n                \"code\": \"MAULR\",\r\n                \"display\": \"MRA Upper Limb Rt\"\r\n            }\r\n        ]\r\n    },\r\n    \"category\": [\r\n        {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"display\": \"Diagnostic studies report\"\r\n                }\r\n            ]\r\n        }\r\n    ],\r\n    \"subject\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/nhs-number\",\r\n            \"value\": \"9693892992\"\r\n        }\r\n    },\r\n    \"date\": \"2024-04-11T14:31:11+00:00\",\r\n    \"author\": [\r\n        {\r\n            \"identifier\": {\r\n                \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n                \"value\": \"{{ods_code}}\"\r\n            }\r\n        }\r\n    ],\r\n    \"custodian\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n            \"value\": \"{{ods_code}}\"\r\n        }\r\n    },\r\n    \"content\": [\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"application/pdf\",\r\n                \"url\": \"{{document_url}}\",\r\n                \"creation\": \"2024-04-23T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:unstructured\",\r\n                \"display\": \"Unstructured Document\"\r\n            }\r\n        },\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"text/html\",\r\n                \"url\": \"{{contact_url}}\",\r\n                \"creation\": \"2024-04-11T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:record-contact\",\r\n                \"display\": \"Contact details (HTTP Unsecured)\"\r\n            }\r\n        }\r\n    ],\r\n    \"context\": {\r\n        \"period\": {\r\n            \"start\": \"2022-02-28T12:04:38.3143068+00:00\",\r\n            \"end\": \"2023-08-15T11:12:53Z\"\r\n        },\r\n        \"practiceSetting\": {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"310167005\",\r\n                    \"display\": \"Urology service\"\r\n                }\r\n            ]\r\n        },\r\n        \"related\": [\r\n            {\r\n                \"identifier\": {\r\n                    \"system\": \"https://fhir.nhs.uk/Id/nhsSpineASID\",\r\n                    \"value\": \"200000000610\"\r\n                }\r\n            }\r\n        ]\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{int_url}}record-locator/producer/FHIR/R4/DocumentReference/",
+									"host": [
+										"{{int_url}}record-locator"
+									],
+									"path": [
+										"producer",
+										"FHIR",
+										"R4",
+										"DocumentReference",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create imaging pointer with missing category.coding.display field",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status code is 400\", function () {\r",
+											"  pm.expect(pm.response.code).to.equal(400);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disabledSystemHeaders": {
+									"accept": true
+								}
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{auth_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json; version=1.0",
+										"type": "text"
+									},
+									{
+										"key": "X-Correlation-Id",
+										"value": "xcorrelationid-example",
+										"type": "text"
+									},
+									{
+										"key": "X-Request-Id",
+										"value": "xrequestID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Correlation-ID",
+										"value": "nhs-correlationID-example",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-End-User-Organisation-ODS",
+										"value": "{{ods_code}}",
+										"type": "text"
+									},
+									{
+										"key": "NHSD-Request-ID",
+										"value": "nhsRequestID-example",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"resourceType\": \"DocumentReference\",\r\n    \"id\": \"{{ods_code}}-123\",\r\n    \"meta\": {\r\n        \"lastUpdated\": \"2024-04-29T14:45:49.852Z\"\r\n    },\r\n    \"status\": \"current\",\r\n    \"type\": {\r\n        \"coding\": [\r\n            {\r\n                \"system\": \"https://nicip.nhs.uk\",\r\n                \"code\": \"MAULR\",\r\n                \"display\": \"MRA Upper Limb Rt\"\r\n            }\r\n        ]\r\n    },\r\n    \"category\": [\r\n        {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"721981007\"\r\n                }\r\n            ]\r\n        }\r\n    ],\r\n    \"subject\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/nhs-number\",\r\n            \"value\": \"9693892992\"\r\n        }\r\n    },\r\n    \"date\": \"2024-04-11T14:31:11+00:00\",\r\n    \"author\": [\r\n        {\r\n            \"identifier\": {\r\n                \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n                \"value\": \"{{ods_code}}\"\r\n            }\r\n        }\r\n    ],\r\n    \"custodian\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n            \"value\": \"{{ods_code}}\"\r\n        }\r\n    },\r\n    \"content\": [\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"application/pdf\",\r\n                \"url\": \"{{document_url}}\",\r\n                \"creation\": \"2024-04-23T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:unstructured\",\r\n                \"display\": \"Unstructured Document\"\r\n            }\r\n        },\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"text/html\",\r\n                \"url\": \"{{contact_url}}\",\r\n                \"creation\": \"2024-04-11T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:record-contact\",\r\n                \"display\": \"Contact details (HTTP Unsecured)\"\r\n            }\r\n        }\r\n    ],\r\n    \"context\": {\r\n        \"period\": {\r\n            \"start\": \"2022-02-28T12:04:38.3143068+00:00\",\r\n            \"end\": \"2023-08-15T11:12:53Z\"\r\n        },\r\n        \"practiceSetting\": {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"310167005\",\r\n                    \"display\": \"Urology service\"\r\n                }\r\n            ]\r\n        },\r\n        \"related\": [\r\n            {\r\n                \"identifier\": {\r\n                    \"system\": \"https://fhir.nhs.uk/Id/nhsSpineASID\",\r\n                    \"value\": \"200000000610\"\r\n                }\r\n            }\r\n        ]\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{int_url}}record-locator/producer/FHIR/R4/DocumentReference/",
+									"host": [
+										"{{int_url}}record-locator"
+									],
+									"path": [
+										"producer",
+										"FHIR",
+										"R4",
+										"DocumentReference",
+										""
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Producer API",
+			"item": [
+				{
+					"name": "Create MRA Upper Limb Rt  pointer type with new category Diagnostic Studies Report",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true
+						}
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json; version=1.0",
+								"type": "text"
+							},
+							{
+								"key": "X-Correlation-Id",
+								"value": "xcorrelationid-example",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Id",
+								"value": "xrequestID-example",
+								"type": "text"
+							},
+							{
+								"key": "NHSD-Correlation-ID",
+								"value": "nhs-correlationID-example",
+								"type": "text"
+							},
+							{
+								"key": "NHSD-End-User-Organisation-ODS",
+								"value": "{{ods_code}}",
+								"type": "text"
+							},
+							{
+								"key": "NHSD-Request-ID",
+								"value": "nhsRequestID-example",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"resourceType\": \"DocumentReference\",\r\n    \"id\": \"{{ods_code}}-123\",\r\n    \"meta\": {\r\n        \"lastUpdated\": \"2024-04-29T14:45:49.852Z\"\r\n    },\r\n    \"status\": \"current\",\r\n    \"type\": {\r\n        \"coding\": [\r\n            {\r\n                \"system\": \"https://nicip.nhs.uk\",\r\n                \"code\": \"MAULR\",\r\n                \"display\": \"MRA Upper Limb Rt\"\r\n            }\r\n        ]\r\n    },\r\n    \"category\": [\r\n        {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"721981007\",\r\n                    \"display\": \"Diagnostic studies report\"\r\n                }\r\n            ]\r\n        }\r\n    ],\r\n    \"subject\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/nhs-number\",\r\n            \"value\": \"9693892992\"\r\n        }\r\n    },\r\n    \"date\": \"2024-04-11T14:31:11+00:00\",\r\n    \"author\": [\r\n        {\r\n            \"identifier\": {\r\n                \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n                \"value\": \"{{ods_code}}\"\r\n            }\r\n        }\r\n    ],\r\n    \"custodian\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n            \"value\": \"{{ods_code}}\"\r\n        }\r\n    },\r\n    \"content\": [\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"application/pdf\",\r\n                \"url\": \"{{document_url}}\",\r\n                \"creation\": \"2024-04-23T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:unstructured\",\r\n                \"display\": \"Unstructured Document\"\r\n            }\r\n        },\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"text/html\",\r\n                \"url\": \"{{contact_url}}\",\r\n                \"creation\": \"2024-04-11T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:record-contact\",\r\n                \"display\": \"Contact details (HTTP Unsecured)\"\r\n            }\r\n        }\r\n    ],\r\n    \"context\": {\r\n        \"period\": {\r\n            \"start\": \"2022-02-28T12:04:38.3143068+00:00\",\r\n            \"end\": \"2023-08-15T11:12:53Z\"\r\n        },\r\n        \"practiceSetting\": {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"310167005\",\r\n                    \"display\": \"Urology service\"\r\n                }\r\n            ]\r\n        },\r\n        \"related\": [\r\n            {\r\n                \"identifier\": {\r\n                    \"system\": \"https://fhir.nhs.uk/Id/nhsSpineASID\",\r\n                    \"value\": \"200000000610\"\r\n                }\r\n            }\r\n        ]\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{int_url}}record-locator/producer/FHIR/R4/DocumentReference/",
+							"host": [
+								"{{int_url}}record-locator"
+							],
+							"path": [
+								"producer",
+								"FHIR",
+								"R4",
+								"DocumentReference",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create MRA Upper Limb Rt  pointer type with new category Diagnostic Studies Report Copy",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true
+						}
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json; version=1.0",
+								"type": "text"
+							},
+							{
+								"key": "X-Correlation-Id",
+								"value": "xcorrelationid-example",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Id",
+								"value": "xrequestID-example",
+								"type": "text"
+							},
+							{
+								"key": "NHSD-Correlation-ID",
+								"value": "nhs-correlationID-example",
+								"type": "text"
+							},
+							{
+								"key": "NHSD-End-User-Organisation-ODS",
+								"value": "{{ods_code}}",
+								"type": "text"
+							},
+							{
+								"key": "NHSD-Request-ID",
+								"value": "nhsRequestID-example",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"resourceType\": \"DocumentReference\",\r\n    \"id\": \"{{ods_code}}-123\",\r\n    \"meta\": {\r\n        \"lastUpdated\": \"2024-04-29T14:45:49.852Z\"\r\n    },\r\n    \"status\": \"current\",\r\n    \"type\": {\r\n        \"coding\": [\r\n            {\r\n                \"system\": \"https://nicip.nhs.uk\",\r\n                \"code\": \"MAULR\",\r\n                \"display\": \"MRA Upper Limb Rt\"\r\n            }\r\n        ]\r\n    },\r\n    \"category\": [\r\n        {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"721981007\",\r\n                    \"display\": \"Diagnostic studies report\"\r\n                }\r\n            ]\r\n        }\r\n    ],\r\n    \"subject\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/nhs-number\",\r\n            \"value\": \"9693892992\"\r\n        }\r\n    },\r\n    \"date\": \"2024-04-11T14:31:11+00:00\",\r\n    \"author\": [\r\n        {\r\n            \"identifier\": {\r\n                \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n                \"value\": \"{{ods_code}}\"\r\n            }\r\n        }\r\n    ],\r\n    \"custodian\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n            \"value\": \"{{ods_code}}\"\r\n        }\r\n    },\r\n    \"content\": [\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"application/pdf\",\r\n                \"url\": \"{{document_url}}\",\r\n                \"creation\": \"2024-04-23T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:unstructured\",\r\n                \"display\": \"Unstructured Document\"\r\n            }\r\n        },\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"text/html\",\r\n                \"url\": \"{{contact_url}}\",\r\n                \"creation\": \"2024-04-11T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:record-contact\",\r\n                \"display\": \"Contact details (HTTP Unsecured)\"\r\n            }\r\n        }\r\n    ],\r\n    \"context\": {\r\n        \"period\": {\r\n            \"start\": \"2022-02-28T12:04:38.3143068+00:00\",\r\n            \"end\": \"2023-08-15T11:12:53Z\"\r\n        },\r\n        \"practiceSetting\": {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"310167005\",\r\n                    \"display\": \"Urology service\"\r\n                }\r\n            ]\r\n        },\r\n        \"related\": [\r\n            {\r\n                \"identifier\": {\r\n                    \"system\": \"https://fhir.nhs.uk/Id/nhsSpineASID\",\r\n                    \"value\": \"200000000610\"\r\n                }\r\n            }\r\n        ]\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{int_url}}record-locator/producer/FHIR/R4/DocumentReference/",
+							"host": [
+								"{{int_url}}record-locator"
+							],
+							"path": [
+								"producer",
+								"FHIR",
+								"R4",
+								"DocumentReference",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create MRI Axilla Both  pointer type with new category Diagnostic procedure",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true
+						}
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json; version=1.0",
+								"type": "text"
+							},
+							{
+								"key": "X-Correlation-Id",
+								"value": "xcorrelationid-example",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Id",
+								"value": "xrequestID-example",
+								"type": "text"
+							},
+							{
+								"key": "NHSD-Correlation-ID",
+								"value": "nhs-correlationID-example",
+								"type": "text"
+							},
+							{
+								"key": "NHSD-End-User-Organisation-ODS",
+								"value": "{{ods_code}}",
+								"type": "text"
+							},
+							{
+								"key": "NHSD-Request-ID",
+								"value": "nhsRequestID-example",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"resourceType\": \"DocumentReference\",\r\n    \"id\": \"{{ods_code}}-123\",\r\n    \"meta\": {\r\n        \"lastUpdated\": \"2024-04-29T14:45:49.852Z\"\r\n    },\r\n    \"status\": \"current\",\r\n    \"type\": {\r\n        \"coding\": [\r\n            {\r\n                \"system\": \"https://nicip.nhs.uk\",\r\n                \"code\": \"MAULR\",\r\n                \"display\": \"MRA Upper Limb Rt\"\r\n            }\r\n        ]\r\n    },\r\n    \"category\": [\r\n        {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"721981007\",\r\n                    \"display\": \"Diagnostic studies report\"\r\n                }\r\n            ]\r\n        }\r\n    ],\r\n    \"subject\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/nhs-number\",\r\n            \"value\": \"9693892992\"\r\n        }\r\n    },\r\n    \"date\": \"2024-04-11T14:31:11+00:00\",\r\n    \"author\": [\r\n        {\r\n            \"identifier\": {\r\n                \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n                \"value\": \"{{ods_code}}\"\r\n            }\r\n        }\r\n    ],\r\n    \"custodian\": {\r\n        \"identifier\": {\r\n            \"system\": \"https://fhir.nhs.uk/Id/ods-organization-code\",\r\n            \"value\": \"{{ods_code}}\"\r\n        }\r\n    },\r\n    \"content\": [\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"application/pdf\",\r\n                \"url\": \"{{document_url}}\",\r\n                \"creation\": \"2024-04-23T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:unstructured\",\r\n                \"display\": \"Unstructured Document\"\r\n            }\r\n        },\r\n        {\r\n            \"attachment\": {\r\n                \"contentType\": \"text/html\",\r\n                \"url\": \"{{contact_url}}\",\r\n                \"creation\": \"2024-04-11T03:31:12+01:00\"\r\n            },\r\n            \"format\": {\r\n                \"system\": \"https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode\",\r\n                \"code\": \"urn:nhs-ic:record-contact\",\r\n                \"display\": \"Contact details (HTTP Unsecured)\"\r\n            }\r\n        }\r\n    ],\r\n    \"context\": {\r\n        \"period\": {\r\n            \"start\": \"2022-02-28T12:04:38.3143068+00:00\",\r\n            \"end\": \"2023-08-15T11:12:53Z\"\r\n        },\r\n        \"practiceSetting\": {\r\n            \"coding\": [\r\n                {\r\n                    \"system\": \"http://snomed.info/sct\",\r\n                    \"code\": \"310167005\",\r\n                    \"display\": \"Urology service\"\r\n                }\r\n            ]\r\n        },\r\n        \"related\": [\r\n            {\r\n                \"identifier\": {\r\n                    \"system\": \"https://fhir.nhs.uk/Id/nhsSpineASID\",\r\n                    \"value\": \"200000000610\"\r\n                }\r\n            }\r\n        ]\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{int_url}}record-locator/producer/FHIR/R4/DocumentReference/",
+							"host": [
+								"{{int_url}}record-locator"
+							],
+							"path": [
+								"producer",
+								"FHIR",
+								"R4",
+								"DocumentReference",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete a pointer",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true
+						}
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "version=1.0",
+								"type": "text"
+							},
+							{
+								"key": "X-Correlation-Id",
+								"value": "xcorrelationidvalue2",
+								"type": "text"
+							},
+							{
+								"key": "X-Request-Id",
+								"value": "xrequestidexampledelete",
+								"type": "text"
+							},
+							{
+								"key": "NHSD-End-User-Organisation-ODS",
+								"value": "{{ods_code}}",
+								"type": "text"
+							},
+							{
+								"key": "NHSD-Request-ID",
+								"value": "nhsdrequestidexample2",
+								"type": "text"
+							},
+							{
+								"key": "NHSD-Correlation-ID",
+								"value": "NHSIDcorrelationIDexample1234abc",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{int_url}}record-locator/producer/FHIR/R4/DocumentReference/RQI-20b720bd-30ca-43d0-9f65-ee221c57e0bf",
+							"host": [
+								"{{int_url}}record-locator"
+							],
+							"path": [
+								"producer",
+								"FHIR",
+								"R4",
+								"DocumentReference",
+								"RQI-20b720bd-30ca-43d0-9f65-ee221c57e0bf"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Producer Apigee Read",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true
+						}
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json; version=1",
+								"type": "text"
+							},
+							{
+								"key": "x-correlation-id",
+								"value": "read-pointer",
+								"type": "text"
+							},
+							{
+								"key": "x-request-id",
+								"value": "producer-api",
+								"type": "text"
+							},
+							{
+								"key": "NHSD-End-User-Organisation-ODS",
+								"value": "{{ods_code}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{int_url}}record-locator/producer/FHIR/R4/DocumentReference/8J008-1610",
+							"host": [
+								"{{int_url}}record-locator"
+							],
+							"path": [
+								"producer",
+								"FHIR",
+								"R4",
+								"DocumentReference",
+								"8J008-1610"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Producer Apigee Search",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true
+						}
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json; version=1.0",
+								"type": "text"
+							},
+							{
+								"key": "x-correlation-id",
+								"value": "producer-post-search",
+								"type": "text"
+							},
+							{
+								"key": "x-request-id",
+								"value": "xRequestID-example",
+								"type": "text"
+							},
+							{
+								"key": "NHSD-End-User-Organisation-ODS",
+								"value": "{{ods_code}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"type\":\"http://snomed.info/sct|1363501000000100\",\n\"subject:identifier\":\"https://fhir.nhs.uk/Id/nhs-number|9820246733\"}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{int_url}}record-locator/producer/FHIR/R4/DocumentReference/_search",
+							"host": [
+								"{{int_url}}record-locator"
+							],
+							"path": [
+								"producer",
+								"FHIR",
+								"R4",
+								"DocumentReference",
+								"_search"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Producer Apigee Search",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true
+						}
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json; version=1",
+								"type": "text"
+							},
+							{
+								"key": "x-correlation-id",
+								"value": "search-pointer",
+								"type": "text"
+							},
+							{
+								"key": "x-request-id",
+								"value": "xRequestID-example",
+								"type": "text"
+							},
+							{
+								"key": "NHSD-End-User-Organisation-ODS",
+								"value": "{{ods_code}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{int_url}}record-locator/producer/FHIR/R4/DocumentReference/?subject:identifier=https://fhir.nhs.uk/Id/nhs-number|9820246733&type=http://snomed.info/sct|1363501000000100",
+							"host": [
+								"{{int_url}}record-locator"
+							],
+							"path": [
+								"producer",
+								"FHIR",
+								"R4",
+								"DocumentReference",
+								""
+							],
+							"query": [
+								{
+									"key": "subject:identifier",
+									"value": "https://fhir.nhs.uk/Id/nhs-number|9820246733"
+								},
+								{
+									"key": "type",
+									"value": "http://snomed.info/sct|1363501000000100"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Consumer API",
+			"item": [
+				{
+					"name": "POST search by pointer type MAULR",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true
+						}
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json; version=1.0",
+								"type": "text"
+							},
+							{
+								"key": "x-correlation-id",
+								"value": "producer-post-search",
+								"type": "text"
+							},
+							{
+								"key": "x-request-id",
+								"value": "XRequestID-example",
+								"type": "text"
+							},
+							{
+								"key": "NHSD-End-User-Organisation-ODS",
+								"value": "{{ods_code}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"type\":\"https://nicip.nhs.uk|MAULR\",\n\"subject:identifier\":\"https://fhir.nhs.uk/Id/nhs-number|9693892992\",\n\"custodian:identifier\":\"https://fhir.nhs.uk/Id/ods-organization-code|{{ods_code}}\"}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{int_url}}record-locator/consumer/FHIR/R4/DocumentReference/_search",
+							"host": [
+								"{{int_url}}record-locator"
+							],
+							"path": [
+								"consumer",
+								"FHIR",
+								"R4",
+								"DocumentReference",
+								"_search"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET search by pointer type MAULR",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true
+						}
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "version=1.0",
+								"type": "text"
+							},
+							{
+								"key": "x-correlation-id",
+								"value": "consumer-search",
+								"type": "text"
+							},
+							{
+								"key": "x-request-id",
+								"value": "search-pointer",
+								"type": "text"
+							},
+							{
+								"key": "NHSD-End-User-Organisation-ODS",
+								"value": "{{ods_code}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{int_url}}record-locator/consumer/FHIR/R4/DocumentReference?subject:identifier=https://fhir.nhs.uk/Id/nhs-number|3495456481&type=http://snomed.info/sct|736253002",
+							"host": [
+								"{{int_url}}record-locator"
+							],
+							"path": [
+								"consumer",
+								"FHIR",
+								"R4",
+								"DocumentReference"
+							],
+							"query": [
+								{
+									"key": "subject:identifier",
+									"value": "https://fhir.nhs.uk/Id/nhs-number|3495456481"
+								},
+								{
+									"key": "type",
+									"value": "http://snomed.info/sct|736253002"
+								},
+								{
+									"key": "custodian:identifier",
+									"value": "https://fhir.nhs.uk/Id/ods-organization-code|8J008",
+									"disabled": true
+								},
+								{
+									"key": "next-page-token",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET search by category - Diagnostic studies report",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true
+						}
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "version=1.0",
+								"type": "text"
+							},
+							{
+								"key": "x-correlation-id",
+								"value": "consumer-search",
+								"type": "text"
+							},
+							{
+								"key": "x-request-id",
+								"value": "search-pointer",
+								"type": "text"
+							},
+							{
+								"key": "NHSD-End-User-Organisation-ODS",
+								"value": "{{ods_code}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{int_url}}record-locator/consumer/FHIR/R4/DocumentReference?subject:identifier=https://fhir.nhs.uk/Id/nhs-number|3495456481&category=http://snomed.info/sct|721981007",
+							"host": [
+								"{{int_url}}record-locator"
+							],
+							"path": [
+								"consumer",
+								"FHIR",
+								"R4",
+								"DocumentReference"
+							],
+							"query": [
+								{
+									"key": "subject:identifier",
+									"value": "https://fhir.nhs.uk/Id/nhs-number|3495456481"
+								},
+								{
+									"key": "category",
+									"value": "http://snomed.info/sct|721981007"
+								},
+								{
+									"key": "custodian:identifier",
+									"value": "https://fhir.nhs.uk/Id/ods-organization-code|8J008",
+									"disabled": true
+								},
+								{
+									"key": "next-page-token",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST search by category - Diagnostic procedure",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true
+						}
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json; version=1.0",
+								"type": "text"
+							},
+							{
+								"key": "x-correlation-id",
+								"value": "producer-post-search",
+								"type": "text"
+							},
+							{
+								"key": "x-request-id",
+								"value": "xRequestID-example",
+								"type": "text"
+							},
+							{
+								"key": "NHSD-End-User-Organisation-ODS",
+								"value": "{{ods_code}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"category\":\"http://snomed.info/sct|103693007\",\n\"subject:identifier\":\"https://fhir.nhs.uk/Id/nhs-number|9693892992\",\n\"custodian:identifier\":\"https://fhir.nhs.uk/Id/ods-organization-code|{{ods_code}}\"}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{int_url}}record-locator/consumer/FHIR/R4/DocumentReference/_search",
+							"host": [
+								"{{int_url}}record-locator"
+							],
+							"path": [
+								"consumer",
+								"FHIR",
+								"R4",
+								"DocumentReference",
+								"_search"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Consumer Apigee Read New",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true
+						}
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{auth_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "version=1.0",
+								"type": "text"
+							},
+							{
+								"key": "x-correlation-id",
+								"value": "consumer-search",
+								"type": "text"
+							},
+							{
+								"key": "x-request-id",
+								"value": "read-pointer",
+								"type": "text"
+							},
+							{
+								"key": "NHSD-End-User-Organisation-ODS",
+								"value": "{{ods_code}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{int_url}}record-locator/consumer/FHIR/R4/DocumentReference/8J008-fab4fdcf-d34e-472f-83c8-bbb442d18122",
+							"host": [
+								"{{int_url}}record-locator"
+							],
+							"path": [
+								"consumer",
+								"FHIR",
+								"R4",
+								"DocumentReference",
+								"8J008-fab4fdcf-d34e-472f-83c8-bbb442d18122"
+							],
+							"query": [
+								{
+									"key": "custodian:identifier",
+									"value": "https://fhir.nhs.uk/Id/ods-organization-code|{{ods_code}}",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "int_url",
+			"value": "https://int.api.service.nhs.uk/",
+			"type": "string"
+		},
+		{
+			"key": "ods_code",
+			"value": "CHANGE THIS VALUE",
+			"type": "string"
+		},
+		{
+			"key": "auth_token",
+			"value": "CHANGE THIS VALUE",
+			"type": "string"
+		},
+		{
+			"key": "document_url",
+			"value": "REPLACE WITH DOCUMENT URL",
+			"type": "default"
+		},
+		{
+			"key": "contact_url",
+			"value": "REPLACE WITH CONTACT URL",
+			"type": "string"
+		}
+	]
+}
