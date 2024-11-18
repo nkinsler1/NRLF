@@ -37,6 +37,24 @@ resource "aws_s3_bucket" "backup_reports" {
   bucket_prefix = "${local.project_name}-backup-reports"
 }
 
+resource "aws_s3_bucket_public_access_block" "backup_reports" {
+  bucket = aws_s3_bucket.backup_reports.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "backup_reports" {
+  bucket = aws_s3_bucket.backup_reports.bucket
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
 # Now we have to configure access to the report bucket.
 
 resource "aws_s3_bucket_ownership_controls" "backup_reports" {
@@ -108,7 +126,7 @@ module "source" {
 
   backup_plan_config = {
     "compliance_resource_types" : [
-      "S3"
+      "S3", "DynamoDB"
     ],
     "rules" : [
       {
@@ -122,17 +140,6 @@ module "source" {
         "schedule" : "cron(0 0 * * ? *)"
       }
     ],
-    "selection_tag" : "NHSE-Enable-Backup"
-  }
-  # Note here that we need to explicitly disable DynamoDB backups in the source account.
-  # The default config in the module enables backups for all resource types.
-  backup_plan_config_dynamodb = {
-    "compliance_resource_types" : [
-      "DynamoDB"
-    ],
-    "rules" : [
-    ],
-    "enable" : false,
     "selection_tag" : "NHSE-Enable-Backup"
   }
 }
