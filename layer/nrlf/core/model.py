@@ -22,7 +22,7 @@ class _NhsNumberMixin:
 
 
 class ProducerRequestParams(producer_model.RequestParams, _NhsNumberMixin):
-    pass
+    model_config = {"extra": "forbid"}
 
 
 class ConsumerRequestParams(consumer_model.RequestParams, _NhsNumberMixin):
