@@ -807,7 +807,7 @@ def test_create_document_reference_invalid_relatesto_type(
 
     assert doc_ref.type and doc_ref.type.coding
     doc_ref.type.coding[0].code = "861421000000109"
-    doc_ref.type.coding[0].display = "End of Life Care Coordination Summary"
+    doc_ref.type.coding[0].display = "End of life care coordination summary"
     doc_ref.relatesTo = [
         DocumentReferenceRelatesTo(
             code="transforms",

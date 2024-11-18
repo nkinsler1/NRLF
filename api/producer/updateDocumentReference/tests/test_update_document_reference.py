@@ -501,7 +501,7 @@ def test_update_document_reference_immutable_fields(repository):
                 system="http://snomed.info/sct",
                 version=None,
                 code="861421000000109",
-                display="End of Life Care Coordination Summary",
+                display="End of life care coordination summary",
                 userSelected=None,
             )
         ],

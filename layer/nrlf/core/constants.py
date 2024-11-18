@@ -121,7 +121,7 @@ TYPE_ATTRIBUTES = {
         "display": "Emergency health care plan",
     },
     PointerTypes.EOL_COORDINATION_SUMMARY.value: {
-        "display": "End of Life Care Coordination Summary",
+        "display": "End of life care coordination summary",
     },
     PointerTypes.RESPECT_FORM.value: {
         "display": "ReSPECT (Recommended Summary Plan for Emergency Care and Treatment) form",
