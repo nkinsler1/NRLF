@@ -4,8 +4,14 @@ from typing import Any, Dict, List, Optional
 
 from pydantic import ValidationError
 
+from nrlf.consumer.fhir.r4.model import RequestQueryCategory
 from nrlf.core.codes import SpineErrorConcept
-from nrlf.core.constants import CATEGORY_ATTRIBUTES, ODS_SYSTEM, REQUIRED_CREATE_FIELDS
+from nrlf.core.constants import (
+    CATEGORY_ATTRIBUTES,
+    ODS_SYSTEM,
+    REQUIRED_CREATE_FIELDS,
+    Categories,
+)
 from nrlf.core.errors import ParseError
 from nrlf.core.logger import LogReference, logger
 from nrlf.core.types import DocumentReference, OperationOutcomeIssue, RequestQueryType
@@ -27,6 +33,17 @@ def validate_type_system(
     ]
 
     return type_system in pointer_type_systems
+
+
+# TODO - Validate category is in set permissions once permissioning by category is done.
+def validate_category(category_: Optional[RequestQueryCategory]) -> bool:
+    """
+    Validates if the given category is valid.
+    """
+    if not category_:
+        return True
+
+    return category_.root in Categories.list()
 
 
 @dataclass
