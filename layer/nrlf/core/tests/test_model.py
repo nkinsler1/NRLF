@@ -100,7 +100,6 @@ def test_producer_request_params_extra_fields():
             {
                 "subject:identifier": "https://fhir.nhs.uk/Id/nhs-number|9999999999",
                 "type": "test-type",
-                "next-page-token": "page-token",
                 "extra_field": "extra_value",
             }
         )
@@ -112,7 +111,6 @@ def test_consumer_request_params_extra_fields():
             {
                 "subject:identifier": "https://fhir.nhs.uk/Id/nhs-number|9999999999",
                 "type": "test-type",
-                "next-page-token": "page-token",
                 "extra_field": "extra_value",
             }
         )
