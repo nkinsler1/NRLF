@@ -1,3 +1,6 @@
+import pytest
+from pydantic import ValidationError
+
 from nrlf.core.model import (
     ConnectionMetadata,
     ConsumerRequestParams,
@@ -89,6 +92,28 @@ def test_consumer_request_params():
     assert params.next_page_token.root == "page-token"
 
     assert params.nhs_number == "9999999999"
+
+
+def test_producer_request_params_extra_fields():
+    with pytest.raises(ValidationError):
+        ProducerRequestParams.model_validate(
+            {
+                "subject:identifier": "https://fhir.nhs.uk/Id/nhs-number|9999999999",
+                "type": "test-type",
+                "extra_field": "extra_value",
+            }
+        )
+
+
+def test_consumer_request_params_extra_fields():
+    with pytest.raises(ValidationError):
+        ConsumerRequestParams.model_validate(
+            {
+                "subject:identifier": "https://fhir.nhs.uk/Id/nhs-number|9999999999",
+                "type": "test-type",
+                "extra_field": "extra_value",
+            }
+        )
 
 
 def test_count_request_params():

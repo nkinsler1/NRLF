@@ -804,11 +804,11 @@ class DocumentReferenceContext(BaseModel):
         Field(description="The kind of facility where the patient was seen."),
     ] = None
     practiceSetting: Annotated[
-        CodeableConcept,
+        Optional[CodeableConcept],
         Field(
             description="This property may convey specifics about the practice setting where the content was created, often reflecting the clinical specialty."
         ),
-    ]
+    ] = None
     sourcePatientInfo: Annotated[
         Optional[Reference],
         Field(
