@@ -60,6 +60,15 @@ DEFAULT_TEST_MASTER_ID = """
 
 DEFAULT_TEST_CONTEXT = """
 "context": {
+  "practiceSetting": {
+    "coding": [
+      {
+        "system": "http://snomed.info/sct",
+        "code": "390826005",
+        "display": "Mental health caregiver support"
+      }
+    ]
+  },
   "related": [
     {
       "identifier": {

@@ -70,7 +70,18 @@ Feature: Consumer - readDocumentReference - Success Scenarios
               "url": "https://example.org/my-doc.pdf"
             }
           }
-        ]
+        ],
+        "context": {
+          "practiceSetting": {
+            "coding": [
+             {
+              "system": "http://snomed.info/sct",
+              "code": "390826005",
+              "display": "Mental health caregiver support"
+              }
+            ]
+          }
+        }
       }
       """
 
@@ -144,7 +155,18 @@ Feature: Consumer - readDocumentReference - Success Scenarios
               "url": "https://example.org/my-doc.pdf"
             }
           }
-        ]
+        ],
+        "context": {
+          "practiceSetting": {
+            "coding": [
+             {
+              "system": "http://snomed.info/sct",
+              "code": "390826005",
+              "display": "Mental health caregiver support"
+              }
+            ]
+          }
+        }
       }
       """
 
