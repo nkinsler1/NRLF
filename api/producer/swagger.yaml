@@ -1398,6 +1398,7 @@ components:
         - status
         - content
         - author
+        - context
     Bundle:
       type: object
       properties:
@@ -1607,6 +1608,8 @@ components:
           items:
             $ref: "#/components/schemas/Reference"
             description: Related identifiers or resources associated with the DocumentReference.
+      required:
+        - practiceSetting
     DocumentReferenceContent:
       type: object
       properties:
