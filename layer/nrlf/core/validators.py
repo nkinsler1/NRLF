@@ -370,7 +370,7 @@ class DocumentReferenceValidator:
                 issue_code="invalid",
                 error_code="INVALID_RESOURCE",
                 diagnostics=f"Invalid type coding length: {len(model.type.coding)} Type Coding must only contain a single value",
-                field=f"type.coding",
+                field="type.coding",
             )
             return
 
@@ -478,7 +478,7 @@ class DocumentReferenceValidator:
                 issue_code="value",
                 error_code="INVALID_RESOURCE",
                 diagnostics=f"The Category code of the provided document '{category_id}' must match the allowed category for pointer type '{type_id}' with a category value of '{type_category}'",
-                field=f"category.coding[0].code",
+                field="category.coding[0].code",
             )
 
     def _validate_content_extension(self, model: DocumentReference):
