@@ -413,6 +413,47 @@ def test_upsert_document_reference_invalid_resource():
     }
 
 
+def test_upsert_document_reference_with_no_practiceSetting():
+    doc_ref = load_document_reference("Y05868-736253002-Valid")
+    doc_ref.context.practiceSetting = None
+
+    event = create_test_api_gateway_event(
+        headers=create_headers(),
+        body=doc_ref.model_dump_json(exclude_none=True),
+    )
+
+    result = handler(event, create_mock_context())
+    body = result.pop("body")
+
+    assert result == {
+        "statusCode": "400",
+        "headers": default_response_headers(),
+        "isBase64Encoded": False,
+    }
+
+    parsed_body = json.loads(body)
+    assert parsed_body == {
+        "resourceType": "OperationOutcome",
+        "issue": [
+            {
+                "severity": "error",
+                "code": "invalid",
+                "details": {
+                    "coding": [
+                        {
+                            "code": "MESSAGE_NOT_WELL_FORMED",
+                            "display": "Message not well formed",
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                        }
+                    ],
+                },
+                "diagnostics": "Request body could not be parsed (context.practiceSetting: Field required)",
+                "expression": ["context.practiceSetting"],
+            },
+        ],
+    }
+
+
 def test_upsert_document_reference_invalid_producer_id():
     doc_ref = load_document_reference("Y05868-736253002-Valid")
     doc_ref.id = "X26-99999-99999-999999"
