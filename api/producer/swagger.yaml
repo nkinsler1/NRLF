@@ -349,9 +349,18 @@ paths:
             }
           ]
           ```
-        * `context` MUST include a `related` entry containing the ASID if the document is to be accessed via SSP, e.g.
+        * `context` MUST include a  `practiceSetting` and `related` entry containing the ASID if the document is to be accessed via SSP, e.g.
           ```
           "context": {
+            "practiceSetting": {
+              "coding": [
+                {
+                  "system": "http://snomed.info/sct",
+                  "code": "390826005",
+                  "display": "Mental health caregiver support"
+                }
+              ]
+            },
             "related": [
               {
                 "identifier": {
