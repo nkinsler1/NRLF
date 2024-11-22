@@ -400,7 +400,7 @@ Feature: Consumer - searchDocumentReference - Success Scenarios
       | category  | http://snomed.info/sct\|734163000,http://snomed.info/sct\|823651000000106 |
     Then the response status code is 200
     And the response is a searchset Bundle
-    And the Bundle has a self link matching 'DocumentReference?subject:identifier=https://fhir.nhs.uk/Id/nhs-number|9278693472&category=http://snomed.info/sct|734163000,http://snomed.info/sct\|823651000000106'
+    And the Bundle has a self link matching 'DocumentReference?subject:identifier=https://fhir.nhs.uk/Id/nhs-number|9278693472&category=http://snomed.info/sct|734163000,http://snomed.info/sct|823651000000106'
     And the Bundle has a total of 3
     And the Bundle has 3 entries
     And the Bundle contains an DocumentReference with values
