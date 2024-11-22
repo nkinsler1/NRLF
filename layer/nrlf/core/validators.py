@@ -36,14 +36,12 @@ def validate_type_system(
 
 
 # TODO - Validate category is in set permissions once permissioning by category is done.
-def validate_category(category_: Optional[RequestQueryCategory]) -> bool:
+def validate_category(categories: Optional[RequestQueryCategory]) -> bool:
     """
     Validates if the given category is valid.
     """
-    if not category_:
+    if not categories:
         return True
-
-    categories = category_.root.split(",")
 
     return all(category in Categories.list() for category in categories)
 

@@ -53,10 +53,11 @@ def handler(
             expression="type",
         )
 
-    if not validate_category(body.category):
+    categories = body.category.root.split(",") if body.category else []
+    if not validate_category(categories):
         logger.log(
             LogReference.PROPOSTSEARCH002b,
-            type=body.category,
+            category=body.category,
         )  # TODO - Should update error message once permissioning by category is implemented
         return SpineErrorResponse.INVALID_CODE_SYSTEM(
             diagnostics="The provided category is not valid",
@@ -72,7 +73,7 @@ def handler(
         custodian_suffix=metadata.ods_code_extension,
         nhs_number=body.nhs_number,
         pointer_types=pointer_types,
-        categories=body.category.root.split(",") if body.category else [],
+        categories=categories,
     )
 
     for result in repository.search(
@@ -80,7 +81,7 @@ def handler(
         custodian_suffix=metadata.ods_code_extension,
         nhs_number=body.nhs_number,
         pointer_types=pointer_types,
-        categories=body.category.root.split(",") if body.category else [],
+        categories=categories,
     ):
         try:
             document_reference = DocumentReference.model_validate_json(result.document)

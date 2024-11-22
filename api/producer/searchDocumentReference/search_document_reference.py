@@ -59,10 +59,11 @@ def handler(
             expression="type",
         )
 
-    if not validate_category(params.category):
+    categories = params.category.root.split(",") if params.category else []
+    if not validate_category(categories):
         logger.log(
             LogReference.PROSEARCH002b,
-            type=params.category,
+            category=params.category,
         )  # TODO - Should update error message once permissioning by category is implemented
         return SpineErrorResponse.INVALID_CODE_SYSTEM(
             diagnostics="Invalid query parameter (The provided category is not valid)",
