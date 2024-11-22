@@ -22,13 +22,13 @@ Feature: Producer - upsertDocumentReference - Failure Scenarios
       """
       {
         "severity": "error",
-        "code": "invalid",
+        "code": "value",
         "details": {
         "coding": [
         {
         "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-        "code": "BAD_REQUEST",
-        "display": "Bad request"
+        "code": "INVALID_RESOURCE",
+        "display": "Invalid validation of resource"
         }
         ]
         },
@@ -76,3 +76,163 @@ Feature: Producer - upsertDocumentReference - Failure Scenarios
         ]
       }
       """
+
+  Scenario: System not supported in NRL 3.0
+    Given the application 'DataShare' (ID 'z00z-y11y-x22x') is registered to access the API
+    And the organisation 'ANGY1' is authorised to access pointer types:
+      | system                 | value     |
+      | http://snomed.info/sct | 736253002 |
+    When producer 'ANGY1' upserts a DocumentReference with values:
+      | property    | value                          |
+      | id          | X26-testid-upsert-0001-0001    |
+      | subject     | 9278693472                     |
+      | status      | current                        |
+      | type_system | http://invalidsystem.info/sct  |
+      | type        | 736253002                      |
+      | category    | 734163000                      |
+      | custodian   | ANGY1                          |
+      | author      | HAR1                           |
+      | url         | https://example.org/my-doc.pdf |
+    Then the response status code is 400
+    And the response is an OperationOutcome with 1 issue
+    And the OperationOutcome contains the issue:
+      """
+      {
+      "severity": "error",
+      "code": "value",
+      "details": {
+      "coding": [
+      {
+      "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+      "code": "INVALID_RESOURCE",
+      "display": "Invalid validation of resource"
+      }
+      ]
+      },
+      "diagnostics": "Invalid type system: http://invalidsystem.info/sct Type system must be either 'http://snomed.info/sct' or 'https://nicip.nhs.uk'",
+      "expression": ["type.coding[0].system"]
+      }
+      """
+
+  Scenario: Invalid Document Reference Type
+    Given the application 'DataShare' (ID 'z00z-y11y-x22x') is registered to access the API
+    And the organisation 'ANGY1' is authorised to access pointer types:
+      | system                 | value     |
+      | http://snomed.info/sct | 736253002 |
+    When producer 'ANGY1' upserts a DocumentReference with values:
+      | property  | value                          |
+      | id        | X26-testid-upsert-0001-0001    |
+      | subject   | 9999999999                     |
+      | status    | current                        |
+      | type      | invalid                        |
+      | category  | 734163000                      |
+      | custodian | ANGY1                          |
+      | author    | HAR1                           |
+      | url       | https://example.org/my-doc.pdf |
+    Then the response status code is 400
+    And the response is an OperationOutcome with 1 issue
+    And the OperationOutcome contains the issue:
+      """
+      {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+            {
+                "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                "code": "INVALID_RESOURCE",
+                "display": "Invalid validation of resource"
+            }
+            ]
+        },
+        "diagnostics": "Invalid type code: invalid Type must be a member of the England-NRLRecordType value set (https://fhir.nhs.uk/England/CodeSystem/England-NRLRecordType)",
+        "expression": [
+            "type.coding[0].code"
+        ]
+      }
+      """
+
+  Scenario: Mismatched Category Code for Document Reference Type
+    Given the application 'DataShare' (ID 'z00z-y11y-x22x') is registered to access the API
+    And the organisation 'X26' is authorised to access pointer types:
+      | system                 | value            |
+      | http://snomed.info/sct | 1363501000000100 |
+      | http://snomed.info/sct | 736253002        |
+    When producer 'X26' upserts a DocumentReference with values:
+      | property  | value                          |
+      | id        | X26-testid-upsert-0001-0001    |
+      | subject   | 9999999999                     |
+      | status    | current                        |
+      | type      | 736253002                      |
+      | category  | 1102421000000108               |
+      | custodian | X26                            |
+      | author    | HAR1                           |
+      | url       | https://example.org/my-doc.pdf |
+    Then the response status code is 400
+    And the response is an OperationOutcome with 1 issue
+    And the OperationOutcome contains the issue:
+      """
+      {
+        "severity": "error",
+        "code": "value",
+        "details": {
+        "coding": [
+        {
+        "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+        "code": "INVALID_RESOURCE",
+        "display": "Invalid validation of resource"
+        }
+        ]
+        },
+        "diagnostics": "The Category code of the provided document 'http://snomed.info/sct|1102421000000108' must match the allowed category for pointer type 'http://snomed.info/sct|736253002' with a category value of 'http://snomed.info/sct|734163000'",
+        "expression": [
+        "category.coding[0].code"
+        ]
+      }
+      """
+
+  Scenario Outline: Invalid display value for type or category (imaging)
+    Given the application 'DataShare' (ID 'z00z-y11y-x22x') is registered to access the API
+    And the organisation 'ANGY1' is authorised to access pointer types:
+      | system               | value |
+      | https://nicip.nhs.uk | MAULR |
+      | https://nicip.nhs.uk | MAXIB |
+    When producer 'ANGY1' upserts a DocumentReference with values:
+      | property     | value                          |
+      | id           | ANGY1-testid-upsert-0001-0001  |
+      | subject      | 9999999999                     |
+      | status       | current                        |
+      | type_system  | <type-system>                  |
+      | type_display | <type-display>                 |
+      | type         | <type-code>                    |
+      | category     | <category-code>                |
+      | custodian    | ANGY1                          |
+      | author       | HAR1                           |
+      | url          | https://example.org/my-doc.pdf |
+    Then the response status code is 400
+    And the response is an OperationOutcome with 1 issue
+    And the OperationOutcome contains the issue:
+      """
+      {
+        "severity": "error",
+        "code": "value",
+        "details": {
+          "coding": [
+            {
+              "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+              "code": "INVALID_RESOURCE",
+              "display": "Invalid validation of resource"
+            }
+          ]
+        },
+        "diagnostics": "type code '<type-code>' must have a display value of '<correct-display>'",
+        "expression": [
+          "type.coding[0].display"
+        ]
+      }
+      """
+
+    Examples:
+      | type-system          | type-code | category-code | type-display       | correct-display   |
+      | https://nicip.nhs.uk | MAULR     | 721981007     | "Nonsense display" | MRA Upper Limb Rt |
+      | https://nicip.nhs.uk | MAXIB     | 103693007     | "Nonsense display" | MRI Axilla Both   |

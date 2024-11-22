@@ -27,7 +27,7 @@ POINTER_TYPES = {
     "1382601000000107": "ReSPECT (Recommended Summary Plan for Emergency Care and Treatment) form",
     "325691000000100": "Contingency plan",
     "736373009": "End of life care plan",
-    "861421000000109": "End of Life Care Coordination Summary",
+    "861421000000109": "End of life care coordination summary",
     "887701000000100": "Emergency Health Care Plans",
     "736366004": "Advanced Care Plan",
     "735324008": "Treatment Escalation Plan",

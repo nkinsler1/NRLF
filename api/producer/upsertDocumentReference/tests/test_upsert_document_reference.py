@@ -1,4 +1,5 @@
 import json
+from unittest.mock import patch
 
 from freezegun import freeze_time
 from moto import mock_aws
@@ -221,12 +222,12 @@ def test_upsert_document_reference_invalid_category_type():
         "issue": [
             {
                 "severity": "error",
-                "code": "invalid",
+                "code": "value",
                 "details": {
                     "coding": [
                         {
-                            "code": "BAD_REQUEST",
-                            "display": "Bad request",
+                            "code": "INVALID_RESOURCE",
+                            "display": "Invalid validation of resource",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
                     ]
@@ -535,6 +536,55 @@ def test_upsert_document_reference_invalid_pointer_type():
         body=doc_ref.model_dump_json(exclude_none=True),
     )
 
+    result = handler(event, create_mock_context())
+    body = result.pop("body")
+
+    assert result == {
+        "statusCode": "400",
+        "headers": default_response_headers(),
+        "isBase64Encoded": False,
+    }
+
+    parsed_body = json.loads(body)
+
+    assert parsed_body == {
+        "resourceType": "OperationOutcome",
+        "issue": [
+            {
+                "severity": "error",
+                "code": "value",
+                "details": {
+                    "coding": [
+                        {
+                            "code": "INVALID_RESOURCE",
+                            "display": "Invalid validation of resource",
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                        }
+                    ]
+                },
+                "diagnostics": "Invalid type code: invalid Type must be a member of the England-NRLRecordType value set (https://fhir.nhs.uk/England/CodeSystem/England-NRLRecordType)",
+                "expression": ["type.coding[0].code"],
+            },
+        ],
+    }
+
+
+@mock_aws
+@mock_repository
+@patch("nrlf.core.decorators.parse_permissions_file")
+def test_upsert_document_reference_pointer_type_not_allowed(
+    parse_permissions_mock, repository: DocumentPointerRepository
+):
+    doc_ref = load_document_reference("Y05868-736253002-Valid")
+
+    assert doc_ref.type and doc_ref.type.coding
+
+    event = create_test_api_gateway_event(
+        headers=create_headers(),
+        body=doc_ref.model_dump_json(exclude_none=True),
+    )
+
+    parse_permissions_mock.return_value = ["invalid"]
     result = handler(event, create_mock_context())
     body = result.pop("body")
 
@@ -848,6 +898,7 @@ def test_upsert_document_reference_invalid_relatesto_type(
 
     assert doc_ref.type and doc_ref.type.coding
     doc_ref.type.coding[0].code = "861421000000109"
+    doc_ref.type.coding[0].display = "End of life care coordination summary"
     doc_ref.relatesTo = [
         DocumentReferenceRelatesTo(
             code="transforms",
