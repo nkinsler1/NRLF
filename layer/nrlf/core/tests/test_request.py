@@ -306,6 +306,21 @@ def test_parse_body_invalid_json():
                 "diagnostics": "Request body could not be parsed (content: Field required)",
                 "expression": ["content"],
             },
+            {
+                "severity": "error",
+                "code": "invalid",
+                "details": {
+                    "coding": [
+                        {
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                            "code": "MESSAGE_NOT_WELL_FORMED",
+                            "display": "Message not well formed",
+                        }
+                    ]
+                },
+                "diagnostics": "Request body could not be parsed (context: Field required)",
+                "expression": ["context"],
+            },
         ],
     }
 
