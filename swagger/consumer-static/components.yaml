@@ -36,6 +36,11 @@ components:
       in: query
       schema:
         $ref: "#/components/schemas/RequestQueryType"
+    category:
+      name: category
+      in: query
+      schema:
+        $ref: "#/components/schemas/RequestQueryCategory"
     nextPageToken:
       name: next-page-token
       description: |
@@ -131,6 +136,8 @@ components:
           $ref: "#/components/schemas/RequestQueryCustodian"
         type:
           $ref: "#/components/schemas/RequestQueryType"
+        category:
+          $ref: "#/components/schemas/RequestQueryCategory"
         next-page-token:
           $ref: "#/components/schemas/NextPageToken"
       required:
@@ -150,6 +157,8 @@ components:
       pattern: ^https\:\/\/fhir\.nhs\.uk\/Id\/ods-organization-code\|(\w+)$
       example: "https://fhir.nhs.uk/Id/ods-organization-code|Y05868"
     RequestQueryType:
+      type: string
+    RequestQueryCategory:
       type: string
     NextPageToken:
       type: string

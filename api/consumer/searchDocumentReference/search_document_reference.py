@@ -9,7 +9,7 @@ from nrlf.core.errors import OperationOutcomeError
 from nrlf.core.logger import LogReference, logger
 from nrlf.core.model import ConnectionMetadata, ConsumerRequestParams
 from nrlf.core.response import Response, SpineErrorResponse
-from nrlf.core.validators import validate_type_system
+from nrlf.core.validators import validate_category, validate_type_system
 
 
 @request_handler(params=ConsumerRequestParams)
@@ -58,6 +58,16 @@ def handler(
             expression="type",
         )
 
+    if not validate_category(params.category):
+        logger.log(
+            LogReference.CONSEARCH002b,
+            category=params.category,
+        )  # TODO - Should update error message once permissioning by category is implemented
+        return SpineErrorResponse.INVALID_CODE_SYSTEM(
+            diagnostics="Invalid query parameter (The provided category is not valid)",
+            expression="category",
+        )
+
     custodian_id = (
         params.custodian_identifier.root.split("|", maxsplit=1)[1]
         if params.custodian_identifier
@@ -69,6 +79,9 @@ def handler(
     pointer_types = [params.type.root] if params.type else metadata.pointer_types
     if params.type:
         self_link += f"&type={params.type.root}"
+
+    if params.category:
+        self_link += f"&category={params.category.root}"
 
     bundle = {
         "resourceType": "Bundle",
@@ -89,6 +102,7 @@ def handler(
         nhs_number=params.nhs_number,
         custodian=custodian_id,
         pointer_types=pointer_types,
+        categories=[params.category.root] if params.category else [],
     ):
         try:
             document_reference = DocumentReference.model_validate_json(result.document)

@@ -624,6 +624,8 @@ components:
       example: "https://fhir.nhs.uk/Id/ods-organization-code|Y05868"
     RequestQueryType:
       example: "http://snomed.info/sct|736253002"
+    RequestQueryCategory:
+      example: "http://snomed.info/sct|734163000"
 
   parameters:
     id:

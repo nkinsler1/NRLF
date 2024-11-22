@@ -137,6 +137,47 @@ def test_search_document_reference_happy_path_with_type(
 
 @mock_aws
 @mock_repository
+def test_search_document_reference_happy_path_with_category(
+    repository: DocumentPointerRepository,
+):
+    doc_ref = load_document_reference("Y05868-736253002-Valid")
+    doc_pointer = DocumentPointer.from_document_reference(doc_ref)
+    repository.create(doc_pointer)
+
+    event = create_test_api_gateway_event(
+        headers=create_headers(),
+        query_string_parameters={
+            "subject:identifier": "https://fhir.nhs.uk/Id/nhs-number|6700028191",
+            "category": "http://snomed.info/sct|734163000",
+        },
+    )
+
+    result = handler(event, create_mock_context())
+    body = result.pop("body")
+
+    assert result == {
+        "statusCode": "200",
+        "headers": default_response_headers(),
+        "isBase64Encoded": False,
+    }
+
+    parsed_body = json.loads(body)
+    assert parsed_body == {
+        "resourceType": "Bundle",
+        "type": "searchset",
+        "link": [
+            {
+                "relation": "self",
+                "url": "https://pytest.api.service.nhs.uk/record-locator/consumer/FHIR/R4/DocumentReference?subject:identifier=https://fhir.nhs.uk/Id/nhs-number|6700028191&category=http://snomed.info/sct|734163000",
+            }
+        ],
+        "total": 1,
+        "entry": [{"resource": doc_ref.model_dump(exclude_none=True)}],
+    }
+
+
+@mock_aws
+@mock_repository
 def test_search_document_reference_happy_path_with_nicip_type(
     repository: DocumentPointerRepository,
 ):
@@ -337,6 +378,51 @@ def test_search_document_reference_invalid_type(repository: DocumentPointerRepos
                 },
                 "diagnostics": "Invalid query parameter (The provided type system does not match the allowed types for this organisation)",
                 "expression": ["type"],
+            }
+        ],
+    }
+
+
+@mock_aws
+@mock_repository
+def test_search_document_reference_invalid_category(
+    repository: DocumentPointerRepository,
+):
+    event = create_test_api_gateway_event(
+        headers=create_headers(),
+        query_string_parameters={
+            "subject:identifier": "https://fhir.nhs.uk/Id/nhs-number|6700028191",
+            "category": "https://fhir.nhs.uk/CodeSystem/Document-Type|invalid",
+        },
+    )
+
+    result = handler(event, create_mock_context())
+    body = result.pop("body")
+
+    assert result == {
+        "statusCode": "400",
+        "headers": default_response_headers(),
+        "isBase64Encoded": False,
+    }
+
+    parsed_body = json.loads(body)
+    assert parsed_body == {
+        "resourceType": "OperationOutcome",
+        "issue": [
+            {
+                "severity": "error",
+                "code": "code-invalid",
+                "details": {
+                    "coding": [
+                        {
+                            "code": "INVALID_CODE_SYSTEM",
+                            "display": "Invalid code system",
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                        }
+                    ]
+                },
+                "diagnostics": "Invalid query parameter (The provided category is not valid)",
+                "expression": ["category"],
             }
         ],
     }
