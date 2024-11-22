@@ -28,7 +28,8 @@ Feature: Consumer - readDocumentReference - Success Scenarios
           "coding": [
             {
               "system": "http://snomed.info/sct",
-              "code": "736253002"
+              "code": "736253002",
+              "display": "Mental health crisis plan"
             }
           ]
         },
@@ -113,7 +114,8 @@ Feature: Consumer - readDocumentReference - Success Scenarios
           "coding": [
             {
               "system": "http://snomed.info/sct",
-              "code": "736253002"
+              "code": "736253002",
+              "display": "Mental health crisis plan"
             }
           ]
         },

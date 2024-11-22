@@ -1,4 +1,4 @@
-from layer.nrlf.core.constants import CATEGORY_ATTRIBUTES
+from layer.nrlf.core.constants import CATEGORY_ATTRIBUTES, TYPE_ATTRIBUTES
 from nrlf.producer.fhir.r4.model import (
     Attachment,
     CodeableConcept,
@@ -52,9 +52,15 @@ def create_test_document_reference(items: dict) -> DocumentReference:
     if items.get("id"):
         base_doc_ref.id = items["id"]
 
-    if items.get("type"):
+    if type_code := items.get("type"):
+        type_system = items.get("type_system", "http://snomed.info/sct")
+        type_str = f"{type_system}|{type_code}"
+        type_display = items.get(
+            "type_display", TYPE_ATTRIBUTES.get(type_str, {}).get("display")
+        )
+
         base_doc_ref.type = CodeableConcept(
-            coding=[Coding(system="http://snomed.info/sct", code=items["type"])]
+            coding=[Coding(system=type_system, code=type_code, display=type_display)]
         )
 
     if items.get("subject"):
