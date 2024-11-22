@@ -5,7 +5,7 @@ resource "aws_s3_bucket" "authorization-store" {
   tags = var.enable_backups ? {
     Name               = "authorization store"
     Environment        = "${var.name_prefix}"
-    NHSE-Enable-Backup = "daily"
+    NHSE-Enable-Backup = "true"
     } : {
     Name        = "authorization store"
     Environment = "${var.name_prefix}"
