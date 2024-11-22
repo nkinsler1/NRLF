@@ -105,7 +105,7 @@ def handler(
         nhs_number=body.nhs_number,
         custodian=custodian_id,
         pointer_types=pointer_types,
-        categories=[body.category.root] if body.category else [],
+        categories=body.category.root.split(",") if body.category else [],
     ):
         try:
             document_reference = DocumentReference.model_validate_json(result.document)

@@ -43,7 +43,9 @@ def validate_category(category_: Optional[RequestQueryCategory]) -> bool:
     if not category_:
         return True
 
-    return category_.root in Categories.list()
+    categories = category_.root.split(",")
+
+    return all(category in Categories.list() for category in categories)
 
 
 @dataclass

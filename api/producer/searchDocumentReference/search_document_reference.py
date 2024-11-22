@@ -78,7 +78,7 @@ def handler(
         custodian_suffix=metadata.ods_code_extension,
         nhs_number=params.nhs_number,
         pointer_types=pointer_types,
-        categories=[params.category.root] if params.category else [],
+        categories=params.category.root.split(",") if params.category else [],
     )
 
     for result in repository.search(
@@ -86,7 +86,7 @@ def handler(
         custodian_suffix=metadata.ods_code_extension,
         nhs_number=params.nhs_number,
         pointer_types=pointer_types,
-        categories=[params.category.root] if params.category else [],
+        categories=params.category.root.split(",") if params.category else [],
     ):
         try:
             document_reference = DocumentReference.model_validate_json(result.document)
