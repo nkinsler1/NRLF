@@ -89,56 +89,7 @@ variable "backup_plan_config" {
       }))
     }))
   })
-  default = {
-    selection_tag             = "BackupLocal"
-    compliance_resource_types = ["S3"]
-    rules = [
-      {
-        name     = "daily_kept_5_weeks"
-        schedule = "cron(0 0 * * ? *)"
-        lifecycle = {
-          delete_after = 35
-        }
-        copy_action = {
-          delete_after = 365
-        }
-      },
-      {
-        name     = "weekly_kept_3_months"
-        schedule = "cron(0 1 ? * SUN *)"
-        lifecycle = {
-          delete_after = 90
-        }
-        copy_action = {
-          delete_after = 365
-        }
-      },
-      {
-        name     = "monthly_kept_7_years"
-        schedule = "cron(0 2 1  * ? *)"
-        lifecycle = {
-          cold_storage_after = 30
-          delete_after       = 2555
-        }
-        copy_action = {
-          delete_after = 365
-        }
-      },
-      {
-        name                     = "point_in_time_recovery"
-        schedule                 = "cron(0 5 * * ? *)"
-        enable_continuous_backup = true
-        lifecycle = {
-          delete_after = 35
-        }
-        copy_action = {
-          delete_after = 365
-        }
-      }
-    ]
-  }
 }
-
 variable "backup_plan_config_dynamodb" {
   description = "Configuration for backup plans with dynamodb"
   type = object({
@@ -158,42 +109,5 @@ variable "backup_plan_config_dynamodb" {
       }))
     })))
   })
-  default = {
-    enable                    = true
-    selection_tag             = "BackupDynamoDB"
-    compliance_resource_types = ["DynamoDB"]
-    rules = [
-      {
-        name     = "dynamodb_daily_kept_5_weeks"
-        schedule = "cron(0 0 * * ? *)"
-        lifecycle = {
-          delete_after = 35
-        }
-        copy_action = {
-          delete_after = 365
-        }
-      },
-      {
-        name     = "dynamodb_weekly_kept_3_months"
-        schedule = "cron(0 1 ? * SUN *)"
-        lifecycle = {
-          delete_after = 90
-        }
-        copy_action = {
-          delete_after = 365
-        }
-      },
-      {
-        name     = "dynamodb_monthly_kept_7_years"
-        schedule = "cron(0 2 1  * ? *)"
-        lifecycle = {
-          cold_storage_after = 30
-          delete_after       = 2555
-        }
-        copy_action = {
-          delete_after = 365
-        }
-      }
-    ]
-  }
+
 }
