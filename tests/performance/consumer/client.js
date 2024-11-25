@@ -3,6 +3,7 @@ import {
   POINTER_IDS,
   POINTER_TYPES,
   ODS_CODE,
+  CATEGORIES,
 } from "../constants.js";
 import http from "k6/http";
 import { check } from "k6";
@@ -82,6 +83,27 @@ export function searchDocumentReference() {
   checkResponse(res);
 }
 
+export function searchDocumentReferenceByCategory() {
+  const nhsNumber = NHS_NUMBERS[Math.floor(Math.random() * NHS_NUMBERS.length)];
+  const randomCategory =
+    CATEGORIES[Math.floor(Math.random() * CATEGORIES.length)];
+
+  const identifier = encodeURIComponent(
+    `https://fhir.nhs.uk/Id/nhs-number|${nhsNumber}`
+  );
+  const category = encodeURIComponent(
+    `http://snomed.info/sct|${randomCategory}`
+  );
+
+  const res = http.get(
+    `https://${__ENV.HOST}/consumer/DocumentReference?subject:identifier=${identifier}&category=${category}`,
+    {
+      headers: getHeaders(),
+    }
+  );
+  checkResponse(res);
+}
+
 export function searchPostDocumentReference() {
   const nhsNumber = NHS_NUMBERS[Math.floor(Math.random() * NHS_NUMBERS.length)];
   const pointer_type =
@@ -90,6 +112,25 @@ export function searchPostDocumentReference() {
   const body = JSON.stringify({
     "subject:identifier": `https://fhir.nhs.uk/Id/nhs-number|${nhsNumber}`,
     type: `http://snomed.info/sct|${pointer_type}`,
+  });
+
+  const res = http.post(
+    `https://${__ENV.HOST}/consumer/DocumentReference/_search`,
+    body,
+    {
+      headers: getHeaders(),
+    }
+  );
+  checkResponse(res);
+}
+
+export function searchPostDocumentReferenceByCategory() {
+  const nhsNumber = NHS_NUMBERS[Math.floor(Math.random() * NHS_NUMBERS.length)];
+  const category = CATEGORIES[Math.floor(Math.random() * CATEGORIES.length)];
+
+  const body = JSON.stringify({
+    "subject:identifier": `https://fhir.nhs.uk/Id/nhs-number|${nhsNumber}`,
+    category: `http://snomed.info/sct|${category}`,
   });
 
   const res = http.post(

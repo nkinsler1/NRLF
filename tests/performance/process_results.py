@@ -80,7 +80,7 @@ def _create_response_count_figure(data: dict, title: str):
                 fig_labels.add(f"Failure - Status Code {failure.status}")
 
     for index, scenario in enumerate(data.keys()):
-        axes = fig.add_subplot(2, 2, index + 1)
+        axes = fig.add_subplot(3, 3, index + 1)
         scenario_data = data[scenario]
 
         timestamps = []
@@ -149,7 +149,7 @@ def _create_response_time_figure(data: dict, title: str):
     fig.suptitle(title)
 
     for index, scenario in enumerate(data.keys()):
-        axes = fig.add_subplot(2, 2, index + 1)
+        axes = fig.add_subplot(3, 3, index + 1)
         scenario_data = data[scenario]
 
         timestamps = []
