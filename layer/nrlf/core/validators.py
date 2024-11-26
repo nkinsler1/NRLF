@@ -5,7 +5,14 @@ from typing import Any, Dict, List, Optional
 from pydantic import ValidationError
 
 from nrlf.core.codes import SpineErrorConcept
-from nrlf.core.constants import CATEGORY_ATTRIBUTES, ODS_SYSTEM, REQUIRED_CREATE_FIELDS
+from nrlf.core.constants import (
+    CATEGORY_ATTRIBUTES,
+    ODS_SYSTEM,
+    PRACTICE_SETTING_VALUE_SET_URL,
+    REQUIRED_CREATE_FIELDS,
+    SNOMED_PRACTICE_SETTINGS,
+    SNOMED_SYSTEM_URL,
+)
 from nrlf.core.errors import ParseError
 from nrlf.core.logger import LogReference, logger
 from nrlf.core.types import DocumentReference, OperationOutcomeIssue, RequestQueryType
@@ -508,5 +515,69 @@ class DocumentReferenceValidator:
                 error_code="INVALID_RESOURCE",
                 diagnostics=f"Invalid author value: '{identifier.value}' Author value must be less than 13 characters",
                 field=f"author[0].identifier.value",
+            )
+            return
+
+    def _validate_practiceSetting(self, model: DocumentReference):
+        """
+        Validate the practice setting field contains an appropriate coding system and code.
+        """
+
+        if not (
+            practice_setting_coding := getattr(
+                model.context.practiceSetting, "coding", []
+            )
+        ):
+            self.result.add_error(
+                issue_code="invalid",
+                error_code="INVALID_RESOURCE",
+                diagnostics=f"Invalid practice setting: must contain a Coding",
+                field=f"context.practiceSetting.coding",
+            )
+            return
+
+        if len(practice_setting_coding) != 1:
+            self.result.add_error(
+                issue_code="invalid",
+                error_code="INVALID_RESOURCE",
+                diagnostics=f"Invalid practice setting coding length: {len(model.context.practiceSetting.coding)} Practice Setting Coding must only contain a single value",
+                field=f"context.practiceSetting.coding",
+            )
+            return
+
+        if (
+            practice_setting_system := getattr(
+                practice_setting_coding[0], "system", None
+            )
+            != SNOMED_SYSTEM_URL
+        ):
+            self.result.add_error(
+                issue_code="invalid",
+                error_code="INVALID_VALIDATION",
+                diagnostics=f"Invalid practice setting system: {practice_setting_system} Practice Setting system must be {SNOMED_SYSTEM_URL}",
+                field=f"context.practiceSetting.coding[0].system",
+            )
+            return
+
+        if (
+            practice_setting_value := getattr(practice_setting_coding[0], "value", None)
+            not in SNOMED_PRACTICE_SETTINGS.keys()
+        ):
+            self.result.add_error(
+                issue_code="invalid",
+                error_code="INVALID_VALIDATION",
+                diagnostics=f"Invalid practice setting code: {practice_setting_value} Practice Setting coding must be a member of value set {PRACTICE_SETTING_VALUE_SET_URL}",
+                field=f"context.practiceSetting.coding[0].value",
+            )
+            return
+
+        if practice_setting_display := getattr(
+            practice_setting_coding[0], "display", None
+        ) != SNOMED_PRACTICE_SETTINGS.get(practice_setting_value):
+            self.result.add_error(
+                issue_code="invalid",
+                error_code="INVALID_VALIDATION",
+                diagnostics=f"Invalid practice setting coding: display {practice_setting_display} does not match the expected display for {practice_setting_value} Practice Setting coding is bound to value set {PRACTICE_SETTING_VALUE_SET_URL}",
+                field=f"context.practiceSetting.coding[0]",
             )
             return
