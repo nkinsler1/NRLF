@@ -66,7 +66,7 @@ build-layers: ./layer/*
 		./scripts/build-lambda-layer.sh $${layer} $(DIST_PATH); \
 	done
 
-build-api-packages: ./api/consumer/* ./api/producer/*
+build-api-packages: ./api/consumer/* ./api/producer/* ./api/mhds-recipient/*
 	@echo "Building API packages"
 	@mkdir -p $(DIST_PATH)
 	for api in $^; do \

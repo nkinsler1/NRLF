@@ -34,6 +34,7 @@ module "producer__gateway" {
     method_upsertDocumentReference     = "arn:aws:apigateway:eu-west-2:lambda:path/2015-03-31/functions/arn:aws:lambda:eu-west-2:${local.aws_account_id}:function:${substr("${local.prefix}--api--producer--upsertDocumentReference", 0, 64)}/invocations"
     method_deleteDocumentReference     = "arn:aws:apigateway:eu-west-2:lambda:path/2015-03-31/functions/arn:aws:lambda:eu-west-2:${local.aws_account_id}:function:${substr("${local.prefix}--api--producer--deleteDocumentReference", 0, 64)}/invocations"
     method_status                      = "arn:aws:apigateway:eu-west-2:lambda:path/2015-03-31/functions/arn:aws:lambda:eu-west-2:${local.aws_account_id}:function:${substr("${local.prefix}--api--producer--status", 0, 64)}/invocations"
+    method_mhdsProcessTransation       = "arn:aws:apigateway:eu-west-2:lambda:path/2015-03-31/functions/arn:aws:lambda:eu-west-2:${local.aws_account_id}:function:${substr("${local.prefix}--api--mhdsRecipient--processTransaction", 0, 64)}/invocations"
   }
 
   kms_key_id                   = module.kms__cloudwatch.kms_arn
