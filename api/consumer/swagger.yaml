@@ -257,6 +257,7 @@ paths:
         - $ref: "#/components/parameters/subject"
         - $ref: "#/components/parameters/custodian"
         - $ref: "#/components/parameters/type"
+        - $ref: "#/components/parameters/category"
         - $ref: "#/components/parameters/nextPageToken"
         - $ref: "#/components/parameters/odsCode"
         - $ref: "#/components/parameters/odsCodeExtension"
@@ -332,34 +333,28 @@ paths:
                             code: urn:ihe:pcc:handp:2008
                             display: History and Physical Specification
                       context:
-                        encounter:
-                          - identifier:
-                              value: Encounter/4409815415
                         event:
                           - coding:
                               - system: http://snomed.info/sct
-                                code: "305625009"
-                                display: Seen by mental health counselor
+                                code: "445627002"
+                                display: Assessment using adult early warning scoring system
                         period:
                           start: "2022-12-20T09:00:41+11:00"
                           end: "2022-12-20T09:45:41+11:00"
                         facilityType:
                           coding:
                             - system: http://snomed.info/sct
-                              code: "390826005"
-                              display: Mental health caregiver support
+                              code: "82242000"
+                              display: Children's hospital
                         practiceSetting:
                           coding:
                             - system: http://snomed.info/sct
-                              code: "390826005"
-                              display: Mental health caregiver support
-                        sourcePatientInfo:
-                          identifier:
-                            value: Patient/4409815415
+                              code: "788002001"
+                              display: Adult mental health service
                         related:
                           - identifier:
-                              system: https://fhir.nhs.uk/Id/ods-organization-code
-                              value: MENTAL HEALTH OUTREACH
+                              system: https://fhir.nhs.uk/Id/nhsSpineASID
+                              value: "200000000610"
           headers:
             X-Correlation-Id:
               $ref: "#/components/headers/CorrelationId"
@@ -465,29 +460,28 @@ paths:
                             code: urn:ihe:pcc:cm:2008
                             display: Care Management
                       context:
-                        encounter:
-                          - identifier:
-                              value: Encounter/4409815415
-                        event:
-                          - coding:
-                              - system: http://snomed.info/sct
-                                code: "861421000000109"
-                                display: End of life care coordination summary
-                        period:
-                          start: "2022-12-21T09:00:41+11:00"
-                          end: "2022-12-21T10:45:41+11:00"
-                        facilityType:
-                          coding:
-                            - system: http://snomed.info/sct
-                              code: "14866005"
-                              display: Hospital outpatient mental health center
-                        sourcePatientInfo:
-                          identifier:
-                            value: Patient/4409815415
-                        related:
-                          - identifier:
-                              system: https://fhir.nhs.uk/Id/ods-organization-code
-                              value: TRAFFORD GENERAL HOSPITAL
+                        - event:
+                            - coding:
+                                system: http://snomed.info/sct
+                                code: "445627002"
+                                display: Assessment using adult early warning scoring system
+                        - period:
+                            start: "2022-12-20T09:00:41+11:00"
+                            end: "2022-12-20T09:45:41+11:00"
+                        - facilityType:
+                            - coding:
+                                system: http://snomed.info/sct
+                                code: "82242000"
+                                display: Children's hospital
+                        - practiceSetting:
+                            - coding:
+                                system: http://snomed.info/sct
+                                code: "788002001"
+                                display: Adult mental health service
+                        - related:
+                            - identifier:
+                                system: https://fhir.nhs.uk/Id/nhsSpineASID
+                                value: "200000000610"
           headers:
             X-Correlation-Id:
               $ref: "#/components/headers/CorrelationId"
@@ -578,26 +572,28 @@ paths:
                       code: urn:ihe:pcc:handp:2008
                       display: History and Physical Specification
                 context:
-                  encounter:
-                    - identifier:
-                        value: Encounter/4409815415
-                  event:
-                    - coding:
-                        - system: http://snomed.info/sct
-                          code: "702779007"
-                          display: Emergency health care plan agreed
-                  period:
-                    start: "2022-12-20T09:00:41+11:00"
-                    end: "2022-12-20T09:45:41+11:00"
-                  facilityType:
-                    coding:
-                      - system: http://snomed.info/sct
-                        code: "453121000124107"
-                        display: Emergency department healthcare professional
-                  related:
-                    - identifier:
-                        system: https://fhir.nhs.uk/Id/ods-organization-code
-                        value: EMERGENCY DEPT PRIMARY CARE STREAMING
+                  - event:
+                      - coding:
+                          system: http://snomed.info/sct
+                          code: "445627002"
+                          display: Assessment using adult early warning scoring system
+                  - period:
+                      start: "2022-12-20T09:00:41+11:00"
+                      end: "2022-12-20T09:45:41+11:00"
+                  - facilityType:
+                      - coding:
+                          system: http://snomed.info/sct
+                          code: "82242000"
+                          display: Children's hospital
+                  - practiceSetting:
+                      - coding:
+                          system: http://snomed.info/sct
+                          code: "788002001"
+                          display: Adult mental health service
+                  - related:
+                      - identifier:
+                          system: https://fhir.nhs.uk/Id/nhsSpineASID
+                          value: "200000000610"
           headers:
             X-Correlation-Id:
               $ref: "#/components/headers/CorrelationId"
@@ -1056,6 +1052,8 @@ components:
           items:
             $ref: "#/components/schemas/Reference"
             description: Related identifiers or resources associated with the DocumentReference.
+      required:
+        - practiceSetting
     DocumentReferenceContent:
       type: object
       properties:
@@ -1399,6 +1397,8 @@ components:
           $ref: "#/components/schemas/RequestQueryCustodian"
         type:
           $ref: "#/components/schemas/RequestQueryType"
+        category:
+          $ref: "#/components/schemas/RequestQueryCategory"
         next-page-token:
           $ref: "#/components/schemas/NextPageToken"
       required:
@@ -1421,6 +1421,9 @@ components:
     RequestQueryType:
       type: string
       example: "http://snomed.info/sct|736253002"
+    RequestQueryCategory:
+      type: string
+      example: "http://snomed.info/sct|103693007"
     NextPageToken:
       type: string
     RequestHeaderOdsCode:
@@ -1528,6 +1531,33 @@ components:
         SNOME_CODES_PERSONALISED_CARE_AND_SUPPORT_PLAN:
           summary: Personalised Care and Support Plan
           value: http://snomed.info/sct|2181441000000107
+        invalid:
+          summary: Unknown
+          value: http://snomed.info/sct|410970009
+    category:
+      name: category
+      in: query
+      schema:
+        $ref: "#/components/schemas/RequestQueryCategory"
+      examples:
+        none:
+          summary: None
+          value: ""
+        SNOMED_CODES_CARE_PLAN:
+          summary: Care plan
+          value: http://snomed.info/sct|734163000
+        SNOMED_CODES_OBSERVATIONS:
+          summary: Observations
+          value: http://snomed.info/sct|1102421000000108
+        SNOMED_CODES_CLINICAL_NOTE:
+          summary: Clinical note
+          value: http://snomed.info/sct|823651000000106
+        SNOMED_CODES_DIAGNOSTIC_STUDIES_REPORT:
+          summary: Diagnostic studies report
+          value: http://snomed.info/sct|721981007
+        SNOMED_CODES_DIAGNOSTIC_PROCEDURE:
+          summary: Diagnostic procedure
+          value: http://snomed.info/sct|103693007
         invalid:
           summary: Unknown
           value: http://snomed.info/sct|410970009

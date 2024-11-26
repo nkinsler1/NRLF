@@ -11,13 +11,14 @@ from nrlf.producer.fhir.r4.model import OperationOutcome, OperationOutcomeIssue
 
 def diag_for_error(error: ErrorDetails) -> str:
     if error["loc"]:
-        return f"{error['loc'][0]}: {error['msg']}"
+        loc_string = ".".join(each for each in error["loc"])
+        return f"{loc_string}: {error['msg']}"
     else:
         return f"root: {error['msg']}"
 
 
 def expression_for_error(error: ErrorDetails) -> Optional[str]:
-    return str(error["loc"][0] if error["loc"] else "root")
+    return str(".".join(each for each in error["loc"]) if error["loc"] else "root")
 
 
 class OperationOutcomeError(Exception):

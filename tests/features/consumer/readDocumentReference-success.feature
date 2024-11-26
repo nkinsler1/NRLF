@@ -28,7 +28,8 @@ Feature: Consumer - readDocumentReference - Success Scenarios
           "coding": [
             {
               "system": "http://snomed.info/sct",
-              "code": "736253002"
+              "code": "736253002",
+              "display": "Mental health crisis plan"
             }
           ]
         },
@@ -70,7 +71,18 @@ Feature: Consumer - readDocumentReference - Success Scenarios
               "url": "https://example.org/my-doc.pdf"
             }
           }
-        ]
+        ],
+        "context": {
+          "practiceSetting": {
+            "coding": [
+             {
+              "system": "http://snomed.info/sct",
+              "code": "390826005",
+              "display": "Mental health caregiver support"
+              }
+            ]
+          }
+        }
       }
       """
 
@@ -102,7 +114,8 @@ Feature: Consumer - readDocumentReference - Success Scenarios
           "coding": [
             {
               "system": "http://snomed.info/sct",
-              "code": "736253002"
+              "code": "736253002",
+              "display": "Mental health crisis plan"
             }
           ]
         },
@@ -144,7 +157,18 @@ Feature: Consumer - readDocumentReference - Success Scenarios
               "url": "https://example.org/my-doc.pdf"
             }
           }
-        ]
+        ],
+        "context": {
+          "practiceSetting": {
+            "coding": [
+             {
+              "system": "http://snomed.info/sct",
+              "code": "390826005",
+              "display": "Mental health caregiver support"
+              }
+            ]
+          }
+        }
       }
       """
 

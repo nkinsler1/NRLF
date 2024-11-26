@@ -114,6 +114,51 @@ CATEGORY_ATTRIBUTES = {
     },
 }
 
+TYPE_ATTRIBUTES = {
+    PointerTypes.MENTAL_HEALTH_PLAN.value: {
+        "display": "Mental health crisis plan",
+    },
+    PointerTypes.EMERGENCY_HEALTHCARE_PLAN.value: {
+        "display": "Emergency health care plan",
+    },
+    PointerTypes.EOL_COORDINATION_SUMMARY.value: {
+        "display": "End of life care coordination summary",
+    },
+    PointerTypes.RESPECT_FORM.value: {
+        "display": "ReSPECT (Recommended Summary Plan for Emergency Care and Treatment) form",
+    },
+    PointerTypes.NEWS2_CHART.value: {
+        "display": "Royal College of Physicians NEWS2 (National Early Warning Score 2) chart",
+    },
+    PointerTypes.CONTINGENCY_PLAN.value: {
+        "display": "Contingency plan",
+    },
+    PointerTypes.EOL_CARE_PLAN.value: {
+        "display": "End of life care plan",
+    },
+    PointerTypes.LLOYD_GEORGE_FOLDER.value: {
+        "display": "Lloyd George record folder",
+    },
+    PointerTypes.ADVANCED_CARE_PLAN.value: {
+        "display": "Advanced care plan",
+    },
+    PointerTypes.TREATMENT_ESCALATION_PLAN.value: {
+        "display": "Treatment escalation plan",
+    },
+    PointerTypes.SUMMARY_RECORD.value: {
+        "display": "Summary record",
+    },
+    PointerTypes.PERSONALISED_CARE_AND_SUPPORT_PLAN.value: {
+        "display": "Personalised Care and Support Plan",
+    },
+    PointerTypes.MRA_UPPER_LIMB_ARTERY.value: {
+        "display": "MRA Upper Limb Rt",
+    },
+    PointerTypes.MRI_AXILLA_BOTH.value: {
+        "display": "MRI Axilla Both",
+    },
+}
+
 TYPE_CATEGORIES = {
     #
     # Care plans

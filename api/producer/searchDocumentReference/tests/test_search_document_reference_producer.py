@@ -3,7 +3,7 @@ import json
 from moto import mock_aws
 
 from api.producer.searchDocumentReference.search_document_reference import handler
-from nrlf.core.constants import PointerTypes
+from nrlf.core.constants import Categories, PointerTypes
 from nrlf.core.dynamodb.repository import DocumentPointer, DocumentPointerRepository
 from nrlf.tests.data import load_document_reference
 from nrlf.tests.dynamodb import mock_repository
@@ -205,6 +205,51 @@ def test_search_document_reference_invalid_type(repository: DocumentPointerRepos
 
 @mock_aws
 @mock_repository
+def test_search_document_reference_invalid_category(
+    repository: DocumentPointerRepository,
+):
+    event = create_test_api_gateway_event(
+        headers=create_headers(),
+        query_string_parameters={
+            "subject:identifier": "https://fhir.nhs.uk/Id/nhs-number|6700028191",
+            "category": "https://fhir.nhs.uk/CodeSystem/Document-Type|invalid",
+        },
+    )
+
+    result = handler(event, create_mock_context())
+    body = result.pop("body")
+
+    assert result == {
+        "statusCode": "400",
+        "headers": default_response_headers(),
+        "isBase64Encoded": False,
+    }
+
+    parsed_body = json.loads(body)
+    assert parsed_body == {
+        "resourceType": "OperationOutcome",
+        "issue": [
+            {
+                "severity": "error",
+                "code": "code-invalid",
+                "details": {
+                    "coding": [
+                        {
+                            "code": "INVALID_CODE_SYSTEM",
+                            "display": "Invalid code system",
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                        }
+                    ]
+                },
+                "diagnostics": "Invalid query parameter (The provided category is not valid)",
+                "expression": ["category"],
+            }
+        ],
+    }
+
+
+@mock_aws
+@mock_repository
 def test_search_document_reference_only_returns_custodian_pointers(
     repository: DocumentPointerRepository,
 ):
@@ -251,6 +296,41 @@ def test_search_document_reference_filters_by_type(
         query_string_parameters={
             "subject:identifier": "https://fhir.nhs.uk/Id/nhs-number|6700028191",
             "type": PointerTypes.MENTAL_HEALTH_PLAN.value,
+        },
+    )
+
+    result = handler(event, create_mock_context())
+    body = result.pop("body")
+
+    assert result == {
+        "statusCode": "200",
+        "headers": default_response_headers(),
+        "isBase64Encoded": False,
+    }
+
+    parsed_body = json.loads(body)
+    assert parsed_body == {
+        "resourceType": "Bundle",
+        "type": "searchset",
+        "total": 1,
+        "entry": [{"resource": doc_ref.model_dump(exclude_none=True)}],
+    }
+
+
+@mock_aws
+@mock_repository
+def test_search_document_reference_filters_by_category(
+    repository: DocumentPointerRepository,
+):
+    doc_ref = load_document_reference("Y05868-736253002-Valid")
+    doc_pointer = DocumentPointer.from_document_reference(doc_ref)
+    repository.create(doc_pointer)
+
+    event = create_test_api_gateway_event(
+        headers=create_headers(),
+        query_string_parameters={
+            "subject:identifier": "https://fhir.nhs.uk/Id/nhs-number|6700028191",
+            "category": Categories.CARE_PLAN.value,
         },
     )
 
