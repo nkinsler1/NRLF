@@ -1029,7 +1029,7 @@ def test_validate_content_extension_invalid_display():
                 }
             ]
         },
-        "diagnostics": "Invalid content extension display: invalid Extension display must be the same as code either 'static' or 'dynamic'",
+        "diagnostics": "Invalid content extension display: invalid Extension display must be 'Static' or 'Dynamic'",
         "expression": [
             "content[0].extension[0].valueCodeableConcept.coding[0].display"
         ],
@@ -1522,3 +1522,43 @@ def test_validate_ssp_content_with_multiple_asids():
         "diagnostics": "Multiple ASID identifiers provided. Only a single valid ASID identifier can be provided in the context.related.",
         "expression": ["context.related"],
     }
+
+    def test_validate_content_extension_invalid_code_and_display_mismatch():
+        validator = DocumentReferenceValidator()
+        document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+        document_ref_data["content"][0]["extension"][0] = {
+            "url": "https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability",
+            "valueCodeableConcept": {
+                "coding": [
+                    {
+                        "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability",
+                        "code": "static",
+                        "display": "Dynamic",
+                    }
+                ]
+            },
+        }
+
+        result = validator.validate(document_ref_data)
+
+        assert result.is_valid is False
+        assert result.resource.id == "Y05868-99999-99999-999999"
+        assert len(result.issues) == 1
+        assert result.issues[0].model_dump(exclude_none=True) == {
+            "severity": "error",
+            "code": "value",
+            "details": {
+                "coding": [
+                    {
+                        "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                        "code": "INVALID_RESOURCE",
+                        "display": "Invalid validation of resource",
+                    }
+                ]
+            },
+            "diagnostics": "Invalid content extension display: Dynamic Extension display must be the same as code either 'Static' or 'Dynamic'",
+            "expression": [
+                "content[0].extension[0].valueCodeableConcept.coding[0].display"
+            ],
+        }

@@ -508,42 +508,6 @@ class DocumentReferenceValidator:
                 return
 
             if (
-                content.extension[0].valueCodeableConcept.coding[0].system
-                != "https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability"
-            ):
-                self.result.add_error(
-                    issue_code="value",
-                    error_code="INVALID_RESOURCE",
-                    diagnostics=f"Invalid content extension system: {content.extension[0].valueCodeableConcept.coding[0].system} Extension system must be 'https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability'",
-                    field=f"content[{i}].extension[0].valueCodeableConcept.coding[0].system",
-                )
-                return
-
-            if content.extension[0].valueCodeableConcept.coding[0].code not in [
-                "static",
-                "dynamic",
-            ]:
-                self.result.add_error(
-                    issue_code="value",
-                    error_code="INVALID_RESOURCE",
-                    diagnostics=f"Invalid content extension code: {content.extension[0].valueCodeableConcept.coding[0].code} Extension code must be 'static' or 'dynamic'",
-                    field=f"content[{i}].extension[0].valueCodeableConcept.coding[0].code",
-                )
-                return
-
-            if (
-                content.extension[0].valueCodeableConcept.coding[0].code
-                != content.extension[0].valueCodeableConcept.coding[0].display.lower()
-            ):
-                self.result.add_error(
-                    issue_code="value",
-                    error_code="INVALID_RESOURCE",
-                    diagnostics=f"Invalid content extension display: {content.extension[0].valueCodeableConcept.coding[0].display} Extension display must be the same as code either 'static' or 'dynamic'",
-                    field=f"content[{i}].extension[0].valueCodeableConcept.coding[0].display",
-                )
-                return
-
-            if (
                 content.extension[0].url
                 != "https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability"
             ):
@@ -552,6 +516,46 @@ class DocumentReferenceValidator:
                     error_code="INVALID_RESOURCE",
                     diagnostics=f"Invalid content extension url: {content.extension[0].url} Extension url must be 'https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability'",
                     field=f"content[{i}].extension[0].url",
+                )
+                return
+
+            coding = content.extension[0].valueCodeableConcept.coding[0]
+            if (
+                coding.system
+                != "https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability"
+            ):
+                self.result.add_error(
+                    issue_code="value",
+                    error_code="INVALID_RESOURCE",
+                    diagnostics=f"Invalid content extension system: {coding.system} Extension system must be 'https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability'",
+                    field=f"content[{i}].extension[0].valueCodeableConcept.coding[0].system",
+                )
+                return
+
+            if coding.code not in ["static", "dynamic"]:
+                self.result.add_error(
+                    issue_code="value",
+                    error_code="INVALID_RESOURCE",
+                    diagnostics=f"Invalid content extension code: {coding.code} Extension code must be 'static' or 'dynamic'",
+                    field=f"content[{i}].extension[0].valueCodeableConcept.coding[0].code",
+                )
+                return
+
+            if coding.display not in ["Static", "Dynamic"]:
+                self.result.add_error(
+                    issue_code="value",
+                    error_code="INVALID_RESOURCE",
+                    diagnostics=f"Invalid content extension display: {coding.display} Extension display must be 'Static' or 'Dynamic'",
+                    field=f"content[{i}].extension[0].valueCodeableConcept.coding[0].display",
+                )
+                return
+
+            if coding.code != coding.display.lower():
+                self.result.add_error(
+                    issue_code="value",
+                    error_code="INVALID_RESOURCE",
+                    diagnostics=f"Invalid content extension display: {coding.display} Extension display must be the same as code either 'Static' or 'Dynamic'",
+                    field=f"content[{i}].extension[0].valueCodeableConcept.coding[0].display",
                 )
                 return
 
