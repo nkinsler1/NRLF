@@ -335,7 +335,7 @@ jobs:
 
   smoke-test:
     name: Run Smoke Tests
-    needs: [set-environment-id, deploy]
+    needs: [set-environment-id, performance-test]
     environment: pull-request
     runs-on: [self-hosted, ci]
 
