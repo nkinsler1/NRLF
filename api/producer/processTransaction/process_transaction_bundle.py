@@ -284,8 +284,14 @@ def handler(
     Returns:
         Response: The response indicating the result of the operation.
     """
-    if not body.meta.profile[0].endswith(
-        "profiles.ihe.net/ITI/MHD/StructureDefinition/IHE.MHD.UnContained.Comprehensive.ProvideBundle"
+    # TODO - Add logging
+    # TODO - Add profile for NRLF too
+    if (
+        body.meta
+        and body.meta.profile
+        and not body.meta.profile[0].endswith(
+            "profiles.ihe.net/ITI/MHD/StructureDefinition/IHE.MHD.UnContained.Comprehensive.ProvideBundle"
+        )
     ):
         return SpineErrorResponse.BAD_REQUEST(
             diagnostics="Only IHE.MHD.UnContained.Comprehensive.ProvideBundle profiles are supported",
@@ -299,13 +305,13 @@ def handler(
         )
 
     if body.entry is None:
-        return SpineErrorResponse.BAD_REQUEST(
-            diagnostics="The bundle must contain at least one entry", expression="entry"
+        # TODO - Log that there was not entry
+        return Response.from_resource(
+            resource=Bundle(resourceType="Bundle", type="transaction-response")
         )
 
     document_references: list[DocumentReference] = []
 
-    # TODO - Handle this better
     issues: list[BaseModel] = []
 
     for entry in body.entry:
@@ -316,6 +322,17 @@ def handler(
                     code="exception",
                     diagnostics="Only DocumentReference resources are supported",
                     expression=[ExpressionItem("entry.resource.resourceType")],
+                    details=SpineErrorConcept.from_code("BAD_REQUEST"),
+                )
+            )
+
+        if entry.request.method != "POST":
+            issues.append(
+                OperationOutcomeIssue(
+                    severity="error",
+                    code="exception",
+                    diagnostics="Only create using POST method is supported",
+                    expression=[ExpressionItem("entry.request.method")],
                     details=SpineErrorConcept.from_code("BAD_REQUEST"),
                 )
             )
@@ -335,4 +352,8 @@ def handler(
         except OperationOutcomeError as e:
             responses.append(e.response)
 
-    return NRLResponse.BUNDLE_CREATED(responses)
+    return Response.from_resource(
+        resource=Bundle(
+            resourceType="Bundle", type="transaction-response", entry=responses
+        )
+    )

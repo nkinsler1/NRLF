@@ -384,12 +384,12 @@ module "producer__status" {
 
 module "mhdsReceiver__processTransactionBundle" {
   source                 = "./modules/lambda"
-  parent_path            = "api/mhds-recipient"
+  parent_path            = "api/producer"
   name                   = "processTransaction"
   region                 = local.region
   prefix                 = local.prefix
   layers                 = [module.nrlf.layer_arn, module.third_party.layer_arn, module.nrlf_permissions.layer_arn]
-  api_gateway_source_arn = ["arn:aws:execute-api:${local.region}:${local.aws_account_id}:${module.producer__gateway.api_gateway_id}/*/GET/_status"]
+  api_gateway_source_arn = ["arn:aws:execute-api:${local.region}:${local.aws_account_id}:${module.producer__gateway.api_gateway_id}/*/POST/"]
   kms_key_id             = module.kms__cloudwatch.kms_arn
   environment_variables = {
     PREFIX               = "${local.prefix}--"
