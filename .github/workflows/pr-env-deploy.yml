@@ -371,14 +371,6 @@ jobs:
       - name: Retrieve Client Certificates
         run: make truststore-pull-client ENV=dev
 
-      - name: Configure Dev Account Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: eu-west-2
-          role-chaining: true
-          role-to-assume: ${{ secrets.DEPLOY_ROLE_ARN }}
-          role-session-name: github-actions-ci-${{ needs.set-environment-id.outputs.environment_id }}
-
       - name: Smoke Test
         run: |
           make TF_WORKSPACE_NAME=${{ needs.set-environment-id.outputs.environment_id }} test-smoke-internal
