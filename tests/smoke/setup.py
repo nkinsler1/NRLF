@@ -5,6 +5,7 @@ from nrlf.producer.fhir.r4.model import (
     Coding,
     DocumentReference,
     DocumentReferenceContent,
+    DocumentReferenceContext,
     DocumentReferenceRelatesTo,
     Identifier,
     Reference,
@@ -67,6 +68,17 @@ def build_document_reference(
                 ]
             )
         ],
+        context=DocumentReferenceContext(
+            practiceSetting=CodeableConcept(
+                coding=[
+                    Coding(
+                        system="http://snomed.info/sct",
+                        code="390826005",
+                        display="Mental health caregiver support",
+                    )
+                ]
+            )
+        ),
     )
 
     if replaces_id:
