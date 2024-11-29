@@ -58,7 +58,8 @@ def handler(
             expression="type",
         )
 
-    if not validate_category(params.category):
+    categories = params.category.root.split(",") if params.category else []
+    if not validate_category(categories):
         logger.log(
             LogReference.CONSEARCH002b,
             category=params.category,
@@ -102,7 +103,7 @@ def handler(
         nhs_number=params.nhs_number,
         custodian=custodian_id,
         pointer_types=pointer_types,
-        categories=[params.category.root] if params.category else [],
+        categories=categories,
     ):
         try:
             document_reference = DocumentReference.model_validate_json(result.document)
