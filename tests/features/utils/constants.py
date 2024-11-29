@@ -64,8 +64,8 @@ DEFAULT_TEST_CONTEXT = """
     "coding": [
       {
         "system": "http://snomed.info/sct",
-        "code": "390826005",
-        "display": "Mental health caregiver support"
+        "code": "788002001",
+        "display": "Adult mental health service"
       }
     ]
   },
