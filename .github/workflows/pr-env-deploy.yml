@@ -302,7 +302,7 @@ jobs:
       - name: Smoke Test
         run: |
           make ENV=dev truststore-pull-client
-          make ENV=dev test-smoke-internal
+          make ENV=dev TF_WORKSPACE_NAME=${{ needs.set-environment-id.outputs.environment_id }} test-smoke-internal
 
   performance-test:
     name: Run Performance Tests
