@@ -52,5 +52,5 @@ resource "aws_dynamodb_table" "pointers" {
     enabled = var.enable_pitr
   }
 
-  tags = var.enable_backups ? { NHSE-Enable-Backup = "true" } : {}
+  tags = { NHSE-Enable-DDB-Backup = "${var.enable_backups}" }
 }

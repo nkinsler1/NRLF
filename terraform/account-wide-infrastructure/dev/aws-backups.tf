@@ -9,9 +9,9 @@ variable "destination_vault_arn" {
   default     = ""
 }
 
-#data "aws_arn" "destination_vault_arn" {
-#  arn = var.destination_vault_arn
-#}
+data "aws_arn" "destination_vault_arn" {
+  arn = var.destination_vault_arn
+}
 
 data "aws_secretsmanager_secret" "backup-account-secret" {
   name = "nhsd-nrlf--dev--test-backup-account-id"
@@ -138,11 +138,11 @@ module "source" {
   source = "../modules/backup-source"
 
   backup_copy_vault_account_id = local.destination_account_id
-  #  backup_copy_vault_arn              = data.aws_arn.destination_vault_arn.arn
-  environment_name      = local.environment_name
-  bootstrap_kms_key_arn = aws_kms_key.backup_notifications.arn
-  project_name          = local.project_name
-  reports_bucket        = aws_s3_bucket.backup_reports.bucket
+  backup_copy_vault_arn        = data.aws_arn.destination_vault_arn.arn
+  environment_name             = local.environment_name
+  bootstrap_kms_key_arn        = aws_kms_key.backup_notifications.arn
+  project_name                 = local.project_name
+  reports_bucket               = aws_s3_bucket.backup_reports.bucket
   #terraform_role_arn                = data.aws_caller_identity.current.arn
   terraform_role_arn = "arn:aws:iam::${var.assume_account}:role/${var.assume_role}"
 
@@ -164,7 +164,7 @@ module "source" {
         "schedule" : "cron(0 0 * * ? *)"
       }
     ],
-    "selection_tag" : "NHSE-Enable-Backup"
+    "selection_tag" : "NHSE-Enable-S3-Backup"
   }
 
   backup_plan_config_dynamodb = {
@@ -184,6 +184,6 @@ module "source" {
         "schedule" : "cron(0 0 * * ? *)"
       }
     ],
-    "selection_tag" : "NHSE-Enable-Backup"
+    "selection_tag" : "NHSE-Enable-DDB-Backup"
   }
 }

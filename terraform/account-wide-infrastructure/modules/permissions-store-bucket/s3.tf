@@ -2,13 +2,10 @@ resource "aws_s3_bucket" "authorization-store" {
   bucket        = "${var.name_prefix}-authorization-store"
   force_destroy = var.enable_bucket_force_destroy
 
-  tags = var.enable_backups ? {
-    Name               = "authorization store"
-    Environment        = "${var.name_prefix}"
-    NHSE-Enable-Backup = "true"
-    } : {
-    Name        = "authorization store"
-    Environment = "${var.name_prefix}"
+  tags = {
+    Name                  = "authorization store"
+    Environment           = "${var.name_prefix}"
+    NHSE-Enable-S3-Backup = "${var.enable_backups}"
   }
 }
 
