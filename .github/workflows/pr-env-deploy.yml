@@ -289,8 +289,10 @@ jobs:
         with:
           asdf_branch: v0.13.1
 
-      - name: Python Dependency Install
-        run: poetry install --no-root
+      - name: Setup Python environment
+        run: |
+          poetry install --no-root
+          source $(poetry env info --path)/bin/activate
 
       - name: Configure Management Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -306,7 +308,7 @@ jobs:
 
   performance-test:
     name: Run Performance Tests
-    needs: [set-environment-id, integration-test]
+    needs: [set-environment-id, smoke-test]
     environment: pull-request
     runs-on: [self-hosted, ci]
 
