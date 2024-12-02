@@ -16,6 +16,8 @@ from nrlf.core.validators import DocumentReferenceValidator
 from nrlf.producer.fhir.r4.model import (
     BaseModel,
     Bundle,
+    BundleEntry,
+    BundleEntryResponse,
     DocumentReference,
     DocumentReferenceRelatesTo,
     ExpressionItem,
@@ -223,7 +225,7 @@ def _raise_operation_outcome_error(diagnostics, idx):
 def create_document_reference(
     metadata: ConnectionMetadata,
     repository: DocumentPointerRepository,
-    document_reference: DocumentReference,
+    body: DocumentReference,
 ) -> Response:
 
     logger.log(LogReference.PROCREATE000)
@@ -367,8 +369,17 @@ def handler(
         except OperationOutcomeError as e:
             responses.append(e.response)
 
+    response_entries = [
+        BundleEntry(
+            response=BundleEntryResponse(
+                status=response.statusCode, location=response.headers["Location"]
+            )
+        )
+        for response in responses
+    ]
+
     return Response.from_resource(
         resource=Bundle(
-            resourceType="Bundle", type="transaction-response", entry=responses
+            resourceType="Bundle", type="transaction-response", entry=response_entries
         )
     )
