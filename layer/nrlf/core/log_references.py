@@ -175,6 +175,9 @@ class LogReference(Enum):
     CONSEARCH002 = _Reference(
         "INFO", "Invalid document type provided in the query parameters"
     )
+    CONSEARCH002b = _Reference(
+        "INFO", "Invalid document category provided in the query parameters"
+    )
     CONSEARCH003 = _Reference("DEBUG", "Performing search by NHS number")
     CONSEARCH004 = _Reference(
         "DEBUG", "Parsed DocumentReference and added to search results"
@@ -195,6 +198,9 @@ class LogReference(Enum):
     )
     CONPOSTSEARCH002 = _Reference(
         "INFO", "Invalid document type provided in the request body"
+    )
+    CONPOSTSEARCH002b = _Reference(
+        "INFO", "Invalid document category provided in the request body"
     )
     CONPOSTSEARCH003 = _Reference("DEBUG", "Performing search by NHS number")
     CONPOSTSEARCH004 = _Reference(
@@ -221,11 +227,7 @@ class LogReference(Enum):
     )
     PROCREATE005 = _Reference(
         "WARN", "Organisation is not allowed to create pointer type"
-    )  #
-    PROCREATE005a = _Reference(
-        "WARN",
-        "Organisation is not allowed to create pointer type with incorrect category",
-    )  #
+    )
     PROCREATE006 = _Reference("DEBUG", "Performing relatesTo validation on resource")
     PROCREATE007a = _Reference(
         "WARN", "RelatesTo validation failed - no target identifier value"
@@ -350,12 +352,15 @@ class LogReference(Enum):
     PROSEARCH002 = _Reference(
         "INFO", "Invalid document type provided in the query parameters"
     )
+    PROSEARCH002b = _Reference(
+        "INFO", "Invalid document category provided in the query parameters"
+    )
     PROSEARCH003 = _Reference("DEBUG", "Performing search by custodian")
     PROSEARCH004 = _Reference(
         "DEBUG", "Parsed DocumentReference and added to search results"
     )
     PROSEARCH005 = _Reference(
-        "EXCEPTION", "The DocumentReference esource could not be parsed"
+        "EXCEPTION", "The DocumentReference resource could not be parsed"
     )
     PROSEARCH999 = _Reference(
         "INFO", "Successfully completed producer searchDocumentReference"
@@ -370,6 +375,9 @@ class LogReference(Enum):
     )
     PROPOSTSEARCH002 = _Reference(
         "INFO", "Invalid document type provided in the request body"
+    )
+    PROPOSTSEARCH002b = _Reference(
+        "INFO", "Invalid document category provided in the request body"
     )
     PROPOSTSEARCH003 = _Reference("DEBUG", "Performing search by custodian")
     PROPOSTSEARCH004 = _Reference(

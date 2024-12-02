@@ -256,6 +256,21 @@ def test_create_document_reference_invalid_body():
                             "display": "Message not well formed",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
+                    ],
+                },
+                "diagnostics": "Request body could not be parsed (author: Field required)",
+                "expression": ["author"],
+            },
+            {
+                "severity": "error",
+                "code": "invalid",
+                "details": {
+                    "coding": [
+                        {
+                            "code": "MESSAGE_NOT_WELL_FORMED",
+                            "display": "Message not well formed",
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                        }
                     ]
                 },
                 "diagnostics": "Request body could not be parsed (content: Field required)",
@@ -485,8 +500,8 @@ def test_update_document_reference_immutable_fields(repository):
                 id=None,
                 system="http://snomed.info/sct",
                 version=None,
-                code="1213324",
-                display="Some Code",
+                code="861421000000109",
+                display="End of life care coordination summary",
                 userSelected=None,
             )
         ],

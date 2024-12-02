@@ -218,6 +218,7 @@ class DocumentPointerRepository(Repository[DocumentPointer]):
         custodian: Optional[str] = None,
         custodian_suffix: Optional[str] = None,
         pointer_types: Optional[List[str]] = [],
+        categories: Optional[List[str]] = [],
     ) -> Iterator[DocumentPointer]:
         """"""
         logger.log(
@@ -238,9 +239,28 @@ class DocumentPointerRepository(Repository[DocumentPointer]):
             patient_sort = f"C#{category_id}#T#{type_id}"
             key_conditions.append("begins_with(patient_sort, :patient_sort)")
             expression_values[":patient_sort"] = patient_sort
+        else:
+            # Handle single/multiple categories and pointer types with filter expressions
+            if len(categories) == 1:
+                split_category = categories[0].split("|")
+                category_id = (
+                    SYSTEM_SHORT_IDS[split_category[0]] + "-" + split_category[1]
+                )
+                patient_sort = f"C#{category_id}"
+                key_conditions.append("begins_with(patient_sort, :patient_sort)")
+                expression_values[":patient_sort"] = patient_sort
 
-        # Handle multiple categories and pointer types with filter expressions
-        if len(pointer_types) > 1:
+            if len(categories) > 1:
+                expression_names["#category"] = "category"
+                category_filters = [
+                    f"#category = :category_{i}" for i in range(len(categories))
+                ]
+                category_filter_values = {
+                    f":category_{i}": categories[i] for i in range(len(categories))
+                }
+                filter_expressions.append(f"({' OR '.join(category_filters)})")
+                expression_values.update(category_filter_values)
+
             expression_names["#pointer_type"] = "type"
             types_filters = [
                 f"#pointer_type = :type_{i}" for i in range(len(pointer_types))

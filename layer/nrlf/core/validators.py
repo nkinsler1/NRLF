@@ -4,8 +4,17 @@ from typing import Any, Dict, List, Optional
 
 from pydantic import ValidationError
 
+from nrlf.consumer.fhir.r4.model import RequestQueryCategory
 from nrlf.core.codes import SpineErrorConcept
-from nrlf.core.constants import CATEGORY_ATTRIBUTES, REQUIRED_CREATE_FIELDS
+from nrlf.core.constants import (
+    CATEGORY_ATTRIBUTES,
+    ODS_SYSTEM,
+    REQUIRED_CREATE_FIELDS,
+    TYPE_ATTRIBUTES,
+    TYPE_CATEGORIES,
+    Categories,
+    PointerTypes,
+)
 from nrlf.core.errors import ParseError
 from nrlf.core.logger import LogReference, logger
 from nrlf.core.types import DocumentReference, OperationOutcomeIssue, RequestQueryType
@@ -27,6 +36,17 @@ def validate_type_system(
     ]
 
     return type_system in pointer_type_systems
+
+
+# TODO - Validate category is in set permissions once permissioning by category is done.
+def validate_category(category_: Optional[RequestQueryCategory]) -> bool:
+    """
+    Validates if the given category is valid.
+    """
+    if not category_:
+        return True
+
+    return category_.root in Categories.list()
 
 
 @dataclass
@@ -117,7 +137,10 @@ class DocumentReferenceValidator:
             self._validate_identifiers(resource)
             self._validate_relates_to(resource)
             self._validate_ssp_asid(resource)
+            self._validate_type(resource)
             self._validate_category(resource)
+            self._validate_author(resource)
+            self._validate_type_category_mapping(resource)
             if resource.content[0].extension:
                 self._validate_content_extension(resource)
 
@@ -336,6 +359,50 @@ class DocumentReferenceValidator:
             )
             return
 
+    def _validate_type(self, model: DocumentReference):
+        """
+        Validate the type field contains an appropriate coding system, code and display.
+        """
+        logger.log(LogReference.VALIDATOR001, step="type")
+
+        if len(model.type.coding) > 1:
+            self.result.add_error(
+                issue_code="invalid",
+                error_code="INVALID_RESOURCE",
+                diagnostics=f"Invalid type coding length: {len(model.type.coding)} Type Coding must only contain a single value",
+                field="type.coding",
+            )
+            return
+
+        coding = model.type.coding[0]
+        if coding.system not in ["http://snomed.info/sct", "https://nicip.nhs.uk"]:
+            self.result.add_error(
+                issue_code="value",
+                error_code="INVALID_RESOURCE",
+                diagnostics=f"Invalid type system: {coding.system} Type system must be either 'http://snomed.info/sct' or 'https://nicip.nhs.uk'",
+                field="type.coding[0].system",
+            )
+            return
+
+        type_id = f"{coding.system}|{coding.code}"
+        if type_id not in TYPE_ATTRIBUTES.keys():
+            self.result.add_error(
+                issue_code="value",
+                error_code="INVALID_RESOURCE",
+                diagnostics=f"Invalid type code: {coding.code} Type must be a member of the England-NRLRecordType value set (https://fhir.nhs.uk/England/CodeSystem/England-NRLRecordType)",
+                field="type.coding[0].code",
+            )
+            return
+
+        type_attributes = TYPE_ATTRIBUTES.get(type_id, {})
+        if coding.display != type_attributes.get("display"):
+            self.result.add_error(
+                issue_code="value",
+                error_code="INVALID_RESOURCE",
+                diagnostics=f"type code '{coding.code}' must have a display value of '{type_attributes.get('display')}'",
+                field="type.coding[0].display",
+            )
+
     def _validate_category(self, model: DocumentReference):
         """
         Validate the category field contains an appropriate coding system, code and display.
@@ -368,17 +435,17 @@ class DocumentReferenceValidator:
                 issue_code="value",
                 error_code="INVALID_RESOURCE",
                 diagnostics=f"Invalid category system: {coding.system} Category system must be 'http://snomed.info/sct'",
-                field=f"category[0].coding[{0}].system",
+                field="category[0].coding[0].system",
             )
             return
 
-        category_id = f"http://snomed.info/sct|{coding.code}"
+        category_id = f"{coding.system}|{coding.code}"
         if category_id not in CATEGORY_ATTRIBUTES.keys():
             self.result.add_error(
                 issue_code="value",
                 error_code="INVALID_RESOURCE",
                 diagnostics=f"Invalid category code: {coding.code} Category must be a member of the England-NRLRecordCategory value set (https://fhir.nhs.uk/England/CodeSystem/England-NRLRecordCategory)",
-                field=f"category[0].coding[{0}].code",
+                field="category[0].coding[0].code",
             )
             return
 
@@ -388,7 +455,30 @@ class DocumentReferenceValidator:
                 issue_code="value",
                 error_code="INVALID_RESOURCE",
                 diagnostics=f"category code '{coding.code}' must have a display value of '{category_attributes.get('display')}'",
-                field=f"category[0].coding[{0}].display",
+                field="category[0].coding[0].display",
+            )
+
+    def _validate_type_category_mapping(self, model: DocumentReference):
+        """
+        Validate the type field matches the expected category
+        """
+        logger.log(LogReference.VALIDATOR001, step="type_category_mapping")
+
+        type_coding = model.type.coding[0]
+        type_id = f"{type_coding.system}|{type_coding.code}"
+        category_coding = model.category[0].coding[0]
+        category_id = f"{category_coding.system}|{category_coding.code}"
+
+        if type_id not in PointerTypes.list() or category_id not in Categories.list():
+            return  # No point mapping to an unexisting/unsupported type/category
+
+        type_category = TYPE_CATEGORIES.get(type_id)
+        if type_category != category_id:
+            self.result.add_error(
+                issue_code="value",
+                error_code="INVALID_RESOURCE",
+                diagnostics=f"The Category code of the provided document '{category_id}' must match the allowed category for pointer type '{type_id}' with a category value of '{type_category}'",
+                field="category.coding[0].code",
             )
 
     def _validate_content_extension(self, model: DocumentReference):
@@ -464,3 +554,48 @@ class DocumentReferenceValidator:
                     field=f"content[{i}].extension[0].url",
                 )
                 return
+
+    def _validate_author(self, model: DocumentReference):
+        """
+        Validate the author field contains an appropriate coding system and code.
+        """
+        logger.log(LogReference.VALIDATOR001, step="author")
+
+        if len(model.author) > 1:
+            self.result.add_error(
+                issue_code="invalid",
+                error_code="INVALID_RESOURCE",
+                diagnostics=f"Invalid author length: {len(model.author)} Author must only contain a single value",
+                field=f"author",
+            )
+            return
+
+        logger.debug("Validating author")
+        identifier = model.author[0].identifier
+
+        if identifier.system != ODS_SYSTEM:
+            self.result.add_error(
+                issue_code="invalid",
+                error_code="INVALID_IDENTIFIER_SYSTEM",
+                diagnostics=f"Invalid author system: '{identifier.system}' Author system must be '{ODS_SYSTEM}'",
+                field=f"author[0].identifier.system",
+            )
+            return
+
+        if not identifier.value.isalnum():
+            self.result.add_error(
+                issue_code="value",
+                error_code="INVALID_RESOURCE",
+                diagnostics=f"Invalid author value: '{identifier.value}' Author value must be alphanumeric",
+                field=f"author[0].identifier.value",
+            )
+            return
+
+        if len(identifier.value) > 12:
+            self.result.add_error(
+                issue_code="value",
+                error_code="INVALID_RESOURCE",
+                diagnostics=f"Invalid author value: '{identifier.value}' Author value must be less than 13 characters",
+                field=f"author[0].identifier.value",
+            )
+            return
