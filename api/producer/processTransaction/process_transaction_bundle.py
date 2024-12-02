@@ -265,6 +265,16 @@ def create_document_reference(
     return NRLResponse.RESOURCE_CREATED(resource_id=result.resource.id)
 
 
+def _convert_document_reference(
+    document_reference: DocumentReference, requested_profile: str
+) -> DocumentReference:
+    """
+    Convert the DocumentReference to the requested profile
+    """
+    # TODO - Implement conversion logic from MHDS profile to NRLF FHIR profile
+    return document_reference
+
+
 @request_handler(body=Bundle)
 def handler(
     metadata: ConnectionMetadata,
@@ -272,9 +282,9 @@ def handler(
     body: Bundle,
 ) -> Response:
     """
-    Handles an MHDS transaction bundle request.
+    Handles an FHIR transaction bundle request.
 
-    Currently limited to register requests only.
+    Currently limited to create requests only and only supports either the MHDS profile or the NRLF profile.
 
     Args:
         metadata (ConnectionMetadata): The connection metadata.
@@ -285,17 +295,17 @@ def handler(
         Response: The response indicating the result of the operation.
     """
     # TODO - Add logging
-    # TODO - Add profile for NRLF too
-    if (
-        body.meta
-        and body.meta.profile
-        and not body.meta.profile[0].endswith(
-            "profiles.ihe.net/ITI/MHD/StructureDefinition/IHE.MHD.UnContained.Comprehensive.ProvideBundle"
-        )
+    requested_profile = (
+        body.meta.profile[0].root if body.meta and body.meta.profile else None
+    )
+
+    # TODO - Add profile for NRLF too (assume NRLF profile if not provided)
+    if requested_profile and not requested_profile.endswith(
+        "profiles.ihe.net/ITI/MHD/StructureDefinition/IHE.MHD.UnContained.Comprehensive.ProvideBundle"
     ):
         return SpineErrorResponse.BAD_REQUEST(
             diagnostics="Only IHE.MHD.UnContained.Comprehensive.ProvideBundle profiles are supported",
-            expression="meta.profile",
+            expression="meta.profile[0]",
         )
 
     if body.type != "transaction":
@@ -305,7 +315,7 @@ def handler(
         )
 
     if body.entry is None:
-        # TODO - Log that there was not entry
+        # TODO - Log that there was no entry
         return Response.from_resource(
             resource=Bundle(resourceType="Bundle", type="transaction-response")
         )
@@ -345,6 +355,11 @@ def handler(
     responses: list[Response] = []
     for document_reference in document_references:
         try:
+            if requested_profile:
+                document_reference = _convert_document_reference(
+                    document_reference, requested_profile
+                )
+
             create_response = create_document_reference(
                 metadata, repository, document_reference
             )

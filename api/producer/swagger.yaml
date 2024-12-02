@@ -237,6 +237,33 @@ servers:
     description: Production environment.
 tags:
 paths:
+  /:
+    post:
+      tags:
+      summary: Process a FHIR transaction
+      operationId: processTransaction
+      responses:
+        "200":
+          description: Transaction successful response
+          $ref: "#/components/responses/Success"
+          content:
+            application/fhir+json:
+              example: {} # TODO - Add example response for processTransaction
+      requestBody:
+        $ref: "#/components/schemas/Bundle"
+      parameters: {}
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        uri: ${method_processTransaction}
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: when_no_match
+        contentHandling: CONVERT_TO_TEXT
+      description: |
+        TODO - Add description for processTransaction
+
   /DocumentReference:
     post:
       tags:
