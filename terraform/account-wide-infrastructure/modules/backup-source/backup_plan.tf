@@ -1,5 +1,6 @@
 resource "aws_backup_plan" "default" {
-  name = "${local.resource_name_prefix}-plan"
+  count = var.backup_plan_config.enable ? 1 : 0
+  name  = "${local.resource_name_prefix}-plan"
 
   dynamic "rule" {
     for_each = var.backup_plan_config.rules
@@ -16,7 +17,7 @@ resource "aws_backup_plan" "default" {
         cold_storage_after = rule.value.lifecycle.cold_storage_after != null ? rule.value.lifecycle.cold_storage_after : null
       }
       dynamic "copy_action" {
-        for_each = var.backup_copy_vault_arn != "" && var.backup_copy_vault_account_id != "" && rule.value.copy_action != null ? rule.value.copy_action : {}
+        for_each = rule.value.copy_action != null ? rule.value.copy_action : {}
         content {
           lifecycle {
             delete_after = copy_action.value
@@ -47,7 +48,7 @@ resource "aws_backup_plan" "dynamodb" {
         cold_storage_after = rule.value.lifecycle.cold_storage_after != null ? rule.value.lifecycle.cold_storage_after : null
       }
       dynamic "copy_action" {
-        for_each = var.backup_copy_vault_arn != "" && var.backup_copy_vault_account_id != "" && rule.value.copy_action != null ? rule.value.copy_action : {}
+        for_each = rule.value.copy_action != null ? rule.value.copy_action : {}
         content {
           lifecycle {
             delete_after = copy_action.value
@@ -60,9 +61,10 @@ resource "aws_backup_plan" "dynamodb" {
 }
 
 resource "aws_backup_selection" "default" {
+  count        = var.backup_plan_config.enable ? 1 : 0
   iam_role_arn = aws_iam_role.backup.arn
   name         = "${local.resource_name_prefix}-selection"
-  plan_id      = aws_backup_plan.default.id
+  plan_id      = aws_backup_plan.default[0].id
 
   selection_tag {
     key   = var.backup_plan_config.selection_tag

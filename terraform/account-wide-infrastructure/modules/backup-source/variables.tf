@@ -74,6 +74,7 @@ variable "backup_copy_vault_account_id" {
 variable "backup_plan_config" {
   description = "Configuration for backup plans"
   type = object({
+    enable                    = bool
     selection_tag             = string
     compliance_resource_types = list(string)
     rules = list(object({

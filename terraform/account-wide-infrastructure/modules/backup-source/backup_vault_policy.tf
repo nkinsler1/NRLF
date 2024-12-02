@@ -30,7 +30,7 @@ data "aws_iam_policy_document" "vault_policy" {
     resources = ["*"]
   }
   dynamic "statement" {
-    for_each = var.backup_copy_vault_arn != "" && var.backup_copy_vault_account_id != "" ? [1] : []
+    for_each = var.backup_plan_config.enable || var.backup_plan_config_dynamodb.enable ? [1] : []
     content {
       sid    = "Allow account to copy into backup vault"
       effect = "Allow"

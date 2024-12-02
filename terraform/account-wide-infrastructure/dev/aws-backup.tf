@@ -1,38 +1,7 @@
-provider "aws" {
-  alias  = "source"
-  region = "eu-west-2"
-}
-
-variable "destination_vault_arn" {
-  description = "ARN of the backup vault in the destination account"
-  type        = string
-  default     = ""
-}
-
-data "aws_arn" "destination_vault_arn" {
-  arn = var.destination_vault_arn
-}
-
-data "aws_secretsmanager_secret" "backup-account-secret" {
-  name = "nhsd-nrlf--dev--test-backup-account-id"
-}
-data "aws_secretsmanager_secret_version" "destination_account_id" {
-  secret_id = data.aws_secretsmanager_secret.backup-account-secret.id
-}
-
-locals {
-  # Adjust these as required
-  project_name     = "dev-backups-poc"
-  environment_name = "dev"
-
-  source_account_id = data.aws_caller_identity.current.account_id
-  # destination_account_id = data.aws_arn.destination_vault_arn.account
-  destination_account_id = data.aws_secretsmanager_secret_version.destination_account_id.secret_string
-}
 
 # First, we create an S3 bucket for compliance reports.
 resource "aws_s3_bucket" "backup_reports" {
-  bucket_prefix = "${local.project_name}-backup-reports"
+  bucket_prefix = "${local.prefix}-backup-reports"
 }
 
 resource "aws_s3_bucket_public_access_block" "backup_reports" {
@@ -115,7 +84,7 @@ resource "aws_kms_key" "backup_notifications" {
         Effect = "Allow"
         Sid    = "Enable IAM User Permissions"
         Principal = {
-          AWS = "arn:aws:iam::${local.source_account_id}:root"
+          AWS = "arn:aws:iam::${var.assume_account}:root"
         }
         Action   = "kms:*"
         Resource = "*"
@@ -137,14 +106,13 @@ resource "aws_kms_key" "backup_notifications" {
 module "source" {
   source = "../modules/backup-source"
 
-  backup_copy_vault_account_id = local.destination_account_id
-  backup_copy_vault_arn        = data.aws_arn.destination_vault_arn.arn
-  environment_name             = local.environment_name
+  backup_copy_vault_account_id = jsondecode(data.aws_secretsmanager_secret_version.backup_destination_parameters.secret_string)["account-id"]
+  backup_copy_vault_arn        = jsondecode(data.aws_secretsmanager_secret_version.backup_destination_parameters.secret_string)["vault-arn"]
+  environment_name             = local.environment
   bootstrap_kms_key_arn        = aws_kms_key.backup_notifications.arn
-  project_name                 = local.project_name
+  project_name                 = "${local.prefix}-"
   reports_bucket               = aws_s3_bucket.backup_reports.bucket
-  #terraform_role_arn                = data.aws_caller_identity.current.arn
-  terraform_role_arn = "arn:aws:iam::${var.assume_account}:role/${var.assume_role}"
+  terraform_role_arn           = "arn:aws:iam::${var.assume_account}:role/${var.assume_role}"
 
   notification_target_email_addresses = local.notification_emails
 
@@ -152,6 +120,7 @@ module "source" {
     "compliance_resource_types" : [
       "S3"
     ],
+    "enable" = true,
     "rules" : [
       {
         "copy_action" : {
