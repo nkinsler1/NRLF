@@ -264,47 +264,52 @@ jobs:
       - name: Run Integration Tests
         run: make test-features-integration TF_WORKSPACE_NAME=${{ needs.set-environment-id.outputs.environment_id }}
 
-  # smoke-test:
-  #   name: Run Smoke Tests
-  #   needs: [set-environment-id, integration-test]
-  #   environment: pull-request
-  #   runs-on: [self-hosted, ci]
+  smoke-test:
+    name: Run Smoke Tests
+    needs: [set-environment-id, integration-test]
+    environment: pull-request
+    runs-on: [self-hosted, ci]
+    steps:
+      - name: Git Clone - ${{ github.event.pull_request.head.ref }}
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
 
-  #   steps:
-  #     - name: Git Clone - ${{ github.event.pull_request.head.ref }}
-  #       uses: actions/checkout@v4
-  #       with:
-  #         ref: ${{ github.event.pull_request.head.ref }}
+      - name: Setup asdf cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.asdf
+          key: ${{ runner.os }}-asdf-${{ hashFiles('**/.tool-versions') }}
+          restore-keys: |
+            ${{ runner.os }}-asdf-
 
-  #     - name: Setup asdf cache
-  #       uses: actions/cache@v4
-  #       with:
-  #         path: ~/.asdf
-  #         key: ${{ runner.os }}-asdf-${{ hashFiles('**/.tool-versions') }}
-  #         restore-keys: |
-  #           ${{ runner.os }}-asdf-
+      - name: Install asdf and tools
+        uses: asdf-vm/actions/install@v3.0.2
+        with:
+          asdf_branch: v0.13.1
 
-  #     - name: Install asdf and tools
-  #       uses: asdf-vm/actions/install@v3.0.2
-  #       with:
-  #         asdf_branch: v0.13.1
+      - name: Setup Python environment
+        run: |
+          poetry install --no-root
+          source $(poetry env info --path)/bin/activate
 
-  #     - name: Setup Python environment
-  #       run: |
-  #         poetry install --no-root
-  #         source $(poetry env info --path)/bin/activate
+      - name: Configure Management Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: eu-west-2
+          role-to-assume: ${{ secrets.MGMT_ROLE_ARN }}
+          role-session-name: github-actions-ci-${{ needs.set-environment-id.outputs.environment_id }}
 
-  #     - name: Configure Management Credentials
-  #       uses: aws-actions/configure-aws-credentials@v4
-  #       with:
-  #         aws-region: eu-west-2
-  #         role-to-assume: ${{ secrets.MGMT_ROLE_ARN }}
-  #         role-session-name: github-actions-ci-${{ needs.set-environment-id.outputs.environment_id }}
+      - name: Terraform Init
+        run: |
+          terraform -chdir=terraform/infrastructure init
+          terraform -chdir=terraform/infrastructure workspace new ${{ needs.set-environment-id.outputs.environment_id }} || \
+          terraform -chdir=terraform/infrastructure workspace select ${{ needs.set-environment-id.outputs.environment_id }}
 
-  #     - name: Smoke Test
-  #       run: |
-  #         make ENV=dev truststore-pull-client
-  #         make ENV=dev TF_WORKSPACE_NAME=${{ needs.set-environment-id.outputs.environment_id }} test-smoke-internal
+      - name: Smoke Test
+        run: |
+          make ENV=dev truststore-pull-client
+          make ENV=dev TF_WORKSPACE_NAME=${{ needs.set-environment-id.outputs.environment_id }} test-smoke-internal
 
   performance-test:
     name: Run Performance Tests
