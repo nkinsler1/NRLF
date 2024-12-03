@@ -1,3 +1,5 @@
+import json
+
 from behave import *  # noqa
 from behave.runner import Context
 
@@ -128,6 +130,28 @@ def create_post_body_step(context: Context, section: str):
 )
 def upsert_post_body_step(context: Context, section: str, pointer_id: str):
     _create_or_upsert_body_step(context, "upsert_text", section, pointer_id)
+
+
+@when(
+    "producer 'TSTCUS' requests update of a DocumentReference with pointerId '{pointer_id}' and only changing"
+)
+def update_post_body_step(context: Context, pointer_id: str):
+    """
+    Updates an existing DocumentReference with new values for a specific section
+    """
+    consumer_client = consumer_client_from_context(context, "TSTCUS")
+    context.response = consumer_client.read(pointer_id)
+
+    if context.response.status_code != 200:
+        raise ValueError(f"Failed to read existing pointer: {context.response.text}")
+
+    doc_ref = context.response.json()
+    custom_data = json.loads(context.text)
+    for key in custom_data:
+        doc_ref[key] = custom_data[key]
+
+    producer_client = producer_client_from_context(context, "TSTCUS")
+    context.response = producer_client.update(doc_ref, pointer_id)
 
 
 @when("producer '{ods_code}' upserts a DocumentReference with values")
