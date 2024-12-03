@@ -1,3 +1,4 @@
+from typing import Any, Dict
 from uuid import uuid4
 
 from nrlf.core.codes import SpineErrorConcept
@@ -24,6 +25,24 @@ from nrlf.producer.fhir.r4.model import (
     Meta,
     OperationOutcomeIssue,
 )
+
+# TODO - Figure out sensible defaults
+# NOTE: while type, category and custodian are not required in MHDS profile, they will be required by NRLF
+DEFAULT_MHDS_AUTHOR = {
+    "identifier": {
+        "value": "X26",
+        "system": "https://fhir.nhs.uk/Id/ods-organization-code",
+    }
+}
+DEFAULT_MHDS_PRACTICE_SETTING_CODING = {
+    "system": "http://snomed.info/sct",
+    "code": "394802000",
+    "display": "General medical practice",
+}
+DEFAULT_MHDS_PROPERTIES: dict[str, Any] = {
+    "author": [DEFAULT_MHDS_AUTHOR],
+    "context": {"practiceSetting": {"coding": [DEFAULT_MHDS_PRACTICE_SETTING_CODING]}},
+}
 
 
 def _set_create_time_fields(
@@ -268,13 +287,27 @@ def create_document_reference(
 
 
 def _convert_document_reference(
-    document_reference: DocumentReference, requested_profile: str
+    raw_resource: Dict[str, Any], requested_profile: str
 ) -> DocumentReference:
     """
     Convert the DocumentReference to the requested profile
     """
-    # TODO - Implement conversion logic from MHDS profile to NRLF FHIR profile
-    return document_reference
+    if requested_profile.endswith(
+        "profiles.ihe.net/ITI/MHD/StructureDefinition/IHE.MHD.UnContained.Comprehensive.ProvideBundle"
+    ):
+        docref_properties: dict[str, Any] = {}
+        docref_properties.update(DEFAULT_MHDS_PROPERTIES)
+        docref_properties.update(raw_resource)
+        docref_properties["status"] = "current"
+        return DocumentReference(**docref_properties)
+
+    raise OperationOutcomeError(
+        severity="error",
+        code="exception",
+        diagnostics="Unable to parse DocumentReference. Only IHE.MHD.UnContained.Comprehensive.ProvideBundle profile is supported",
+        expression=["meta.profile[0]"],
+        details=SpineErrorConcept.from_code("BAD_REQUEST"),
+    )
 
 
 @request_handler(body=Bundle)
@@ -322,12 +355,11 @@ def handler(
             resource=Bundle(resourceType="Bundle", type="transaction-response")
         )
 
-    document_references: list[DocumentReference] = []
-
+    entries: list[BundleEntry] = []
     issues: list[BaseModel] = []
 
     for entry in body.entry:
-        if not entry.resource or entry.resource.resourceType != "DocumentReference":
+        if not entry.resource or entry.resource["resourceType"] != "DocumentReference":
             issues.append(
                 OperationOutcomeIssue(
                     severity="error",
@@ -349,18 +381,29 @@ def handler(
                 )
             )
 
-        document_references.append(DocumentReference.model_validate(entry.resource))
+        entries.append(entry)
 
     if issues:
         return Response.from_issues(issues, statusCode="400")
 
     responses: list[Response] = []
-    for document_reference in document_references:
+    for entry in entries:
         try:
+            if not entry.resource:
+                raise OperationOutcomeError(
+                    severity="error",
+                    code="exception",
+                    diagnostics="No resource provided",
+                    expression=["entry.resource"],
+                    details=SpineErrorConcept.from_code("BAD_REQUEST"),
+                )
+
             if requested_profile:
                 document_reference = _convert_document_reference(
-                    document_reference, requested_profile
+                    entry.resource, requested_profile
                 )
+            else:
+                document_reference = DocumentReference(**(entry.resource))
 
             create_response = create_document_reference(
                 metadata, repository, document_reference

@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import Annotated, List, Literal, Optional
+from typing import Annotated, Any, Dict, List, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, RootModel
 
@@ -787,7 +787,7 @@ class BundleEntry(BaseModel):
         ),
     ] = None
     resource: Annotated[
-        Optional[DocumentReference],
+        Optional[Dict[str, Any]],
         Field(
             description="The Resource for the entry. The purpose/meaning of the resource is determined by the Bundle.type."
         ),
