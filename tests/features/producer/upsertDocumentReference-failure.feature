@@ -236,3 +236,118 @@ Feature: Producer - upsertDocumentReference - Failure Scenarios
       | type-system          | type-code | category-code | type-display       | correct-display   |
       | https://nicip.nhs.uk | MAULR     | 721981007     | "Nonsense display" | MRA Upper Limb Rt |
       | https://nicip.nhs.uk | MAXIB     | 103693007     | "Nonsense display" | MRI Axilla Both   |
+
+  Scenario: Missing content
+    Given the application 'DataShare' (ID 'z00z-y11y-x22x') is registered to access the API
+    And the organisation 'TSTCUS' is authorised to access pointer types:
+      | system                 | value     |
+      | http://snomed.info/sct | 736253002 |
+    When producer 'TSTCUS' requests upsert of a DocumentReference with pointerId 'TSTCUS-sample-id-00001' and default test values except 'content' is:
+      """
+      "content": []
+      """
+    Then the response status code is 400
+    And the response is an OperationOutcome with 1 issue
+    And the OperationOutcome contains the issue:
+      """
+      {
+        "severity": "error",
+        "code": "invalid",
+        "details": {
+            "coding": [
+            {
+                "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                "code": "MESSAGE_NOT_WELL_FORMED",
+                "display": "Message not well formed"
+            }
+            ]
+        },
+        "diagnostics": "Request body could not be parsed (content: List should have at least 1 item after validation, not 0)",
+        "expression": [
+            "content"
+        ]
+      }
+      """
+
+  Scenario: Missing contentType
+    Given the application 'DataShare' (ID 'z00z-y11y-x22x') is registered to access the API
+    And the organisation 'TSTCUS' is authorised to access pointer types:
+      | system                 | value     |
+      | http://snomed.info/sct | 736253002 |
+    When producer 'TSTCUS' requests upsert of a DocumentReference with pointerId 'TSTCUS-sample-id-00002' and default test values except 'content' is:
+      """
+      "content": [
+        {
+          "attachment": {
+              "contentType": "",
+              "url": "https://spine-proxy.national.ncrs.nhs.uk/https%3A%2F%2Fp1.nhs.uk%2FMentalhealthCrisisPlanReport.pdf"
+          },
+          "format": {
+              "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
+              "code": "urn:nhs-ic:unstructured",
+              "display": "Unstructured document"
+          }
+        }
+      ]
+      """
+    Then the response status code is 400
+    And the response is an OperationOutcome with 1 issue
+    And the OperationOutcome contains the issue:
+      """
+      {
+        "severity": "error",
+        "code": "invalid",
+        "details": {
+            "coding": [
+            {
+                "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                "code": "MESSAGE_NOT_WELL_FORMED",
+                "display": "Message not well formed"
+            }
+            ]
+        },
+        "diagnostics": "Request body could not be parsed (content.0.attachment.contentType: String should match pattern '^(application|audio|image|message|model|multipart|text|video)/[a-zA-Z0-9!#$&^_+.-]+(;[a-zA-Z0-9!#$&^_+.-]+=[a-zA-Z0-9!#$&^_+.-]+)*$')",
+        "expression": [
+            "content.0.attachment.contentType"
+        ]
+      }
+      """
+
+  Scenario: Invalid contentType
+    Given the application 'DataShare' (ID 'z00z-y11y-x22x') is registered to access the API
+    And the organisation 'ANGY1' is authorised to access pointer types:
+      | system                 | value     |
+      | http://snomed.info/sct | 736253002 |
+    When producer 'ANGY1' upserts a DocumentReference with values:
+      | property    | value                          |
+      | id          | TSTCUS-sample-id-00003         |
+      | subject     | 9999999999                     |
+      | status      | current                        |
+      | type        | 736253002                      |
+      | category    | 734163000                      |
+      | custodian   | ANGY1                          |
+      | author      | HAR1                           |
+      | url         | https://example.org/my-doc.pdf |
+      | contentType | application/invalid            |
+    Then the response status code is 400
+    And the response is an OperationOutcome with 1 issue
+    And the OperationOutcome contains the issue:
+      """
+      {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+            {
+                "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                "code": "INVALID_RESOURCE",
+                "display": "Invalid validation of resource"
+            }
+            ]
+        },
+        "diagnostics": "Invalid contentType: application/invalid. Must be 'application/pdf' or 'text/html'",
+        "expression": [
+            "content[0].attachment.contentType"
+        ]
+      }
+      """

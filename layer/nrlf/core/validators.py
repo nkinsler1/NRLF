@@ -141,6 +141,7 @@ class DocumentReferenceValidator:
             self._validate_category(resource)
             self._validate_author(resource)
             self._validate_type_category_mapping(resource)
+            self._validate_content(resource)
             if resource.content[0].extension:
                 self._validate_content_extension(resource)
 
@@ -603,3 +604,36 @@ class DocumentReferenceValidator:
                 field=f"author[0].identifier.value",
             )
             return
+
+    def _validate_content(self, model: DocumentReference):
+        """
+        Validate that the contentType is present and is either 'application/pdf' or 'text/html'.
+        """
+        logger.log(LogReference.VALIDATOR001, step="content")
+
+        for i, content in enumerate(model.content):
+            if not content.attachment:
+                self.result.add_error(
+                    issue_code="required",
+                    error_code="INVALID_RESOURCE",
+                    diagnostics="Missing attachment in content",
+                    field=f"content[{i}].attachment",
+                )
+                continue
+
+            if not content.attachment.contentType:
+                self.result.add_error(
+                    issue_code="required",
+                    error_code="INVALID_RESOURCE",
+                    diagnostics="Missing contentType in content.attachment",
+                    field=f"content[{i}].attachment.contentType",
+                )
+                continue
+
+            if content.attachment.contentType not in ["application/pdf", "text/html"]:
+                self.result.add_error(
+                    issue_code="value",
+                    error_code="INVALID_RESOURCE",
+                    diagnostics=f"Invalid contentType: {content.attachment.contentType}. Must be 'application/pdf' or 'text/html'",
+                    field=f"content[{i}].attachment.contentType",
+                )
