@@ -107,7 +107,9 @@ def _create_or_upsert_body_step(
     if not context.text:
         raise ValueError("No document reference text snippet provided")
 
-    doc_ref = create_test_document_reference_with_defaults(section, context.text)
+    doc_ref = create_test_document_reference_with_defaults(
+        section, context.text, pointer_id
+    )
     context.response = getattr(client, method)(doc_ref)
 
     if context.response.status_code == 201:
