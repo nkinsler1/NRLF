@@ -32,7 +32,16 @@ def build_document_reference(
                 attachment=Attachment(
                     contentType=content_type,
                     url=content_url,
-                )
+                ),
+                format=CodeableConcept(
+                    coding=[
+                        Coding(
+                            system="https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
+                            code="urn:nhs-ic:unstructured",
+                            display="Unstructured document",
+                        )
+                    ]
+                ),
             )
         ],
         type=CodeableConcept(
