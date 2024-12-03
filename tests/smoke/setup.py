@@ -20,7 +20,7 @@ def build_document_reference(
     category: str = Categories.CARE_PLAN.coding_value(),
     type: str = PointerTypes.MENTAL_HEALTH_PLAN.coding_value(),
     author: str = "SMOKETEST",
-    content_type: str = "application/json",
+    content_type: str = "application/pdf",
     content_url: str = "https://testing.record-locator.national.nhs.uk/_smoke_test_pointer_content",
     replaces_id: str | None = None,
 ) -> DocumentReference:
