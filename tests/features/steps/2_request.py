@@ -95,14 +95,17 @@ def create_post_document_reference_step(context: Context, ods_code: str):
 
 
 def _create_or_upsert_body_step(
-    context: Context, method: str, pointer_id: str = "TSTCUS-sample-id-00000"
+    context: Context,
+    method: str,
+    section: str,
+    pointer_id: str = "TSTCUS-sample-id-00000",
 ):
     client = producer_client_from_context(context, "TSTCUS")
 
     if not context.text:
         raise ValueError("No document reference text snippet provided")
 
-    doc_ref = create_test_document_reference_with_defaults("content", context.text)
+    doc_ref = create_test_document_reference_with_defaults(section, context.text)
     context.response = getattr(client, method)(doc_ref)
 
     if context.response.status_code == 201:
@@ -117,14 +120,14 @@ def _create_or_upsert_body_step(
     "producer 'TSTCUS' requests creation of a DocumentReference with default test values except '{section}' is"
 )
 def create_post_body_step(context: Context, section: str):
-    _create_or_upsert_body_step(context, "create_text")
+    _create_or_upsert_body_step(context, "create_text", section)
 
 
 @when(
     "producer 'TSTCUS' requests upsert of a DocumentReference with pointerId '{pointer_id}' and default test values except '{section}' is"
 )
 def upsert_post_body_step(context: Context, section: str, pointer_id: str):
-    _create_or_upsert_body_step(context, "upsert_text", pointer_id)
+    _create_or_upsert_body_step(context, "upsert_text", section, pointer_id)
 
 
 @when("producer '{ods_code}' upserts a DocumentReference with values")
