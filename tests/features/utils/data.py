@@ -33,7 +33,7 @@ def create_test_document_reference(items: dict) -> DocumentReference:
             [
                 DocumentReferenceContent(
                     attachment=Attachment(
-                        contentType=items.get("contentType", "application/json"),
+                        contentType=items.get("contentType", "application/pdf"),
                         url=items["url"],
                     ),
                     format=Coding(
