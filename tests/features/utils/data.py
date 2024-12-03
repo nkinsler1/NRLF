@@ -28,14 +28,25 @@ def create_test_document_reference(items: dict) -> DocumentReference:
     base_doc_ref = DocumentReference.model_construct(
         resourceType="DocumentReference",
         status=items.get("status", "current"),
-        content=[
-            DocumentReferenceContent(
-                attachment=Attachment(
-                    contentType=items.get("contentType", "application/json"),
-                    url=items["url"],
+        content=items.get(
+            "content",
+            [
+                DocumentReferenceContent(
+                    attachment=Attachment(
+                        contentType=items.get("contentType", "application/json"),
+                        url=items["url"],
+                    ),
+                    format=Coding(
+                        system=items.get(
+                            "formatSystem",
+                            "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
+                        ),
+                        code=items.get("formatCode", "urn:nhs-ic:unstructured"),
+                        display=items.get("formatDisplay", "Unstructured document"),
+                    ),
                 )
-            )
-        ],
+            ],
+        ),
         context=DocumentReferenceContext(
             practiceSetting=CodeableConcept(
                 coding=[
