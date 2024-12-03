@@ -33,6 +33,14 @@ def handler(
         OperationOutcomeError: If an error occurs while parsing the document reference.
     """
     logger.log(LogReference.CONSEARCH000)
+    is_imaging_request = False
+
+    if (
+        params.field_profile.root
+        == "https://profiles.ihe.net/ITI/MHD/StructureDefinition/IHE.MHD.UnContained.Comprehensive.ProvideBundle"
+    ):
+        logger.log(LogReference.CONSEARCH000b, profile=params.field_profile.root)
+        is_imaging_request = True
 
     if not params.nhs_number:
         logger.log(
@@ -47,7 +55,9 @@ def handler(
     self_link = f"{base_url}record-locator/consumer/FHIR/R4/DocumentReference?subject:identifier=https://fhir.nhs.uk/Id/nhs-number|{params.nhs_number}"
 
     # TODO - Add checks for the type code as well as system
-    if not validate_type_system(params.type, metadata.pointer_types):
+    if not validate_type_system(
+        params.type, metadata.pointer_types, is_imaging_request
+    ):
         logger.log(
             LogReference.CONSEARCH002,
             type=params.type,
@@ -58,7 +68,7 @@ def handler(
             expression="type",
         )
 
-    if not validate_category(params.category):
+    if not validate_category(params.category, is_imaging_request):
         logger.log(
             LogReference.CONSEARCH002b,
             category=params.category,

@@ -169,6 +169,9 @@ class LogReference(Enum):
     CONSEARCH000 = _Reference(
         "INFO", "Starting to process consumer searchDocumentReference"
     )
+    CONSEARCH000b = _Reference(
+        "INFO", "Starting to process imaging consumer searchDocumentReference"
+    )
     CONSEARCH001 = _Reference(
         "INFO", "Invalid NHS number provided in the query parameters"
     )

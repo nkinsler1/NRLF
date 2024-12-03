@@ -185,3 +185,8 @@ TYPE_CATEGORIES = {
 
 
 SYSTEM_SHORT_IDS = {"http://snomed.info/sct": "SCT", "https://nicip.nhs.uk": "NICIP"}
+IMAGING_POINTERS = [PointerTypes.MRA_UPPER_LIMB_ARTERY, PointerTypes.MRI_AXILLA_BOTH]
+IMAGING_CATEGORIES = [
+    Categories.DIAGNOSTIC_PROCEDURE,
+    Categories.DIAGNOSTIC_STUDIES_REPORT,
+]

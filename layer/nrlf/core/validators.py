@@ -8,6 +8,8 @@ from nrlf.consumer.fhir.r4.model import RequestQueryCategory
 from nrlf.core.codes import SpineErrorConcept
 from nrlf.core.constants import (
     CATEGORY_ATTRIBUTES,
+    IMAGING_CATEGORIES,
+    IMAGING_POINTERS,
     ODS_SYSTEM,
     REQUIRED_CREATE_FIELDS,
     TYPE_ATTRIBUTES,
@@ -22,7 +24,9 @@ from nrlf.producer.fhir.r4 import model as producer_model
 
 
 def validate_type_system(
-    type_: Optional[RequestQueryType], pointer_types: List[str]
+    type_: Optional[RequestQueryType],
+    pointer_types: List[str],
+    is_imaging_only: bool = False,
 ) -> bool:
     """
     Validates if the given type system is present in the list of pointer types.
@@ -30,21 +34,23 @@ def validate_type_system(
     if not type_:
         return True
 
-    type_system = type_.root.split("|", 1)[0]
-    pointer_type_systems = [
-        pointer_type.split("|", 1)[0] for pointer_type in pointer_types
-    ]
+    if is_imaging_only and type_.root not in IMAGING_POINTERS:
+        return False
 
-    return type_system in pointer_type_systems
+    return type_.root in pointer_types
 
 
 # TODO - Validate category is in set permissions once permissioning by category is done.
-def validate_category(category_: Optional[RequestQueryCategory]) -> bool:
+def validate_category(
+    category_: Optional[RequestQueryCategory], is_imaging_only: bool = False
+) -> bool:
     """
     Validates if the given category is valid.
     """
     if not category_:
         return True
+    if is_imaging_only and category_ not in IMAGING_CATEGORIES:
+        return False
 
     return category_.root in Categories.list()
 
