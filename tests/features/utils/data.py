@@ -101,7 +101,7 @@ def create_test_document_reference(items: dict) -> DocumentReference:
 
     if items.get("category"):
         category_display = CATEGORY_ATTRIBUTES.get(
-            f"SNOMED_SYSTEM_URL|{items['category']}", {}
+            f"{SNOMED_SYSTEM_URL}|{items['category']}", {}
         ).get("display")
         base_doc_ref.category = [
             CodeableConcept(
