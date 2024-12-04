@@ -69,10 +69,7 @@ def test_create_single_nrl_document_reference_with_transaction_happy_path(
         "type": "transaction-response",
         "entry": [
             {
-                "response": {
-                    "status": "201",
-                    "location": "/producer/FHIR/R4/DocumentReference/Y05868-00000000-0000-0000-0000-000000000001",
-                },
+                "response": {"status": "201"},
             },
         ],
     }
@@ -149,7 +146,6 @@ def test_create_single_mhds_document_reference_with_transaction_happy_path(
             {
                 "response": {
                     "status": "201",
-                    "location": "/producer/FHIR/R4/DocumentReference/Y05868-00000000-0000-0000-0000-000000000001",
                 },
             },
         ],
