@@ -413,11 +413,7 @@ def handler(
             responses.append(e.response)
 
     response_entries = [
-        BundleEntry(
-            response=BundleEntryResponse(
-                status=response.statusCode, location=response.headers["Location"]
-            )
-        )
+        BundleEntry(response=BundleEntryResponse(status=response.statusCode))
         for response in responses
     ]
 
