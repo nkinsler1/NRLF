@@ -276,7 +276,12 @@ paths:
           ]
           ```
         * `content` MUST have at least one entry.
-        * `content[].format[]` SHOULD indicate whether the data is structured or not, e.g.
+        * `content` MUST include an `attachment` entry.
+        * `content` MUST include a `format` entry.
+        * `content` MUST include the content stability extension (https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability).
+        * `content[].attachment` MUST include a `url` to the document.
+        * `content[].attachment` MUST include a `contentType` and be a valid MIME type, specifically `application/pdf` for documents or `text/html` for contact details.
+        * `content[].format[]` MUST indicate whether the data is structured or not, e.g.
           ```
           "format": [
             {
