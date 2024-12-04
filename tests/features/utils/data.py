@@ -31,21 +31,10 @@ from tests.features.utils.constants import (
 
 def create_test_document_reference(items: dict) -> DocumentReference:
 
-    if practice_setting_code := items.get("practiceSetting"):
-        practice_setting_display = SNOMED_PRACTICE_SETTINGS.get(
-            str(practice_setting_code), "Unknown practice setting"
-        )
-        context = DocumentReferenceContext(
-            practiceSetting=CodeableConcept(
-                coding=[
-                    Coding(
-                        system=SNOMED_SYSTEM_URL,
-                        code=str(practice_setting_code),
-                        display=practice_setting_display,
-                    )
-                ]
-            )
-        )
+    practice_setting_code = items.get("practiceSetting", "788007007")
+    practice_setting_display = SNOMED_PRACTICE_SETTINGS.get(
+        str(practice_setting_code), "General practice service"
+    )
 
     base_doc_ref = DocumentReference.model_construct(
         resourceType="DocumentReference",
@@ -58,7 +47,17 @@ def create_test_document_reference(items: dict) -> DocumentReference:
                 )
             )
         ],
-        context=context,
+        context=DocumentReferenceContext(
+            practiceSetting=CodeableConcept(
+                coding=[
+                    Coding(
+                        system=SNOMED_SYSTEM_URL,
+                        code=str(practice_setting_code),
+                        display=practice_setting_display,
+                    )
+                ]
+            )
+        ),
     )
 
     if items.get("id"):
