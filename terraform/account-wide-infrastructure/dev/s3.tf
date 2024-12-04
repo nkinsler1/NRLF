@@ -21,15 +21,3 @@ module "dev-sandbox-truststore-bucket" {
   name_prefix             = "nhsd-nrlf--dev-sandbox"
   server_certificate_file = "../../../truststore/server/dev.pem"
 }
-
-module "dev-reporting-bucket" {
-  source                  = "../modules/reporting-bucket"
-  name_prefix             = "nhsd-nrlf-reporting--dev"
-  server_certificate_file = "../../../truststore/server/dev.pem"
-}
-
-module "dev-sandbox-reporting-bucket" {
-  source                  = "../modules/reporting-bucket"
-  name_prefix             = "nhsd-nrlf-reporting--dev-sandbox"
-  server_certificate_file = "../../../truststore/server/dev.pem"
-}
