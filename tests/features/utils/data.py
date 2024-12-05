@@ -33,7 +33,12 @@ def create_test_document_reference(items: dict) -> DocumentReference:
                 attachment=Attachment(
                     contentType=items.get("contentType", "application/json"),
                     url=items["url"],
-                )
+                ),
+                format=Coding(
+                    system="https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
+                    code="urn:nhs-ic:unstructured",
+                    display="Unstructured document",
+                ),
             )
         ],
         context=DocumentReferenceContext(

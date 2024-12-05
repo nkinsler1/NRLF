@@ -409,7 +409,7 @@ Feature: Producer - createDocumentReference - Failure Scenarios
 
   Scenario: Invalid format code for attachment type contact details
     Given the application 'DataShare' (ID 'z00z-y11y-x22x') is registered to access the API
-    And the organisation 'X26' is authorised to access pointer types:
+    And the organisation 'TSTCUS' is authorised to access pointer types:
       | system                 | value            |
       | http://snomed.info/sct | 1363501000000100 |
       | http://snomed.info/sct | 736253002        |
@@ -455,7 +455,7 @@ Feature: Producer - createDocumentReference - Failure Scenarios
 
   Scenario: Invalid format code for attachment type pdf
     Given the application 'DataShare' (ID 'z00z-y11y-x22x') is registered to access the API
-    And the organisation 'X26' is authorised to access pointer types:
+    And the organisation 'TSTCUS' is authorised to access pointer types:
       | system                 | value            |
       | http://snomed.info/sct | 1363501000000100 |
       | http://snomed.info/sct | 736253002        |
