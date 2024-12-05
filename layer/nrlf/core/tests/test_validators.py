@@ -1553,3 +1553,30 @@ def test_validate_content_extension_invalid_code_and_display_mismatch():
             "content[0].extension[0].valueCodeableConcept.coding[0].display"
         ],
     }
+
+
+def test_validate_content_invalid_content_type():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["content"][0]["attachment"]["contentType"] = "invalid/type"
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert len(result.issues) == 1
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Invalid contentType: invalid/type. Must be 'application/pdf' or 'text/html'",
+        "expression": ["content[0].attachment.contentType"],
+    }

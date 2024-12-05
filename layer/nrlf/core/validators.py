@@ -612,24 +612,6 @@ class DocumentReferenceValidator:
         logger.log(LogReference.VALIDATOR001, step="content")
 
         for i, content in enumerate(model.content):
-            if not content.attachment:
-                self.result.add_error(
-                    issue_code="required",
-                    error_code="INVALID_RESOURCE",
-                    diagnostics="Missing attachment in content",
-                    field=f"content[{i}].attachment",
-                )
-                continue
-
-            if not content.attachment.contentType:
-                self.result.add_error(
-                    issue_code="required",
-                    error_code="INVALID_RESOURCE",
-                    diagnostics="Missing contentType in content.attachment",
-                    field=f"content[{i}].attachment.contentType",
-                )
-                continue
-
             if content.attachment.contentType not in ["application/pdf", "text/html"]:
                 self.result.add_error(
                     issue_code="value",
