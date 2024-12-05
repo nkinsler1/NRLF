@@ -1666,7 +1666,7 @@ components:
           description: Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces.
         contentType:
           type: string
-          pattern: "^(application|audio|image|message|model|multipart|text|video)/[a-zA-Z0-9!#$&^_+.-]+(;[a-zA-Z0-9!#$&^_+.-]+=[a-zA-Z0-9!#$&^_+.-]+)*$"
+          pattern: "[^\\s]+(\\s[^\\s]+)*"
           description: Identifies the type of the data in the attachment and allows a method to be chosen to interpret or render the data. Includes mime type parameters such as charset where appropriate.
         language:
           type: string

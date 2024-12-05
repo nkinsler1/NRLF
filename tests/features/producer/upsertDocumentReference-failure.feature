@@ -306,7 +306,7 @@ Feature: Producer - upsertDocumentReference - Failure Scenarios
             }
             ]
         },
-        "diagnostics": "Request body could not be parsed (content.0.attachment.contentType: String should match pattern '^(application|audio|image|message|model|multipart|text|video)/[a-zA-Z0-9!#$&^_+.-]+(;[a-zA-Z0-9!#$&^_+.-]+=[a-zA-Z0-9!#$&^_+.-]+)*$')",
+        "diagnostics": "Request body could not be parsed (content.0.attachment.contentType: String should match pattern '[^\\s]+(\\s[^\\s]+)*')",
         "expression": [
             "content.0.attachment.contentType"
         ]
