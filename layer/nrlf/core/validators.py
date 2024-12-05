@@ -640,7 +640,7 @@ class DocumentReferenceValidator:
                 issue_code="value",
                 error_code="INVALID_RESOURCE",
                 diagnostics=f"Invalid practice setting system: {practice_setting_system} Practice Setting system must be '{SNOMED_SYSTEM_URL}'",
-                field=f"context.practiceSetting.coding[0].system",
+                field="context.practiceSetting.coding[0].system",
             )
             return
 
