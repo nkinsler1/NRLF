@@ -570,7 +570,7 @@ class DocumentReferenceValidator:
                 issue_code="invalid",
                 error_code="INVALID_RESOURCE",
                 diagnostics=f"Invalid author length: {len(model.author)} Author must only contain a single value",
-                field=f"author",
+                field="author",
             )
             return
 
@@ -582,7 +582,7 @@ class DocumentReferenceValidator:
                 issue_code="invalid",
                 error_code="INVALID_IDENTIFIER_SYSTEM",
                 diagnostics=f"Invalid author system: '{identifier.system}' Author system must be '{ODS_SYSTEM}'",
-                field=f"author[0].identifier.system",
+                field="author[0].identifier.system",
             )
             return
 
@@ -591,7 +591,7 @@ class DocumentReferenceValidator:
                 issue_code="value",
                 error_code="INVALID_RESOURCE",
                 diagnostics=f"Invalid author value: '{identifier.value}' Author value must be alphanumeric",
-                field=f"author[0].identifier.value",
+                field="author[0].identifier.value",
             )
             return
 
@@ -600,7 +600,7 @@ class DocumentReferenceValidator:
                 issue_code="value",
                 error_code="INVALID_RESOURCE",
                 diagnostics=f"Invalid author value: '{identifier.value}' Author value must be less than 13 characters",
-                field=f"author[0].identifier.value",
+                field="author[0].identifier.value",
             )
             return
 
@@ -617,8 +617,8 @@ class DocumentReferenceValidator:
             self.result.add_error(
                 issue_code="value",
                 error_code="INVALID_RESOURCE",
-                diagnostics=f"Invalid practice setting: must contain a Coding",
-                field=f"context.practiceSetting.coding",
+                diagnostics="Invalid practice setting: must contain a Coding",
+                field="context.practiceSetting.coding",
             )
             return
 
@@ -627,7 +627,7 @@ class DocumentReferenceValidator:
                 issue_code="value",
                 error_code="INVALID_RESOURCE",
                 diagnostics=f"Invalid practice setting coding length: {len(model.context.practiceSetting.coding)} Practice Setting Coding must only contain a single value",
-                field=f"context.practiceSetting.coding",
+                field="context.practiceSetting.coding",
             )
             return
 
@@ -651,7 +651,7 @@ class DocumentReferenceValidator:
                 issue_code="value",
                 error_code="INVALID_RESOURCE",
                 diagnostics=f"Invalid practice setting code: {practice_setting_value} Practice Setting coding must be a member of value set {PRACTICE_SETTING_VALUE_SET_URL}",
-                field=f"context.practiceSetting.coding[0].code",
+                field="context.practiceSetting.coding[0].code",
             )
             return
 
@@ -664,6 +664,6 @@ class DocumentReferenceValidator:
                 issue_code="value",
                 error_code="INVALID_RESOURCE",
                 diagnostics=f"Invalid practice setting coding: display {practice_setting_display} does not match the expected display for {practice_setting_value} Practice Setting coding is bound to value set {PRACTICE_SETTING_VALUE_SET_URL}",
-                field=f"context.practiceSetting.coding[0]",
+                field="context.practiceSetting.coding[0]",
             )
             return
