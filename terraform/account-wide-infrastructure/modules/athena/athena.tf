@@ -4,8 +4,8 @@ resource "aws_athena_database" "reporting-db" {
   bucket = aws_s3_bucket.target-data-bucket.bucket
 
 #   encryption_configuration {
-#     encryption_option = var.encryption_option
-#     kms_key           = var.kms_key_arn
+#     encryption_option = "SSE_KMS"
+#     kms_key           = aws_kms_key.athena.arn
 #   }
 
   force_destroy = true
@@ -19,14 +19,13 @@ resource "aws_athena_workgroup" "athena" {
     publish_cloudwatch_metrics_enabled = true
 
     result_configuration {
-      output_location = "s3://{aws_s3_bucket.example.bucket}/output/"
+      output_location = "s3://{aws_s3_bucket.athena.bucket}/output/"
 
       encryption_configuration {
         encryption_option = "SSE_KMS"
-        kms_key_arn       = var.kms_key_arn
+        kms_key_arn       = aws_kms_key.athena.arn
       }
     }
   }
 
-  tags = var.common_tags
 }
