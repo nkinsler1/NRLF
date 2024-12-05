@@ -438,8 +438,7 @@ Feature: Producer - createDocumentReference - Failure Scenarios
         ]
         },
         "diagnostics": "Invalid practice setting code: 12345 Practice Setting coding must be a member of value set https://fhir.nhs.uk/England/ValueSet/England-PracticeSetting",
-        "expression": ["context.practiceSetting.coding[0].code"],
-
+        "expression": ["context.practiceSetting.coding[0].code"]
       }
       """
 
