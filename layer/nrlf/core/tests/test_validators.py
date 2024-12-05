@@ -960,18 +960,8 @@ def test_validate_content_extension_invalid_code():
     validator = DocumentReferenceValidator()
     document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
 
-    document_ref_data["content"][0]["extension"][0] = {
-        "url": "https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability",
-        "valueCodeableConcept": {
-            "coding": [
-                {
-                    "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability",
-                    "code": "invalid",
-                    "display": "invalid",
-                }
-            ]
-        },
-    }
+    content_extension = document_ref_data["content"][0]["extension"][0]
+    content_extension["valueCodeableConcept"]["coding"][0]["code"] = "invalid"
 
     result = validator.validate(document_ref_data)
 
@@ -1522,6 +1512,7 @@ def test_validate_ssp_content_with_multiple_asids():
         "diagnostics": "Multiple ASID identifiers provided. Only a single valid ASID identifier can be provided in the context.related.",
         "expression": ["context.related"],
     }
+
 
 def test_validate_content_extension_invalid_code_and_display_mismatch():
     validator = DocumentReferenceValidator()

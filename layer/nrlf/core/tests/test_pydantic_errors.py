@@ -1,8 +1,11 @@
 from unittest.mock import Mock
+
 import pytest
+
 from nrlf.core.errors import ParseError
 from nrlf.core.validators import DocumentReferenceValidator
 from nrlf.tests.data import load_document_reference_json
+
 
 def test_validate_content_missing_attachment():
     validator = DocumentReferenceValidator()
@@ -31,6 +34,7 @@ def test_validate_content_missing_attachment():
         "expression": ["content.0.attachment"],
     }
 
+
 def test_validate_content_missing_content_type():
     validator = DocumentReferenceValidator()
     document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
@@ -57,6 +61,7 @@ def test_validate_content_missing_content_type():
         "diagnostics": "Failed to parse DocumentReference resource (content.0.attachment.contentType: Field required)",
         "expression": ["content.0.attachment.contentType"],
     }
+
 
 def test_validate_content_invalid_content_type():
     validator = DocumentReferenceValidator()
