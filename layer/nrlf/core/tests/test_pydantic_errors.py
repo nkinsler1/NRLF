@@ -28,8 +28,8 @@ def test_validate_content_missing_attachment():
                 }
             ]
         },
-        "diagnostics": "Failed to parse DocumentReference resource (content.0.attachment: Field required)",
-        "expression": ["content.0.attachment"],
+        "diagnostics": "Failed to parse DocumentReference resource (content[0].attachment: Field required)",
+        "expression": ["content[0].attachment"],
     }
 
 
@@ -56,6 +56,34 @@ def test_validate_content_missing_content_type():
                 }
             ]
         },
-        "diagnostics": "Failed to parse DocumentReference resource (content.0.attachment.contentType: Field required)",
-        "expression": ["content.0.attachment.contentType"],
+        "diagnostics": "Failed to parse DocumentReference resource (content[0].attachment.contentType: Field required)",
+        "expression": ["content[0].attachment.contentType"],
+    }
+
+
+def test_validate_content_missing_format():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["content"][0].pop("format")
+
+    with pytest.raises(ParseError) as error:
+        validator.validate(document_ref_data)
+
+    exc = error.value
+    assert len(exc.issues) == 1
+    assert exc.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "invalid",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Failed to parse DocumentReference resource (content[0].format: Field required)",
+        "expression": ["content[0].format"],
     }

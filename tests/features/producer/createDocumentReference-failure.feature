@@ -725,9 +725,9 @@ Feature: Producer - createDocumentReference - Failure Scenarios
             }
             ]
         },
-        "diagnostics": "Request body could not be parsed (content.0.attachment.contentType: String should match pattern '[^\\s]+(\\s[^\\s]+)*')",
+        "diagnostics": "Request body could not be parsed (content[0].attachment.contentType: String should match pattern '[^\\s]+(\\s[^\\s]+)*')",
         "expression": [
-            "content.0.attachment.contentType"
+            "content[0].attachment.contentType"
         ]
       }
       """

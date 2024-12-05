@@ -9,16 +9,23 @@ from nrlf.producer.fhir.r4 import model as producer_model
 from nrlf.producer.fhir.r4.model import OperationOutcome, OperationOutcomeIssue
 
 
+def format_error_location(loc: List) -> str:
+    formatted_loc = ""
+    for each in loc:
+        if isinstance(each, int):
+            formatted_loc = f"{formatted_loc}[{each}]"
+        else:
+            formatted_loc = f"{formatted_loc}.{each}" if formatted_loc else str(each)
+    return formatted_loc
+
+
 def diag_for_error(error: ErrorDetails) -> str:
-    if error["loc"]:
-        loc_string = ".".join(str(each) for each in error["loc"])
-        return f"{loc_string}: {error['msg']}"
-    else:
-        return f"root: {error['msg']}"
+    loc_string = format_error_location(error["loc"])
+    return f"{loc_string}: {error['msg']}" if loc_string else f"root: {error['msg']}"
 
 
 def expression_for_error(error: ErrorDetails) -> Optional[str]:
-    return str(".".join(str(each) for each in error["loc"]) if error["loc"] else "root")
+    return format_error_location(error["loc"]) or "root"
 
 
 class OperationOutcomeError(Exception):
