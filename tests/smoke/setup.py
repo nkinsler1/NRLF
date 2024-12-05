@@ -1,10 +1,11 @@
-from nrlf.core.constants import Categories, PointerTypes
+from nrlf.core.constants import TYPE_ATTRIBUTES, Categories, PointerTypes
 from nrlf.producer.fhir.r4.model import (
     Attachment,
     CodeableConcept,
     Coding,
     DocumentReference,
     DocumentReferenceContent,
+    DocumentReferenceContext,
     DocumentReferenceRelatesTo,
     Identifier,
     Reference,
@@ -35,7 +36,15 @@ def build_document_reference(
             )
         ],
         type=CodeableConcept(
-            coding=[Coding(system="http://snomed.info/sct", code=type)]
+            coding=[
+                Coding(
+                    system="http://snomed.info/sct",
+                    code=type,
+                    display=TYPE_ATTRIBUTES.get(f"http://snomed.info/sct|{type}").get(
+                        "display"
+                    ),
+                )
+            ]
         ),
         subject=Reference(
             identifier=Identifier(
@@ -67,6 +76,17 @@ def build_document_reference(
                 ]
             )
         ],
+        context=DocumentReferenceContext(
+            practiceSetting=CodeableConcept(
+                coding=[
+                    Coding(
+                        system="http://snomed.info/sct",
+                        code="390826005",
+                        display="Mental health caregiver support",
+                    )
+                ]
+            )
+        ),
     )
 
     if replaces_id:
