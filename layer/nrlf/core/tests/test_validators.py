@@ -1523,135 +1523,42 @@ def test_validate_ssp_content_with_multiple_asids():
         "expression": ["context.related"],
     }
 
-    def test_validate_content_extension_invalid_code_and_display_mismatch():
-        validator = DocumentReferenceValidator()
-        document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+def test_validate_content_extension_invalid_code_and_display_mismatch():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
 
-        document_ref_data["content"][0]["extension"][0] = {
-            "url": "https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability",
-            "valueCodeableConcept": {
-                "coding": [
-                    {
-                        "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability",
-                        "code": "static",
-                        "display": "Dynamic",
-                    }
-                ]
-            },
-        }
+    document_ref_data["content"][0]["extension"][0] = {
+        "url": "https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability",
+        "valueCodeableConcept": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability",
+                    "code": "static",
+                    "display": "Dynamic",
+                }
+            ]
+        },
+    }
 
-        result = validator.validate(document_ref_data)
+    result = validator.validate(document_ref_data)
 
-        assert result.is_valid is False
-        assert result.resource.id == "Y05868-99999-99999-999999"
-        assert len(result.issues) == 1
-        assert result.issues[0].model_dump(exclude_none=True) == {
-            "severity": "error",
-            "code": "value",
-            "details": {
-                "coding": [
-                    {
-                        "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                        "code": "INVALID_RESOURCE",
-                        "display": "Invalid validation of resource",
-                    }
-                ]
-            },
-            "diagnostics": "Invalid content extension display: Dynamic Extension display must be the same as code either 'Static' or 'Dynamic'",
-            "expression": [
-                "content[0].extension[0].valueCodeableConcept.coding[0].display"
-            ],
-        }
-
-        def test_validate_content_missing_attachment():
-            validator = DocumentReferenceValidator()
-            document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
-
-            document_ref_data["content"][0].pop("attachment")
-
-            result = validator.validate(document_ref_data)
-
-            assert result.is_valid is False
-            assert len(result.issues) == 1
-            assert result.issues[0].model_dump(exclude_none=True) == {
-                "severity": "error",
-                "code": "required",
-                "details": {
-                    "coding": [
-                        {
-                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                            "code": "INVALID_RESOURCE",
-                            "display": "Invalid validation of resource",
-                        }
-                    ]
-                },
-                "diagnostics": "Missing attachment in content",
-                "expression": ["content[0].attachment"],
-            }
-
-        def test_validate_content_missing_content_type():
-            validator = DocumentReferenceValidator()
-            document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
-
-            document_ref_data["content"][0]["attachment"].pop("contentType")
-
-            result = validator.validate(document_ref_data)
-
-            assert result.is_valid is False
-            assert len(result.issues) == 1
-            assert result.issues[0].model_dump(exclude_none=True) == {
-                "severity": "error",
-                "code": "required",
-                "details": {
-                    "coding": [
-                        {
-                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                            "code": "INVALID_RESOURCE",
-                            "display": "Invalid validation of resource",
-                        }
-                    ]
-                },
-                "diagnostics": "Missing contentType in content.attachment",
-                "expression": ["content[0].attachment.contentType"],
-            }
-
-        def test_validate_content_invalid_content_type():
-            validator = DocumentReferenceValidator()
-            document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
-
-            document_ref_data["content"][0]["attachment"][
-                "contentType"
-            ] = "invalid/type"
-
-            result = validator.validate(document_ref_data)
-
-            assert result.is_valid is False
-            assert len(result.issues) == 1
-            assert result.issues[0].model_dump(exclude_none=True) == {
-                "severity": "error",
-                "code": "value",
-                "details": {
-                    "coding": [
-                        {
-                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                            "code": "INVALID_RESOURCE",
-                            "display": "Invalid validation of resource",
-                        }
-                    ]
-                },
-                "diagnostics": "Invalid contentType: invalid/type. Must be 'application/pdf' or 'text/html'",
-                "expression": ["content[0].attachment.contentType"],
-            }
-
-        def test_validate_content_valid_content_type():
-            validator = DocumentReferenceValidator()
-            document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
-
-            document_ref_data["content"][0]["attachment"][
-                "contentType"
-            ] = "application/pdf"
-
-            result = validator.validate(document_ref_data)
-
-            assert result.is_valid is True
-            assert result.issues == []
+    assert result.is_valid is False
+    assert result.resource.id == "Y05868-99999-99999-999999"
+    assert len(result.issues) == 1
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Invalid content extension display: Dynamic Extension display must be the same as code either 'Static' or 'Dynamic'",
+        "expression": [
+            "content[0].extension[0].valueCodeableConcept.coding[0].display"
+        ],
+    }
