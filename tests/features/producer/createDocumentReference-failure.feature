@@ -416,7 +416,7 @@ Feature: Producer - createDocumentReference - Failure Scenarios
       | subject         | 9999999999                     |
       | status          | current                        |
       | type            | 736253002                      |
-      | category        | 1102421000000108               |
+      | category        | 734163000                      |
       | custodian       | X26                            |
       | author          | HAR1                           |
       | url             | https://example.org/my-doc.pdf |
