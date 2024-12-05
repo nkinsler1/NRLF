@@ -1522,3 +1522,63 @@ def test_validate_ssp_content_with_multiple_asids():
         "diagnostics": "Multiple ASID identifiers provided. Only a single valid ASID identifier can be provided in the context.related.",
         "expression": ["context.related"],
     }
+
+
+def test_validate_content_format_invalid_code_for_unstructured_document():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["content"][0]["format"] = {
+        "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
+        "code": "urn:nhs-ic:contact",
+        "display": "Contact details",
+    }
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert result.resource.id == "Y05868-99999-99999-999999"
+    assert len(result.issues) == 1
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Invalid content format code: urn:nhs-ic:contact format code must be 'urn:nhs-ic:unstructured' for Unstructured Document attachments.",
+        "expression": ["content[0].format.code"],
+    }
+
+
+def test_validate_content_format_invalid_code_for_contact_details():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["content"][0]["attachment"]["contentType"] = "text/html"
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert result.resource.id == "Y05868-99999-99999-999999"
+    assert len(result.issues) == 1
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Invalid content format code: urn:nhs-ic:unstructured format code must be 'urn:nhs-ic:record-contact' for Contact details attachments.",
+        "expression": ["content[0].format.code"],
+    }
