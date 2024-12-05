@@ -418,19 +418,16 @@ Feature: Producer - createDocumentReference - Failure Scenarios
       "content": [
         {
           "attachment": {
-            "contentType": "text/html",
-            "language": "en-US",
-            "url": "https://spine-proxy.national.ncrs.nhs.uk/https%3A%2F%2Fp1.nhs.uk%2FMentalhealthCrisisPlanReport.pdf",
-            "size": 3654,
-            "hash": "2jmj7l5rSw0yVb/vlWAYkK/YBwk=",
-            "title": "Mental health crisis plan report",
-            "creation": "2022-12-21T10:45:41+11:00"
+              "contentType": "text/html",
+              "url": "someContact.co.uk"
           },
           "format": {
-            "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
-            "code": "urn:nhs-ic:unstructured",
-            "display": "Unstructured Documents"
+              "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
+              "code": "urn:nhs-ic:unstructured",
+              "display": "Unstructured document"
+          }
         }
+      ]
       """
     Then the response status code is 400
     And the response is an OperationOutcome with 1 issue
@@ -440,17 +437,17 @@ Feature: Producer - createDocumentReference - Failure Scenarios
         "severity": "error",
         "code": "value",
         "details": {
-        "coding": [
-        {
-        "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-        "code": "INVALID_RESOURCE",
-        "display": "Invalid validation of resource"
-        }
-        ]
+          "coding": [
+            {
+              "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+              "code": "INVALID_RESOURCE",
+              "display": "Invalid validation of resource"
+            }
+          ]
         },
-        "diagnostics": "The Category code of the provided document 'http://snomed.info/sct|1102421000000108' must match the allowed category for pointer type 'http://snomed.info/sct|736253002' with a category value of 'http://snomed.info/sct|734163000'",
+        "diagnostics": "Invalid content format code: urn:nhs-ic:unstructured format code must be 'urn:nhs-ic:record-contact' for Contact details attachments.",
         "expression": [
-        "category.coding[0].code"
+          "content[0].format.code"
         ]
       }
       """
@@ -466,19 +463,20 @@ Feature: Producer - createDocumentReference - Failure Scenarios
       "content": [
         {
           "attachment": {
-            "contentType": "application/pdf",
-            "language": "en-US",
-            "url": "https://spine-proxy.national.ncrs.nhs.uk/https%3A%2F%2Fp1.nhs.uk%2FMentalhealthCrisisPlanReport.pdf",
-            "size": 3654,
-            "hash": "2jmj7l5rSw0yVb/vlWAYkK/YBwk=",
-            "title": "Mental health crisis plan report",
-            "creation": "2022-12-21T10:45:41+11:00"
+              "contentType": "application/pdf",
+              "language": "en-UK",
+              "url": "https://spine-proxy.national.ncrs.nhs.uk/https%3A%2F%2Fp1.nhs.uk%2FMentalhealthCrisisPlanReport.pdf",
+              "hash": "2jmj7l5rSw0yVb/vlWAYkK/YBwk=",
+              "title": "Mental health crisis plan report",
+              "creation": "2022-12-21T10:45:41+11:00"
           },
           "format": {
-            "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
-            "code": "urn:nhs-ic:record-contact",
-            "display": "Contact details"
+              "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
+              "code": "urn:nhs-ic:record-contact",
+              "display": "Contact details"
+          }
         }
+      ]
       """
     Then the response status code is 400
     And the response is an OperationOutcome with 1 issue
@@ -488,17 +486,17 @@ Feature: Producer - createDocumentReference - Failure Scenarios
         "severity": "error",
         "code": "value",
         "details": {
-        "coding": [
-        {
-        "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-        "code": "INVALID_RESOURCE",
-        "display": "Invalid validation of resource"
-        }
-        ]
+          "coding": [
+            {
+              "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+              "code": "INVALID_RESOURCE",
+              "display": "Invalid validation of resource"
+            }
+          ]
         },
-        "diagnostics": "The Category code of the provided document 'http://snomed.info/sct|1102421000000108' must match the allowed category for pointer type 'http://snomed.info/sct|736253002' with a category value of 'http://snomed.info/sct|734163000'",
+        "diagnostics": "Invalid content format code: urn:nhs-ic:record-contact format code must be 'urn:nhs-ic:unstructured' for Unstructured Document attachments.",
         "expression": [
-        "category.coding[0].code"
+          "content[0].format.code"
         ]
       }
       """
