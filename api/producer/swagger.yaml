@@ -1766,9 +1766,7 @@ components:
         url:
           type: string
           enum:
-            [
-              "https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability",
-            ]
+            - "https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability"
         valueCodeableConcept:
           type: object
           properties:
@@ -1780,9 +1778,7 @@ components:
                   system:
                     type: string
                     enum:
-                      [
-                        "https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability",
-                      ]
+                      - "https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability"
                   code:
                     type: string
                     enum: ["static", "dynamic"]
