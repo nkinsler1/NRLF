@@ -94,7 +94,7 @@ Feature: Producer - updateDocumentReference - Failure Scenarios
       }
       """
 
-  Scenario: Missing contentType
+  Scenario: contentType empty string
     Given the application 'DataShare' (ID 'z00z-y11y-x22x') is registered to access the API
     And the organisation 'TSTCUS' is authorised to access pointer types:
       | system                 | value     |
