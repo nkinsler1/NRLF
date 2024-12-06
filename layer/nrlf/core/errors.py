@@ -19,9 +19,25 @@ def format_error_location(loc: List) -> str:
     return formatted_loc
 
 
+def append_value_set_url(loc_string: str) -> str:
+    if loc_string.endswith(("url", "system")):
+        return ""
+
+    if "content" in loc_string:
+        if "extension" in loc_string:
+            return ". See ValueSet: https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability"
+        if "format" in loc_string:
+            return ". See ValueSet: https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode"
+
+    return ""
+
+
 def diag_for_error(error: ErrorDetails) -> str:
     loc_string = format_error_location(error["loc"])
-    return f"{loc_string or 'root'}: {error['msg']}"
+    print(f"Error location: {loc_string}")
+    msg = f"{loc_string or 'root'}: {error['msg']}"
+    msg += append_value_set_url(loc_string)
+    return msg
 
 
 def expression_for_error(error: ErrorDetails) -> Optional[str]:

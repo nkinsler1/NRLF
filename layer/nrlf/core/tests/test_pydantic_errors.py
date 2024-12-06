@@ -84,7 +84,7 @@ def test_validate_content_missing_format():
                 }
             ]
         },
-        "diagnostics": "Failed to parse DocumentReference resource (content[0].format: Field required)",
+        "diagnostics": "Failed to parse DocumentReference resource (content[0].format: Field required. See ValueSet: https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode)",
         "expression": ["content[0].format"],
     }
 
@@ -115,7 +115,7 @@ def test_validate_content_multiple_content_stability_extensions():
                 }
             ]
         },
-        "diagnostics": "Failed to parse DocumentReference resource (content[0].extension: List should have at most 1 item after validation, not 2)",
+        "diagnostics": "Failed to parse DocumentReference resource (content[0].extension: List should have at most 1 item after validation, not 2. See ValueSet: https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability)",
         "expression": ["content[0].extension"],
     }
 
@@ -145,7 +145,7 @@ def test_validate_content_invalid_content_stability_code():
                 }
             ]
         },
-        "diagnostics": "Failed to parse DocumentReference resource (content[0].extension[0].valueCodeableConcept.coding[0].code: Input should be 'static' or 'dynamic')",
+        "diagnostics": "Failed to parse DocumentReference resource (content[0].extension[0].valueCodeableConcept.coding[0].code: Input should be 'static' or 'dynamic'. See ValueSet: https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability)",
         "expression": ["content[0].extension[0].valueCodeableConcept.coding[0].code"],
     }
 
@@ -175,7 +175,7 @@ def test_validate_content_invalid_content_stability_display():
                 }
             ]
         },
-        "diagnostics": "Failed to parse DocumentReference resource (content[0].extension[0].valueCodeableConcept.coding[0].display: Input should be 'Static' or 'Dynamic')",
+        "diagnostics": "Failed to parse DocumentReference resource (content[0].extension[0].valueCodeableConcept.coding[0].display: Input should be 'Static' or 'Dynamic'. See ValueSet: https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability)",
         "expression": [
             "content[0].extension[0].valueCodeableConcept.coding[0].display"
         ],
@@ -267,7 +267,7 @@ def test_validate_content_empty_content_stability_coding():
                 }
             ]
         },
-        "diagnostics": "Failed to parse DocumentReference resource (content[0].extension[0].valueCodeableConcept.coding: List should have at least 1 item after validation, not 0)",
+        "diagnostics": "Failed to parse DocumentReference resource (content[0].extension[0].valueCodeableConcept.coding: List should have at least 1 item after validation, not 0. See ValueSet: https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability)",
         "expression": ["content[0].extension[0].valueCodeableConcept.coding"],
     }
 
@@ -298,6 +298,6 @@ def test_validate_content_missing_content_stability_coding():
                 }
             ]
         },
-        "diagnostics": "Failed to parse DocumentReference resource (content[0].extension[0].valueCodeableConcept.coding: Field required)",
+        "diagnostics": "Failed to parse DocumentReference resource (content[0].extension[0].valueCodeableConcept.coding: Field required. See ValueSet: https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability)",
         "expression": ["content[0].extension[0].valueCodeableConcept.coding"],
     }
