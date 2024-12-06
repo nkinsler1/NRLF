@@ -142,8 +142,7 @@ class DocumentReferenceValidator:
             self._validate_author(resource)
             self._validate_type_category_mapping(resource)
             self._validate_content(resource)
-            if resource.content[0].extension:
-                self._validate_content_extension(resource)
+            self._validate_content_extension(resource)
 
         except StopValidationError:
             logger.log(LogReference.VALIDATOR003)
