@@ -34,7 +34,6 @@ def append_value_set_url(loc_string: str) -> str:
 
 def diag_for_error(error: ErrorDetails) -> str:
     loc_string = format_error_location(error["loc"])
-    print(f"Error location: {loc_string}")
     msg = f"{loc_string or 'root'}: {error['msg']}"
     msg += append_value_set_url(loc_string)
     return msg
