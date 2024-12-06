@@ -87,3 +87,217 @@ def test_validate_content_missing_format():
         "diagnostics": "Failed to parse DocumentReference resource (content[0].format: Field required)",
         "expression": ["content[0].format"],
     }
+
+
+def test_validate_content_multiple_content_stability_extensions():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    # Add a second duplicate contentStability extension
+    document_ref_data["content"][0]["extension"].append(
+        document_ref_data["content"][0]["extension"][0]
+    )
+
+    with pytest.raises(ParseError) as error:
+        validator.validate(document_ref_data)
+
+    exc = error.value
+    assert len(exc.issues) == 1
+    assert exc.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "invalid",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Failed to parse DocumentReference resource (content[0].extension: List should have at most 1 item after validation, not 2)",
+        "expression": ["content[0].extension"],
+    }
+
+
+def test_validate_content_invalid_content_stability_code():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    # Set an invalid code for contentStability extension
+    content_extension = document_ref_data["content"][0]["extension"][0]
+    content_extension["valueCodeableConcept"]["coding"][0]["code"] = "invalid"
+
+    with pytest.raises(ParseError) as error:
+        validator.validate(document_ref_data)
+
+    exc = error.value
+    assert len(exc.issues) == 1
+    assert exc.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "invalid",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Failed to parse DocumentReference resource (content[0].extension[0].valueCodeableConcept.coding[0].code: Input should be 'static' or 'dynamic')",
+        "expression": ["content[0].extension[0].valueCodeableConcept.coding[0].code"],
+    }
+
+
+def test_validate_content_invalid_content_stability_display():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    # Set an invalid display for contentStability extension
+    content_extension = document_ref_data["content"][0]["extension"][0]
+    content_extension["valueCodeableConcept"]["coding"][0]["display"] = "invalid"
+
+    with pytest.raises(ParseError) as error:
+        validator.validate(document_ref_data)
+
+    exc = error.value
+    assert len(exc.issues) == 1
+    assert exc.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "invalid",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Failed to parse DocumentReference resource (content[0].extension[0].valueCodeableConcept.coding[0].display: Input should be 'Static' or 'Dynamic')",
+        "expression": [
+            "content[0].extension[0].valueCodeableConcept.coding[0].display"
+        ],
+    }
+
+
+def test_validate_content_invalid_content_stability_system():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    # Set an invalid system for contentStability extension
+    content_extension = document_ref_data["content"][0]["extension"][0]
+    content_extension["valueCodeableConcept"]["coding"][0]["system"] = "invalid"
+
+    with pytest.raises(ParseError) as error:
+        validator.validate(document_ref_data)
+
+    exc = error.value
+    assert len(exc.issues) == 1
+    assert exc.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "invalid",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Failed to parse DocumentReference resource (content[0].extension[0].valueCodeableConcept.coding[0].system: Input should be 'https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability')",
+        "expression": ["content[0].extension[0].valueCodeableConcept.coding[0].system"],
+    }
+
+
+def test_validate_content_invalid_content_stability_url():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    # Set an invalid URL for contentStability extension
+    document_ref_data["content"][0]["extension"][0]["url"] = "invalid"
+
+    with pytest.raises(ParseError) as error:
+        validator.validate(document_ref_data)
+
+    exc = error.value
+    assert len(exc.issues) == 1
+    assert exc.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "invalid",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Failed to parse DocumentReference resource (content[0].extension[0].url: Input should be 'https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability')",
+        "expression": ["content[0].extension[0].url"],
+    }
+
+
+def test_validate_content_empty_content_stability_coding():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    # Set an empty coding list for contentStability extension
+    document_ref_data["content"][0]["extension"][0]["valueCodeableConcept"][
+        "coding"
+    ] = []
+
+    with pytest.raises(ParseError) as error:
+        validator.validate(document_ref_data)
+
+    exc = error.value
+    assert len(exc.issues) == 1
+    assert exc.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "invalid",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Failed to parse DocumentReference resource (content[0].extension[0].valueCodeableConcept.coding: List should have at least 1 item after validation, not 0)",
+        "expression": ["content[0].extension[0].valueCodeableConcept.coding"],
+    }
+
+
+def test_validate_content_missing_content_stability_coding():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    # Remove the coding key from contentStability extension
+    del document_ref_data["content"][0]["extension"][0]["valueCodeableConcept"][
+        "coding"
+    ]
+
+    with pytest.raises(ParseError) as error:
+        validator.validate(document_ref_data)
+
+    exc = error.value
+    assert len(exc.issues) == 1
+    assert exc.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "invalid",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Failed to parse DocumentReference resource (content[0].extension[0].valueCodeableConcept.coding: Field required)",
+        "expression": ["content[0].extension[0].valueCodeableConcept.coding"],
+    }

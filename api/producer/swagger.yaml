@@ -1635,11 +1635,14 @@ components:
         extension:
           type: array
           items:
-            $ref: "#/components/schemas/Extension"
-            description: Additional content defined by implementations.
+            $ref: "#/components/schemas/ContentStabilityExtension"
+            description: Additional extension for content stability.
+          minItems: 1
+          maxItems: 1
       required:
         - attachment
         - format
+        - extension
     DocumentReferenceRelatesTo:
       type: object
       properties:
@@ -1757,6 +1760,46 @@ components:
           type: string
           pattern: \S*
           description: The reference details for the link.
+    ContentStabilityExtension:
+      type: object
+      properties:
+        url:
+          type: string
+          enum:
+            [
+              "https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability",
+            ]
+        valueCodeableConcept:
+          type: object
+          properties:
+            coding:
+              type: array
+              items:
+                type: object
+                properties:
+                  system:
+                    type: string
+                    enum:
+                      [
+                        "https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability",
+                      ]
+                  code:
+                    type: string
+                    enum: ["static", "dynamic"]
+                  display:
+                    type: string
+                    enum: ["Static", "Dynamic"]
+                required:
+                  - system
+                  - code
+                  - display
+              minItems: 1
+              maxItems: 1
+          required:
+            - coding
+      required:
+        - url
+        - valueCodeableConcept
     Identifier:
       type: object
       properties:

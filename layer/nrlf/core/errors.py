@@ -21,7 +21,7 @@ def format_error_location(loc: List) -> str:
 
 def diag_for_error(error: ErrorDetails) -> str:
     loc_string = format_error_location(error["loc"])
-    return f"{loc_string}: {error['msg']}" if loc_string else f"root: {error['msg']}"
+    return f"{loc_string or 'root'}: {error['msg']}"
 
 
 def expression_for_error(error: ErrorDetails) -> Optional[str]:
