@@ -1065,7 +1065,7 @@ components:
           $ref: "#/components/schemas/Attachment"
           description: The document or URL of the document along with critical metadata to prove content has integrity.
         format:
-          $ref: "#/components/schemas/Coding"
+          $ref: "#/components/schemas/NRLFormatCode"
           description: An identifier of the document encoding, structure, and template that the document conforms to beyond the base format indicated in the mimeType.
         extension:
           type: array
@@ -1230,6 +1230,30 @@ components:
       required:
         - url
         - valueCodeableConcept
+    NRLFormatCode:
+      type: object
+      properties:
+        system:
+          type: string
+          enum:
+            - "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode"
+          description: The system URL for the NRLF Format Code.
+        code:
+          type: string
+          enum:
+            - "urn:nhs-ic:record-contact"
+            - "urn:nhs-ic:unstructured"
+          description: The code representing the format of the document.
+        display:
+          type: string
+          enum:
+            - "Contact details (HTTP Unsecured)"
+            - "Unstructured Document"
+          description: The display text for the code.
+      required:
+        - system
+        - code
+        - display
     Identifier:
       type: object
       properties:

@@ -285,7 +285,7 @@ Feature: Producer - upsertDocumentReference - Failure Scenarios
           "format": {
               "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
               "code": "urn:nhs-ic:unstructured",
-              "display": "Unstructured document"
+              "display": "Unstructured Document"
           }
         }
       ]

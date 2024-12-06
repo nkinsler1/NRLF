@@ -73,7 +73,7 @@ Feature: Consumer - readDocumentReference - Success Scenarios
             "format": {
               "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
               "code": "urn:nhs-ic:unstructured",
-              "display": "Unstructured document"
+              "display": "Unstructured Document"
             }
           }
         ],
@@ -164,7 +164,7 @@ Feature: Consumer - readDocumentReference - Success Scenarios
             "format": {
               "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
               "code": "urn:nhs-ic:unstructured",
-              "display": "Unstructured document"
+              "display": "Unstructured Document"
             }
           }
         ],

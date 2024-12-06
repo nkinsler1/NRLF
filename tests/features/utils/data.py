@@ -42,7 +42,7 @@ def create_test_document_reference(items: dict) -> DocumentReference:
                             "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
                         ),
                         code=items.get("formatCode", "urn:nhs-ic:unstructured"),
-                        display=items.get("formatDisplay", "Unstructured document"),
+                        display=items.get("formatDisplay", "Unstructured Document"),
                     ),
                 )
             ],
