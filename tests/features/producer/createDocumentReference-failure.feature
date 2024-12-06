@@ -705,7 +705,21 @@ Feature: Producer - createDocumentReference - Failure Scenarios
               "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
               "code": "urn:nhs-ic:unstructured",
               "display": "Unstructured Document"
-          }
+          },
+          "extension": [
+            {
+              "url": "https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability",
+                    "code": "static",
+                    "display": "Static"
+                  }
+                ]
+              }
+            }
+          ]
         }
       ]
       """

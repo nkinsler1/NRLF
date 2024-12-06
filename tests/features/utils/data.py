@@ -3,12 +3,16 @@ from nrlf.producer.fhir.r4.model import (
     Attachment,
     CodeableConcept,
     Coding,
+    CodingItem,
+    ContentStabilityExtension,
     DocumentReference,
     DocumentReferenceContent,
     DocumentReferenceContext,
     DocumentReferenceRelatesTo,
     Identifier,
+    NRLFormatCode,
     Reference,
+    ValueCodeableConcept,
 )
 from tests.features.utils.constants import (
     DEFAULT_TEST_AUTHOR,
@@ -36,7 +40,7 @@ def create_test_document_reference(items: dict) -> DocumentReference:
                         contentType=items.get("contentType", "application/pdf"),
                         url=items["url"],
                     ),
-                    format=Coding(
+                    format=NRLFormatCode(
                         system=items.get(
                             "formatSystem",
                             "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
@@ -44,6 +48,20 @@ def create_test_document_reference(items: dict) -> DocumentReference:
                         code=items.get("formatCode", "urn:nhs-ic:unstructured"),
                         display=items.get("formatDisplay", "Unstructured Document"),
                     ),
+                    extension=[
+                        ContentStabilityExtension(
+                            url="https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability",
+                            valueCodeableConcept=ValueCodeableConcept(
+                                coding=[
+                                    CodingItem(
+                                        system="https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability",
+                                        code="static",
+                                        display="Static",
+                                    )
+                                ]
+                            ),
+                        )
+                    ],
                 )
             ],
         ),
