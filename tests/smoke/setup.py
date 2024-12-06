@@ -33,11 +33,25 @@ def build_document_reference(
                     contentType=content_type,
                     url=content_url,
                 ),
-                format=Coding(
+                format=NRLFormatCode(
                     system="https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
                     code="urn:nhs-ic:unstructured",
                     display="Unstructured Document",
                 ),
+                extension=[
+                    ContentStabilityExtension(
+                        url="https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability",
+                        valueCodeableConcept=ValueCodeableConcept(
+                            coding=[
+                                CodingItem(
+                                    system="https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability",
+                                    code="static",
+                                    display="Static",
+                                )
+                            ]
+                        ),
+                    )
+                ],
             )
         ],
         type=CodeableConcept(
