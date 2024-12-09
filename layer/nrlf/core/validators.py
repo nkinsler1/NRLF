@@ -9,7 +9,10 @@ from nrlf.core.codes import SpineErrorConcept
 from nrlf.core.constants import (
     CATEGORY_ATTRIBUTES,
     ODS_SYSTEM,
+    PRACTICE_SETTING_VALUE_SET_URL,
     REQUIRED_CREATE_FIELDS,
+    SNOMED_PRACTICE_SETTINGS,
+    SNOMED_SYSTEM_URL,
     TYPE_ATTRIBUTES,
     TYPE_CATEGORIES,
     Categories,
@@ -141,6 +144,7 @@ class DocumentReferenceValidator:
             self._validate_category(resource)
             self._validate_author(resource)
             self._validate_type_category_mapping(resource)
+            self._validate_practiceSetting(resource)
             if resource.content[0].extension:
                 self._validate_content_extension(resource)
 
@@ -566,7 +570,7 @@ class DocumentReferenceValidator:
                 issue_code="invalid",
                 error_code="INVALID_RESOURCE",
                 diagnostics=f"Invalid author length: {len(model.author)} Author must only contain a single value",
-                field=f"author",
+                field="author",
             )
             return
 
@@ -578,7 +582,7 @@ class DocumentReferenceValidator:
                 issue_code="invalid",
                 error_code="INVALID_IDENTIFIER_SYSTEM",
                 diagnostics=f"Invalid author system: '{identifier.system}' Author system must be '{ODS_SYSTEM}'",
-                field=f"author[0].identifier.system",
+                field="author[0].identifier.system",
             )
             return
 
@@ -587,7 +591,7 @@ class DocumentReferenceValidator:
                 issue_code="value",
                 error_code="INVALID_RESOURCE",
                 diagnostics=f"Invalid author value: '{identifier.value}' Author value must be alphanumeric",
-                field=f"author[0].identifier.value",
+                field="author[0].identifier.value",
             )
             return
 
@@ -596,6 +600,70 @@ class DocumentReferenceValidator:
                 issue_code="value",
                 error_code="INVALID_RESOURCE",
                 diagnostics=f"Invalid author value: '{identifier.value}' Author value must be less than 13 characters",
-                field=f"author[0].identifier.value",
+                field="author[0].identifier.value",
+            )
+            return
+
+    def _validate_practiceSetting(self, model: DocumentReference):
+        """
+        Validate the practice setting field contains an appropriate coding system and code.
+        """
+
+        if not (
+            practice_setting_coding := getattr(
+                model.context.practiceSetting, "coding", []
+            )
+        ):
+            self.result.add_error(
+                issue_code="value",
+                error_code="INVALID_RESOURCE",
+                diagnostics="Invalid practice setting: must contain a Coding",
+                field="context.practiceSetting.coding",
+            )
+            return
+
+        if len(practice_setting_coding) != 1:
+            self.result.add_error(
+                issue_code="value",
+                error_code="INVALID_RESOURCE",
+                diagnostics=f"Invalid practice setting coding length: {len(model.context.practiceSetting.coding)} Practice Setting Coding must only contain a single value",
+                field="context.practiceSetting.coding",
+            )
+            return
+
+        if (
+            practice_setting_system := getattr(
+                practice_setting_coding[0], "system", None
+            )
+        ) != SNOMED_SYSTEM_URL:
+            self.result.add_error(
+                issue_code="value",
+                error_code="INVALID_RESOURCE",
+                diagnostics=f"Invalid practice setting system: {practice_setting_system} Practice Setting system must be '{SNOMED_SYSTEM_URL}'",
+                field="context.practiceSetting.coding[0].system",
+            )
+            return
+
+        if (
+            practice_setting_value := getattr(practice_setting_coding[0], "code", None)
+        ) not in SNOMED_PRACTICE_SETTINGS:
+            self.result.add_error(
+                issue_code="value",
+                error_code="INVALID_RESOURCE",
+                diagnostics=f"Invalid practice setting code: {practice_setting_value} Practice Setting coding must be a member of value set {PRACTICE_SETTING_VALUE_SET_URL}",
+                field="context.practiceSetting.coding[0].code",
+            )
+            return
+
+        if (
+            practice_setting_display := getattr(
+                practice_setting_coding[0], "display", None
+            )
+        ) != SNOMED_PRACTICE_SETTINGS.get(practice_setting_value):
+            self.result.add_error(
+                issue_code="value",
+                error_code="INVALID_RESOURCE",
+                diagnostics=f"Invalid practice setting coding: display {practice_setting_display} does not match the expected display for {practice_setting_value} Practice Setting coding is bound to value set {PRACTICE_SETTING_VALUE_SET_URL}",
+                field="context.practiceSetting.coding[0]",
             )
             return
