@@ -42,7 +42,7 @@ resource "aws_glue_job" "glue_job" {
   command {
     name            = "glueetl"
     python_version  = var.python_version
-    script_location = "s3://${aws_s3_bucket.code-bucket.id}/script.py"
+    script_location = "s3://${aws_s3_bucket.code-bucket.id}/main.py"
   }
 
   default_arguments = {
@@ -54,6 +54,7 @@ resource "aws_glue_job" "glue_job" {
     "--job-name"                        = "poc-glue-job"
     "--enable-continuous-log-filter"    = "true"
     "--enable-metrics"                  = "true"
+    "--extra-py-files"                  = "s3://${aws_s3_bucket.code-bucket.id}/src.zip"
   }
 }
 

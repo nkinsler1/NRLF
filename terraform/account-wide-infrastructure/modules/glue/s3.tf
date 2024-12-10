@@ -20,3 +20,16 @@ resource "aws_s3_bucket_object" "code-data-object" {
   source = "${path.module}/src/main.py"
   etag   = filemd5("${path.module}/src/main.py")
 }
+
+data "archive_file" "python" {
+  type        = "zip"
+  output_path = "${path.module}/files/src.zip"
+
+  source_dir = "${path.module}/src"
+}
+
+resource "aws_s3_bucket_object" "code-data-object" {
+  bucket = aws_s3_bucket.code-bucket.bucket
+  key    = "main.py"
+  source = data.archive_file.python
+}
