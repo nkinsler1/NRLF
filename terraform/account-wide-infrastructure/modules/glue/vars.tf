@@ -4,8 +4,8 @@ variable "name_prefix" {
 }
 
 variable "python_version" {
-    type = string
-    description = "Python version to run in script"
+  type        = string
+  description = "Python version to run in script"
 }
 
 variable "source_bucket" {

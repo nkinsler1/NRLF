@@ -3,10 +3,10 @@ resource "aws_athena_database" "reporting-db" {
 
   bucket = aws_s3_bucket.target-data-bucket.bucket
 
-#   encryption_configuration {
-#     encryption_option = "SSE_KMS"
-#     kms_key           = aws_kms_key.athena.arn
-#   }
+  #   encryption_configuration {
+  #     encryption_option = "SSE_KMS"
+  #     kms_key           = aws_kms_key.athena.arn
+  #   }
 
   force_destroy = true
 }

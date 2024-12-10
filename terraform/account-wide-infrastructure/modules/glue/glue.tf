@@ -16,13 +16,13 @@ resource "aws_glue_crawler" "raw_log_crawler" {
     delete_behavior = "LOG"
   }
   configuration = jsonencode({
-    "Version":1.0,
-    "Grouping": {
-        "TableGroupingPolicy": "CombineCompatibleSchemas"
+    "Version" : 1.0,
+    "Grouping" : {
+      "TableGroupingPolicy" : "CombineCompatibleSchemas"
     }
   })
 }
-resource "aws_glue_trigger""raw_log_trigger" {
+resource "aws_glue_trigger" "raw_log_trigger" {
   name = "org-report-trigger"
   type = "ON_DEMAND"
   actions {
@@ -46,9 +46,14 @@ resource "aws_glue_job" "glue_job" {
   }
 
   default_arguments = {
-    "--enable-auto-scaling"             = "true""--enable-continous-cloudwatch-log" = "true""--datalake-formats"                = "delta""--source-path"                     = "s3://${aws_s3_bucket.dc-source-data-bucket.id}/" # Specify the source S3 path
+    "--enable-auto-scaling"             = "true"
+    "--enable-continous-cloudwatch-log" = "true"
+    "--datalake-formats"                = "delta"
+    "--source-path"                     = "s3://${aws_s3_bucket.source-data-bucket.id}/" # Specify the source S3 path
     "--destination-path"                = "s3://${aws_s3_bucket.target-data-bucket.id}/" # Specify the destination S3 path
-    "--job-name"                        = "poc-glue-job""--enable-continuous-log-filter"    = "true""--enable-metrics"                  = "true"
+    "--job-name"                        = "poc-glue-job"
+    "--enable-continuous-log-filter"    = "true"
+    "--enable-metrics"                  = "true"
   }
 }
 

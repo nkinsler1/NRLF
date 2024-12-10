@@ -1,6 +1,6 @@
 variable "database" {
-    description = "What the db will be called"
-    default     = "NRL-Reporting"
+  description = "What the db will be called"
+  default     = "NRL-Reporting"
 }
 
 variable "name_prefix" {
