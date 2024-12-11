@@ -24,21 +24,14 @@ from nrlf.core.types import DocumentReference, OperationOutcomeIssue, RequestQue
 from nrlf.producer.fhir.r4 import model as producer_model
 
 
-def validate_type_system(
-    type_: Optional[RequestQueryType], pointer_types: List[str]
-) -> bool:
+def validate_type(type_: Optional[RequestQueryType], pointer_types: List[str]) -> bool:
     """
     Validates if the given type system is present in the list of pointer types.
     """
     if not type_:
         return True
 
-    type_system = type_.root.split("|", 1)[0]
-    pointer_type_systems = [
-        pointer_type.split("|", 1)[0] for pointer_type in pointer_types
-    ]
-
-    return type_system in pointer_type_systems
+    return type_.root in pointer_types
 
 
 # TODO - Validate category is in set permissions once permissioning by category is done.
