@@ -1,4 +1,7 @@
-class ETLTemplate:
+from src.instances import GlueContextSingleton, LoggerSingleton
+
+
+class LogPipeline:
     def __init__(
         self,
         spark_context,
