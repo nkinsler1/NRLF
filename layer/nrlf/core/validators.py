@@ -550,6 +550,11 @@ class DocumentReferenceValidator:
         """
         logger.log(LogReference.VALIDATOR001, step="content")
 
+        format_code_display_map = {
+            "urn:nhs-ic:record-contact": "Contact details (HTTP Unsecured)",
+            "urn:nhs-ic:unstructured": "Unstructured Document",
+        }
+
         for i, content in enumerate(model.content):
             if content.attachment.contentType not in ["application/pdf", "text/html"]:
                 self.result.add_error(
@@ -557,4 +562,16 @@ class DocumentReferenceValidator:
                     error_code="INVALID_RESOURCE",
                     diagnostics=f"Invalid contentType: {content.attachment.contentType}. Must be 'application/pdf' or 'text/html'",
                     field=f"content[{i}].attachment.contentType",
+                )
+
+            # Validate NRLFormatCode
+            format_code = content.format.code
+            format_display = content.format.display
+            expected_display = format_code_display_map.get(format_code)
+            if expected_display and format_display != expected_display:
+                self.result.add_error(
+                    issue_code="value",
+                    error_code="INVALID_RESOURCE",
+                    diagnostics=f"Invalid display for format code '{format_code}'. Expected '{expected_display}'",
+                    field=f"content[{i}].format.display",
                 )

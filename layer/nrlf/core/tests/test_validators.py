@@ -1360,3 +1360,73 @@ def test_validate_content_invalid_content_type():
         "diagnostics": "Invalid contentType: invalid/type. Must be 'application/pdf' or 'text/html'",
         "expression": ["content[0].attachment.contentType"],
     }
+
+
+@pytest.mark.parametrize(
+    "format_code, format_display",
+    [
+        ("urn:nhs-ic:record-contact", "Contact details (HTTP Unsecured)"),
+        ("urn:nhs-ic:unstructured", "Unstructured Document"),
+    ],
+)
+def test_validate_nrl_format_code_valid_match(format_code, format_display):
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["content"][0]["format"] = {
+        "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
+        "code": format_code,
+        "display": format_display,
+    }
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is True
+
+
+@pytest.mark.parametrize(
+    "format_code, format_display, expected_display",
+    [
+        (
+            "urn:nhs-ic:unstructured",
+            "Contact details (HTTP Unsecured)",
+            "Unstructured Document",
+        ),
+        (
+            "urn:nhs-ic:record-contact",
+            "Unstructured Document",
+            "Contact details (HTTP Unsecured)",
+        ),
+    ],
+)
+def test_validate_nrl_format_code_display_mismatch(
+    format_code, format_display, expected_display
+):
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["content"][0]["format"] = {
+        "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
+        "code": format_code,
+        "display": format_display,
+    }
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert len(result.issues) == 1
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": f"Invalid display for format code '{format_code}'. Expected '{expected_display}'",
+        "expression": ["content[0].format.display"],
+    }
