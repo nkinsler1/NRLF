@@ -26,7 +26,6 @@ from nrlf.producer.fhir.r4.model import (
     OperationOutcomeIssue,
 )
 
-# TODO - Figure out sensible defaults
 # NOTE: while type, category and custodian are not required in MHDS profile, they will be required by NRLF
 DEFAULT_MHDS_AUTHOR = {
     "identifier": {
@@ -295,6 +294,7 @@ def _convert_document_reference(
     if requested_profile.endswith(
         "profiles.ihe.net/ITI/MHD/StructureDefinition/IHE.MHD.UnContained.Comprehensive.ProvideBundle"
     ):
+        logger.log(LogReference.PROTRAN006, requested_profile=requested_profile)
         docref_properties: dict[str, Any] = {}
         docref_properties.update(DEFAULT_MHDS_PROPERTIES)
         docref_properties.update(raw_resource)
@@ -329,28 +329,30 @@ def handler(
     Returns:
         Response: The response indicating the result of the operation.
     """
-    # TODO - Add logging
+    logger.log(LogReference.PROTRAN000)
+
     requested_profile = (
         body.meta.profile[0].root if body.meta and body.meta.profile else None
     )
 
-    # TODO - Add profile for NRLF too (assume NRLF profile if not provided)
     if requested_profile and not requested_profile.endswith(
         "profiles.ihe.net/ITI/MHD/StructureDefinition/IHE.MHD.UnContained.Comprehensive.ProvideBundle"
     ):
+        logger.log(LogReference.PROTRAN001, requested_profile=requested_profile)
         return SpineErrorResponse.BAD_REQUEST(
             diagnostics="Only IHE.MHD.UnContained.Comprehensive.ProvideBundle profiles are supported",
             expression="meta.profile[0]",
         )
 
     if body.type != "transaction":
+        logger.log(LogReference.PROTRAN002)
         return SpineErrorResponse.BAD_REQUEST(
             diagnostics="Only transaction bundles are supported",
             expression="type",
         )
 
     if body.entry is None:
-        # TODO - Log that there was no entry
+        logger.log(LogReference.PROTRAN003)
         return Response.from_resource(
             resource=Bundle(resourceType="Bundle", type="transaction-response")
         )
@@ -360,6 +362,7 @@ def handler(
 
     for entry in body.entry:
         if not entry.resource or entry.resource["resourceType"] != "DocumentReference":
+            logger.log(LogReference.PROTRAN004)
             issues.append(
                 OperationOutcomeIssue(
                     severity="error",
@@ -371,6 +374,7 @@ def handler(
             )
 
         if entry.request.method != "POST":
+            logger.log(LogReference.PROTRAN005)
             issues.append(
                 OperationOutcomeIssue(
                     severity="error",
@@ -389,15 +393,6 @@ def handler(
     responses: list[Response] = []
     for entry in entries:
         try:
-            if not entry.resource:
-                raise OperationOutcomeError(
-                    severity="error",
-                    code="exception",
-                    diagnostics="No resource provided",
-                    expression=["entry.resource"],
-                    details=SpineErrorConcept.from_code("BAD_REQUEST"),
-                )
-
             if requested_profile:
                 document_reference = _convert_document_reference(
                     entry.resource, requested_profile
@@ -421,6 +416,7 @@ def handler(
         for response in responses
     ]
 
+    logger.log(LogReference.PROTRAN999)
     return Response.from_resource(
         resource=Bundle(
             resourceType="Bundle", type="transaction-response", entry=response_entries
