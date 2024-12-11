@@ -1,7 +1,9 @@
 resource "aws_s3_bucket" "api_truststore" {
   bucket        = "${var.name_prefix}-api-truststore"
   force_destroy = var.enable_bucket_force_destroy
-  tags          = { NHSE-Enable-S3-Backup = "${var.enable_backups}" }
+  tags = {
+    NHSE-Enable-S3-Backup = var.enable_backups ? "True" : "False"
+  }
 }
 
 resource "aws_s3_bucket_policy" "api_truststore_bucket_policy" {
