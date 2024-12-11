@@ -395,12 +395,12 @@ module "mhdsReceiver__processTransactionBundle" {
     PREFIX               = "${local.prefix}--"
     ENVIRONMENT          = local.environment
     AUTH_STORE           = local.auth_store_id
-    POWERTOOLS_LOG_LEVEL = local.log_level
     SPLUNK_INDEX         = module.firehose__processor.splunk.index
-    DYNAMODB_TIMEOUT     = local.dynamodb_timeout_seconds
+    POWERTOOLS_LOG_LEVEL = local.log_level
     TABLE_NAME           = local.pointers_table_name
   }
   additional_policies = [
+    local.pointers_table_write_policy_arn,
     local.pointers_table_read_policy_arn,
     local.pointers_kms_read_write_arn,
     local.auth_store_read_policy_arn

@@ -213,6 +213,23 @@ class LogReference(Enum):
         "INFO", "Successfully completed consumer searchPostDocumentReference"
     )
 
+    # Producer - processTransaction
+    PROTRAN000 = _Reference("INFO", "Starting to process producer transaction Request")
+    PROTRAN001 = _Reference("WARN", "Invalid profile specified in request")
+    PROTRAN002 = _Reference(
+        "WARN",
+        "Invalid type specified in request, only transaction bundles are supported",
+    )
+    PROTRAN003 = _Reference("WARN", "No entry provided in body")
+    PROTRAN004 = _Reference("WARN", "Entry resource is not of type DocumentReference")
+    PROTRAN005 = _Reference("WARN", "Entry request method is not POST")
+    PROTRAN006 = _Reference(
+        "INFO", "Converting document reference to specified profile"
+    )
+    PROTRAN999 = _Reference(
+        "INFO", "Successfully completed producer processTransaction"
+    )
+
     # Producer - CreateDocumentReference
     PROCREATE000 = _Reference(
         "INFO", "Starting to process producer createDocumentReference"
