@@ -3,6 +3,34 @@ resource "aws_s3_bucket" "source-data-bucket" {
   bucket = "source-data-bucket"
 }
 
+resource "aws_s3_bucket_policy" "source-data-bucket" {
+  bucket = "source-data-bucket"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Id      = "source-data-bucket-policy"
+    Statement = [
+      {
+        Sid    = "HTTPSOnly"
+        Effect = "Deny"
+        Principal = {
+          "AWS" : "*"
+        }
+        Action = "s3:*"
+        Resource = [
+          aws_s3_bucket.source-data-bucket.arn,
+          "${aws_s3_bucket.source-data-bucket.arn}/*",
+        ]
+        Condition = {
+          Bool = {
+            "aws:SecureTransport" = "false"
+          }
+        }
+      },
+    ]
+  })
+}
+
 resource "aws_s3_bucket_public_access_block" "source-data-bucket-public-access-block" {
   bucket = aws_s3_bucket.source-data-bucket.id
 
@@ -18,6 +46,34 @@ resource "aws_s3_bucket" "target-data-bucket" {
   bucket = "target-data-bucket"
 }
 
+resource "aws_s3_bucket_policy" "target-data-bucket" {
+  bucket = "target-data-bucket"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Id      = "target-data-bucket-policy"
+    Statement = [
+      {
+        Sid    = "HTTPSOnly"
+        Effect = "Deny"
+        Principal = {
+          "AWS" : "*"
+        }
+        Action = "s3:*"
+        Resource = [
+          aws_s3_bucket.target-data-bucket.arn,
+          "${aws_s3_bucket.target-data-bucket.arn}/*",
+        ]
+        Condition = {
+          Bool = {
+            "aws:SecureTransport" = "false"
+          }
+        }
+      },
+    ]
+  })
+}
+
 resource "aws_s3_bucket_public_access_block" "target-data-bucket-public-access-block" {
   bucket = aws_s3_bucket.target-data-bucket.id
 
@@ -30,6 +86,34 @@ resource "aws_s3_bucket_public_access_block" "target-data-bucket-public-access-b
 # S3 Bucket for Code
 resource "aws_s3_bucket" "code-bucket" {
   bucket = "code-bucket"
+}
+
+resource "aws_s3_bucket_policy" "code-bucket" {
+  bucket = "code-bucket"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Id      = "code-bucket-policy"
+    Statement = [
+      {
+        Sid    = "HTTPSOnly"
+        Effect = "Deny"
+        Principal = {
+          "AWS" : "*"
+        }
+        Action = "s3:*"
+        Resource = [
+          aws_s3_bucket.code-bucket.arn,
+          "${aws_s3_bucket.code-bucket.arn}/*",
+        ]
+        Condition = {
+          Bool = {
+            "aws:SecureTransport" = "false"
+          }
+        }
+      },
+    ]
+  })
 }
 
 resource "aws_s3_bucket_public_access_block" "code-bucket-public-access-block" {

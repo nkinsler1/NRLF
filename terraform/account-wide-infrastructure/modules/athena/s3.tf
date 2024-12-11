@@ -2,6 +2,34 @@ resource "aws_s3_bucket" "athena" {
   bucket = "athena"
 }
 
+resource "aws_s3_bucket_policy" "athena" {
+  bucket = "athena"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Id      = "athena-policy"
+    Statement = [
+      {
+        Sid    = "HTTPSOnly"
+        Effect = "Deny"
+        Principal = {
+          "AWS" : "*"
+        }
+        Action = "s3:*"
+        Resource = [
+          aws_s3_bucket.athena.arn,
+          "${aws_s3_bucket.athena.arn}/*",
+        ]
+        Condition = {
+          Bool = {
+            "aws:SecureTransport" = "false"
+          }
+        }
+      },
+    ]
+  })
+}
+
 resource "aws_s3_bucket_public_access_block" "athena-public-access-block" {
   bucket = aws_s3_bucket.athena.id
 
