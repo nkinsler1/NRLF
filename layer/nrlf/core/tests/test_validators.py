@@ -1582,3 +1582,205 @@ def test_validate_content_format_invalid_code_for_contact_details():
         "diagnostics": "Invalid content format code: urn:nhs-ic:unstructured format code must be 'urn:nhs-ic:record-contact' for Contact details attachments.",
         "expression": ["content[0].format.code"],
     }
+
+
+def test_validate_practiceSetting_no_coding():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["context"]["practiceSetting"] = {
+        "text": "Description of the clinic"
+    }
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert len(result.issues) == 1
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Invalid practice setting: must contain a Coding",
+        "expression": ["context.practiceSetting.coding"],
+    }
+
+
+def test_validate_practiceSetting_coding_invalid_system():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["context"]["practiceSetting"] = {
+        "coding": [
+            {
+                "system": "http://snoooooomed/sctfffffg",
+                "code": "788002001",
+                "display": "Adult mental health service",
+            }
+        ]
+    }
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert len(result.issues) == 1
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Invalid practice setting system: http://snoooooomed/sctfffffg Practice Setting system must be 'http://snomed.info/sct'",
+        "expression": ["context.practiceSetting.coding[0].system"],
+    }
+
+
+def test_validate_practiceSetting_coding_invalid_code():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["context"]["practiceSetting"] = {
+        "coding": [
+            {
+                "system": "http://snomed.info/sct",
+                "code": "123",
+                "display": "Adult mental health service",
+            }
+        ]
+    }
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert len(result.issues) == 1
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Invalid practice setting code: 123 Practice Setting coding must be a member of value set https://fhir.nhs.uk/England/ValueSet/England-PracticeSetting",
+        "expression": ["context.practiceSetting.coding[0].code"],
+    }
+
+
+def test_validate_practiceSetting_coding_missing_code():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["context"]["practiceSetting"] = {
+        "coding": [
+            {
+                "system": "http://snomed.info/sct",
+                "display": "Adult mental health service",
+            }
+        ]
+    }
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert len(result.issues) == 1
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Invalid practice setting code: None Practice Setting coding must be a member of value set https://fhir.nhs.uk/England/ValueSet/England-PracticeSetting",
+        "expression": ["context.practiceSetting.coding[0].code"],
+    }
+
+
+def test_validate_practiceSetting_coding_missing_display():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["context"]["practiceSetting"] = {
+        "coding": [
+            {
+                "system": "http://snomed.info/sct",
+                "code": "788002001",
+            }
+        ]
+    }
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert len(result.issues) == 1
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Invalid practice setting coding: display None does not match the expected display for 788002001 Practice Setting coding is bound to value set https://fhir.nhs.uk/England/ValueSet/England-PracticeSetting",
+        "expression": ["context.practiceSetting.coding[0]"],
+    }
+
+
+def test_validate_practiceSetting_coding_mismatch_code_and_display():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["context"]["practiceSetting"] = {
+        "coding": [
+            {
+                "system": "http://snomed.info/sct",
+                "code": "788002001",
+                "display": "Nephrology service",
+            }
+        ]
+    }
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert len(result.issues) == 1
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Invalid practice setting coding: display Nephrology service does not match the expected display for 788002001 Practice Setting coding is bound to value set https://fhir.nhs.uk/England/ValueSet/England-PracticeSetting",
+        "expression": ["context.practiceSetting.coding[0]"],
+    }

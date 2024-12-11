@@ -4,7 +4,7 @@ resource "aws_sns_topic" "sns_topic" {
 }
 
 resource "aws_sns_topic_subscription" "sns_subscription" {
-  for_each  = nonsensitive(toset(tolist(jsondecode(data.aws_secretsmanager_secret_version.emails.secret_string))))
+  for_each  = var.notification_emails
   topic_arn = aws_sns_topic.sns_topic.arn
   protocol  = "email"
   endpoint  = sensitive(each.value)
