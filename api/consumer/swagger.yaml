@@ -1195,65 +1195,77 @@ components:
           pattern: \S*
           description: The reference details for the link.
     ContentStabilityExtension:
-      type: object
-      properties:
-        url:
-          type: string
-          enum:
-            - "https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability"
-        valueCodeableConcept:
-          type: object
+      allOf:
+        - $ref: "#/components/schemas/Extension"
+        - type: object
+          properties:
+            url:
+              type: string
+              enum:
+                - "https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability"
+            valueCodeableConcept:
+              $ref: "#/components/schemas/ContentStabilityExtensionValueCodeableConcept"
+          required:
+            - url
+            - valueCodeableConcept
+    ContentStabilityExtensionValueCodeableConcept:
+      allOf:
+        - $ref: "#/components/schemas/CodeableConcept"
+        - type: object
           properties:
             coding:
               type: array
               items:
-                type: object
-                properties:
-                  system:
-                    type: string
-                    enum:
-                      - "https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability"
-                  code:
-                    type: string
-                    enum: ["static", "dynamic"]
-                  display:
-                    type: string
-                    enum: ["Static", "Dynamic"]
-                required:
-                  - system
-                  - code
-                  - display
+                $ref: "#/components/schemas/ContentStabilityExtensionCoding"
               minItems: 1
               maxItems: 1
           required:
             - coding
-      required:
-        - url
-        - valueCodeableConcept
+    ContentStabilityExtensionCoding:
+      allOf:
+        - $ref: "#/components/schemas/Coding"
+        - type: object
+          properties:
+            system:
+              type: string
+              enum:
+                - "https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability"
+            code:
+              type: string
+              enum: ["static", "dynamic"]
+            display:
+              type: string
+              enum: ["Static", "Dynamic"]
+          required:
+            - system
+            - code
+            - display
     NRLFormatCode:
-      type: object
-      properties:
-        system:
-          type: string
-          enum:
-            - "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode"
-          description: The system URL for the NRLF Format Code.
-        code:
-          type: string
-          enum:
-            - "urn:nhs-ic:record-contact"
-            - "urn:nhs-ic:unstructured"
-          description: The code representing the format of the document.
-        display:
-          type: string
-          enum:
-            - "Contact details (HTTP Unsecured)"
-            - "Unstructured Document"
-          description: The display text for the code.
-      required:
-        - system
-        - code
-        - display
+      allOf:
+        - $ref: "#/components/schemas/Coding"
+        - type: object
+          properties:
+            system:
+              type: string
+              enum:
+                - "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode"
+              description: The system URL for the NRLF Format Code.
+            code:
+              type: string
+              enum:
+                - "urn:nhs-ic:record-contact"
+                - "urn:nhs-ic:unstructured"
+              description: The code representing the format of the document.
+            display:
+              type: string
+              enum:
+                - "Contact details (HTTP Unsecured)"
+                - "Unstructured Document"
+              description: The display text for the code.
+          required:
+            - system
+            - code
+            - display
     Identifier:
       type: object
       properties:

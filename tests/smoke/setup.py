@@ -3,6 +3,9 @@ from nrlf.producer.fhir.r4.model import (
     Attachment,
     CodeableConcept,
     Coding,
+    ContentStabilityExtension,
+    ContentStabilityExtensionCoding,
+    ContentStabilityExtensionValueCodeableConcept,
     DocumentReference,
     DocumentReferenceContent,
     DocumentReferenceContext,
@@ -41,9 +44,9 @@ def build_document_reference(
                 extension=[
                     ContentStabilityExtension(
                         url="https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability",
-                        valueCodeableConcept=ValueCodeableConcept(
+                        valueCodeableConcept=ContentStabilityExtensionValueCodeableConcept(
                             coding=[
-                                CodingItem(
+                                ContentStabilityExtensionCoding(
                                     system="https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability",
                                     code="static",
                                     display="Static",

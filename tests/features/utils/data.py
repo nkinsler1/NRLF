@@ -3,8 +3,9 @@ from nrlf.producer.fhir.r4.model import (
     Attachment,
     CodeableConcept,
     Coding,
-    CodingItem,
     ContentStabilityExtension,
+    ContentStabilityExtensionCoding,
+    ContentStabilityExtensionValueCodeableConcept,
     DocumentReference,
     DocumentReferenceContent,
     DocumentReferenceContext,
@@ -12,7 +13,6 @@ from nrlf.producer.fhir.r4.model import (
     Identifier,
     NRLFormatCode,
     Reference,
-    ValueCodeableConcept,
 )
 from tests.features.utils.constants import (
     DEFAULT_TEST_AUTHOR,
@@ -51,9 +51,9 @@ def create_test_document_reference(items: dict) -> DocumentReference:
                     extension=[
                         ContentStabilityExtension(
                             url="https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability",
-                            valueCodeableConcept=ValueCodeableConcept(
+                            valueCodeableConcept=ContentStabilityExtensionValueCodeableConcept(
                                 coding=[
-                                    CodingItem(
+                                    ContentStabilityExtensionCoding(
                                         system="https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability",
                                         code="static",
                                         display="Static",
