@@ -21,18 +21,18 @@ resource "aws_iam_role_policy" "glue_service_role_policy" {
   policy = jsonencode({
     "Version" : "2012-10-17",
     "Statement" : [
-      {
-        "Effect" : "Allow",
-        "Action" : [
-          "glue:*",
-          "s3:GetBucketLocation",
-          "s3:ListBucket",
-          "s3:ListAllMyBuckets",
-          "s3:GetBucketAcl",
-          "cloudwatch:PutMetricData"
-        ],
-        "Resource" : ["*"]
-      },
+      # {
+      #   "Effect" : "Allow",
+      #   "Action" : [
+      #     "glue:*",
+      #     "s3:GetBucketLocation",
+      #     "s3:ListBucket",
+      #     "s3:ListAllMyBuckets",
+      #     "s3:GetBucketAcl",
+      #     "cloudwatch:PutMetricData"
+      #   ],
+      #   "Resource" : ["*"]
+      # },
       {
         "Effect" : "Allow",
         "Action" : ["s3:CreateBucket"],
