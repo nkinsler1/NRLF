@@ -499,48 +499,6 @@ Feature: Producer - createDocumentReference - Failure Scenarios
       }
       """
 
-  # Invalid document reference - invalid Type
-  # NRL-769 Known issue: Type display is not validated
-  # Scenario: Invalid type (valid code but wrong display value)
-  # Given the application 'DataShare' (ID 'z00z-y11y-x22x') is registered to access the API
-  # And the organisation 'TSTCUS' is authorised to access pointer types:
-  # | system                 | value            |
-  # | http://snomed.info/sct | 1363501000000100 |
-  # | http://snomed.info/sct | 736253002        |
-  # When producer 'TSTCUS' requests creation of a DocumentReference with default test values except 'type' is:
-  # """
-  # "type": {
-  # "coding": [
-  # {
-  # "system": "http://snomed.info/sct",
-  # "code": "736253002",
-  # "display": "Emergency Healthcare Plan"
-  # }
-  # ]
-  # }
-  # """
-  # Then the response status code is 400
-  # And the response is an OperationOutcome with 1 issue
-  # And the OperationOutcome contains the issue:
-  # """
-  # {
-  # "severity": "error",
-  # "code": "invalid",
-  # "details": {
-  # "coding": [
-  # {
-  # "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-  # "code": "BAD_REQUEST",
-  # "display": "Bad request"
-  # }
-  # ]
-  # },
-  # "diagnostics": "The display does not match the expected value for this type",
-  # "expression": [
-  # "type.coding.display"
-  # ]
-  # }
-  # """
   # Invalid document reference - empty content[0].attachment.url
   # Invalid document reference - create another producers document
   # Invalid document reference - bad JSON

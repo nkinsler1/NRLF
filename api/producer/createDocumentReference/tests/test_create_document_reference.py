@@ -445,7 +445,7 @@ def test_create_document_reference_with_invalid_docStatus():
                         }
                     ],
                 },
-                "diagnostics": "Request body could not be parsed (docStatus: String should match pattern '^(entered-in-error|amended|preliminary|final)$')",
+                "diagnostics": "Request body could not be parsed (docStatus: Input should be 'entered-in-error', 'amended', 'preliminary' or 'final')",
                 "expression": ["docStatus"],
             },
         ],
