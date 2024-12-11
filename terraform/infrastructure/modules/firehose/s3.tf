@@ -109,4 +109,5 @@ resource "aws_iam_policy" "firehose-alert--s3-read" {
 
 data "aws_s3_bucket" "source-data-bucket" {
   bucket = "source-data-bucket"
+  region = "eu-west-2"
 }
