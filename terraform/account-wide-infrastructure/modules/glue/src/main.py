@@ -3,6 +3,7 @@ import sys
 from awsglue.utils import getResolvedOptions
 from pyspark.context import SparkContext
 from src.pipeline import LogPipeline
+from src.transformations import placeholder
 
 # Get arguments from AWS Glue job
 args = getResolvedOptions(
