@@ -29,17 +29,6 @@ resource "aws_iam_role_policy" "glue_service_role_policy" {
           "s3:ListBucket",
           "s3:ListAllMyBuckets",
           "s3:GetBucketAcl",
-          "ec2:DescribeVpcEndpoints",
-          "ec2:DescribeRouteTables",
-          "ec2:CreateNetworkInterface",
-          "ec2:DeleteNetworkInterface",
-          "ec2:DescribeNetworkInterfaces",
-          "ec2:DescribeSecurityGroups",
-          "ec2:DescribeSubnets",
-          "ec2:DescribeVpcAttribute",
-          "iam:ListRolePolicies",
-          "iam:GetRole",
-          "iam:GetRolePolicy",
           "cloudwatch:PutMetricData"
         ],
         "Resource" : ["*"]
@@ -73,20 +62,6 @@ resource "aws_iam_role_policy" "glue_service_role_policy" {
           "logs:PutLogEvents"
         ],
         "Resource" : ["arn:aws:logs:*:*:*:/aws-glue/*"]
-      },
-      {
-        "Effect" : "Allow",
-        "Action" : ["ec2:CreateTags", "ec2:DeleteTags"],
-        "Condition" : {
-          "ForAllValues:StringEquals" : {
-            "aws:TagKeys" : ["aws-glue-service-resource"]
-          }
-        },
-        "Resource" : [
-          "arn:aws:ec2:*:*:network-interface/*",
-          "arn:aws:ec2:*:*:security-group/*",
-          "arn:aws:ec2:*:*:instance/*"
-        ]
       }
     ]
   })
