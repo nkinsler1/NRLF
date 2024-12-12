@@ -1,4 +1,10 @@
-from layer.nrlf.core.constants import CATEGORY_ATTRIBUTES, TYPE_ATTRIBUTES
+from layer.nrlf.core.constants import (
+    CATEGORY_ATTRIBUTES,
+    CONTENT_FORMAT_CODE_URL,
+    CONTENT_STABILITY_EXTENSION_URL,
+    CONTENT_STABILITY_SYSTEM_URL,
+    TYPE_ATTRIBUTES,
+)
 from nrlf.producer.fhir.r4.model import (
     Attachment,
     CodeableConcept,
@@ -43,18 +49,18 @@ def create_test_document_reference(items: dict) -> DocumentReference:
                     format=NRLFormatCode(
                         system=items.get(
                             "formatSystem",
-                            "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
+                            CONTENT_FORMAT_CODE_URL,
                         ),
                         code=items.get("formatCode", "urn:nhs-ic:unstructured"),
                         display=items.get("formatDisplay", "Unstructured Document"),
                     ),
                     extension=[
                         ContentStabilityExtension(
-                            url="https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability",
+                            url=CONTENT_STABILITY_EXTENSION_URL,
                             valueCodeableConcept=ContentStabilityExtensionValueCodeableConcept(
                                 coding=[
                                     ContentStabilityExtensionCoding(
-                                        system="https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability",
+                                        system=CONTENT_STABILITY_SYSTEM_URL,
                                         code="static",
                                         display="Static",
                                     )

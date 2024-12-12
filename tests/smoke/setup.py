@@ -1,4 +1,11 @@
-from nrlf.core.constants import TYPE_ATTRIBUTES, Categories, PointerTypes
+from nrlf.core.constants import (
+    CONTENT_FORMAT_CODE_URL,
+    CONTENT_STABILITY_EXTENSION_URL,
+    CONTENT_STABILITY_SYSTEM_URL,
+    TYPE_ATTRIBUTES,
+    Categories,
+    PointerTypes,
+)
 from nrlf.producer.fhir.r4.model import (
     Attachment,
     CodeableConcept,
@@ -37,17 +44,17 @@ def build_document_reference(
                     url=content_url,
                 ),
                 format=NRLFormatCode(
-                    system="https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
+                    system=CONTENT_FORMAT_CODE_URL,
                     code="urn:nhs-ic:unstructured",
                     display="Unstructured Document",
                 ),
                 extension=[
                     ContentStabilityExtension(
-                        url="https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability",
+                        url=CONTENT_STABILITY_EXTENSION_URL,
                         valueCodeableConcept=ContentStabilityExtensionValueCodeableConcept(
                             coding=[
                                 ContentStabilityExtensionCoding(
-                                    system="https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability",
+                                    system=CONTENT_STABILITY_SYSTEM_URL,
                                     code="static",
                                     display="Static",
                                 )

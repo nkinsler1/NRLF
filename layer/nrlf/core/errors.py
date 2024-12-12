@@ -3,6 +3,7 @@ from typing import List, Optional
 from pydantic import ValidationError
 from pydantic_core import ErrorDetails
 
+from nrlf.core.constants import CONTENT_FORMAT_CODE_URL, CONTENT_STABILITY_SYSTEM_URL
 from nrlf.core.response import Response
 from nrlf.core.types import CodeableConcept
 from nrlf.producer.fhir.r4 import model as producer_model
@@ -25,9 +26,9 @@ def append_value_set_url(loc_string: str) -> str:
 
     if "content" in loc_string:
         if "extension" in loc_string:
-            return ". See ValueSet: https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability"
+            return f". See ValueSet: {CONTENT_STABILITY_SYSTEM_URL}"
         if "format" in loc_string:
-            return ". See ValueSet: https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode"
+            return f". See ValueSet: {CONTENT_FORMAT_CODE_URL}"
 
     return ""
 
