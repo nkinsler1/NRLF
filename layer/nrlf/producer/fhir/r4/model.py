@@ -849,7 +849,7 @@ class BundleEntryResponse(BaseModel):
         ),
     ] = None
     outcome: Annotated[
-        Optional[DocumentReference],
+        Optional[OperationOutcome],
         Field(
             description="An OperationOutcome containing hints and warnings produced as part of processing this entry in a batch or transaction."
         ),
