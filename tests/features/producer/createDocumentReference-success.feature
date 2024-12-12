@@ -6,14 +6,15 @@ Feature: Producer - createDocumentReference - Success Scenarios
       | system                 | value     |
       | http://snomed.info/sct | 736253002 |
     When producer 'ANGY1' creates a DocumentReference with values:
-      | property  | value                          |
-      | subject   | 9278693472                     |
-      | status    | current                        |
-      | type      | 736253002                      |
-      | category  | 734163000                      |
-      | custodian | ANGY1                          |
-      | author    | HAR1                           |
-      | url       | https://example.org/my-doc.pdf |
+      | property        | value                          |
+      | subject         | 9278693472                     |
+      | status          | current                        |
+      | type            | 736253002                      |
+      | category        | 734163000                      |
+      | custodian       | ANGY1                          |
+      | author          | HAR1                           |
+      | url             | https://example.org/my-doc.pdf |
+      | practiceSetting | 788002001                      |
     Then the response status code is 201
     And the response is an OperationOutcome with 1 issue
     And the OperationOutcome contains the issue:
@@ -36,14 +37,15 @@ Feature: Producer - createDocumentReference - Success Scenarios
     And the response has a Location header
     And the Location header starts with '/producer/FHIR/R4/DocumentReference/ANGY1-'
     And the resource in the Location header exists with values:
-      | property  | value                          |
-      | subject   | 9278693472                     |
-      | status    | current                        |
-      | type      | 736253002                      |
-      | category  | 734163000                      |
-      | custodian | ANGY1                          |
-      | author    | HAR1                           |
-      | url       | https://example.org/my-doc.pdf |
+      | property        | value                          |
+      | subject         | 9278693472                     |
+      | status          | current                        |
+      | type            | 736253002                      |
+      | category        | 734163000                      |
+      | custodian       | ANGY1                          |
+      | author          | HAR1                           |
+      | url             | https://example.org/my-doc.pdf |
+      | practiceSetting | 788002001                      |
 
   # # NRL-766 Resolve custodian suffix issues
   # Scenario: Successfully create a Document Pointer (care plan) with custodian suffix
@@ -97,26 +99,28 @@ Feature: Producer - createDocumentReference - Success Scenarios
       | system                 | value     |
       | http://snomed.info/sct | 736253002 |
     And a DocumentReference resource exists with values:
-      | property    | value                          |
-      | id          | ANGY1-111-SupercedeDocRefTest1 |
-      | subject     | 9278693472                     |
-      | status      | current                        |
-      | type        | 736253002                      |
-      | category    | 734163000                      |
-      | contentType | application/pdf                |
-      | url         | https://example.org/my-doc.pdf |
-      | custodian   | ANGY1                          |
-      | author      | HAR1                           |
+      | property        | value                          |
+      | id              | ANGY1-111-SupercedeDocRefTest1 |
+      | subject         | 9278693472                     |
+      | status          | current                        |
+      | type            | 736253002                      |
+      | category        | 734163000                      |
+      | contentType     | application/pdf                |
+      | url             | https://example.org/my-doc.pdf |
+      | custodian       | ANGY1                          |
+      | author          | HAR1                           |
+      | practiceSetting | 788002001                      |
     When producer 'ANGY1' creates a DocumentReference with values:
-      | property   | value                          |
-      | subject    | 9278693472                     |
-      | status     | current                        |
-      | type       | 736253002                      |
-      | category   | 734163000                      |
-      | custodian  | ANGY1                          |
-      | author     | HAR1                           |
-      | url        | https://example.org/newdoc.pdf |
-      | supercedes | ANGY1-111-SupercedeDocRefTest1 |
+      | property        | value                          |
+      | subject         | 9278693472                     |
+      | status          | current                        |
+      | type            | 736253002                      |
+      | category        | 734163000                      |
+      | custodian       | ANGY1                          |
+      | author          | HAR1                           |
+      | url             | https://example.org/newdoc.pdf |
+      | supercedes      | ANGY1-111-SupercedeDocRefTest1 |
+      | practiceSetting | 788002001                      |
     Then the response status code is 201
     And the response is an OperationOutcome with 1 issue
     And the OperationOutcome contains the issue:
@@ -139,14 +143,15 @@ Feature: Producer - createDocumentReference - Success Scenarios
     And the response has a Location header
     And the Location header starts with '/producer/FHIR/R4/DocumentReference/ANGY1-'
     And the resource in the Location header exists with values:
-      | property  | value                          |
-      | subject   | 9278693472                     |
-      | status    | current                        |
-      | type      | 736253002                      |
-      | category  | 734163000                      |
-      | custodian | ANGY1                          |
-      | author    | HAR1                           |
-      | url       | https://example.org/newdoc.pdf |
+      | property        | value                          |
+      | subject         | 9278693472                     |
+      | status          | current                        |
+      | type            | 736253002                      |
+      | category        | 734163000                      |
+      | custodian       | ANGY1                          |
+      | author          | HAR1                           |
+      | url             | https://example.org/newdoc.pdf |
+      | practiceSetting | 788002001                      |
     And the resource with id 'ANGY1-111-SupercedeDocRefTest1' does not exist
 
   # Create document reference with relatesTo - not code='replaces'
@@ -157,14 +162,15 @@ Feature: Producer - createDocumentReference - Success Scenarios
       | system                 | value          |
       | http://snomed.info/sct | <pointer-type> |
     When producer 'ANGY1' creates a DocumentReference with values:
-      | property  | value                          |
-      | subject   | 9278693472                     |
-      | status    | current                        |
-      | type      | <pointer-type>                 |
-      | category  | <pointer-category>             |
-      | custodian | ANGY1                          |
-      | author    | HAR1                           |
-      | url       | https://example.org/my-doc.pdf |
+      | property        | value                          |
+      | subject         | 9278693472                     |
+      | status          | current                        |
+      | type            | <pointer-type>                 |
+      | category        | <pointer-category>             |
+      | custodian       | ANGY1                          |
+      | author          | HAR1                           |
+      | url             | https://example.org/my-doc.pdf |
+      | practiceSetting | 788002001                      |
     Then the response status code is 201
     And the response is an OperationOutcome with 1 issue
     And the OperationOutcome contains the issue:
@@ -229,15 +235,16 @@ Feature: Producer - createDocumentReference - Success Scenarios
       | https://nicip.nhs.uk | MAULR |
       | https://nicip.nhs.uk | MAXIB |
     When producer 'ANGY1' creates a DocumentReference with values:
-      | property    | value                          |
-      | subject     | 9278693472                     |
-      | status      | current                        |
-      | type        | MAULR                          |
-      | type_system | https://nicip.nhs.uk           |
-      | category    | 721981007                      |
-      | custodian   | ANGY1                          |
-      | author      | HAR1                           |
-      | url         | https://example.org/my-doc.pdf |
+      | property        | value                          |
+      | subject         | 9278693472                     |
+      | status          | current                        |
+      | type            | MAULR                          |
+      | type_system     | https://nicip.nhs.uk           |
+      | category        | 721981007                      |
+      | custodian       | ANGY1                          |
+      | author          | HAR1                           |
+      | url             | https://example.org/my-doc.pdf |
+      | practiceSetting | 788002001                      |
     Then the response status code is 201
     And the response is an OperationOutcome with 1 issue
     And the OperationOutcome contains the issue:
@@ -260,25 +267,27 @@ Feature: Producer - createDocumentReference - Success Scenarios
     And the response has a Location header
     And the Location header starts with '/producer/FHIR/R4/DocumentReference/ANGY1-'
     And the resource in the Location header exists with values:
-      | property    | value                          |
-      | subject     | 9278693472                     |
-      | status      | current                        |
-      | type        | MAULR                          |
-      | type_system | https://nicip.nhs.uk           |
-      | category    | 721981007                      |
-      | custodian   | ANGY1                          |
-      | author      | HAR1                           |
-      | url         | https://example.org/my-doc.pdf |
+      | property        | value                          |
+      | subject         | 9278693472                     |
+      | status          | current                        |
+      | type            | MAULR                          |
+      | type_system     | https://nicip.nhs.uk           |
+      | category        | 721981007                      |
+      | custodian       | ANGY1                          |
+      | author          | HAR1                           |
+      | url             | https://example.org/my-doc.pdf |
+      | practiceSetting | 788002001                      |
     When producer 'ANGY1' creates a DocumentReference with values:
-      | property    | value                          |
-      | subject     | 9278693472                     |
-      | status      | current                        |
-      | type        | MAXIB                          |
-      | type_system | https://nicip.nhs.uk           |
-      | category    | 103693007                      |
-      | custodian   | ANGY1                          |
-      | author      | HAR1                           |
-      | url         | https://example.org/my-doc.pdf |
+      | property        | value                          |
+      | subject         | 9278693472                     |
+      | status          | current                        |
+      | type            | MAXIB                          |
+      | type_system     | https://nicip.nhs.uk           |
+      | category        | 103693007                      |
+      | custodian       | ANGY1                          |
+      | author          | HAR1                           |
+      | url             | https://example.org/my-doc.pdf |
+      | practiceSetting | 788002001                      |
     Then the response status code is 201
     And the response is an OperationOutcome with 1 issue
     And the OperationOutcome contains the issue:

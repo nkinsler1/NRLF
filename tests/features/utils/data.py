@@ -3,6 +3,8 @@ from layer.nrlf.core.constants import (
     CONTENT_FORMAT_CODE_URL,
     CONTENT_STABILITY_EXTENSION_URL,
     CONTENT_STABILITY_SYSTEM_URL,
+    SNOMED_PRACTICE_SETTINGS,
+    SNOMED_SYSTEM_URL,
     TYPE_ATTRIBUTES,
 )
 from nrlf.producer.fhir.r4.model import (
@@ -35,6 +37,12 @@ from tests.features.utils.constants import (
 
 
 def create_test_document_reference(items: dict) -> DocumentReference:
+
+    practice_setting_code = items.get("practiceSetting", "788007007")
+    practice_setting_display = SNOMED_PRACTICE_SETTINGS.get(
+        str(practice_setting_code), "General practice service"
+    )
+
     base_doc_ref = DocumentReference.model_construct(
         resourceType="DocumentReference",
         status=items.get("status", "current"),
@@ -75,9 +83,9 @@ def create_test_document_reference(items: dict) -> DocumentReference:
             practiceSetting=CodeableConcept(
                 coding=[
                     Coding(
-                        system="http://snomed.info/sct",
-                        code="390826005",
-                        display="Mental health caregiver support",
+                        system=SNOMED_SYSTEM_URL,
+                        code=str(practice_setting_code),
+                        display=practice_setting_display,
                     )
                 ]
             )
@@ -88,7 +96,7 @@ def create_test_document_reference(items: dict) -> DocumentReference:
         base_doc_ref.id = items["id"]
 
     if type_code := items.get("type"):
-        type_system = items.get("type_system", "http://snomed.info/sct")
+        type_system = items.get("type_system", SNOMED_SYSTEM_URL)
         type_str = f"{type_system}|{type_code}"
         type_display = items.get(
             "type_display", TYPE_ATTRIBUTES.get(type_str, {}).get("display")
@@ -125,13 +133,13 @@ def create_test_document_reference(items: dict) -> DocumentReference:
 
     if items.get("category"):
         category_display = CATEGORY_ATTRIBUTES.get(
-            f"http://snomed.info/sct|{items['category']}", {}
+            f"{SNOMED_SYSTEM_URL}|{items['category']}", {}
         ).get("display")
         base_doc_ref.category = [
             CodeableConcept(
                 coding=[
                     Coding(
-                        system="http://snomed.info/sct",
+                        system=SNOMED_SYSTEM_URL,
                         code=items["category"],
                         display=category_display,
                     )

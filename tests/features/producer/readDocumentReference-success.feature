@@ -98,8 +98,8 @@ Feature: Producer - readDocumentReference - Success Scenarios
             "coding": [
              {
               "system": "http://snomed.info/sct",
-              "code": "390826005",
-              "display": "Mental health caregiver support"
+              "code": "788007007",
+              "display": "General practice service"
               }
             ]
           }

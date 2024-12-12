@@ -3,8 +3,9 @@ resource "aws_s3_bucket" "authorization-store" {
   force_destroy = var.enable_bucket_force_destroy
 
   tags = {
-    Name        = "authorization store"
-    Environment = "${var.name_prefix}"
+    Name                  = "authorization store"
+    Environment           = "${var.name_prefix}"
+    NHSE-Enable-S3-Backup = var.enable_backups ? "True" : "False"
   }
 }
 
@@ -25,6 +26,32 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "authorization-sto
       sse_algorithm = "AES256"
     }
   }
+}
+
+resource "aws_s3_bucket_policy" "authorization_store_bucket_policy" {
+  bucket = aws_s3_bucket.authorization-store.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Id      = "authorization_store_bucket_policy"
+    Statement = [
+      {
+        Sid       = "HTTPSOnly"
+        Effect    = "Deny"
+        Principal = "*"
+        Action    = "s3:*"
+        Resource = [
+          aws_s3_bucket.authorization-store.arn,
+          "${aws_s3_bucket.authorization-store.arn}/*",
+        ]
+        Condition = {
+          Bool = {
+            "aws:SecureTransport" = "false"
+          }
+        }
+      },
+    ]
+  })
 }
 
 resource "aws_s3_bucket_versioning" "authorization-store" {

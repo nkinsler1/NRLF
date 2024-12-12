@@ -13,7 +13,7 @@ from nrlf.core.errors import ParseError
 from nrlf.core.validators import (
     DocumentReferenceValidator,
     ValidationResult,
-    validate_type_system,
+    validate_type,
 )
 from nrlf.producer.fhir.r4.model import (
     DocumentReference,
@@ -23,28 +23,37 @@ from nrlf.producer.fhir.r4.model import (
 from nrlf.tests.data import load_document_reference_json
 
 
-def test_validate_type_system_valid():
+def test_validate_type_valid():
     type_ = RequestQueryType(root=PointerTypes.MENTAL_HEALTH_PLAN.value)
     pointer_types = [
         PointerTypes.MENTAL_HEALTH_PLAN.value,
         PointerTypes.EOL_CARE_PLAN.value,
     ]
-    assert validate_type_system(type_, pointer_types) is True
+    assert validate_type(type_, pointer_types) is True
 
 
-def test_validate_type_system_invalid():
+def test_validate_type_invalid_system():
     type_ = RequestQueryType(root="http://snomed.info/invalid|736373009")
     pointer_types = [
         PointerTypes.EOL_CARE_PLAN.value,
         PointerTypes.EOL_CARE_PLAN.value,
     ]
-    assert validate_type_system(type_, pointer_types) is False
+    assert validate_type(type_, pointer_types) is False
 
 
-def test_validate_type_system_empty():
+def test_validate_type_invalid_code():
+    type_ = RequestQueryType(root=PointerTypes.MRA_UPPER_LIMB_ARTERY.value)
+    pointer_types = [
+        PointerTypes.MENTAL_HEALTH_PLAN.value,
+        PointerTypes.EOL_CARE_PLAN.value,
+    ]
+    assert validate_type(type_, pointer_types) is False
+
+
+def test_validate_type_empty():
     type_ = None
     pointer_types: list[str] = []
-    assert validate_type_system(type_, pointer_types) is True
+    assert validate_type(type_, pointer_types) is True
 
 
 def test_validation_result_reset():
@@ -1429,4 +1438,206 @@ def test_validate_nrl_format_code_display_mismatch(
         },
         "diagnostics": f"Invalid display for format code '{format_code}'. Expected '{expected_display}'",
         "expression": ["content[0].format.display"],
+    }
+
+
+def test_validate_practiceSetting_no_coding():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["context"]["practiceSetting"] = {
+        "text": "Description of the clinic"
+    }
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert len(result.issues) == 1
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Invalid practice setting: must contain a Coding",
+        "expression": ["context.practiceSetting.coding"],
+    }
+
+
+def test_validate_practiceSetting_coding_invalid_system():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["context"]["practiceSetting"] = {
+        "coding": [
+            {
+                "system": "http://snoooooomed/sctfffffg",
+                "code": "788002001",
+                "display": "Adult mental health service",
+            }
+        ]
+    }
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert len(result.issues) == 1
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Invalid practice setting system: http://snoooooomed/sctfffffg Practice Setting system must be 'http://snomed.info/sct'",
+        "expression": ["context.practiceSetting.coding[0].system"],
+    }
+
+
+def test_validate_practiceSetting_coding_invalid_code():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["context"]["practiceSetting"] = {
+        "coding": [
+            {
+                "system": "http://snomed.info/sct",
+                "code": "123",
+                "display": "Adult mental health service",
+            }
+        ]
+    }
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert len(result.issues) == 1
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Invalid practice setting code: 123 Practice Setting coding must be a member of value set https://fhir.nhs.uk/England/ValueSet/England-PracticeSetting",
+        "expression": ["context.practiceSetting.coding[0].code"],
+    }
+
+
+def test_validate_practiceSetting_coding_missing_code():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["context"]["practiceSetting"] = {
+        "coding": [
+            {
+                "system": "http://snomed.info/sct",
+                "display": "Adult mental health service",
+            }
+        ]
+    }
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert len(result.issues) == 1
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Invalid practice setting code: None Practice Setting coding must be a member of value set https://fhir.nhs.uk/England/ValueSet/England-PracticeSetting",
+        "expression": ["context.practiceSetting.coding[0].code"],
+    }
+
+
+def test_validate_practiceSetting_coding_missing_display():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["context"]["practiceSetting"] = {
+        "coding": [
+            {
+                "system": "http://snomed.info/sct",
+                "code": "788002001",
+            }
+        ]
+    }
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert len(result.issues) == 1
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Invalid practice setting coding: display None does not match the expected display for 788002001 Practice Setting coding is bound to value set https://fhir.nhs.uk/England/ValueSet/England-PracticeSetting",
+        "expression": ["context.practiceSetting.coding[0]"],
+    }
+
+
+def test_validate_practiceSetting_coding_mismatch_code_and_display():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["context"]["practiceSetting"] = {
+        "coding": [
+            {
+                "system": "http://snomed.info/sct",
+                "code": "788002001",
+                "display": "Nephrology service",
+            }
+        ]
+    }
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert len(result.issues) == 1
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Invalid practice setting coding: display Nephrology service does not match the expected display for 788002001 Practice Setting coding is bound to value set https://fhir.nhs.uk/England/ValueSet/England-PracticeSetting",
+        "expression": ["context.practiceSetting.coding[0]"],
     }

@@ -110,8 +110,8 @@ def build_document_reference(
                 coding=[
                     Coding(
                         system="http://snomed.info/sct",
-                        code="390826005",
-                        display="Mental health caregiver support",
+                        code="224891009",
+                        display="Healthcare services",
                     )
                 ]
             )
