@@ -1153,11 +1153,6 @@ components:
           type: string
           pattern: "[ \\r\\n\\t\\S]+"
           description: A human language representation of the concept as seen/selected/uttered by the user who entered the data and/or which represents the intended meaning of the user.
-        extension:
-          type: array
-          items:
-            $ref: "#/components/schemas/Extension"
-            description: Additional content defined by implementations.
     Coding:
       type: object
       properties:
