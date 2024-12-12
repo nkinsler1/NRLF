@@ -23,6 +23,7 @@ from nrlf.producer.fhir.r4.model import (
     DocumentReferenceRelatesTo,
     ExpressionItem,
     Meta,
+    OperationOutcome,
     OperationOutcomeIssue,
 )
 
@@ -410,7 +411,9 @@ def handler(
     response_entries = [
         BundleEntry(
             response=BundleEntryResponse(
-                status=response.statusCode, location=response.headers.get("Location")
+                status=response.statusCode,
+                location=response.headers.get("Location"),
+                outcome=OperationOutcome.model_validate_json(response.body),
             )
         )
         for response in responses

@@ -72,6 +72,25 @@ def test_create_single_nrl_document_reference_with_transaction_happy_path(
                 "response": {
                     "status": "201",
                     "location": "/producer/FHIR/R4/DocumentReference/Y05868-00000000-0000-0000-0000-000000000001",
+                    "outcome": {
+                        "resourceType": "OperationOutcome",
+                        "issue": [
+                            {
+                                "severity": "information",
+                                "code": "informational",
+                                "details": {
+                                    "coding": [
+                                        {
+                                            "system": "https://fhir.nhs.uk/ValueSet/NRL-ResponseCode",
+                                            "code": "RESOURCE_CREATED",
+                                            "display": "Resource created",
+                                        }
+                                    ]
+                                },
+                                "diagnostics": "The document has been created",
+                            }
+                        ],
+                    },
                 },
             },
         ],
@@ -150,6 +169,25 @@ def test_create_single_mhds_document_reference_with_transaction_happy_path(
                 "response": {
                     "status": "201",
                     "location": "/producer/FHIR/R4/DocumentReference/Y05868-00000000-0000-0000-0000-000000000001",
+                    "outcome": {
+                        "resourceType": "OperationOutcome",
+                        "issue": [
+                            {
+                                "severity": "information",
+                                "code": "informational",
+                                "details": {
+                                    "coding": [
+                                        {
+                                            "system": "https://fhir.nhs.uk/ValueSet/NRL-ResponseCode",
+                                            "code": "RESOURCE_CREATED",
+                                            "display": "Resource created",
+                                        }
+                                    ]
+                                },
+                                "diagnostics": "The document has been created",
+                            }
+                        ],
+                    },
                 },
             },
         ],
@@ -241,12 +279,50 @@ def test_create_multiple_mhds_document_reference_with_transaction_happy_path(
                 "response": {
                     "status": "201",
                     "location": "/producer/FHIR/R4/DocumentReference/Y05868-00000000-0000-0000-0000-000000000001",
+                    "outcome": {
+                        "resourceType": "OperationOutcome",
+                        "issue": [
+                            {
+                                "severity": "information",
+                                "code": "informational",
+                                "details": {
+                                    "coding": [
+                                        {
+                                            "system": "https://fhir.nhs.uk/ValueSet/NRL-ResponseCode",
+                                            "code": "RESOURCE_CREATED",
+                                            "display": "Resource created",
+                                        }
+                                    ]
+                                },
+                                "diagnostics": "The document has been created",
+                            }
+                        ],
+                    },
                 },
             },
             {
                 "response": {
                     "status": "201",
                     "location": "/producer/FHIR/R4/DocumentReference/Y05868-00000000-0000-0000-0000-000000000002",
+                    "outcome": {
+                        "resourceType": "OperationOutcome",
+                        "issue": [
+                            {
+                                "severity": "information",
+                                "code": "informational",
+                                "details": {
+                                    "coding": [
+                                        {
+                                            "system": "https://fhir.nhs.uk/ValueSet/NRL-ResponseCode",
+                                            "code": "RESOURCE_CREATED",
+                                            "display": "Resource created",
+                                        }
+                                    ]
+                                },
+                                "diagnostics": "The document has been created",
+                            }
+                        ],
+                    },
                 },
             },
         ],
@@ -354,12 +430,51 @@ def test_create_multiple_mhds_document_reference_with_transaction_wrong_ods_retu
             {
                 "response": {
                     "status": "400",
+                    "outcome": {
+                        "resourceType": "OperationOutcome",
+                        "issue": [
+                            {
+                                "severity": "error",
+                                "code": "invalid",
+                                "details": {
+                                    "coding": [
+                                        {
+                                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                                            "code": "BAD_REQUEST",
+                                            "display": "Bad request",
+                                        }
+                                    ]
+                                },
+                                "diagnostics": "The custodian of the provided DocumentReference does not match the expected ODS code for this organisation",
+                                "expression": ["custodian.identifier.value"],
+                            }
+                        ],
+                    },
                 },
             },
             {
                 "response": {
                     "status": "201",
                     "location": "/producer/FHIR/R4/DocumentReference/Y05868-00000000-0000-0000-0000-000000000002",
+                    "outcome": {
+                        "resourceType": "OperationOutcome",
+                        "issue": [
+                            {
+                                "severity": "information",
+                                "code": "informational",
+                                "details": {
+                                    "coding": [
+                                        {
+                                            "system": "https://fhir.nhs.uk/ValueSet/NRL-ResponseCode",
+                                            "code": "RESOURCE_CREATED",
+                                            "display": "Resource created",
+                                        }
+                                    ]
+                                },
+                                "diagnostics": "The document has been created",
+                            }
+                        ],
+                    },
                 },
             },
         ],
