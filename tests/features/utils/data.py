@@ -160,6 +160,12 @@ def create_test_document_reference(items: dict) -> DocumentReference:
                 ),
             )
         ]
+    if items.get("identifier"):
+        base_doc_ref.identifier = [
+            Identifier(
+                type=CodeableConcept(text="Accession-Number"), value=items["identifier"]
+            )
+        ]
 
     return base_doc_ref
 

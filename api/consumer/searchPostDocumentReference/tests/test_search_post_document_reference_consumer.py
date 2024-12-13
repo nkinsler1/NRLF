@@ -424,7 +424,7 @@ def test_search_post_document_reference_invalid_type(
                         }
                     ]
                 },
-                "diagnostics": "Invalid type (The provided type system does not match the allowed types for this organisation)",
+                "diagnostics": "The provided type does not match the allowed types for this organisation",
                 "expression": ["type"],
             }
         ],

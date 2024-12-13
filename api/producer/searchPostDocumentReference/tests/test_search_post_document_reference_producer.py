@@ -206,7 +206,7 @@ def test_search_document_reference_invalid_type(repository: DocumentPointerRepos
                         }
                     ]
                 },
-                "diagnostics": "The provided type system does not match the allowed types for this organisation",
+                "diagnostics": "The provided type does not match the allowed types for this organisation",
                 "expression": ["type"],
             }
         ],
