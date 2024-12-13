@@ -64,15 +64,6 @@ resource "aws_s3_bucket_acl" "backup_reports" {
   acl    = "private"
 }
 
-# We need a key for the SNS topic that will be used for notifications from AWS Backup. This key
-# will be used to encrypt the messages sent to the topic before they are sent to the subscribers,
-# but isn't needed by the recipients of the messages.
-
-# First we need some contextual data
-data "aws_caller_identity" "current" {}
-data "aws_region" "current" {}
-
-# Now we can define the key itself
 resource "aws_kms_key" "backup_notifications" {
   description             = "KMS key for AWS Backup notifications"
   deletion_window_in_days = 7
@@ -100,8 +91,6 @@ resource "aws_kms_key" "backup_notifications" {
     ]
   })
 }
-
-# Now we can deploy the source and destination modules, referencing the resources we've created above.
 
 module "source" {
   source = "../modules/backup-source"

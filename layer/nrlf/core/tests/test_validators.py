@@ -13,7 +13,7 @@ from nrlf.core.errors import ParseError
 from nrlf.core.validators import (
     DocumentReferenceValidator,
     ValidationResult,
-    validate_type_system,
+    validate_type,
 )
 from nrlf.producer.fhir.r4.model import (
     DocumentReference,
@@ -23,28 +23,37 @@ from nrlf.producer.fhir.r4.model import (
 from nrlf.tests.data import load_document_reference_json
 
 
-def test_validate_type_system_valid():
+def test_validate_type_valid():
     type_ = RequestQueryType(root=PointerTypes.MENTAL_HEALTH_PLAN.value)
     pointer_types = [
         PointerTypes.MENTAL_HEALTH_PLAN.value,
         PointerTypes.EOL_CARE_PLAN.value,
     ]
-    assert validate_type_system(type_, pointer_types) is True
+    assert validate_type(type_, pointer_types) is True
 
 
-def test_validate_type_system_invalid():
+def test_validate_type_invalid_system():
     type_ = RequestQueryType(root="http://snomed.info/invalid|736373009")
     pointer_types = [
         PointerTypes.EOL_CARE_PLAN.value,
         PointerTypes.EOL_CARE_PLAN.value,
     ]
-    assert validate_type_system(type_, pointer_types) is False
+    assert validate_type(type_, pointer_types) is False
 
 
-def test_validate_type_system_empty():
+def test_validate_type_invalid_code():
+    type_ = RequestQueryType(root=PointerTypes.MRA_UPPER_LIMB_ARTERY.value)
+    pointer_types = [
+        PointerTypes.MENTAL_HEALTH_PLAN.value,
+        PointerTypes.EOL_CARE_PLAN.value,
+    ]
+    assert validate_type(type_, pointer_types) is False
+
+
+def test_validate_type_empty():
     type_ = None
     pointer_types: list[str] = []
-    assert validate_type_system(type_, pointer_types) is True
+    assert validate_type(type_, pointer_types) is True
 
 
 def test_validation_result_reset():
