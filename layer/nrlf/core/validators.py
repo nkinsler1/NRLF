@@ -137,10 +137,10 @@ class DocumentReferenceValidator:
             self._validate_category(resource)
             self._validate_author(resource)
             self._validate_type_category_mapping(resource)
+            self._validate_content(resource)
             self._validate_content_format(resource)
+            self._validate_content_extension(resource)
             self._validate_practiceSetting(resource)
-            if resource.content[0].extension:
-                self._validate_content_extension(resource)
 
         except StopValidationError:
             logger.log(LogReference.VALIDATOR003)
@@ -516,69 +516,13 @@ class DocumentReferenceValidator:
 
         logger.debug("Validating extension")
         for i, content in enumerate(model.content):
-            if len(content.extension) > 1:
-                self.result.add_error(
-                    issue_code="invalid",
-                    error_code="INVALID_RESOURCE",
-                    diagnostics=f"Invalid content extension length: {len(content.extension)} Extension must only contain a single value",
-                    field=f"content[{i}].extension",
-                )
-                return
-
-            if len(content.extension[0].valueCodeableConcept.coding) < 1:
-                self.result.add_error(
-                    issue_code="required",
-                    error_code="INVALID_RESOURCE",
-                    diagnostics=f"Missing content[{i}].extension[0].valueCodeableConcept.coding, extension must have at least one coding.",
-                    field=f"content[{i}].extension.valueCodeableConcept.coding",
-                )
-                return
-
-            if (
-                content.extension[0].valueCodeableConcept.coding[0].system
-                != "https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability"
-            ):
+            coding = content.extension[0].valueCodeableConcept.coding[0]
+            if coding.code != coding.display.lower():
                 self.result.add_error(
                     issue_code="value",
                     error_code="INVALID_RESOURCE",
-                    diagnostics=f"Invalid content extension system: {content.extension[0].valueCodeableConcept.coding[0].system} Extension system must be 'https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability'",
-                    field=f"content[{i}].extension[0].valueCodeableConcept.coding[0].system",
-                )
-                return
-
-            if content.extension[0].valueCodeableConcept.coding[0].code not in [
-                "static",
-                "dynamic",
-            ]:
-                self.result.add_error(
-                    issue_code="value",
-                    error_code="INVALID_RESOURCE",
-                    diagnostics=f"Invalid content extension code: {content.extension[0].valueCodeableConcept.coding[0].code} Extension code must be 'static' or 'dynamic'",
-                    field=f"content[{i}].extension[0].valueCodeableConcept.coding[0].code",
-                )
-                return
-
-            if (
-                content.extension[0].valueCodeableConcept.coding[0].code
-                != content.extension[0].valueCodeableConcept.coding[0].display.lower()
-            ):
-                self.result.add_error(
-                    issue_code="value",
-                    error_code="INVALID_RESOURCE",
-                    diagnostics=f"Invalid content extension display: {content.extension[0].valueCodeableConcept.coding[0].display} Extension display must be the same as code either 'static' or 'dynamic'",
+                    diagnostics=f"Invalid content extension display: {coding.display} Extension display must be the same as code either 'Static' or 'Dynamic'",
                     field=f"content[{i}].extension[0].valueCodeableConcept.coding[0].display",
-                )
-                return
-
-            if (
-                content.extension[0].url
-                != "https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability"
-            ):
-                self.result.add_error(
-                    issue_code="value",
-                    error_code="INVALID_RESOURCE",
-                    diagnostics=f"Invalid content extension url: {content.extension[0].url} Extension url must be 'https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability'",
-                    field=f"content[{i}].extension[0].url",
                 )
                 return
 
@@ -690,3 +634,35 @@ class DocumentReferenceValidator:
                 field="context.practiceSetting.coding[0]",
             )
             return
+
+    def _validate_content(self, model: DocumentReference):
+        """
+        Validate that the contentType is present and is either 'application/pdf' or 'text/html'.
+        """
+        logger.log(LogReference.VALIDATOR001, step="content")
+
+        format_code_display_map = {
+            "urn:nhs-ic:record-contact": "Contact details (HTTP Unsecured)",
+            "urn:nhs-ic:unstructured": "Unstructured Document",
+        }
+
+        for i, content in enumerate(model.content):
+            if content.attachment.contentType not in ["application/pdf", "text/html"]:
+                self.result.add_error(
+                    issue_code="value",
+                    error_code="INVALID_RESOURCE",
+                    diagnostics=f"Invalid contentType: {content.attachment.contentType}. Must be 'application/pdf' or 'text/html'",
+                    field=f"content[{i}].attachment.contentType",
+                )
+
+            # Validate NRLFormatCode
+            format_code = content.format.code
+            format_display = content.format.display
+            expected_display = format_code_display_map.get(format_code)
+            if expected_display and format_display != expected_display:
+                self.result.add_error(
+                    issue_code="value",
+                    error_code="INVALID_RESOURCE",
+                    diagnostics=f"Invalid display for format code '{format_code}'. Expected '{expected_display}'",
+                    field=f"content[{i}].format.display",
+                )

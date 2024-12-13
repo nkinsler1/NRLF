@@ -657,3 +657,10 @@ SNOMED_PRACTICE_SETTINGS = {
 
 
 SYSTEM_SHORT_IDS = {"http://snomed.info/sct": "SCT", "https://nicip.nhs.uk": "NICIP"}
+CONTENT_STABILITY_EXTENSION_URL = (
+    "https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability"
+)
+CONTENT_STABILITY_SYSTEM_URL = (
+    "https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability"
+)
+CONTENT_FORMAT_CODE_URL = "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode"

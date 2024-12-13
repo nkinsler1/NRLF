@@ -1,5 +1,8 @@
 from layer.nrlf.core.constants import (
     CATEGORY_ATTRIBUTES,
+    CONTENT_FORMAT_CODE_URL,
+    CONTENT_STABILITY_EXTENSION_URL,
+    CONTENT_STABILITY_SYSTEM_URL,
     SNOMED_PRACTICE_SETTINGS,
     SNOMED_SYSTEM_URL,
     TYPE_ATTRIBUTES,
@@ -8,11 +11,15 @@ from nrlf.producer.fhir.r4.model import (
     Attachment,
     CodeableConcept,
     Coding,
+    ContentStabilityExtension,
+    ContentStabilityExtensionCoding,
+    ContentStabilityExtensionValueCodeableConcept,
     DocumentReference,
     DocumentReferenceContent,
     DocumentReferenceContext,
     DocumentReferenceRelatesTo,
     Identifier,
+    NRLFormatCode,
     Reference,
 )
 from tests.features.utils.constants import (
@@ -39,19 +46,39 @@ def create_test_document_reference(items: dict) -> DocumentReference:
     base_doc_ref = DocumentReference.model_construct(
         resourceType="DocumentReference",
         status=items.get("status", "current"),
-        content=[
-            DocumentReferenceContent(
-                attachment=Attachment(
-                    contentType=items.get("contentType", "application/json"),
-                    url=items["url"],
-                ),
-                format=Coding(
-                    system="https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
-                    code="urn:nhs-ic:unstructured",
-                    display="Unstructured document",
-                ),
-            )
-        ],
+        content=items.get(
+            "content",
+            [
+                DocumentReferenceContent(
+                    attachment=Attachment(
+                        contentType=items.get("contentType", "application/pdf"),
+                        url=items["url"],
+                    ),
+                    format=NRLFormatCode(
+                        system=items.get(
+                            "formatSystem",
+                            CONTENT_FORMAT_CODE_URL,
+                        ),
+                        code=items.get("formatCode", "urn:nhs-ic:unstructured"),
+                        display=items.get("formatDisplay", "Unstructured Document"),
+                    ),
+                    extension=[
+                        ContentStabilityExtension(
+                            url=CONTENT_STABILITY_EXTENSION_URL,
+                            valueCodeableConcept=ContentStabilityExtensionValueCodeableConcept(
+                                coding=[
+                                    ContentStabilityExtensionCoding(
+                                        system=CONTENT_STABILITY_SYSTEM_URL,
+                                        code="static",
+                                        display="Static",
+                                    )
+                                ]
+                            ),
+                        )
+                    ],
+                )
+            ],
+        ),
         context=DocumentReferenceContext(
             practiceSetting=CodeableConcept(
                 coding=[
