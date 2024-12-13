@@ -1309,8 +1309,8 @@ def test_validate_content_format_invalid_code_for_unstructured_document():
 
     document_ref_data["content"][0]["format"] = {
         "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
-        "code": "urn:nhs-ic:contact",
-        "display": "Contact details",
+        "code": "urn:nhs-ic:record-contact",
+        "display": "Contact details (HTTP Unsecured)",
     }
 
     result = validator.validate(document_ref_data)
@@ -1330,7 +1330,7 @@ def test_validate_content_format_invalid_code_for_unstructured_document():
                 }
             ]
         },
-        "diagnostics": "Invalid content format code: urn:nhs-ic:contact format code must be 'urn:nhs-ic:unstructured' for Unstructured Document attachments.",
+        "diagnostics": "Invalid content format code: urn:nhs-ic:record-contact format code must be 'urn:nhs-ic:unstructured' for Unstructured Document attachments.",
         "expression": ["content[0].format.code"],
     }
 
@@ -1643,6 +1643,8 @@ def test_validate_content_invalid_content_type():
 def test_validate_nrl_format_code_valid_match(format_code, format_display):
     validator = DocumentReferenceValidator()
     document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+    if format_code == "urn:nhs-ic:record-contact":
+        document_ref_data["content"][0]["attachment"]["contentType"] = "text/html"
 
     document_ref_data["content"][0]["format"] = {
         "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
@@ -1675,6 +1677,8 @@ def test_validate_nrl_format_code_display_mismatch(
 ):
     validator = DocumentReferenceValidator()
     document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+    if format_code == "urn:nhs-ic:record-contact":
+        document_ref_data["content"][0]["attachment"]["contentType"] = "text/html"
 
     document_ref_data["content"][0]["format"] = {
         "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
