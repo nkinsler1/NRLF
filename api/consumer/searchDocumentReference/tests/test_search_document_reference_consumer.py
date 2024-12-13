@@ -92,6 +92,12 @@ def test_search_document_reference_accession_number_in_pointer(
         "resourceType": "Bundle",
         "type": "searchset",
         "total": 1,
+        "link": [
+            {
+                "relation": "self",
+                "url": "https://pytest.api.service.nhs.uk/record-locator/consumer/FHIR/R4/DocumentReference?subject:identifier=https://fhir.nhs.uk/Id/nhs-number|6700028191",
+            }
+        ],
         "entry": [{"resource": doc_ref.model_dump(exclude_none=True)}],
     }
 
@@ -495,7 +501,7 @@ def test_search_document_reference_invalid_type(repository: DocumentPointerRepos
                         }
                     ]
                 },
-                "diagnostics": "Invalid query parameter (The provided type system does not match the allowed types for this organisation)",
+                "diagnostics": "Invalid query parameter (The provided type does not match the allowed types for this organisation)",
                 "expression": ["type"],
             }
         ],

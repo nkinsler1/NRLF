@@ -26,7 +26,7 @@ from nrlf.producer.fhir.r4 import model as producer_model
 
 def validate_type(type_: Optional[RequestQueryType], pointer_types: List[str]) -> bool:
     """
-    Validates if the given type system is present in the list of pointer types.
+    Validates if the given type is present in the list of pointer types.
     """
     if not type_:
         return True
