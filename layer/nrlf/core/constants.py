@@ -60,7 +60,7 @@ class PointerTypes(Enum):
     CONTINGENCY_PLAN = "http://snomed.info/sct|325691000000100"
     EOL_CARE_PLAN = "http://snomed.info/sct|736373009"
     LLOYD_GEORGE_FOLDER = "http://snomed.info/sct|16521000000101"
-    ADVANCED_CARE_PLAN = "http://snomed.info/sct|736366004"
+    ADVANCE_CARE_PLAN = "http://snomed.info/sct|736366004"
     TREATMENT_ESCALATION_PLAN = "http://snomed.info/sct|735324008"
     SUMMARY_RECORD = "http://snomed.info/sct|824321000000109"
     PERSONALISED_CARE_AND_SUPPORT_PLAN = "http://snomed.info/sct|2181441000000107"
@@ -139,8 +139,8 @@ TYPE_ATTRIBUTES = {
     PointerTypes.LLOYD_GEORGE_FOLDER.value: {
         "display": "Lloyd George record folder",
     },
-    PointerTypes.ADVANCED_CARE_PLAN.value: {
-        "display": "Advanced care plan",
+    PointerTypes.ADVANCE_CARE_PLAN.value: {
+        "display": "Advance care plan",
     },
     PointerTypes.TREATMENT_ESCALATION_PLAN.value: {
         "display": "Treatment escalation plan",
@@ -169,7 +169,7 @@ TYPE_CATEGORIES = {
     PointerTypes.CONTINGENCY_PLAN.value: Categories.CARE_PLAN.value,
     PointerTypes.EOL_CARE_PLAN.value: Categories.CARE_PLAN.value,
     PointerTypes.LLOYD_GEORGE_FOLDER.value: Categories.CARE_PLAN.value,
-    PointerTypes.ADVANCED_CARE_PLAN.value: Categories.CARE_PLAN.value,
+    PointerTypes.ADVANCE_CARE_PLAN.value: Categories.CARE_PLAN.value,
     PointerTypes.TREATMENT_ESCALATION_PLAN.value: Categories.CARE_PLAN.value,
     PointerTypes.PERSONALISED_CARE_AND_SUPPORT_PLAN.value: Categories.CARE_PLAN.value,
     #

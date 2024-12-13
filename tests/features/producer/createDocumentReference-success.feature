@@ -211,7 +211,7 @@ Feature: Producer - createDocumentReference - Success Scenarios
       | 325691000000100  | 734163000        | CONTINGENCY_PLAN                   |
       | 736373009        | 734163000        | EOL_CARE_PLAN                      |
       | 16521000000101   | 734163000        | LLOYD_GEORGE_FOLDER                |
-      | 736366004        | 734163000        | ADVANCED_CARE_PLAN                 |
+      | 736366004        | 734163000        | ADVANCE_CARE_PLAN                  |
       | 735324008        | 734163000        | TREATMENT_ESCALATION_PLAN          |
       | 2181441000000107 | 734163000        | PERSONALISED_CARE_AND_SUPPORT_PLAN |
 
