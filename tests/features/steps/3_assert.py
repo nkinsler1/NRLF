@@ -154,6 +154,22 @@ def assert_document_reference_matches_value(
             context.response.json(),
         )
 
+    if type_system := items.get("type_system"):
+        assert doc_ref.type.coding[0].system == type_system, format_error(
+            "DocumentReference type does not match",
+            type_system,
+            doc_ref.type.coding[0].system,
+            context.response.json(),
+        )
+
+    if type_display := items.get("type_display"):
+        assert doc_ref.type.coding[0].display == type_display, format_error(
+            "DocumentReference type does not match",
+            type_display,
+            doc_ref.type.coding[0].display,
+            context.response.json(),
+        )
+
     if category := items.get("category"):
         assert doc_ref.category[0].coding[0].code == category, format_error(
             "DocumentReference custodian does not match",
@@ -199,6 +215,14 @@ def assert_document_reference_matches_value(
             "DocumentReference URL does not match",
             url,
             doc_ref.content[0].attachment.url,
+            context.response.json(),
+        )
+
+    if identifier := items.get("identifier"):
+        assert doc_ref.identifier[0].value == identifier, format_error(
+            "DocumentReference Identifier does not match",
+            identifier,
+            doc_ref.identifier[0].value,
             context.response.json(),
         )
 

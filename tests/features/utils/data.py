@@ -1,12 +1,25 @@
-from layer.nrlf.core.constants import CATEGORY_ATTRIBUTES
+from layer.nrlf.core.constants import (
+    CATEGORY_ATTRIBUTES,
+    CONTENT_FORMAT_CODE_URL,
+    CONTENT_STABILITY_EXTENSION_URL,
+    CONTENT_STABILITY_SYSTEM_URL,
+    SNOMED_PRACTICE_SETTINGS,
+    SNOMED_SYSTEM_URL,
+    TYPE_ATTRIBUTES,
+)
 from nrlf.producer.fhir.r4.model import (
     Attachment,
     CodeableConcept,
     Coding,
+    ContentStabilityExtension,
+    ContentStabilityExtensionCoding,
+    ContentStabilityExtensionValueCodeableConcept,
     DocumentReference,
     DocumentReferenceContent,
+    DocumentReferenceContext,
     DocumentReferenceRelatesTo,
     Identifier,
+    NRLFormatCode,
     Reference,
 )
 from tests.features.utils.constants import (
@@ -24,25 +37,73 @@ from tests.features.utils.constants import (
 
 
 def create_test_document_reference(items: dict) -> DocumentReference:
+
+    practice_setting_code = items.get("practiceSetting", "788007007")
+    practice_setting_display = SNOMED_PRACTICE_SETTINGS.get(
+        str(practice_setting_code), "General practice service"
+    )
+
     base_doc_ref = DocumentReference.model_construct(
         resourceType="DocumentReference",
         status=items.get("status", "current"),
-        content=[
-            DocumentReferenceContent(
-                attachment=Attachment(
-                    contentType=items.get("contentType", "application/json"),
-                    url=items["url"],
+        content=items.get(
+            "content",
+            [
+                DocumentReferenceContent(
+                    attachment=Attachment(
+                        contentType=items.get("contentType", "application/pdf"),
+                        url=items["url"],
+                    ),
+                    format=NRLFormatCode(
+                        system=items.get(
+                            "formatSystem",
+                            CONTENT_FORMAT_CODE_URL,
+                        ),
+                        code=items.get("formatCode", "urn:nhs-ic:unstructured"),
+                        display=items.get("formatDisplay", "Unstructured Document"),
+                    ),
+                    extension=[
+                        ContentStabilityExtension(
+                            url=CONTENT_STABILITY_EXTENSION_URL,
+                            valueCodeableConcept=ContentStabilityExtensionValueCodeableConcept(
+                                coding=[
+                                    ContentStabilityExtensionCoding(
+                                        system=CONTENT_STABILITY_SYSTEM_URL,
+                                        code="static",
+                                        display="Static",
+                                    )
+                                ]
+                            ),
+                        )
+                    ],
                 )
+            ],
+        ),
+        context=DocumentReferenceContext(
+            practiceSetting=CodeableConcept(
+                coding=[
+                    Coding(
+                        system=SNOMED_SYSTEM_URL,
+                        code=str(practice_setting_code),
+                        display=practice_setting_display,
+                    )
+                ]
             )
-        ],
+        ),
     )
 
     if items.get("id"):
         base_doc_ref.id = items["id"]
 
-    if items.get("type"):
+    if type_code := items.get("type"):
+        type_system = items.get("type_system", SNOMED_SYSTEM_URL)
+        type_str = f"{type_system}|{type_code}"
+        type_display = items.get(
+            "type_display", TYPE_ATTRIBUTES.get(type_str, {}).get("display")
+        )
+
         base_doc_ref.type = CodeableConcept(
-            coding=[Coding(system="http://snomed.info/sct", code=items["type"])]
+            coding=[Coding(system=type_system, code=type_code, display=type_display)]
         )
 
     if items.get("subject"):
@@ -72,13 +133,13 @@ def create_test_document_reference(items: dict) -> DocumentReference:
 
     if items.get("category"):
         category_display = CATEGORY_ATTRIBUTES.get(
-            f"http://snomed.info/sct|{items['category']}", {}
+            f"{SNOMED_SYSTEM_URL}|{items['category']}", {}
         ).get("display")
         base_doc_ref.category = [
             CodeableConcept(
                 coding=[
                     Coding(
-                        system="http://snomed.info/sct",
+                        system=SNOMED_SYSTEM_URL,
                         code=items["category"],
                         display=category_display,
                     )
@@ -97,6 +158,12 @@ def create_test_document_reference(items: dict) -> DocumentReference:
                         value=items["supercedes"],
                     ),
                 ),
+            )
+        ]
+    if items.get("identifier"):
+        base_doc_ref.identifier = [
+            Identifier(
+                type=CodeableConcept(text="Accession-Number"), value=items["identifier"]
             )
         ]
 

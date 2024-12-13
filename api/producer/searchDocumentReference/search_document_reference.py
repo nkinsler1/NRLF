@@ -6,7 +6,7 @@ from nrlf.core.errors import OperationOutcomeError
 from nrlf.core.logger import LogReference, logger
 from nrlf.core.model import ConnectionMetadata, ProducerRequestParams
 from nrlf.core.response import Response, SpineErrorResponse
-from nrlf.core.validators import validate_type_system
+from nrlf.core.validators import validate_category, validate_type
 from nrlf.producer.fhir.r4.model import Bundle, DocumentReference
 
 
@@ -48,15 +48,26 @@ def handler(
             expression="subject:identifier",
         )
 
-    if not validate_type_system(params.type, metadata.pointer_types):
+    if not validate_type(params.type, metadata.pointer_types):
         logger.log(
             LogReference.PROSEARCH002,
             type=params.type,
             pointer_types=metadata.pointer_types,
         )
         return SpineErrorResponse.INVALID_CODE_SYSTEM(
-            diagnostics="Invalid query parameter (The provided type system does not match the allowed types for this organisation)",
+            diagnostics="Invalid query parameter (The provided type does not match the allowed types for this organisation)",
             expression="type",
+        )
+
+    categories = params.category.root.split(",") if params.category else []
+    if not validate_category(categories):
+        logger.log(
+            LogReference.PROSEARCH002b,
+            category=params.category,
+        )  # TODO - Should update error message once permissioning by category is implemented
+        return SpineErrorResponse.INVALID_CODE_SYSTEM(
+            diagnostics="Invalid query parameter (The provided category is not valid)",
+            expression="category",
         )
 
     pointer_types = [params.type.root] if params.type else metadata.pointer_types
@@ -68,6 +79,7 @@ def handler(
         custodian_suffix=metadata.ods_code_extension,
         nhs_number=params.nhs_number,
         pointer_types=pointer_types,
+        categories=params.category.root.split(",") if params.category else [],
     )
 
     for result in repository.search(
@@ -75,6 +87,7 @@ def handler(
         custodian_suffix=metadata.ods_code_extension,
         nhs_number=params.nhs_number,
         pointer_types=pointer_types,
+        categories=params.category.root.split(",") if params.category else [],
     ):
         try:
             document_reference = DocumentReference.model_validate_json(result.document)

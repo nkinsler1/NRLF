@@ -25,3 +25,9 @@ variable "kms_deletion_window_in_days" {
   description = "The duration in days after which the key is deleted after destruction of the resource."
   default     = 7
 }
+
+variable "notification_emails" {
+  type        = set(string)
+  description = "The email addresses to which notifications will be sent."
+  default     = []
+}

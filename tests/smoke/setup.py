@@ -1,12 +1,24 @@
-from nrlf.core.constants import Categories, PointerTypes
+from nrlf.core.constants import (
+    CONTENT_FORMAT_CODE_URL,
+    CONTENT_STABILITY_EXTENSION_URL,
+    CONTENT_STABILITY_SYSTEM_URL,
+    TYPE_ATTRIBUTES,
+    Categories,
+    PointerTypes,
+)
 from nrlf.producer.fhir.r4.model import (
     Attachment,
     CodeableConcept,
     Coding,
+    ContentStabilityExtension,
+    ContentStabilityExtensionCoding,
+    ContentStabilityExtensionValueCodeableConcept,
     DocumentReference,
     DocumentReferenceContent,
+    DocumentReferenceContext,
     DocumentReferenceRelatesTo,
     Identifier,
+    NRLFormatCode,
     Reference,
 )
 from tests.utilities.api_clients import ProducerTestClient
@@ -19,7 +31,7 @@ def build_document_reference(
     category: str = Categories.CARE_PLAN.coding_value(),
     type: str = PointerTypes.MENTAL_HEALTH_PLAN.coding_value(),
     author: str = "SMOKETEST",
-    content_type: str = "application/json",
+    content_type: str = "application/pdf",
     content_url: str = "https://testing.record-locator.national.nhs.uk/_smoke_test_pointer_content",
     replaces_id: str | None = None,
 ) -> DocumentReference:
@@ -31,11 +43,38 @@ def build_document_reference(
                 attachment=Attachment(
                     contentType=content_type,
                     url=content_url,
-                )
+                ),
+                format=NRLFormatCode(
+                    system=CONTENT_FORMAT_CODE_URL,
+                    code="urn:nhs-ic:unstructured",
+                    display="Unstructured Document",
+                ),
+                extension=[
+                    ContentStabilityExtension(
+                        url=CONTENT_STABILITY_EXTENSION_URL,
+                        valueCodeableConcept=ContentStabilityExtensionValueCodeableConcept(
+                            coding=[
+                                ContentStabilityExtensionCoding(
+                                    system=CONTENT_STABILITY_SYSTEM_URL,
+                                    code="static",
+                                    display="Static",
+                                )
+                            ]
+                        ),
+                    )
+                ],
             )
         ],
         type=CodeableConcept(
-            coding=[Coding(system="http://snomed.info/sct", code=type)]
+            coding=[
+                Coding(
+                    system="http://snomed.info/sct",
+                    code=type,
+                    display=TYPE_ATTRIBUTES.get(f"http://snomed.info/sct|{type}").get(
+                        "display"
+                    ),
+                )
+            ]
         ),
         subject=Reference(
             identifier=Identifier(
@@ -67,6 +106,17 @@ def build_document_reference(
                 ]
             )
         ],
+        context=DocumentReferenceContext(
+            practiceSetting=CodeableConcept(
+                coding=[
+                    Coding(
+                        system="http://snomed.info/sct",
+                        code="224891009",
+                        display="Healthcare services",
+                    )
+                ]
+            )
+        ),
     )
 
     if replaces_id:

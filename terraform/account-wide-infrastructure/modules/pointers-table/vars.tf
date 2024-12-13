@@ -20,3 +20,9 @@ variable "kms_deletion_window_in_days" {
   description = "The duration in days after which the key is deleted after destruction of the resource."
   default     = 7
 }
+
+variable "enable_backups" {
+  type        = bool
+  description = "Enable AwS cloud backup"
+  default     = false
+}

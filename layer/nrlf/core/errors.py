@@ -3,21 +3,45 @@ from typing import List, Optional
 from pydantic import ValidationError
 from pydantic_core import ErrorDetails
 
+from nrlf.core.constants import CONTENT_FORMAT_CODE_URL, CONTENT_STABILITY_SYSTEM_URL
 from nrlf.core.response import Response
 from nrlf.core.types import CodeableConcept
 from nrlf.producer.fhir.r4 import model as producer_model
 from nrlf.producer.fhir.r4.model import OperationOutcome, OperationOutcomeIssue
 
 
+def format_error_location(loc: List) -> str:
+    formatted_loc = ""
+    for each in loc:
+        if isinstance(each, int):
+            formatted_loc = f"{formatted_loc}[{each}]"
+        else:
+            formatted_loc = f"{formatted_loc}.{each}" if formatted_loc else str(each)
+    return formatted_loc
+
+
+def append_value_set_url(loc_string: str) -> str:
+    if loc_string.endswith(("url", "system")):
+        return ""
+
+    if "content" in loc_string:
+        if "extension" in loc_string:
+            return f". See ValueSet: {CONTENT_STABILITY_SYSTEM_URL}"
+        if "format" in loc_string:
+            return f". See ValueSet: {CONTENT_FORMAT_CODE_URL}"
+
+    return ""
+
+
 def diag_for_error(error: ErrorDetails) -> str:
-    if error["loc"]:
-        return f"{error['loc'][0]}: {error['msg']}"
-    else:
-        return f"root: {error['msg']}"
+    loc_string = format_error_location(error["loc"])
+    msg = f"{loc_string or 'root'}: {error['msg']}"
+    msg += append_value_set_url(loc_string)
+    return msg
 
 
 def expression_for_error(error: ErrorDetails) -> Optional[str]:
-    return str(error["loc"][0] if error["loc"] else "root")
+    return format_error_location(error["loc"]) or "root"
 
 
 class OperationOutcomeError(Exception):

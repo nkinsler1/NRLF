@@ -28,7 +28,8 @@ Feature: Consumer - readDocumentReference - Success Scenarios
           "coding": [
             {
               "system": "http://snomed.info/sct",
-              "code": "736253002"
+              "code": "736253002",
+              "display": "Mental health crisis plan"
             }
           ]
         },
@@ -68,9 +69,39 @@ Feature: Consumer - readDocumentReference - Success Scenarios
             "attachment": {
               "contentType": "application/pdf",
               "url": "https://example.org/my-doc.pdf"
-            }
+            },
+            "format": {
+              "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
+              "code": "urn:nhs-ic:unstructured",
+              "display": "Unstructured Document"
+            },
+            "extension": [
+              {
+                "url": "https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability",
+                      "code": "static",
+                      "display": "Static"
+                    }
+                  ]
+                }
+              }
+            ]
           }
-        ]
+        ],
+        "context": {
+          "practiceSetting": {
+            "coding": [
+             {
+              "system": "http://snomed.info/sct",
+              "code": "788007007",
+              "display": "General practice service"
+              }
+            ]
+          }
+        }
       }
       """
 
@@ -102,7 +133,8 @@ Feature: Consumer - readDocumentReference - Success Scenarios
           "coding": [
             {
               "system": "http://snomed.info/sct",
-              "code": "736253002"
+              "code": "736253002",
+              "display": "Mental health crisis plan"
             }
           ]
         },
@@ -142,9 +174,39 @@ Feature: Consumer - readDocumentReference - Success Scenarios
             "attachment": {
               "contentType": "application/pdf",
               "url": "https://example.org/my-doc.pdf"
-            }
+            },
+            "format": {
+              "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
+              "code": "urn:nhs-ic:unstructured",
+              "display": "Unstructured Document"
+            },
+            "extension": [
+              {
+                "url": "https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability",
+                "valueCodeableConcept": {
+                  "coding": [
+                    {
+                      "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability",
+                      "code": "static",
+                      "display": "Static"
+                    }
+                  ]
+                }
+              }
+            ]
           }
-        ]
+        ],
+        "context": {
+          "practiceSetting": {
+            "coding": [
+             {
+              "system": "http://snomed.info/sct",
+              "code": "788007007",
+              "display": "General practice service"
+              }
+            ]
+          }
+        }
       }
       """
 

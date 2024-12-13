@@ -60,6 +60,15 @@ DEFAULT_TEST_MASTER_ID = """
 
 DEFAULT_TEST_CONTEXT = """
 "context": {
+  "practiceSetting": {
+    "coding": [
+      {
+        "system": "http://snomed.info/sct",
+        "code": "788002001",
+        "display": "Adult mental health service"
+      }
+    ]
+  },
   "related": [
     {
       "identifier": {
@@ -103,8 +112,22 @@ DEFAULT_TEST_CONTENT = """
     "format": {
         "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
         "code": "urn:nhs-ic:unstructured",
-        "display": "Unstructured document"
-    }
+        "display": "Unstructured Document"
+    },
+    "extension": [
+      {
+        "url": "https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability",
+        "valueCodeableConcept": {
+          "coding": [
+            {
+              "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability",
+              "code": "static",
+              "display": "Static"
+            }
+          ]
+        }
+      }
+    ]
   }
 ]
 """
