@@ -229,7 +229,7 @@ def assert_bundle_contains_documentreference_values_step(context: Context):
         raise ValueError("No id provided in the table")
 
     for entry in context.bundle.entry:
-        if entry.resource.id != items["id"]:
+        if entry.resource.get("id") != items["id"]:
             continue
 
         return assert_document_reference_matches_value(context, entry.resource, items)
@@ -243,7 +243,7 @@ def assert_bundle_contains_documentreference_values_step(context: Context):
 def assert_bundle_does_not_contain_doc_ref_step(context: Context, doc_ref_id: str):
     for entry in context.bundle.entry:
         assert (
-            entry.resource.id != doc_ref_id
+            entry.resource.get("id") != doc_ref_id
         ), f"DocumentReference with ID {doc_ref_id} found in the response"
 
 

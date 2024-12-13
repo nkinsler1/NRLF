@@ -237,6 +237,33 @@ servers:
     description: Production environment.
 tags:
 paths:
+  /:
+    post:
+      tags:
+      summary: Process a FHIR transaction
+      operationId: processTransaction
+      responses:
+        "200":
+          description: Transaction successful response
+          $ref: "#/components/responses/Success"
+          content:
+            application/fhir+json:
+              example: {} # TODO - Add example response for processTransaction
+      requestBody:
+        $ref: "#/components/schemas/Bundle"
+      parameters: {}
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        uri: ${method_processTransaction}
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: when_no_match
+        contentHandling: CONVERT_TO_TEXT
+      description: |
+        TODO - Add description for processTransaction
+
   /DocumentReference:
     post:
       tags:
@@ -1478,7 +1505,7 @@ components:
           pattern: \S*
           description: "The Absolute URL for the resource.  The fullUrl SHALL NOT disagree with the id in the resource &ndash; i.e. if the fullUrl is not a urn:uuid, the URL shall be version&ndash;independent URL consistent with the Resource.id. The fullUrl is a version independent reference to the resource. The fullUrl element SHALL have a value except that: \n* fullUrl can be empty on a POST (although it does not need to when specifying a temporary id for reference in the bundle)\n* Results from operations might involve resources that are not identified."
         resource:
-          $ref: "#/components/schemas/DocumentReference"
+          type: object
           description: The Resource for the entry. The purpose/meaning of the resource is determined by the Bundle.type.
         search:
           $ref: "#/components/schemas/BundleEntrySearch"
@@ -1513,7 +1540,7 @@ components:
           pattern: ([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))
           description: The date/time that the resource was modified on the server.
         outcome:
-          $ref: "#/components/schemas/DocumentReference"
+          $ref: "#/components/schemas/OperationOutcome"
           description: An OperationOutcome containing hints and warnings produced as part of processing this entry in a batch or transaction.
       required:
         - status

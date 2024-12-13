@@ -381,3 +381,33 @@ module "producer__status" {
   handler   = "status.handler"
   retention = var.log_retention_period
 }
+
+module "mhdsReceiver__processTransactionBundle" {
+  source                 = "./modules/lambda"
+  parent_path            = "api/producer"
+  name                   = "processTransaction"
+  region                 = local.region
+  prefix                 = local.prefix
+  layers                 = [module.nrlf.layer_arn, module.third_party.layer_arn, module.nrlf_permissions.layer_arn]
+  api_gateway_source_arn = ["arn:aws:execute-api:${local.region}:${local.aws_account_id}:${module.producer__gateway.api_gateway_id}/*/POST/"]
+  kms_key_id             = module.kms__cloudwatch.kms_arn
+  environment_variables = {
+    PREFIX               = "${local.prefix}--"
+    ENVIRONMENT          = local.environment
+    AUTH_STORE           = local.auth_store_id
+    SPLUNK_INDEX         = module.firehose__processor.splunk.index
+    POWERTOOLS_LOG_LEVEL = local.log_level
+    TABLE_NAME           = local.pointers_table_name
+  }
+  additional_policies = [
+    local.pointers_table_write_policy_arn,
+    local.pointers_table_read_policy_arn,
+    local.pointers_kms_read_write_arn,
+    local.auth_store_read_policy_arn
+  ]
+  firehose_subscriptions = [
+    module.firehose__processor.firehose_subscription
+  ]
+  handler   = "process_transaction_bundle.handler"
+  retention = var.log_retention_period
+}

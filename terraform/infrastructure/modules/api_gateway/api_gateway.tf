@@ -113,6 +113,8 @@ resource "aws_api_gateway_method_settings" "api_gateway_method_settings" {
 resource "aws_api_gateway_gateway_response" "api_access_denied" {
   rest_api_id   = aws_api_gateway_rest_api.api_gateway_rest_api.id
   response_type = "ACCESS_DENIED"
+  status_code   = "403"
+
   response_templates = {
     "application/json" = jsonencode({
       resourceType : "OperationOutcome",
