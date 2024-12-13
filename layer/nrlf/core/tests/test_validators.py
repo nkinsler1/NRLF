@@ -1303,21 +1303,14 @@ def test_validate_ssp_content_with_multiple_asids():
     }
 
 
-def test_validate_content_extension_invalid_code_and_display_mismatch():
+def test_validate_content_format_invalid_code_for_unstructured_document():
     validator = DocumentReferenceValidator()
     document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
 
-    document_ref_data["content"][0]["extension"][0] = {
-        "url": "https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability",
-        "valueCodeableConcept": {
-            "coding": [
-                {
-                    "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability",
-                    "code": "static",
-                    "display": "Dynamic",
-                }
-            ]
-        },
+    document_ref_data["content"][0]["format"] = {
+        "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
+        "code": "urn:nhs-ic:record-contact",
+        "display": "Contact details (HTTP Unsecured)",
     }
 
     result = validator.validate(document_ref_data)
@@ -1337,22 +1330,21 @@ def test_validate_content_extension_invalid_code_and_display_mismatch():
                 }
             ]
         },
-        "diagnostics": "Invalid content extension display: Dynamic Extension display must be the same as code either 'Static' or 'Dynamic'",
-        "expression": [
-            "content[0].extension[0].valueCodeableConcept.coding[0].display"
-        ],
+        "diagnostics": "Invalid content format code: urn:nhs-ic:record-contact format code must be 'urn:nhs-ic:unstructured' for Unstructured Document attachments.",
+        "expression": ["content[0].format.code"],
     }
 
 
-def test_validate_content_invalid_content_type():
+def test_validate_content_format_invalid_code_for_contact_details():
     validator = DocumentReferenceValidator()
     document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
 
-    document_ref_data["content"][0]["attachment"]["contentType"] = "invalid/type"
+    document_ref_data["content"][0]["attachment"]["contentType"] = "text/html"
 
     result = validator.validate(document_ref_data)
 
     assert result.is_valid is False
+    assert result.resource.id == "Y05868-99999-99999-999999"
     assert len(result.issues) == 1
     assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
@@ -1366,78 +1358,8 @@ def test_validate_content_invalid_content_type():
                 }
             ]
         },
-        "diagnostics": "Invalid contentType: invalid/type. Must be 'application/pdf' or 'text/html'",
-        "expression": ["content[0].attachment.contentType"],
-    }
-
-
-@pytest.mark.parametrize(
-    "format_code, format_display",
-    [
-        ("urn:nhs-ic:record-contact", "Contact details (HTTP Unsecured)"),
-        ("urn:nhs-ic:unstructured", "Unstructured Document"),
-    ],
-)
-def test_validate_nrl_format_code_valid_match(format_code, format_display):
-    validator = DocumentReferenceValidator()
-    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
-
-    document_ref_data["content"][0]["format"] = {
-        "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
-        "code": format_code,
-        "display": format_display,
-    }
-
-    result = validator.validate(document_ref_data)
-
-    assert result.is_valid is True
-
-
-@pytest.mark.parametrize(
-    "format_code, format_display, expected_display",
-    [
-        (
-            "urn:nhs-ic:unstructured",
-            "Contact details (HTTP Unsecured)",
-            "Unstructured Document",
-        ),
-        (
-            "urn:nhs-ic:record-contact",
-            "Unstructured Document",
-            "Contact details (HTTP Unsecured)",
-        ),
-    ],
-)
-def test_validate_nrl_format_code_display_mismatch(
-    format_code, format_display, expected_display
-):
-    validator = DocumentReferenceValidator()
-    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
-
-    document_ref_data["content"][0]["format"] = {
-        "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
-        "code": format_code,
-        "display": format_display,
-    }
-
-    result = validator.validate(document_ref_data)
-
-    assert result.is_valid is False
-    assert len(result.issues) == 1
-    assert result.issues[0].model_dump(exclude_none=True) == {
-        "severity": "error",
-        "code": "value",
-        "details": {
-            "coding": [
-                {
-                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
-                }
-            ]
-        },
-        "diagnostics": f"Invalid display for format code '{format_code}'. Expected '{expected_display}'",
-        "expression": ["content[0].format.display"],
+        "diagnostics": "Invalid content format code: urn:nhs-ic:unstructured format code must be 'urn:nhs-ic:record-contact' for Contact details attachments.",
+        "expression": ["content[0].format.code"],
     }
 
 
@@ -1640,4 +1562,146 @@ def test_validate_practiceSetting_coding_mismatch_code_and_display():
         },
         "diagnostics": "Invalid practice setting coding: display Nephrology service does not match the expected display for 788002001 Practice Setting coding is bound to value set https://fhir.nhs.uk/England/ValueSet/England-PracticeSetting",
         "expression": ["context.practiceSetting.coding[0]"],
+    }
+
+
+def test_validate_content_extension_invalid_code_and_display_mismatch():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["content"][0]["extension"][0] = {
+        "url": "https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability",
+        "valueCodeableConcept": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability",
+                    "code": "static",
+                    "display": "Dynamic",
+                }
+            ]
+        },
+    }
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert result.resource.id == "Y05868-99999-99999-999999"
+    assert len(result.issues) == 1
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Invalid content extension display: Dynamic Extension display must be the same as code either 'Static' or 'Dynamic'",
+        "expression": [
+            "content[0].extension[0].valueCodeableConcept.coding[0].display"
+        ],
+    }
+
+
+def test_validate_content_invalid_content_type():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["content"][0]["attachment"]["contentType"] = "invalid/type"
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert len(result.issues) == 1
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Invalid contentType: invalid/type. Must be 'application/pdf' or 'text/html'",
+        "expression": ["content[0].attachment.contentType"],
+    }
+
+
+@pytest.mark.parametrize(
+    "format_code, format_display",
+    [
+        ("urn:nhs-ic:record-contact", "Contact details (HTTP Unsecured)"),
+        ("urn:nhs-ic:unstructured", "Unstructured Document"),
+    ],
+)
+def test_validate_nrl_format_code_valid_match(format_code, format_display):
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+    if format_code == "urn:nhs-ic:record-contact":
+        document_ref_data["content"][0]["attachment"]["contentType"] = "text/html"
+
+    document_ref_data["content"][0]["format"] = {
+        "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
+        "code": format_code,
+        "display": format_display,
+    }
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is True
+
+
+@pytest.mark.parametrize(
+    "format_code, format_display, expected_display",
+    [
+        (
+            "urn:nhs-ic:unstructured",
+            "Contact details (HTTP Unsecured)",
+            "Unstructured Document",
+        ),
+        (
+            "urn:nhs-ic:record-contact",
+            "Unstructured Document",
+            "Contact details (HTTP Unsecured)",
+        ),
+    ],
+)
+def test_validate_nrl_format_code_display_mismatch(
+    format_code, format_display, expected_display
+):
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+    if format_code == "urn:nhs-ic:record-contact":
+        document_ref_data["content"][0]["attachment"]["contentType"] = "text/html"
+
+    document_ref_data["content"][0]["format"] = {
+        "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
+        "code": format_code,
+        "display": format_display,
+    }
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert len(result.issues) == 1
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": f"Invalid display for format code '{format_code}'. Expected '{expected_display}'",
+        "expression": ["content[0].format.display"],
     }

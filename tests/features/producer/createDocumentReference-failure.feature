@@ -405,62 +405,41 @@ Feature: Producer - createDocumentReference - Failure Scenarios
       }
       """
 
-  Scenario: Invalid practice setting (not in value set)
-    Given the application 'DataShare' (ID 'z00z-y11y-x22x') is registered to access the API
-    And the organisation 'X26' is authorised to access pointer types:
-      | system                 | value            |
-      | http://snomed.info/sct | 1363501000000100 |
-      | http://snomed.info/sct | 736253002        |
-    When producer 'X26' creates a DocumentReference with values:
-      | property        | value                          |
-      | subject         | 9999999999                     |
-      | status          | current                        |
-      | type            | 736253002                      |
-      | category        | 734163000                      |
-      | custodian       | X26                            |
-      | author          | HAR1                           |
-      | url             | https://example.org/my-doc.pdf |
-      | practiceSetting | 12345                          |
-    Then the response status code is 400
-    And the response is an OperationOutcome with 1 issue
-    And the OperationOutcome contains the issue:
-      """
-      {
-        "severity": "error",
-        "code": "value",
-        "details": {
-        "coding": [
-        {
-        "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-        "code": "INVALID_RESOURCE",
-        "display": "Invalid validation of resource"
-        }
-        ]
-        },
-        "diagnostics": "Invalid practice setting code: 12345 Practice Setting coding must be a member of value set https://fhir.nhs.uk/England/ValueSet/England-PracticeSetting",
-        "expression": ["context.practiceSetting.coding[0].code"]
-      }
-      """
-
-  Scenario: Invalid practice setting (valid code but wrong display value)
+  Scenario: Invalid format code for attachment type contact details
     Given the application 'DataShare' (ID 'z00z-y11y-x22x') is registered to access the API
     And the organisation 'TSTCUS' is authorised to access pointer types:
       | system                 | value            |
       | http://snomed.info/sct | 1363501000000100 |
       | http://snomed.info/sct | 736253002        |
-    When producer 'TSTCUS' requests creation of a DocumentReference with default test values except 'context' is:
+    When producer 'TSTCUS' requests creation of a DocumentReference with default test values except 'content' is:
       """
-      "context": {
-      "practiceSetting": {
-      "coding": [
-      {
-      "system": "http://snomed.info/sct",
-      "code": "788002001",
-      "display": "Ophthalmology service"
-      }
+      "content": [
+        {
+          "attachment": {
+              "contentType": "text/html",
+              "url": "someContact.co.uk"
+          },
+          "format": {
+              "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
+              "code": "urn:nhs-ic:unstructured",
+              "display": "Unstructured Document"
+          },
+          "extension": [
+            {
+              "url": "https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability",
+                    "code": "static",
+                    "display": "Static"
+                  }
+                ]
+              }
+            }
+          ]
+        }
       ]
-      }
-      }
       """
     Then the response status code is 400
     And the response is an OperationOutcome with 1 issue
@@ -470,17 +449,80 @@ Feature: Producer - createDocumentReference - Failure Scenarios
         "severity": "error",
         "code": "value",
         "details": {
-        "coding": [
-        {
-        "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-        "code": "INVALID_RESOURCE",
-        "display": "Invalid validation of resource"
-        }
-        ]
+          "coding": [
+            {
+              "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+              "code": "INVALID_RESOURCE",
+              "display": "Invalid validation of resource"
+            }
+          ]
         },
-        "diagnostics": "Invalid practice setting coding: display Ophthalmology service does not match the expected display for 788002001 Practice Setting coding is bound to value set https://fhir.nhs.uk/England/ValueSet/England-PracticeSetting",
+        "diagnostics": "Invalid content format code: urn:nhs-ic:unstructured format code must be 'urn:nhs-ic:record-contact' for Contact details attachments.",
         "expression": [
-        "context.practiceSetting.coding[0]"
+          "content[0].format.code"
+        ]
+      }
+      """
+
+  Scenario: Invalid format code for attachment type pdf
+    Given the application 'DataShare' (ID 'z00z-y11y-x22x') is registered to access the API
+    And the organisation 'TSTCUS' is authorised to access pointer types:
+      | system                 | value            |
+      | http://snomed.info/sct | 1363501000000100 |
+      | http://snomed.info/sct | 736253002        |
+    When producer 'TSTCUS' requests creation of a DocumentReference with default test values except 'content' is:
+      """
+      "content": [
+        {
+          "attachment": {
+              "contentType": "application/pdf",
+              "language": "en-UK",
+              "url": "https://spine-proxy.national.ncrs.nhs.uk/https%3A%2F%2Fp1.nhs.uk%2FMentalhealthCrisisPlanReport.pdf",
+              "hash": "2jmj7l5rSw0yVb/vlWAYkK/YBwk=",
+              "title": "Mental health crisis plan report",
+              "creation": "2022-12-21T10:45:41+11:00"
+          },
+          "format": {
+              "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
+              "code": "urn:nhs-ic:record-contact",
+              "display": "Contact details (HTTP Unsecured)"
+          },
+         "extension": [
+            {
+              "url": "https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability",
+                    "code": "static",
+                    "display": "Static"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+      """
+    Then the response status code is 400
+    And the response is an OperationOutcome with 1 issue
+    And the OperationOutcome contains the issue:
+      """
+      {
+        "severity": "error",
+        "code": "value",
+        "details": {
+          "coding": [
+            {
+              "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+              "code": "INVALID_RESOURCE",
+              "display": "Invalid validation of resource"
+            }
+          ]
+        },
+        "diagnostics": "Invalid content format code: urn:nhs-ic:record-contact format code must be 'urn:nhs-ic:unstructured' for Unstructured Document attachments.",
+        "expression": [
+          "content[0].format.code"
         ]
       }
       """
@@ -614,6 +656,64 @@ Feature: Producer - createDocumentReference - Failure Scenarios
       | type-system          | type-code | category-code | type-display       | correct-display   |
       | https://nicip.nhs.uk | MAULR     | 721981007     | "Nonsense display" | MRA Upper Limb Rt |
       | https://nicip.nhs.uk | MAXIB     | 103693007     | "Nonsense display" | MRI Axilla Both   |
+
+  Scenario: Invalid practice setting (not in value set)
+    Given the application 'DataShare' (ID 'z00z-y11y-x22x') is registered to access the API
+    And the organisation 'X26' is authorised to access pointer types:
+      | system                 | value            |
+      | http://snomed.info/sct | 1363501000000100 |
+      | http://snomed.info/sct | 736253002        |
+    When producer 'X26' creates a DocumentReference with values:
+      | property        | value                          |
+      | subject         | 9999999999                     |
+      | status          | current                        |
+      | type            | 736253002                      |
+      | category        | 734163000                      |
+      | custodian       | X26                            |
+      | author          | HAR1                           |
+      | url             | https://example.org/my-doc.pdf |
+      | practiceSetting | 12345                          |
+    Then the response status code is 400
+    And the response is an OperationOutcome with 1 issue
+    And the OperationOutcome contains the issue:
+      """
+      {
+        "severity": "error",
+        "code": "value",
+        "details": {
+        "coding": [
+        {
+        "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+        "code": "INVALID_RESOURCE",
+        "display": "Invalid validation of resource"
+        }
+        ]
+        },
+        "diagnostics": "Invalid practice setting code: 12345 Practice Setting coding must be a member of value set https://fhir.nhs.uk/England/ValueSet/England-PracticeSetting",
+        "expression": ["context.practiceSetting.coding[0].code"]
+      }
+      """
+
+  Scenario: Invalid practice setting (valid code but wrong display value)
+    Given the application 'DataShare' (ID 'z00z-y11y-x22x') is registered to access the API
+    And the organisation 'TSTCUS' is authorised to access pointer types:
+      | system                 | value            |
+      | http://snomed.info/sct | 1363501000000100 |
+      | http://snomed.info/sct | 736253002        |
+    When producer 'TSTCUS' requests creation of a DocumentReference with default test values except 'context' is:
+      """
+      "context": {
+      "practiceSetting": {
+      "coding": [
+      {
+      "system": "http://snomed.info/sct",
+      "code": "788002001",
+      "display": "Ophthalmology service"
+      }
+      ]
+      }
+      }
+      """
 
   Scenario: Missing content
     Given the application 'DataShare' (ID 'z00z-y11y-x22x') is registered to access the API
@@ -753,7 +853,7 @@ Feature: Producer - createDocumentReference - Failure Scenarios
       "content": [
         {
           "attachment": {
-              "contentType": "application/pdf",
+              "contentType": "text/html",
               "url": "https://example.org/my-doc.pdf"
           },
           "format": {

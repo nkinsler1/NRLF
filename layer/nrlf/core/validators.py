@@ -138,6 +138,7 @@ class DocumentReferenceValidator:
             self._validate_author(resource)
             self._validate_type_category_mapping(resource)
             self._validate_content(resource)
+            self._validate_content_format(resource)
             self._validate_content_extension(resource)
             self._validate_practiceSetting(resource)
 
@@ -477,6 +478,35 @@ class DocumentReferenceValidator:
                 diagnostics=f"The Category code of the provided document '{category_id}' must match the allowed category for pointer type '{type_id}' with a category value of '{type_category}'",
                 field="category.coding[0].code",
             )
+
+    def _validate_content_format(self, model: DocumentReference):
+        """
+        Validate the content.format field contains an appropriate coding.
+        """
+        logger.log(LogReference.VALIDATOR001, step="content_format")
+
+        logger.debug("Validating format")
+        for i, content in enumerate(model.content):
+            if (
+                content.attachment.contentType == "text/html"
+                and content.format.code != "urn:nhs-ic:record-contact"
+            ):
+                self.result.add_error(
+                    issue_code="value",
+                    error_code="INVALID_RESOURCE",
+                    diagnostics=f"Invalid content format code: {content.format.code} format code must be 'urn:nhs-ic:record-contact' for Contact details attachments.",
+                    field=f"content[{i}].format.code",
+                )
+            elif (
+                content.attachment.contentType == "application/pdf"
+                and content.format.code != "urn:nhs-ic:unstructured"
+            ):
+                self.result.add_error(
+                    issue_code="value",
+                    error_code="INVALID_RESOURCE",
+                    diagnostics=f"Invalid content format code: {content.format.code} format code must be 'urn:nhs-ic:unstructured' for Unstructured Document attachments.",
+                    field=f"content[{i}].format.code",
+                )
 
     def _validate_content_extension(self, model: DocumentReference):
         """
