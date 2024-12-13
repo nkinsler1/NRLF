@@ -258,7 +258,7 @@ Feature: Producer - updateDocumentReference - Failure Scenarios
         "content": [
           {
             "attachment": {
-                "contentType": "application/pdf",
+                "contentType": "text/html",
                 "url": "https://example.org/my-doc.pdf"
             },
             "format": {
