@@ -422,7 +422,7 @@ Feature: Producer - createDocumentReference - Failure Scenarios
           "format": {
               "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
               "code": "urn:nhs-ic:unstructured",
-              "display": "Unstructured document"
+              "display": "Unstructured Document"
           }
         }
       ]
@@ -471,7 +471,7 @@ Feature: Producer - createDocumentReference - Failure Scenarios
           "format": {
               "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
               "code": "urn:nhs-ic:record-contact",
-              "display": "Contact details"
+              "display": "Contact details (HTTP Unsecured)"
           }
         }
       ]
@@ -825,7 +825,7 @@ Feature: Producer - createDocumentReference - Failure Scenarios
       "content": [
         {
           "attachment": {
-              "contentType": "application/pdf",
+              "contentType": "text/html",
               "url": "https://example.org/my-doc.pdf"
           },
           "format": {
