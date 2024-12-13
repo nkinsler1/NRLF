@@ -18,6 +18,7 @@ from nrlf.producer.fhir.r4.model import (
     DocumentReferenceContext,
     DocumentReferenceRelatesTo,
     Identifier,
+    NRLFormatCode,
     Reference,
 )
 from tests.utilities.api_clients import ProducerTestClient
