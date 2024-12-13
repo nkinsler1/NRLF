@@ -21,10 +21,10 @@ def _validate_document(document: str):
     result = validator.validate(data=docref)
 
     if not result.is_valid:
-        raise Exception("Failed to validate document: " + str(result.issues))
+        raise RuntimeError("Failed to validate document: " + str(result.issues))
 
 
-def _find_invalid_pointers(table_name: str) -> dict[str, float]:
+def _find_invalid_pointers(table_name: str) -> dict[str, float | int]:
     """
     Find pointers in the given table that are invalid.
     Parameters:
@@ -45,12 +45,12 @@ def _find_invalid_pointers(table_name: str) -> dict[str, float]:
 
     for page in paginator.paginate(**params):
         for item in page["Items"]:
-            id = item.get("id", {}).get("S")
+            pointer_id = item.get("id", {}).get("S")
             document = item.get("document", {}).get("S", "")
             try:
                 _validate_document(document)
             except Exception as exc:
-                invalid_pointers.append((id, exc))
+                invalid_pointers.append((pointer_id, exc))
 
         total_scanned_count += page["ScannedCount"]
 
@@ -64,12 +64,13 @@ def _find_invalid_pointers(table_name: str) -> dict[str, float]:
 
     end_time = datetime.now(tz=timezone.utc)
 
+    print(" Done")  # noqa
+
     print("Writing invalid_pointers to file ./invalid_pointers.txt ...")  # noqa
     with open("invalid_pointers.txt", "w") as f:
-        for id, err in invalid_pointers:
-            f.write(f"{id}: {err}\n")
+        for _id, err in invalid_pointers:
+            f.write(f"{_id}: {err}\n")
 
-    print(" Done")  # noqa
     return {
         "invalid_pointers": len(invalid_pointers),
         "scanned_count": total_scanned_count,

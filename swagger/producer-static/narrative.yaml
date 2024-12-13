@@ -179,7 +179,7 @@ info:
 
     Right click the icon and save link as... to save the Postman collection to your device
 
-    [![Right click and save link as...](https://run.pstmn.io/button.svg)](https://github.com/NHSDigital/NRLF/raw/main/postman_collection.json)
+    [![Right click and save link as...](https://run.pstmn.io/button.svg)](https://github.com/NHSDigital/NRLF/raw/develop/postman_collection.json)
 
     ### Integration testing
 
@@ -276,13 +276,40 @@ paths:
           ]
           ```
         * `content` MUST have at least one entry.
-        * `content[].format[]` SHOULD indicate whether the data is structured or not, e.g.
+        * `content[]` MUST include an `attachment` entry.
+        * `content[]` MUST include a `format` entry. (https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode)
+        * `content[]` MUST include the content stability extension (https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability).
+        * `content[].attachment` MUST include a `url` to the document.
+        * `content[].attachment` MUST include a `contentType` and be a valid MIME type, specifically `application/pdf` for documents or `text/html` for contact details.
+        * `content[].format` MUST indicate whether the data is structured or not
+        * Example of the content section:
           ```
-          "format": [
+          "content": [
             {
-              "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
-              "code": "urn:nhs-ic:unstructured"
-              "display": "Unstructured document"
+              "attachment": {
+                "contentType": "application/pdf",
+                "url": "https://provider-ods-code.thirdparty.nhs.uk/path/to/document.pdf",
+                "creation": "2022-12-22T09:45:41+11:00"
+              },
+              "format": {
+                  "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
+                  "code": "urn:nhs-ic:unstructured"
+                  "display": "Unstructured Document"
+              },
+              "extension": [
+                {
+                  "url": "https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability",
+                        "code": "static",
+                        "display": "Static"
+                      }
+                    ]
+                  }
+                }
+              ]
             }
           ]
           ```

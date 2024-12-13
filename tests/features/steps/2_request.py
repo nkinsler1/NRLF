@@ -1,3 +1,5 @@
+import json
+
 from behave import *  # noqa
 from behave.runner import Context
 
@@ -94,17 +96,21 @@ def create_post_document_reference_step(context: Context, ods_code: str):
         context.add_cleanup(lambda: context.repository.delete_by_id(doc_ref_id))
 
 
-@when(
-    "producer 'TSTCUS' requests creation of a DocumentReference with default test values except '{section}' is"
-)
-def create_post_body_step(context: Context, section: str):
+def _create_or_upsert_body_step(
+    context: Context,
+    method: str,
+    section: str,
+    pointer_id: str = "TSTCUS-sample-id-00000",
+):
     client = producer_client_from_context(context, "TSTCUS")
 
     if not context.text:
         raise ValueError("No document reference text snippet provided")
 
-    doc_ref = create_test_document_reference_with_defaults(section, context.text)
-    context.response = client.create_text(doc_ref)
+    doc_ref = create_test_document_reference_with_defaults(
+        section, context.text, pointer_id
+    )
+    context.response = getattr(client, method)(doc_ref)
 
     if context.response.status_code == 201:
         doc_ref_id = context.response.headers["Location"].split("/")[-1]
@@ -112,6 +118,42 @@ def create_post_body_step(context: Context, section: str):
             "|", "."
         )  # NRL-766 define and resolve custodian suffix behaviour
         context.add_cleanup(lambda: context.repository.delete_by_id(doc_ref_id))
+
+
+@when(
+    "producer 'TSTCUS' requests creation of a DocumentReference with default test values except '{section}' is"
+)
+def create_post_body_step(context: Context, section: str):
+    _create_or_upsert_body_step(context, "create_text", section)
+
+
+@when(
+    "producer 'TSTCUS' requests upsert of a DocumentReference with pointerId '{pointer_id}' and default test values except '{section}' is"
+)
+def upsert_post_body_step(context: Context, section: str, pointer_id: str):
+    _create_or_upsert_body_step(context, "upsert_text", section, pointer_id)
+
+
+@when(
+    "producer 'TSTCUS' requests update of a DocumentReference with pointerId '{pointer_id}' and only changing"
+)
+def update_post_body_step(context: Context, pointer_id: str):
+    """
+    Updates an existing DocumentReference with new values for a specific section
+    """
+    consumer_client = consumer_client_from_context(context, "TSTCUS")
+    context.response = consumer_client.read(pointer_id)
+
+    if context.response.status_code != 200:
+        raise ValueError(f"Failed to read existing pointer: {context.response.text}")
+
+    doc_ref = context.response.json()
+    custom_data = json.loads(context.text)
+    for key in custom_data:
+        doc_ref[key] = custom_data[key]
+
+    producer_client = producer_client_from_context(context, "TSTCUS")
+    context.response = producer_client.update(doc_ref, pointer_id)
 
 
 @when("producer '{ods_code}' upserts a DocumentReference with values")
