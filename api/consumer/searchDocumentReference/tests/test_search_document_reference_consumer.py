@@ -61,6 +61,50 @@ def test_search_document_reference_happy_path(repository: DocumentPointerReposit
 
 @mock_aws
 @mock_repository
+def test_search_document_reference_accession_number_in_pointer(
+    repository: DocumentPointerRepository,
+):
+    doc_ref = load_document_reference("Y05868-736253002-Valid")
+    doc_ref.identifier = [
+        {"type": {"text": "Accession-Number"}, "value": "Y05868.123456789"}
+    ]
+    doc_pointer = DocumentPointer.from_document_reference(doc_ref)
+    repository.create(doc_pointer)
+
+    event = create_test_api_gateway_event(
+        headers=create_headers(),
+        query_string_parameters={
+            "subject:identifier": "https://fhir.nhs.uk/Id/nhs-number|6700028191",
+        },
+    )
+
+    result = handler(event, create_mock_context())
+    body = result.pop("body")
+
+    assert result == {
+        "statusCode": "200",
+        "headers": default_response_headers(),
+        "isBase64Encoded": False,
+    }
+
+    parsed_body = json.loads(body)
+    assert parsed_body == {
+        "resourceType": "Bundle",
+        "type": "searchset",
+        "total": 1,
+        "entry": [{"resource": doc_ref.model_dump(exclude_none=True)}],
+    }
+
+    created_doc_pointer = repository.get_by_id("Y05868-99999-99999-999999")
+
+    assert created_doc_pointer is not None
+    assert json.loads(created_doc_pointer.document)["identifier"] == [
+        {"type": {"text": "Accession-Number"}, "value": "Y05868.123456789"}
+    ]
+
+
+@mock_aws
+@mock_repository
 def test_search_document_reference_happy_path_with_custodian(
     repository: DocumentPointerRepository,
 ):

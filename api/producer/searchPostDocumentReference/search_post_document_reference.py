@@ -49,7 +49,7 @@ def handler(
             pointer_types=metadata.pointer_types,
         )
         return SpineErrorResponse.INVALID_CODE_SYSTEM(
-            diagnostics="The provided type system does not match the allowed types for this organisation",
+            diagnostics="The provided type does not match the allowed types for this organisation",
             expression="type",
         )
 
