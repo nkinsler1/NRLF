@@ -1,9 +1,9 @@
 resource "aws_s3_bucket" "athena" {
-  bucket = "athena"
+  bucket = "${var.name_prefix}-athena"
 }
 
 resource "aws_s3_bucket_policy" "athena" {
-  bucket = "athena"
+  bucket = "${var.name_prefix}-athena"
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -52,5 +52,5 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "athena" {
 }
 
 data "aws_s3_bucket" "target-data-bucket" {
-  bucket = "target-data-bucket"
+  bucket = "${var.name_prefix}-target-data-bucket"
 }

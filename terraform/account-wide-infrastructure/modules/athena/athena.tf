@@ -12,7 +12,7 @@ resource "aws_athena_database" "reporting-db" {
 }
 
 resource "aws_athena_workgroup" "athena" {
-  name = var.name_prefix
+  name = "${var.name_prefix}-athena-wg"
 
   configuration {
     enforce_workgroup_configuration    = true

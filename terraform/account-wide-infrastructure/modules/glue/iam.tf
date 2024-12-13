@@ -1,5 +1,5 @@
 resource "aws_iam_role" "glue_service_role" {
-  name = "glue_service_role"
+  name = "${var.name_prefix}-glue_service_role"
 
   assume_role_policy = jsonencode({
     "Version" : "2012-10-17",
@@ -16,7 +16,7 @@ resource "aws_iam_role" "glue_service_role" {
 }
 
 resource "aws_iam_role_policy" "glue_service_role_policy" {
-  name = "glue_service_role_policy"
+  name = "${var.name_prefix}-glue_service_role_policy"
   role = aws_iam_role.glue_service_role.name
   policy = jsonencode({
     "Version" : "2012-10-17",

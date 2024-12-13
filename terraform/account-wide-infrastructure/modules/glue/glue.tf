@@ -1,12 +1,12 @@
 # Create Glue Data Catalog Database
 resource "aws_glue_catalog_database" "raw_log_database" {
-  name         = "raw_log"
+  name         = "${var.name_prefix}-raw_log"
   location_uri = "${aws_s3_bucket.source-data-bucket.id}/"
 }
 
 # Create Glue Crawler
 resource "aws_glue_crawler" "raw_log_crawler" {
-  name          = "raw-log-crawler"
+  name          = "${var.name_prefix}-raw-log-crawler"
   database_name = aws_glue_catalog_database.raw_log_database.name
   role          = aws_iam_role.glue_service_role.name
   s3_target {
@@ -23,7 +23,7 @@ resource "aws_glue_crawler" "raw_log_crawler" {
   })
 }
 resource "aws_glue_trigger" "raw_log_trigger" {
-  name = "org-report-trigger"
+  name = "${var.name_prefix}-org-report-trigger"
   type = "ON_DEMAND"
   actions {
     crawler_name = aws_glue_crawler.raw_log_crawler.name
@@ -31,7 +31,7 @@ resource "aws_glue_trigger" "raw_log_trigger" {
 }
 
 resource "aws_glue_job" "glue_job" {
-  name              = "poc-glue-job"
+  name              = "${var.name_prefix}-glue-job"
   role_arn          = aws_iam_role.glue_service_role.arn
   description       = "Transfer logs from source to bucket"
   glue_version      = "4.0"
