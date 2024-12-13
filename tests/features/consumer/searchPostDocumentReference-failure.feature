@@ -77,7 +77,7 @@ Feature: Consumer - searchDocumentReference - Failure Scenarios
             "display": "Invalid code system"
           }]
         },
-        "diagnostics": "Invalid type (The provided type does not match the allowed types for this organisation)",
+        "diagnostics": "The provided type does not match the allowed types for this organisation",
         "expression": ["type"]
       }
       """
@@ -105,7 +105,7 @@ Feature: Consumer - searchDocumentReference - Failure Scenarios
             "display": "Invalid code system"
           }]
         },
-        "diagnostics": "Invalid type (The provided type does not match the allowed types for this organisation)",
+        "diagnostics": "The provided type does not match the allowed types for this organisation",
         "expression": ["type"]
       }
       """
