@@ -4,7 +4,7 @@ variable "name_prefix" {
 }
 
 variable "python_version" {
-  type        = string
+  type        = number
   description = "Python version to run in script"
 }
 
