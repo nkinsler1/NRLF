@@ -31,6 +31,17 @@ resource "aws_s3_bucket_policy" "source-data-bucket" {
   })
 }
 
+resource "aws_s3_bucket_server_side_encryption_configuration" "source-data-bucket" {
+  bucket = aws_s3_bucket.source-data-bucket.bucket
+
+  rule {
+    apply_server_side_encryption_by_default {
+      kms_master_key_id = aws_kms_key.glue.arn
+      sse_algorithm     = "aws:kms"
+    }
+  }
+}
+
 resource "aws_s3_bucket_public_access_block" "source-data-bucket-public-access-block" {
   bucket = aws_s3_bucket.source-data-bucket.id
 
@@ -74,6 +85,17 @@ resource "aws_s3_bucket_policy" "target-data-bucket" {
   })
 }
 
+resource "aws_s3_bucket_server_side_encryption_configuration" "target-data-bucket" {
+  bucket = aws_s3_bucket.target-data-bucket.bucket
+
+  rule {
+    apply_server_side_encryption_by_default {
+      kms_master_key_id = aws_kms_key.glue.arn
+      sse_algorithm     = "aws:kms"
+    }
+  }
+}
+
 resource "aws_s3_bucket_public_access_block" "target-data-bucket-public-access-block" {
   bucket = aws_s3_bucket.target-data-bucket.id
 
@@ -114,6 +136,17 @@ resource "aws_s3_bucket_policy" "code-bucket" {
       },
     ]
   })
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "code-bucket" {
+  bucket = aws_s3_bucket.code-bucket.bucket
+
+  rule {
+    apply_server_side_encryption_by_default {
+      kms_master_key_id = aws_kms_key.glue.arn
+      sse_algorithm     = "aws:kms"
+    }
+  }
 }
 
 resource "aws_s3_bucket_public_access_block" "code-bucket-public-access-block" {
