@@ -36,8 +36,8 @@ DEFAULT_MHDS_AUTHOR = {
 }
 DEFAULT_MHDS_PRACTICE_SETTING_CODING = {
     "system": "http://snomed.info/sct",
-    "code": "394802000",
-    "display": "General medical practice",
+    "code": "700232004",
+    "display": "General medical service",
 }
 DEFAULT_MHDS_PROPERTIES: dict[str, Any] = {
     "author": [DEFAULT_MHDS_AUTHOR],
