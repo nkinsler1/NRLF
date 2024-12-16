@@ -35,6 +35,6 @@ variable "error_prefix" {
   default = "errors"
 }
 
-variable "source_data_bucket" {
+variable "reporting_bucket" {
   type = string
 }
