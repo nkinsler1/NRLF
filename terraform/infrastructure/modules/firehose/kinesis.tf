@@ -59,7 +59,7 @@ resource "aws_kinesis_firehose_delivery_stream" "firehose" {
 
 resource "aws_kinesis_firehose_delivery_stream" "reporting_stream" {
   name        = "${var.prefix}--cloudwatch-reporting-delivery-stream"
-  destination = var.destination
+  destination = "extended_s3"
 
   extended_s3_configuration {
     role_arn   = aws_iam_role.firehose.arn
