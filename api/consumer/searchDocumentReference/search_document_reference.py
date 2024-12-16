@@ -9,7 +9,7 @@ from nrlf.core.errors import OperationOutcomeError
 from nrlf.core.logger import LogReference, logger
 from nrlf.core.model import ConnectionMetadata, ConsumerRequestParams
 from nrlf.core.response import Response, SpineErrorResponse
-from nrlf.core.validators import validate_category, validate_type_system
+from nrlf.core.validators import validate_category, validate_type
 
 
 @request_handler(params=ConsumerRequestParams)
@@ -46,15 +46,14 @@ def handler(
     base_url = f"https://{config.ENVIRONMENT}.api.service.nhs.uk/"
     self_link = f"{base_url}record-locator/consumer/FHIR/R4/DocumentReference?subject:identifier=https://fhir.nhs.uk/Id/nhs-number|{params.nhs_number}"
 
-    # TODO - Add checks for the type code as well as system
-    if not validate_type_system(params.type, metadata.pointer_types):
+    if not validate_type(params.type, metadata.pointer_types):
         logger.log(
             LogReference.CONSEARCH002,
             type=params.type,
             pointer_types=metadata.pointer_types,
         )
         return SpineErrorResponse.INVALID_CODE_SYSTEM(
-            diagnostics="Invalid query parameter (The provided type system does not match the allowed types for this organisation)",
+            diagnostics="Invalid query parameter (The provided type does not match the allowed types for this organisation)",
             expression="type",
         )
 

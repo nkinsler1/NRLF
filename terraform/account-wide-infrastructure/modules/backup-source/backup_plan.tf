@@ -82,6 +82,6 @@ resource "aws_backup_selection" "dynamodb" {
   selection_tag {
     key   = var.backup_plan_config_dynamodb.selection_tag
     type  = "STRINGEQUALS"
-    value = "true"
+    value = "True"
   }
 }

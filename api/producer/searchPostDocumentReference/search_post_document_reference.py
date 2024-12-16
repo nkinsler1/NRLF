@@ -6,7 +6,7 @@ from nrlf.core.errors import OperationOutcomeError
 from nrlf.core.logger import LogReference, logger
 from nrlf.core.model import ConnectionMetadata, ProducerRequestParams
 from nrlf.core.response import Response, SpineErrorResponse
-from nrlf.core.validators import validate_category, validate_type_system
+from nrlf.core.validators import validate_category, validate_type
 from nrlf.producer.fhir.r4.model import Bundle, DocumentReference
 
 
@@ -42,14 +42,14 @@ def handler(
             expression="subject:identifier",
         )
 
-    if not validate_type_system(body.type, metadata.pointer_types):
+    if not validate_type(body.type, metadata.pointer_types):
         logger.log(
             LogReference.PROPOSTSEARCH002,
             type=body.type,
             pointer_types=metadata.pointer_types,
         )
         return SpineErrorResponse.INVALID_CODE_SYSTEM(
-            diagnostics="The provided type system does not match the allowed types for this organisation",
+            diagnostics="The provided type does not match the allowed types for this organisation",
             expression="type",
         )
 
