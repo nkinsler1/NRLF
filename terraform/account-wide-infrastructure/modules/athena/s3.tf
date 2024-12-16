@@ -50,7 +50,3 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "athena" {
   }
 
 }
-
-data "aws_s3_bucket" "target-data-bucket" {
-  bucket = "${var.name_prefix}-target-data-bucket"
-}

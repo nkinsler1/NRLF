@@ -1,7 +1,7 @@
 resource "aws_athena_database" "reporting-db" {
   name = var.database
 
-  bucket = data.aws_s3_bucket.target-data-bucket.bucket
+  bucket = var.target_bucket_name
 
   #   encryption_configuration {
   #     encryption_option = "SSE_KMS"

@@ -125,7 +125,7 @@ resource "aws_s3_bucket_public_access_block" "code-bucket-public-access-block" {
   restrict_public_buckets = true
 }
 
-resource "aws_s3_bucket_object" "script" {
+resource "aws_s3_object" "script" {
   bucket = aws_s3_bucket.code-bucket.bucket
   key    = "main.py"
   source = "${path.module}/src/main.py"
@@ -139,8 +139,8 @@ data "archive_file" "python" {
   source_dir = "${path.module}/src"
 }
 
-resource "aws_s3_bucket_object" "zip" {
+resource "aws_s3_object" "zip" {
   bucket = aws_s3_bucket.code-bucket.bucket
   key    = "main.py"
-  source = data.archive_file.python
+  source = "${path.module}/files/src.zip"
 }
