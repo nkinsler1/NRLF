@@ -8,4 +8,5 @@ module "firehose__processor" {
   splunk_environment = local.splunk_environment
   splunk_index       = local.splunk_index
   destination        = "splunk"
+  reporting_bucket   = module.dev-glue.source_bucket_name
 }

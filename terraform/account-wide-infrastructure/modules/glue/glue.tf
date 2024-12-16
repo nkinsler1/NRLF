@@ -57,7 +57,3 @@ resource "aws_glue_job" "glue_job" {
     "--extra-py-files"                  = "s3://${aws_s3_bucket.code-bucket.id}/src.zip"
   }
 }
-
-output "glue_crawler_name" {
-  value = "s3//${aws_s3_bucket.source-data-bucket.id}/"
-}
