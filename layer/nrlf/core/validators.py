@@ -9,7 +9,10 @@ from nrlf.core.codes import SpineErrorConcept
 from nrlf.core.constants import (
     CATEGORY_ATTRIBUTES,
     ODS_SYSTEM,
+    PRACTICE_SETTING_VALUE_SET_URL,
     REQUIRED_CREATE_FIELDS,
+    SNOMED_PRACTICE_SETTINGS,
+    SNOMED_SYSTEM_URL,
     TYPE_ATTRIBUTES,
     TYPE_CATEGORIES,
     Categories,
@@ -21,32 +24,25 @@ from nrlf.core.types import DocumentReference, OperationOutcomeIssue, RequestQue
 from nrlf.producer.fhir.r4 import model as producer_model
 
 
-def validate_type_system(
-    type_: Optional[RequestQueryType], pointer_types: List[str]
-) -> bool:
+def validate_type(type_: Optional[RequestQueryType], pointer_types: List[str]) -> bool:
     """
-    Validates if the given type system is present in the list of pointer types.
+    Validates if the given type is present in the list of pointer types.
     """
     if not type_:
         return True
 
-    type_system = type_.root.split("|", 1)[0]
-    pointer_type_systems = [
-        pointer_type.split("|", 1)[0] for pointer_type in pointer_types
-    ]
-
-    return type_system in pointer_type_systems
+    return type_.root in pointer_types
 
 
 # TODO - Validate category is in set permissions once permissioning by category is done.
-def validate_category(category_: Optional[RequestQueryCategory]) -> bool:
+def validate_category(categories: Optional[RequestQueryCategory]) -> bool:
     """
     Validates if the given category is valid.
     """
-    if not category_:
+    if not categories:
         return True
 
-    return category_.root in Categories.list()
+    return all(category in Categories.list() for category in categories)
 
 
 @dataclass
@@ -141,8 +137,10 @@ class DocumentReferenceValidator:
             self._validate_category(resource)
             self._validate_author(resource)
             self._validate_type_category_mapping(resource)
-            if resource.content[0].extension:
-                self._validate_content_extension(resource)
+            self._validate_content(resource)
+            self._validate_content_format(resource)
+            self._validate_content_extension(resource)
+            self._validate_practiceSetting(resource)
 
         except StopValidationError:
             logger.log(LogReference.VALIDATOR003)
@@ -481,6 +479,35 @@ class DocumentReferenceValidator:
                 field="category.coding[0].code",
             )
 
+    def _validate_content_format(self, model: DocumentReference):
+        """
+        Validate the content.format field contains an appropriate coding.
+        """
+        logger.log(LogReference.VALIDATOR001, step="content_format")
+
+        logger.debug("Validating format")
+        for i, content in enumerate(model.content):
+            if (
+                content.attachment.contentType == "text/html"
+                and content.format.code != "urn:nhs-ic:record-contact"
+            ):
+                self.result.add_error(
+                    issue_code="value",
+                    error_code="INVALID_RESOURCE",
+                    diagnostics=f"Invalid content format code: {content.format.code} format code must be 'urn:nhs-ic:record-contact' for Contact details attachments.",
+                    field=f"content[{i}].format.code",
+                )
+            elif (
+                content.attachment.contentType == "application/pdf"
+                and content.format.code != "urn:nhs-ic:unstructured"
+            ):
+                self.result.add_error(
+                    issue_code="value",
+                    error_code="INVALID_RESOURCE",
+                    diagnostics=f"Invalid content format code: {content.format.code} format code must be 'urn:nhs-ic:unstructured' for Unstructured Document attachments.",
+                    field=f"content[{i}].format.code",
+                )
+
     def _validate_content_extension(self, model: DocumentReference):
         """
         Validate the content.extension field contains an appropriate coding.
@@ -489,69 +516,13 @@ class DocumentReferenceValidator:
 
         logger.debug("Validating extension")
         for i, content in enumerate(model.content):
-            if len(content.extension) > 1:
-                self.result.add_error(
-                    issue_code="invalid",
-                    error_code="INVALID_RESOURCE",
-                    diagnostics=f"Invalid content extension length: {len(content.extension)} Extension must only contain a single value",
-                    field=f"content[{i}].extension",
-                )
-                return
-
-            if len(content.extension[0].valueCodeableConcept.coding) < 1:
-                self.result.add_error(
-                    issue_code="required",
-                    error_code="INVALID_RESOURCE",
-                    diagnostics=f"Missing content[{i}].extension[0].valueCodeableConcept.coding, extension must have at least one coding.",
-                    field=f"content[{i}].extension.valueCodeableConcept.coding",
-                )
-                return
-
-            if (
-                content.extension[0].valueCodeableConcept.coding[0].system
-                != "https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability"
-            ):
+            coding = content.extension[0].valueCodeableConcept.coding[0]
+            if coding.code != coding.display.lower():
                 self.result.add_error(
                     issue_code="value",
                     error_code="INVALID_RESOURCE",
-                    diagnostics=f"Invalid content extension system: {content.extension[0].valueCodeableConcept.coding[0].system} Extension system must be 'https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability'",
-                    field=f"content[{i}].extension[0].valueCodeableConcept.coding[0].system",
-                )
-                return
-
-            if content.extension[0].valueCodeableConcept.coding[0].code not in [
-                "static",
-                "dynamic",
-            ]:
-                self.result.add_error(
-                    issue_code="value",
-                    error_code="INVALID_RESOURCE",
-                    diagnostics=f"Invalid content extension code: {content.extension[0].valueCodeableConcept.coding[0].code} Extension code must be 'static' or 'dynamic'",
-                    field=f"content[{i}].extension[0].valueCodeableConcept.coding[0].code",
-                )
-                return
-
-            if (
-                content.extension[0].valueCodeableConcept.coding[0].code
-                != content.extension[0].valueCodeableConcept.coding[0].display.lower()
-            ):
-                self.result.add_error(
-                    issue_code="value",
-                    error_code="INVALID_RESOURCE",
-                    diagnostics=f"Invalid content extension display: {content.extension[0].valueCodeableConcept.coding[0].display} Extension display must be the same as code either 'static' or 'dynamic'",
+                    diagnostics=f"Invalid content extension display: {coding.display} Extension display must be the same as code either 'Static' or 'Dynamic'",
                     field=f"content[{i}].extension[0].valueCodeableConcept.coding[0].display",
-                )
-                return
-
-            if (
-                content.extension[0].url
-                != "https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability"
-            ):
-                self.result.add_error(
-                    issue_code="value",
-                    error_code="INVALID_RESOURCE",
-                    diagnostics=f"Invalid content extension url: {content.extension[0].url} Extension url must be 'https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability'",
-                    field=f"content[{i}].extension[0].url",
                 )
                 return
 
@@ -566,7 +537,7 @@ class DocumentReferenceValidator:
                 issue_code="invalid",
                 error_code="INVALID_RESOURCE",
                 diagnostics=f"Invalid author length: {len(model.author)} Author must only contain a single value",
-                field=f"author",
+                field="author",
             )
             return
 
@@ -578,7 +549,7 @@ class DocumentReferenceValidator:
                 issue_code="invalid",
                 error_code="INVALID_IDENTIFIER_SYSTEM",
                 diagnostics=f"Invalid author system: '{identifier.system}' Author system must be '{ODS_SYSTEM}'",
-                field=f"author[0].identifier.system",
+                field="author[0].identifier.system",
             )
             return
 
@@ -587,7 +558,7 @@ class DocumentReferenceValidator:
                 issue_code="value",
                 error_code="INVALID_RESOURCE",
                 diagnostics=f"Invalid author value: '{identifier.value}' Author value must be alphanumeric",
-                field=f"author[0].identifier.value",
+                field="author[0].identifier.value",
             )
             return
 
@@ -596,6 +567,102 @@ class DocumentReferenceValidator:
                 issue_code="value",
                 error_code="INVALID_RESOURCE",
                 diagnostics=f"Invalid author value: '{identifier.value}' Author value must be less than 13 characters",
-                field=f"author[0].identifier.value",
+                field="author[0].identifier.value",
             )
             return
+
+    def _validate_practiceSetting(self, model: DocumentReference):
+        """
+        Validate the practice setting field contains an appropriate coding system and code.
+        """
+
+        if not (
+            practice_setting_coding := getattr(
+                model.context.practiceSetting, "coding", []
+            )
+        ):
+            self.result.add_error(
+                issue_code="value",
+                error_code="INVALID_RESOURCE",
+                diagnostics="Invalid practice setting: must contain a Coding",
+                field="context.practiceSetting.coding",
+            )
+            return
+
+        if len(practice_setting_coding) != 1:
+            self.result.add_error(
+                issue_code="value",
+                error_code="INVALID_RESOURCE",
+                diagnostics=f"Invalid practice setting coding length: {len(model.context.practiceSetting.coding)} Practice Setting Coding must only contain a single value",
+                field="context.practiceSetting.coding",
+            )
+            return
+
+        if (
+            practice_setting_system := getattr(
+                practice_setting_coding[0], "system", None
+            )
+        ) != SNOMED_SYSTEM_URL:
+            self.result.add_error(
+                issue_code="value",
+                error_code="INVALID_RESOURCE",
+                diagnostics=f"Invalid practice setting system: {practice_setting_system} Practice Setting system must be '{SNOMED_SYSTEM_URL}'",
+                field="context.practiceSetting.coding[0].system",
+            )
+            return
+
+        if (
+            practice_setting_value := getattr(practice_setting_coding[0], "code", None)
+        ) not in SNOMED_PRACTICE_SETTINGS:
+            self.result.add_error(
+                issue_code="value",
+                error_code="INVALID_RESOURCE",
+                diagnostics=f"Invalid practice setting code: {practice_setting_value} Practice Setting coding must be a member of value set {PRACTICE_SETTING_VALUE_SET_URL}",
+                field="context.practiceSetting.coding[0].code",
+            )
+            return
+
+        if (
+            practice_setting_display := getattr(
+                practice_setting_coding[0], "display", None
+            )
+        ) != SNOMED_PRACTICE_SETTINGS.get(practice_setting_value):
+            self.result.add_error(
+                issue_code="value",
+                error_code="INVALID_RESOURCE",
+                diagnostics=f"Invalid practice setting coding: display {practice_setting_display} does not match the expected display for {practice_setting_value} Practice Setting coding is bound to value set {PRACTICE_SETTING_VALUE_SET_URL}",
+                field="context.practiceSetting.coding[0]",
+            )
+            return
+
+    def _validate_content(self, model: DocumentReference):
+        """
+        Validate that the contentType is present and is either 'application/pdf' or 'text/html'.
+        """
+        logger.log(LogReference.VALIDATOR001, step="content")
+
+        format_code_display_map = {
+            "urn:nhs-ic:record-contact": "Contact details (HTTP Unsecured)",
+            "urn:nhs-ic:unstructured": "Unstructured Document",
+        }
+
+        for i, content in enumerate(model.content):
+            if content.attachment.contentType not in ["application/pdf", "text/html"]:
+                self.result.add_error(
+                    issue_code="value",
+                    error_code="INVALID_RESOURCE",
+                    diagnostics=f"Invalid contentType: {content.attachment.contentType}. Must be 'application/pdf' or 'text/html'",
+                    field=f"content[{i}].attachment.contentType",
+                )
+
+            # Validate NRLFormatCode
+            format_code = content.format.code
+            format_display = content.format.display
+            expected_display = format_code_display_map.get(format_code)
+            if expected_display and format_display != expected_display:
+                self.result.add_error(
+                    issue_code="value",
+                    error_code="INVALID_RESOURCE",
+                    diagnostics=f"Invalid display for format code '{format_code}'. Expected '{expected_display}'",
+                    field=f"content[{i}].format.display",
+                )

@@ -218,6 +218,14 @@ def assert_document_reference_matches_value(
             context.response.json(),
         )
 
+    if identifier := items.get("identifier"):
+        assert doc_ref.identifier[0].value == identifier, format_error(
+            "DocumentReference Identifier does not match",
+            identifier,
+            doc_ref.identifier[0].value,
+            context.response.json(),
+        )
+
 
 @then("the Bundle contains an DocumentReference with values")
 def assert_bundle_contains_documentreference_values_step(context: Context):

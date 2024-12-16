@@ -9,7 +9,7 @@ from nrlf.core.errors import OperationOutcomeError
 from nrlf.core.logger import LogReference, logger
 from nrlf.core.model import ConnectionMetadata, ConsumerRequestParams
 from nrlf.core.response import Response, SpineErrorResponse
-from nrlf.core.validators import validate_category, validate_type_system
+from nrlf.core.validators import validate_category, validate_type
 
 
 @request_handler(body=ConsumerRequestParams)
@@ -50,21 +50,22 @@ def handler(
     base_url = f"https://{config.ENVIRONMENT}.api.service.nhs.uk/"
     self_link = f"{base_url}record-locator/consumer/FHIR/R4/DocumentReference?subject:identifier=https://fhir.nhs.uk/Id/nhs-number|{body.nhs_number}"
 
-    if not validate_type_system(body.type, metadata.pointer_types):
+    if not validate_type(body.type, metadata.pointer_types):
         logger.log(
             LogReference.CONPOSTSEARCH002,
             type=body.type,
             pointer_types=metadata.pointer_types,
         )
         return SpineErrorResponse.INVALID_CODE_SYSTEM(
-            diagnostics="Invalid type (The provided type system does not match the allowed types for this organisation)",
+            diagnostics="The provided type does not match the allowed types for this organisation",
             expression="type",
         )
 
-    if not validate_category(body.category):
+    categories = body.category.root.split(",") if body.category else []
+    if not validate_category(categories):
         logger.log(
             LogReference.CONPOSTSEARCH002b,
-            type=body.category,
+            category=body.category,
         )  # TODO - Should update error message once permissioning by category is implemented
         return SpineErrorResponse.INVALID_CODE_SYSTEM(
             diagnostics="The provided category is not valid",
@@ -105,7 +106,7 @@ def handler(
         nhs_number=body.nhs_number,
         custodian=custodian_id,
         pointer_types=pointer_types,
-        categories=[body.category.root] if body.category else [],
+        categories=categories,
     ):
         try:
             document_reference = DocumentReference.model_validate_json(result.document)

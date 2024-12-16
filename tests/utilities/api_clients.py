@@ -213,6 +213,14 @@ class ProducerTestClient:
             cert=self.config.client_cert,
         )
 
+    def upsert_text(self, doc_ref):
+        return requests.put(
+            f"{self.api_url}/DocumentReference",
+            data=doc_ref,
+            headers=self.request_headers,
+            cert=self.config.client_cert,
+        )
+
     def update(self, doc_ref, doc_ref_id: str):
         return requests.put(
             f"{self.api_url}/DocumentReference/{doc_ref_id}",

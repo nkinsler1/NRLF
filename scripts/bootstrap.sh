@@ -1,4 +1,6 @@
 #!/bin/bash
+# Setup mgmt and non-mgmt AWS accounts for NRLF
+set -o errexit -o nounset -o pipefail
 
 AWS_REGION_NAME="eu-west-2"
 PROFILE_PREFIX="nhsd-nrlf"
@@ -32,17 +34,11 @@ function _check_mgmt() {
 }
 
 function _check_non_mgmt() {
-    if [[ "$(aws iam list-account-aliases --query 'AccountAliases[0]' --output text)" != 'nhsd-ddc-spine-nrlf-mgmt' ]]; then
+  if [[ "$(aws iam list-account-aliases --query 'AccountAliases[0]' --output text)" == 'nhsd-ddc-spine-nrlf-mgmt' ]]; then
     echo "Please log in as a non-mgmt account" >&2
     return 1
   fi
 }
-
-function _get_mgmt_account(){
-  if ! _check_mgmt; then return 1; fi
-  return $(aws sts get-caller-identity --query Account --output text)
-}
-
 
 function _bootstrap() {
   local command=$1
@@ -55,7 +51,7 @@ function _bootstrap() {
     "create-mgmt")
       _check_mgmt || return 1
 
-      cd $root/terraform/bootstrap/mgmt
+      cd terraform/bootstrap/mgmt
       aws s3api create-bucket --bucket "${truststore_bucket_name}" --region us-east-1 --create-bucket-configuration LocationConstraint="${AWS_REGION_NAME}"
       aws s3api create-bucket --bucket "${state_bucket_name}" --region us-east-1 --create-bucket-configuration LocationConstraint="${AWS_REGION_NAME}"
       aws s3api put-public-access-block --bucket "${state_bucket_name}" --public-access-block-configuration "BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true"
@@ -69,7 +65,7 @@ function _bootstrap() {
     "delete-mgmt")
       _check_mgmt || return 1
 
-      cd $root/terraform/bootstrap/mgmt
+      cd terraform/bootstrap/mgmt
       aws dynamodb delete-table --table-name "${state_lock_table_name}" || return 1
       local versioned_objects
       versioned_objects=$(aws s3api list-object-versions \
@@ -90,10 +86,20 @@ function _bootstrap() {
     "create-non-mgmt")
       _check_non_mgmt || return 1
 
-      cd $root/terraform/bootstrap/non-mgmt
+      cd terraform/bootstrap/non-mgmt
       local tf_assume_role_policy
       local mgmt_account_id
-      mgmt_account_id=$(_get_mgmt_account)
+
+      set +e
+        mgmt_account_id=$(aws secretsmanager get-secret-value --secret-id "${MGMT_ACCOUNT_ID_LOCATION}" --query SecretString --output text)
+
+        if [ "${mgmt_account_id}" == "" ]; then
+          aws secretsmanager create-secret --name "${MGMT_ACCOUNT_ID_LOCATION}"
+          echo "Please set ${MGMT_ACCOUNT_ID_LOCATION} in the Secrets Manager and rerun the script"
+          exit 1
+        fi
+      set -e
+
       tf_assume_role_policy=$(awk "{sub(/REPLACEME/,\"${mgmt_account_id}\")}1" terraform-trust-policy.json)
       aws iam create-role --role-name "${TERRAFORM_ROLE_NAME}" --assume-role-policy-document "${tf_assume_role_policy}" || return 1
       aws iam attach-role-policy --policy-arn "${admin_policy_arn}" --role-name "${TERRAFORM_ROLE_NAME}" || return 1

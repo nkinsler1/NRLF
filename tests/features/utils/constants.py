@@ -64,8 +64,8 @@ DEFAULT_TEST_CONTEXT = """
     "coding": [
       {
         "system": "http://snomed.info/sct",
-        "code": "390826005",
-        "display": "Mental health caregiver support"
+        "code": "788002001",
+        "display": "Adult mental health service"
       }
     ]
   },
@@ -112,8 +112,22 @@ DEFAULT_TEST_CONTENT = """
     "format": {
         "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
         "code": "urn:nhs-ic:unstructured",
-        "display": "Unstructured document"
-    }
+        "display": "Unstructured Document"
+    },
+    "extension": [
+      {
+        "url": "https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability",
+        "valueCodeableConcept": {
+          "coding": [
+            {
+              "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability",
+              "code": "static",
+              "display": "Static"
+            }
+          ]
+        }
+      }
+    ]
   }
 ]
 """
