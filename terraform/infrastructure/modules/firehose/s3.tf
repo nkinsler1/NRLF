@@ -108,5 +108,5 @@ resource "aws_iam_policy" "firehose-alert--s3-read" {
 }
 
 data "aws_s3_bucket" "source-data-bucket" {
-  bucket = "${var.prefix}-source-data-bucket"
+  bucket = "${local.shared_prefix}-source-data-bucket"
 }
