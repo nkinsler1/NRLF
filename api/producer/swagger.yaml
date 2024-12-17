@@ -1836,18 +1836,23 @@ components:
               type: string
               enum:
                 - "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode"
+                - "https://profiles.ihe.net/fhir/ihe.formatcode.fhir/1.2.0/ValueSet-formatcode.html"
               description: The system URL for the NRLF Format Code.
             code:
               type: string
               enum:
                 - "urn:nhs-ic:record-contact"
                 - "urn:nhs-ic:unstructured"
+                - "direct"
+                - "apiplatform"
               description: The code representing the format of the document.
             display:
               type: string
               enum:
                 - "Contact details (HTTP Unsecured)"
                 - "Unstructured Document"
+                - "Direct"
+                - "API Platform"
               description: The display text for the code.
           required:
             - system

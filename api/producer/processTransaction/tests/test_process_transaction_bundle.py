@@ -214,6 +214,110 @@ def test_create_single_mhds_document_reference_with_transaction_happy_path(
 @mock_aws
 @mock_repository
 @freeze_time("2024-03-21T12:34:56.789")
+@freeze_uuid("00000000-0000-0000-0000-000000000001")
+def test_create_single_mhds_document_reference_imaging_format_with_transaction_happy_path(
+    repository: DocumentPointerRepository,
+):
+    raw_doc_ref = load_document_reference("Y05868-736253002-Valid").model_dump(
+        exclude_none=True
+    )
+
+    raw_doc_ref.pop("author")
+    raw_doc_ref.pop("context")
+    raw_doc_ref["content"][0]["attachment"]["contentType"] = "application/dicom"
+    raw_doc_ref["content"][0]["format"][
+        "system"
+    ] = "https://profiles.ihe.net/fhir/ihe.formatcode.fhir/1.2.0/ValueSet-formatcode.html"
+    raw_doc_ref["content"][0]["format"]["code"] = "direct"
+    raw_doc_ref["content"][0]["format"]["display"] = "Direct"
+
+    request_bundle = Bundle(
+        meta=Meta(
+            profile=[
+                ProfileItem(
+                    "http://hl7.org/fhir/profiles.ihe.net/ITI/MHD/StructureDefinition/IHE.MHD.UnContained.Comprehensive.ProvideBundle"
+                )
+            ]
+        ),
+        entry=[
+            BundleEntry(
+                resource=raw_doc_ref, request=BundleEntryRequest(url="/", method="POST")
+            )
+        ],
+        resourceType="Bundle",
+        type="transaction",
+    )
+
+    event = create_test_api_gateway_event(
+        headers=create_headers(),
+        body=request_bundle.model_dump_json(),
+    )
+
+    result = handler(event, create_mock_context())
+    body = result.pop("body")
+
+    assert result == {
+        "statusCode": "200",
+        "headers": {
+            **default_response_headers(),
+        },
+        "isBase64Encoded": False,
+    }
+
+    parsed_body = json.loads(body)
+    assert parsed_body == {
+        "resourceType": "Bundle",
+        "type": "transaction-response",
+        "entry": [
+            {
+                "response": {
+                    "status": "201",
+                    "location": "/producer/FHIR/R4/DocumentReference/Y05868-00000000-0000-0000-0000-000000000001",
+                    "outcome": {
+                        "resourceType": "OperationOutcome",
+                        "issue": [
+                            {
+                                "severity": "information",
+                                "code": "informational",
+                                "details": {
+                                    "coding": [
+                                        {
+                                            "system": "https://fhir.nhs.uk/ValueSet/NRL-ResponseCode",
+                                            "code": "RESOURCE_CREATED",
+                                            "display": "Resource created",
+                                        }
+                                    ]
+                                },
+                                "diagnostics": "The document has been created",
+                            }
+                        ],
+                    },
+                },
+            },
+        ],
+    }
+
+    created_doc_pointer = repository.get_by_id(
+        "Y05868-00000000-0000-0000-0000-000000000001"
+    )
+
+    assert created_doc_pointer is not None
+    assert created_doc_pointer.created_on == "2024-03-21T12:34:56.789Z"
+    assert created_doc_pointer.updated_on is None
+    assert json.loads(created_doc_pointer.document) == {
+        **raw_doc_ref,
+        **DEFAULT_MHDS_PROPERTIES,
+        "meta": {
+            "lastUpdated": "2024-03-21T12:34:56.789Z",
+        },
+        "date": "2024-03-21T12:34:56.789Z",
+        "id": "Y05868-00000000-0000-0000-0000-000000000001",
+    }
+
+
+@mock_aws
+@mock_repository
+@freeze_time("2024-03-21T12:34:56.789")
 @freeze_uuid(
     ["00000000-0000-0000-0000-000000000001", "00000000-0000-0000-0000-000000000002"]
 )
