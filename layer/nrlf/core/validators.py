@@ -118,7 +118,9 @@ class DocumentReferenceValidator:
                 msg="Failed to parse DocumentReference resource",
             ) from None
 
-    def validate(self, data: Dict[str, Any] | DocumentReference):
+    def validate(
+        self, data: Dict[str, Any] | DocumentReference, is_imaging: bool = False
+    ):
         """
         Validate the document reference
         """
@@ -138,7 +140,7 @@ class DocumentReferenceValidator:
             self._validate_author(resource)
             self._validate_type_category_mapping(resource)
             self._validate_content(resource)
-            self._validate_content_format(resource)
+            self._validate_content_format(resource, is_imaging)
             self._validate_content_extension(resource)
             self._validate_practiceSetting(resource)
 
@@ -479,10 +481,16 @@ class DocumentReferenceValidator:
                 field="category.coding[0].code",
             )
 
-    def _validate_content_format(self, model: DocumentReference):
+    def _validate_content_format(
+        self, model: DocumentReference, is_imaging: bool = False
+    ):
         """
         Validate the content.format field contains an appropriate coding.
         """
+        if is_imaging:
+            # Add validation for imaging content format later
+            return
+
         logger.log(LogReference.VALIDATOR001, step="content_format")
 
         logger.debug("Validating format")
