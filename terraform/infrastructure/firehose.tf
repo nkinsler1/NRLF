@@ -8,5 +8,5 @@ module "firehose__processor" {
   splunk_environment   = local.splunk_environment
   splunk_index         = local.splunk_index
   destination          = "splunk"
-  reporting_bucket_arn = data.aws_s3_bucket.source-data-bucket.arn
+  reporting_bucket_arn = data.aws_s3_bucket.source-data-bucket.arn[count.index]
 }

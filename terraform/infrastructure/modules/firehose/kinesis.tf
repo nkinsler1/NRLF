@@ -63,7 +63,7 @@ resource "aws_kinesis_firehose_delivery_stream" "reporting_stream" {
 
   extended_s3_configuration {
     role_arn   = aws_iam_role.firehose.arn
-    bucket_arn = var.reporting_bucket_arn[count.index]
+    bucket_arn = var.reporting_bucket_arn
 
     processing_configuration {
       enabled = "true"
