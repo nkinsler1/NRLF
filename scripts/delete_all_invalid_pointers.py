@@ -24,7 +24,7 @@ def _validate_document(document: str):
         raise RuntimeError("Failed to validate document: " + str(result.issues))
 
 
-def _find_invalid_pointers(table_name: str) -> dict[str, float | int]:
+def _find_invalid_pointers(table_name: str) -> dict[str, Any]:
     """
     Find and delete pointers in the given table that are invalid based on the FHIR model and NRLF validators.
     Parameters:
@@ -64,32 +64,28 @@ def _find_invalid_pointers(table_name: str) -> dict[str, float | int]:
 
     print(f" Done. Found {len(invalid_pointers)} invalid pointers")
 
-    if len(invalid_pointers) == 0:
-        return {
-            "invalid_pointers": 0,
-            "scanned_count": total_scanned_count,
-            "took-secs": timedelta.total_seconds(end_time - start_time),
-        }
+    if len(invalid_pointers) > 0:
+        print("Writing invalid pointers IDs to file ./invalid_pointers.txt ...")
+        with open("invalid_pointers.txt", "w") as f:
+            for _id, err in invalid_pointers:
+                f.write(f"{_id}: {err}\n")
 
-    print("Writing invalid pointers IDs to file ./invalid_pointers.txt ...")
-    with open("invalid_pointers.txt", "w") as f:
-        for _id, err in invalid_pointers:
-            f.write(f"{_id}: {err}\n")
+    return {
+        "invalid_pointers": invalid_pointers,
+        "scanned_count": total_scanned_count,
+        "find-took-secs": timedelta.total_seconds(end_time - start_time),
+    }
 
-    confirmation_input = input(
-        "Would you like to delete all the invalid pointers? (yes/no): "
-    )
-    if confirmation_input != "yes":
-        print("Invalid pointers NOT deleted.")
-        return {
-            "invalid_pointers": len(invalid_pointers),
-            "scanned_count": total_scanned_count,
-            "took-secs": timedelta.total_seconds(end_time - start_time),
-        }
+
+def _delete_pointers(table_name: str, pointers_to_delete: list[str]) -> dict[str, Any]:
+    """
+    Delete the provided pointers from the given table.
+    """
+    start_time = datetime.now(tz=timezone.utc)
 
     print("Deleting invalid pointers...")
     pointers_deleted = 0
-    for _id, _ in invalid_pointers:
+    for _id, _ in pointers_to_delete:
         try:
             item_key = {"S": f"D#{_id}"}
             dynamodb.delete_item(
@@ -109,12 +105,38 @@ def _find_invalid_pointers(table_name: str) -> dict[str, float | int]:
 
     print(" Done")
     return {
-        "invalid_pointers_total": len(invalid_pointers),
-        "invalid_pointers_deleted": pointers_deleted,
-        "scanned_count": total_scanned_count,
-        "took-secs": timedelta.total_seconds(end_time - start_time),
+        "pointers_to_delete": len(pointers_to_delete),
+        "deleted_pointers": pointers_deleted,
+        "deletes-took-secs": timedelta.total_seconds(end_time - start_time),
     }
 
 
+def _find_and_delete_invalid_pointers(table_name: str) -> dict[str, float | int]:
+    find_result = _find_invalid_pointers(table_name)
+
+    if len(find_result["invalid_pointers"]) == 0:
+        return {
+            "invalid_pointers": 0,
+            "scanned_count": find_result["scanned_count"],
+            "find-took-secs": find_result["find-took-secs"],
+        }
+
+    confirmation_input = input(
+        "Would you like to delete all the invalid pointers? (yes/no): "
+    )
+    if confirmation_input != "yes":
+        print("Invalid pointers NOT deleted.")
+        find_result.pop("invalid_pointers")
+        return find_result
+
+    pointers_to_delete = [_id for _id, _ in find_result["invalid_pointers"]]
+
+    delete_result = _delete_pointers(table_name, pointers_to_delete)
+
+    find_result.pop("invalid_pointers")
+
+    return {**find_result, **delete_result}
+
+
 if __name__ == "__main__":
-    fire.Fire(_find_invalid_pointers)
+    fire.Fire(_find_and_delete_invalid_pointers)
