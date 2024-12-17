@@ -43,6 +43,5 @@ data "external" "current-info" {
 }
 
 data "aws_s3_bucket" "source-data-bucket" {
-  count  = var.use_shared_resources ? 1 : 0
   bucket = "${local.shared_prefix}-source-data-bucket"
 }
