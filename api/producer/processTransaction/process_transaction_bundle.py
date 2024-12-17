@@ -245,6 +245,7 @@ def create_document_reference(
     metadata: ConnectionMetadata,
     repository: DocumentPointerRepository,
     body: DocumentReference,
+    is_imaging_profile: bool = False,
 ) -> Response:
 
     logger.log(LogReference.PROCREATE000)
@@ -254,7 +255,7 @@ def create_document_reference(
     body.id = f"{id_prefix}-{uuid4()}"
 
     validator = DocumentReferenceValidator()
-    result = validator.validate(body)
+    result = validator.validate(body, is_imaging_profile)
 
     if not result.is_valid:
         logger.log(LogReference.PROCREATE002)
@@ -335,10 +336,11 @@ def handler(
     requested_profile = (
         body.meta.profile[0].root if body.meta and body.meta.profile else None
     )
-
+    is_imaging_profile = False
     if requested_profile and not requested_profile.endswith(
         "profiles.ihe.net/ITI/MHD/StructureDefinition/IHE.MHD.UnContained.Comprehensive.ProvideBundle"
     ):
+        is_imaging_profile = True
         logger.log(LogReference.PROTRAN001, requested_profile=requested_profile)
         return SpineErrorResponse.BAD_REQUEST(
             diagnostics="Only IHE.MHD.UnContained.Comprehensive.ProvideBundle profiles are supported",
@@ -402,7 +404,7 @@ def handler(
                 document_reference = DocumentReference(**(entry.resource))
 
             create_response = create_document_reference(
-                metadata, repository, document_reference
+                metadata, repository, document_reference, is_imaging_profile
             )
             responses.append(create_response)
         except OperationOutcomeError as e:
