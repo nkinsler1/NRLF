@@ -66,22 +66,13 @@ resource "aws_kinesis_firehose_delivery_stream" "reporting_stream" {
     bucket_arn = var.reporting_bucket_arn
 
     processing_configuration {
-      enabled = "true"
-
-      processors {
-        type = "CloudWatchLogProcessing"
-
-        parameters {
-          parameter_name  = "DataMessageExtraction"
-          parameter_value = "true"
-        }
-      }
+      enabled = "false"
     }
 
     cloudwatch_logging_options {
       enabled         = true
-      log_group_name  = aws_cloudwatch_log_group.firehose.name
-      log_stream_name = aws_cloudwatch_log_stream.firehose.name
+      log_group_name  = aws_cloudwatch_log_group.firehose_reporting.name
+      log_stream_name = aws_cloudwatch_log_stream.firehose_reporting.name
     }
   }
 }
