@@ -25,12 +25,6 @@ def _validate_document(document: str):
 
 
 def _find_invalid_pointers(table_name: str) -> dict[str, Any]:
-    """
-    Find and delete pointers in the given table that are invalid based on the FHIR model and NRLF validators.
-    Parameters:
-    - table_name: The name of the pointers table to find and delete pointer from.
-    """
-
     print(f"Finding invalid pointers to delete in table {table_name}....")
 
     params: dict[str, Any] = {
@@ -112,6 +106,11 @@ def _delete_pointers(table_name: str, pointers_to_delete: list[str]) -> dict[str
 
 
 def _find_and_delete_invalid_pointers(table_name: str) -> dict[str, float | int]:
+    """
+    Find and delete any pointers in the given table that are invalid based on the FHIR model and NRLF validators.
+    Parameters:
+    - table_name: The name of the pointers table to find and delete pointer from.
+    """
     find_result = _find_invalid_pointers(table_name)
 
     if len(find_result["invalid_pointers"]) == 0:
