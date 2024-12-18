@@ -10,6 +10,7 @@ from nrlf.core.validators import DocumentReferenceValidator
 
 dynamodb = boto3.client("dynamodb")
 paginator = dynamodb.get_paginator("scan")
+resource = boto3.resource("dynamodb")
 
 logger.setLevel("ERROR")
 
@@ -79,21 +80,28 @@ def _delete_pointers(table_name: str, pointers_to_delete: list[str]) -> dict[str
 
     print("Deleting invalid pointers...")
     pointers_deleted = 0
-    for _id, _ in pointers_to_delete:
-        try:
-            item_key = {"S": f"D#{_id}"}
-            dynamodb.delete_item(
-                TableName=table_name,
-                Key={"pk": item_key, "sk": item_key},
-                ReturnValues="NONE",
-            )
+    failed_to_delete = 0
 
-            pointers_deleted += 1
+    for _batch_id in range(0, len(pointers_to_delete), 25):
+        batch = [
+            {
+                "DeleteRequest": {
+                    "Key": {
+                        "pk": {"S": f"D#{pointer_id}"},
+                        "sk": {"S": f"D#{pointer_id}"},
+                    }
+                }
+            }
+            for pointer_id in pointers_to_delete[_batch_id : _batch_id + 25]
+        ]
 
-            if pointers_deleted % 1000 == 0:
-                print(".", end="", flush=True)
-        except Exception as exc:
-            print(f"Failed to delete pointer {_id}: {exc}")
+        result = dynamodb.batch_write_item(RequestItems={table_name: batch})
+
+        unprocessed_items = len(result.get("UnprocessedItems", []))
+        pointers_deleted += 25 - unprocessed_items
+        failed_to_delete += unprocessed_items
+        if pointers_deleted % 1000 == 0:
+            print(".", end="", flush=True)
 
     end_time = datetime.now(tz=timezone.utc)
 
@@ -101,6 +109,7 @@ def _delete_pointers(table_name: str, pointers_to_delete: list[str]) -> dict[str
     return {
         "pointers_to_delete": len(pointers_to_delete),
         "deleted_pointers": pointers_deleted,
+        "failed_deletes": failed_to_delete,
         "deletes-took-secs": timedelta.total_seconds(end_time - start_time),
     }
 
