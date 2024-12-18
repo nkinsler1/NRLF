@@ -31,7 +31,6 @@ data "aws_iam_policy_document" "firehose" {
       aws_s3_bucket.firehose.arn,
       "${aws_s3_bucket.firehose.arn}/*",
       var.reporting_bucket_arn,
-      "${var.reporting_bucket_arn}/*",
     ])
     effect = "Allow"
   }
