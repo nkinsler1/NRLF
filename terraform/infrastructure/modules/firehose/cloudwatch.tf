@@ -17,5 +17,5 @@ resource "aws_cloudwatch_log_group" "firehose_reporting" {
 resource "aws_cloudwatch_log_stream" "firehose_reporting" {
   count          = var.reporting_infra_toggle ? 1 : 0
   name           = "${var.prefix}-firehose-reporting"
-  log_group_name = aws_cloudwatch_log_group.firehose_reporting.name
+  log_group_name = aws_cloudwatch_log_group.firehose_reporting[0].name
 }
