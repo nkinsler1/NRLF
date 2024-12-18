@@ -29,7 +29,7 @@ locals {
   public_domain = local.is_sandbox_env ? var.public_sandbox_domain : var.public_domain
 
   # Logic / vars for reporting
-  reporting_bucket_arn = local.is_dev_env ? data.aws_s3_bucket.source-data-bucket[0].arn : data.aws_s3_bucket.source-data-bucket.arn
+  reporting_bucket_arn = local.is_dev_env ? data.aws_s3_bucket.source-data-bucket[0].arn : null
 
   # Logic / vars for splunk environment
   splunk_environment = local.is_sandbox_env ? "${var.account_name}sandbox" : var.account_name
