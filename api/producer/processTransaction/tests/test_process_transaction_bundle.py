@@ -224,7 +224,7 @@ def test_create_single_mhds_document_reference_imaging_format_with_transaction_h
 
     raw_doc_ref.pop("author")
     raw_doc_ref.pop("context")
-    raw_doc_ref["content"][0]["attachment"]["contentType"] = "application/dicom"
+    raw_doc_ref["content"][0]["attachment"]["contentType"] = "application/dicom+fhir"
     raw_doc_ref["content"][0]["format"][
         "system"
     ] = "https://profiles.ihe.net/fhir/ihe.formatcode.fhir/1.2.0/ValueSet-formatcode.html"
