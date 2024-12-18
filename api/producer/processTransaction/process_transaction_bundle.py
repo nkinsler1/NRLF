@@ -340,7 +340,6 @@ def handler(
     if requested_profile and not requested_profile.endswith(
         "profiles.ihe.net/ITI/MHD/StructureDefinition/IHE.MHD.UnContained.Comprehensive.ProvideBundle"
     ):
-        is_imaging_profile = True
         logger.log(LogReference.PROTRAN001, requested_profile=requested_profile)
         return SpineErrorResponse.BAD_REQUEST(
             diagnostics="Only IHE.MHD.UnContained.Comprehensive.ProvideBundle profiles are supported",
@@ -397,6 +396,7 @@ def handler(
     for entry in entries:
         try:
             if requested_profile:
+                is_imaging_profile = True
                 document_reference = _convert_document_reference(
                     entry.resource, requested_profile
                 )
