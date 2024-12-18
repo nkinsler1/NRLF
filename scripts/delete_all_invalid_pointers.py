@@ -98,7 +98,7 @@ def _delete_pointers(table_name: str, pointers_to_delete: list[str]) -> dict[str
         result = dynamodb.batch_write_item(RequestItems={table_name: batch})
 
         unprocessed_items = len(result.get("UnprocessedItems", []))
-        pointers_deleted += 25 - unprocessed_items
+        pointers_deleted += len(batch) - unprocessed_items
         failed_to_delete += unprocessed_items
         if pointers_deleted % 1000 == 0:
             print(".", end="", flush=True)
