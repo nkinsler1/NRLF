@@ -36,5 +36,10 @@ variable "error_prefix" {
 }
 
 variable "reporting_bucket_arn" {
-  type = string
+  type    = string
+  default = null
+}
+
+variable "reporting_infra_toggle" {
+  type = bool
 }
