@@ -118,9 +118,7 @@ class DocumentReferenceValidator:
                 msg="Failed to parse DocumentReference resource",
             ) from None
 
-    def validate(
-        self, data: Dict[str, Any] | DocumentReference, is_imaging: bool = False
-    ):
+    def validate(self, data: Dict[str, Any] | DocumentReference):
         """
         Validate the document reference
         """
@@ -139,7 +137,7 @@ class DocumentReferenceValidator:
             self._validate_category(resource)
             self._validate_author(resource)
             self._validate_type_category_mapping(resource)
-            self._validate_content(resource, is_imaging)
+            self._validate_content(resource)
             self._validate_content_format(resource)
             self._validate_content_extension(resource)
             self._validate_practiceSetting(resource)
@@ -637,22 +635,27 @@ class DocumentReferenceValidator:
             )
             return
 
-    def _validate_content(self, model: DocumentReference, is_imaging: bool = False):
+    def _validate_content(self, model: DocumentReference):
         """
         Validate that the contentType is present and is either 'application/pdf' or 'text/html'.
         """
-        if is_imaging:
-            return
 
         logger.log(LogReference.VALIDATOR001, step="content")
 
         format_code_display_map = {
             "urn:nhs-ic:record-contact": "Contact details (HTTP Unsecured)",
             "urn:nhs-ic:unstructured": "Unstructured Document",
+            "direct": "Direct",
+            "apiplatform": "API Platform",
         }
 
         for i, content in enumerate(model.content):
-            if content.attachment.contentType not in ["application/pdf", "text/html"]:
+            if content.attachment.contentType not in [
+                "application/pdf",
+                "text/html",
+                "application/dicom+fhir",
+                "application/fhir+json",
+            ]:
                 self.result.add_error(
                     issue_code="value",
                     error_code="INVALID_RESOURCE",
