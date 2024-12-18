@@ -31,4 +31,13 @@ locals {
     compression_format  = "GZIP"
   }
 
+  iam_firehose = {
+    cloudwatch_reporting_log_group_arn  = var.reporting_infra_toggle ? aws_cloudwatch_log_group.firehose_reporting[0].arn : aws_cloudwatch_log_group.firehose_reporting.arn
+    cloudwatch_reporting_log_stream_arn = var.reporting_infra_toggle ? aws_cloudwatch_log_stream.firehose_reporting[0].arn : aws_cloudwatch_log_stream.firehose_reporting.arn
+  }
+
+  iam_subscriptions = {
+    firehose_reporting_stream_arn = var.reporting_infra_toggle ? aws_kinesis_firehose_delivery_stream.reporting_stream[0].arn : aws_kinesis_firehose_delivery_stream.reporting_stream.arn
+  }
+
 }

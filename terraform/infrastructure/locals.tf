@@ -22,14 +22,14 @@ locals {
   dynamodb_timeout_seconds = "3"
 
   is_sandbox_env = length(regexall("-sandbox-", local.stack_name)) > 0
-  is_dev_env     = length(regexall("dev", local.stack_name)) > 0
+  is_dev_env     = local.stack_name == "dev"
 
   environment   = local.is_sandbox_env ? "${var.account_name}-sandbox" : var.account_name
   shared_prefix = "${local.project}--${local.environment}"
   public_domain = local.is_sandbox_env ? var.public_sandbox_domain : var.public_domain
 
   # Logic / vars for reporting
-  reporting_bucket_arn = local.is_dev_env ? data.aws_s3_bucket.source-data-bucket[0].arn : null
+  reporting_bucket_arn = local.is_dev_env ? data.aws_s3_bucket.source-data-bucket[0].arn : data.aws_s3_bucket.source-data-bucket.arn
 
   # Logic / vars for splunk environment
   splunk_environment = local.is_sandbox_env ? "${var.account_name}sandbox" : var.account_name

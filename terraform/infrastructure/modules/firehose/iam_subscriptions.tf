@@ -22,7 +22,7 @@ data "aws_iam_policy_document" "firehose_subscription" {
     effect = "Allow"
     resources = [
       aws_kinesis_firehose_delivery_stream.firehose.arn,
-      aws_kinesis_firehose_delivery_stream.reporting_stream.arn,
+      local.iam_subscriptions.firehose_reporting_stream_arn,
     ]
   }
   statement {

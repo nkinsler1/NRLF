@@ -74,7 +74,9 @@ data "aws_iam_policy_document" "firehose" {
     ]
     resources = [
       aws_cloudwatch_log_group.firehose.arn,
-      aws_cloudwatch_log_stream.firehose.arn
+      aws_cloudwatch_log_stream.firehose.arn,
+      local.iam_firehose.cloudwatch_reporting_log_group_arn,
+      local.iam_firehose.cloudwatch_reporting_log_stream_arn,
     ]
     effect = "Allow"
   }
