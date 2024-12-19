@@ -944,19 +944,19 @@ Feature: Producer - createDocumentReference - Failure Scenarios
       """
       {
         "severity": "error",
-        "code": "value",
+        "code": "invalid",
         "details": {
           "coding": [
             {
               "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-              "code": "INVALID_RESOURCE",
-              "display": "Invalid validation of resource"
+              "code": "MESSAGE_NOT_WELL_FORMED",
+              "display": "Message not well formed"
             }
           ]
         },
-        "diagnostics": "Invalid content format code: urn:nhs-ic:unstructured format code must be 'urn:nhs-ic:record-contact' for Contact details attachments.",
+        "diagnostics": "Request body could not be parsed (content[0].extra_field: Extra inputs are not permitted)",
         "expression": [
-          "content[0].format.code"
+          "content[0].extra_field"
         ]
       }
       """
