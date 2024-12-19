@@ -27,10 +27,11 @@ data "aws_iam_policy_document" "firehose" {
       "s3:PutObject",
     ]
 
-    resources = [
+    resources = compact([
       aws_s3_bucket.firehose.arn,
       "${aws_s3_bucket.firehose.arn}/*",
-    ]
+      var.reporting_bucket_arn,
+    ])
     effect = "Allow"
   }
 
@@ -70,10 +71,12 @@ data "aws_iam_policy_document" "firehose" {
     actions = [
       "logs:PutLogEvents",
     ]
-    resources = [
+    resources = compact([
       aws_cloudwatch_log_group.firehose.arn,
-      aws_cloudwatch_log_stream.firehose.arn
-    ]
+      aws_cloudwatch_log_stream.firehose.arn,
+      local.iam_firehose.cloudwatch_reporting_log_group_arn,
+      local.iam_firehose.cloudwatch_reporting_log_stream_arn,
+    ])
     effect = "Allow"
   }
 }
