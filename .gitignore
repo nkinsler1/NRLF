@@ -42,6 +42,9 @@ override.tf.json
 *_override.tf
 *_override.tf.json
 
+# Ignore output of data object
+terraform/account-wide-infrastructure/modules/glue/files/src.zip
+
 # Include override files you do wish to add to version control using negated pattern
 #
 # !example_override.tf

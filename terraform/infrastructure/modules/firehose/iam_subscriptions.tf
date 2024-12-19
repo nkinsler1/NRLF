@@ -20,9 +20,10 @@ data "aws_iam_policy_document" "firehose_subscription" {
       "firehose:*",
     ]
     effect = "Allow"
-    resources = [
+    resources = compact([
       aws_kinesis_firehose_delivery_stream.firehose.arn,
-    ]
+      local.iam_subscriptions.firehose_reporting_stream_arn,
+    ])
   }
   statement {
     actions = [
