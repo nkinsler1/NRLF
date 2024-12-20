@@ -20,12 +20,9 @@ module "consumer__readDocumentReference" {
     local.pointers_kms_read_write_arn,
     local.auth_store_read_policy_arn
   ]
-  firehose_subscriptions = compact([
-    module.firehose__processor.firehose_subscription,
-    module.firehose__processor.firehose_reporting_subscription
-  ])
-  handler   = "read_document_reference.handler"
-  retention = var.log_retention_period
+  firehose_subscriptions = local.firehose_lambda_subscriptions
+  handler                = "read_document_reference.handler"
+  retention              = var.log_retention_period
 }
 
 module "consumer__countDocumentReference" {
@@ -50,12 +47,9 @@ module "consumer__countDocumentReference" {
     local.pointers_kms_read_write_arn,
     local.auth_store_read_policy_arn
   ]
-  firehose_subscriptions = compact([
-    module.firehose__processor.firehose_subscription,
-    module.firehose__processor.firehose_reporting_subscription
-  ])
-  handler   = "count_document_reference.handler"
-  retention = var.log_retention_period
+  firehose_subscriptions = local.firehose_lambda_subscriptions
+  handler                = "count_document_reference.handler"
+  retention              = var.log_retention_period
 }
 
 module "consumer__searchDocumentReference" {
@@ -80,12 +74,9 @@ module "consumer__searchDocumentReference" {
     local.pointers_kms_read_write_arn,
     local.auth_store_read_policy_arn
   ]
-  firehose_subscriptions = compact([
-    module.firehose__processor.firehose_subscription,
-    module.firehose__processor.firehose_reporting_subscription
-  ])
-  handler   = "search_document_reference.handler"
-  retention = var.log_retention_period
+  firehose_subscriptions = local.firehose_lambda_subscriptions
+  handler                = "search_document_reference.handler"
+  retention              = var.log_retention_period
 }
 
 module "consumer__searchPostDocumentReference" {
@@ -110,12 +101,9 @@ module "consumer__searchPostDocumentReference" {
     local.pointers_kms_read_write_arn,
     local.auth_store_read_policy_arn
   ]
-  firehose_subscriptions = compact([
-    module.firehose__processor.firehose_subscription,
-    module.firehose__processor.firehose_reporting_subscription
-  ])
-  handler   = "search_post_document_reference.handler"
-  retention = var.log_retention_period
+  firehose_subscriptions = local.firehose_lambda_subscriptions
+  handler                = "search_post_document_reference.handler"
+  retention              = var.log_retention_period
 }
 
 module "producer__createDocumentReference" {
@@ -141,12 +129,9 @@ module "producer__createDocumentReference" {
     local.pointers_kms_read_write_arn,
     local.auth_store_read_policy_arn
   ]
-  firehose_subscriptions = compact([
-    module.firehose__processor.firehose_subscription,
-    module.firehose__processor.firehose_reporting_subscription
-  ])
-  handler   = "create_document_reference.handler"
-  retention = var.log_retention_period
+  firehose_subscriptions = local.firehose_lambda_subscriptions
+  handler                = "create_document_reference.handler"
+  retention              = var.log_retention_period
 }
 
 module "producer__deleteDocumentReference" {
@@ -172,12 +157,9 @@ module "producer__deleteDocumentReference" {
     local.pointers_kms_read_write_arn,
     local.auth_store_read_policy_arn
   ]
-  firehose_subscriptions = compact([
-    module.firehose__processor.firehose_subscription,
-    module.firehose__processor.firehose_reporting_subscription
-  ])
-  handler   = "delete_document_reference.handler"
-  retention = var.log_retention_period
+  firehose_subscriptions = local.firehose_lambda_subscriptions
+  handler                = "delete_document_reference.handler"
+  retention              = var.log_retention_period
 }
 
 module "producer__readDocumentReference" {
@@ -202,12 +184,9 @@ module "producer__readDocumentReference" {
     local.pointers_kms_read_write_arn,
     local.auth_store_read_policy_arn
   ]
-  firehose_subscriptions = compact([
-    module.firehose__processor.firehose_subscription,
-    module.firehose__processor.firehose_reporting_subscription
-  ])
-  handler   = "read_document_reference.handler"
-  retention = var.log_retention_period
+  firehose_subscriptions = local.firehose_lambda_subscriptions
+  handler                = "read_document_reference.handler"
+  retention              = var.log_retention_period
 }
 
 module "producer__searchDocumentReference" {
@@ -232,12 +211,9 @@ module "producer__searchDocumentReference" {
     local.pointers_kms_read_write_arn,
     local.auth_store_read_policy_arn
   ]
-  firehose_subscriptions = compact([
-    module.firehose__processor.firehose_subscription,
-    module.firehose__processor.firehose_reporting_subscription
-  ])
-  handler   = "search_document_reference.handler"
-  retention = var.log_retention_period
+  firehose_subscriptions = local.firehose_lambda_subscriptions
+  handler                = "search_document_reference.handler"
+  retention              = var.log_retention_period
 }
 
 module "producer__searchPostDocumentReference" {
@@ -262,12 +238,9 @@ module "producer__searchPostDocumentReference" {
     local.pointers_kms_read_write_arn,
     local.auth_store_read_policy_arn
   ]
-  firehose_subscriptions = compact([
-    module.firehose__processor.firehose_subscription,
-    module.firehose__processor.firehose_reporting_subscription
-  ])
-  handler   = "search_post_document_reference.handler"
-  retention = var.log_retention_period
+  firehose_subscriptions = local.firehose_lambda_subscriptions
+  handler                = "search_post_document_reference.handler"
+  retention              = var.log_retention_period
 }
 
 module "producer__updateDocumentReference" {
@@ -293,12 +266,9 @@ module "producer__updateDocumentReference" {
     local.pointers_kms_read_write_arn,
     local.auth_store_read_policy_arn
   ]
-  firehose_subscriptions = compact([
-    module.firehose__processor.firehose_subscription,
-    module.firehose__processor.firehose_reporting_subscription
-  ])
-  handler   = "update_document_reference.handler"
-  retention = var.log_retention_period
+  firehose_subscriptions = local.firehose_lambda_subscriptions
+  handler                = "update_document_reference.handler"
+  retention              = var.log_retention_period
 }
 
 module "producer__upsertDocumentReference" {
@@ -324,12 +294,9 @@ module "producer__upsertDocumentReference" {
     local.pointers_kms_read_write_arn,
     local.auth_store_read_policy_arn
   ]
-  firehose_subscriptions = compact([
-    module.firehose__processor.firehose_subscription,
-    module.firehose__processor.firehose_reporting_subscription
-  ])
-  handler   = "upsert_document_reference.handler"
-  retention = var.log_retention_period
+  firehose_subscriptions = local.firehose_lambda_subscriptions
+  handler                = "upsert_document_reference.handler"
+  retention              = var.log_retention_period
 }
 
 module "consumer__status" {
@@ -355,12 +322,9 @@ module "consumer__status" {
     local.pointers_kms_read_write_arn,
     local.auth_store_read_policy_arn
   ]
-  firehose_subscriptions = compact([
-    module.firehose__processor.firehose_subscription,
-    module.firehose__processor.firehose_reporting_subscription
-  ])
-  handler   = "status.handler"
-  retention = var.log_retention_period
+  firehose_subscriptions = local.firehose_lambda_subscriptions
+  handler                = "status.handler"
+  retention              = var.log_retention_period
 }
 
 
@@ -387,10 +351,7 @@ module "producer__status" {
     local.pointers_kms_read_write_arn,
     local.auth_store_read_policy_arn
   ]
-  firehose_subscriptions = compact([
-    module.firehose__processor.firehose_subscription,
-    module.firehose__processor.firehose_reporting_subscription
-  ])
-  handler   = "status.handler"
-  retention = var.log_retention_period
+  firehose_subscriptions = local.firehose_lambda_subscriptions
+  handler                = "status.handler"
+  retention              = var.log_retention_period
 }
