@@ -44,9 +44,7 @@ data "aws_iam_policy_document" "firehose" {
       "kms:Decrypt",
     ]
 
-    resources = [
-      aws_kms_key.firehose.arn,
-    ]
+    resources = local.iam_kms_resources
   }
   statement {
     actions = [

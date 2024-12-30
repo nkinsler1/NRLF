@@ -40,4 +40,11 @@ locals {
     firehose_reporting_stream_arn = var.reporting_infra_toggle ? aws_kinesis_firehose_delivery_stream.reporting_stream[0].arn : null
   }
 
+  iam_kms_resources = var.reporting_infra_toggle ? [
+    aws_kms_key.firehose.arn,
+    aws_kms_key.glue.arn,
+    ] : [
+    aws_kms_key.firehose.arn,
+  ]
+
 }
