@@ -34,6 +34,7 @@ locals {
   iam_firehose = {
     cloudwatch_reporting_log_group_arn  = var.reporting_infra_toggle ? aws_cloudwatch_log_group.firehose_reporting[0].arn : null
     cloudwatch_reporting_log_stream_arn = var.reporting_infra_toggle ? aws_cloudwatch_log_stream.firehose_reporting[0].arn : null
+    reporting_s3_arn                    = var.reporting_infra_toggle ? "${var.reporting_bucket_arn}/*" : null
   }
 
   iam_subscriptions = {
