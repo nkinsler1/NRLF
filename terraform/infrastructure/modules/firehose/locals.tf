@@ -42,7 +42,7 @@ locals {
 
   iam_kms_resources = compact([
     aws_kms_key.firehose.arn,
-    data.aws_kms_key.glue.arn
+    local.reporting_kms_arn
   ])
 
 }
