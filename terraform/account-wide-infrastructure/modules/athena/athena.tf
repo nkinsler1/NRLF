@@ -1,15 +1,15 @@
-resource "aws_athena_database" "reporting-db" {
-  name = var.database
+# resource "aws_athena_database" "reporting-db" {
+#   name = var.database
 
-  bucket = var.target_bucket_name
+#   bucket = var.target_bucket_name
 
-  encryption_configuration {
-    encryption_option = "SSE_KMS"
-    kms_key           = aws_kms_key.athena.arn
-  }
+#   encryption_configuration {
+#     encryption_option = "SSE_KMS"
+#     kms_key           = aws_kms_key.athena.arn
+#   }
 
-  force_destroy = true
-}
+#   force_destroy = true
+# }
 
 resource "aws_athena_workgroup" "athena" {
   name = "${var.name_prefix}-athena-wg"

@@ -1,25 +1,24 @@
 import sys
 
 from awsglue.utils import getResolvedOptions
+from pipeline import LogPipeline
 from pyspark.context import SparkContext
-from src.pipeline import LogPipeline
-from src.transformations import placeholder
+from transformations import logSchema, placeholder
 
 # Get arguments from AWS Glue job
-args = getResolvedOptions(
-    sys.argv, ["JOB_NAME", "SOURCE_PATH", "TARGET_PATH", "PARTITION_COLS"]
-)
+args = getResolvedOptions(sys.argv, ["job_name", "source_path", "target_path"])
 
 # Start Glue context
 sc = SparkContext()
 
-partition_cols = args["PARTITION_COLS"].split(",") if "PARTITION_COLS" in args else []
+partition_cols = args["partition_cols"].split(",") if "partition_cols" in args else []
 
 # Initialize ETL process
 etl_job = LogPipeline(
     spark_context=sc,
-    source_path=args["SOURCE_PATH"],
-    target_path=args["TARGET_PATH"],
+    source_path=args["source_path"],
+    target_path=args["target_path"],
+    schema=logSchema,
     partition_cols=partition_cols,
     transformations=[placeholder],
 )

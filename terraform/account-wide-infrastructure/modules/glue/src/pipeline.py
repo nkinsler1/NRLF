@@ -1,4 +1,4 @@
-from src.instances import GlueContextSingleton, LoggerSingleton
+from instances import GlueContextSingleton, LoggerSingleton
 
 
 class LogPipeline:
@@ -7,7 +7,8 @@ class LogPipeline:
         spark_context,
         source_path,
         target_path,
-        partition_cols=None,
+        schema,
+        partition_cols=[],
         transformations=[],
     ):
         """Initialize Glue context, Spark session, logger, and paths"""
@@ -16,6 +17,7 @@ class LogPipeline:
         self.logger = LoggerSingleton().logger
         self.source_path = source_path
         self.target_path = target_path
+        self.schema = schema
         self.partition_cols = partition_cols
         self.transformations = transformations
 
@@ -36,7 +38,7 @@ class LogPipeline:
     def extract(self):
         """Extract JSON data from S3"""
         self.logger.info(f"Extracting data from {self.source_path} as JSON")
-        return self.spark.read.json(self.source_path)
+        return self.spark.read.schema(self.schema).json(self.source_path)
 
     def transform(self, dataframe):
         """Apply a list of transformations on the dataframe"""
