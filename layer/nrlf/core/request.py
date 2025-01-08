@@ -8,6 +8,7 @@ from nrlf.core.constants import CLIENT_RP_DETAILS, CONNECTION_METADATA
 from nrlf.core.errors import OperationOutcomeError, ParseError
 from nrlf.core.logger import LogReference, logger
 from nrlf.core.model import ClientRpDetails, ConnectionMetadata
+from nrlf.core.json_duplicate_checker import check_duplicate_keys
 
 
 def parse_headers(headers: Dict[str, str]) -> ConnectionMetadata:
@@ -88,6 +89,7 @@ def parse_body(
 
     try:
         result = model.model_validate_json(body)
+        raise_when_duplicate_keys(body)
         logger.log(LogReference.HANDLER009, parsed_body=result.model_dump())
         return result
 
@@ -97,6 +99,20 @@ def parse_body(
             details=SpineErrorConcept.from_code("MESSAGE_NOT_WELL_FORMED"),
             msg="Request body could not be parsed",
         ) from None
+
+def raise_when_duplicate_keys(json_content: str) -> None:
+    """
+    Raises an error if duplicate keys are found in the JSON content.
+    """
+    duplicates, paths = check_duplicate_keys(json_content)
+    if duplicates:
+        raise OperationOutcomeError(
+            severity="error",
+            code="required",
+            details=SpineErrorConcept.from_code("MESSAGE_NOT_WELL_FORMED"),
+            diagnostics=f"Duplicate keys found in FHIR document: {duplicates}",
+            expression=paths,
+        )
 
 
 def parse_path(
@@ -123,3 +139,4 @@ def parse_path(
             details=SpineErrorConcept.from_code("INVALID_PARAMETER"),
             msg="Invalid path parameter",
         ) from None
+
