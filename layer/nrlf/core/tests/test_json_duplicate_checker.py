@@ -28,6 +28,14 @@ class TestJsonDuplicateChecker(unittest.TestCase):
         self.assertEqual(duplicates, ['b'])
         self.assertEqual(paths, ['root.a.b'])
 
+    def test_same_level_duplicates_objects(self):
+        # This JSON has duplicates because there are two 'b' keys at the same level
+        # The difference with above is that the 'b' keys are objects and every element in the object is the same
+        json_content = '{"a": {"b": { "f": 4, "g": 5 }, "b": { "f": 4, "g": 5 } }, "c": {"d": 3}}'
+        duplicates, paths = check_duplicate_keys(json_content)
+        self.assertEqual(duplicates, ['b'])
+        self.assertEqual(paths, ['root.a.b'])
+
     def test_multiple_level_duplicates(self):
         # This JSON has duplicates at multiple levels
         json_content = '{"a": 1, "b": {"c": 2, "c": 3}, "a": 4}'
