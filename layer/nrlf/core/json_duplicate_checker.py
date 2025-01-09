@@ -1,5 +1,5 @@
 import json
-from typing import List, Tuple, Set, Dict
+from typing import Dict, List, Set, Tuple
 
 JsonPrimitive = str | int | float | bool | None
 type JsonValue = JsonPrimitive | JsonObject | JsonArray
@@ -7,9 +7,10 @@ JsonPair = tuple[str, JsonValue]
 JsonObject = list[JsonPair]
 JsonArray = list[JsonValue]
 
+
 class DuplicateKeyChecker:
     """JSON structure duplicate key detector.
-    
+
     Tracks duplicate keys by maintaining path context during traversal.
     Paths are recorded in dot notation with array indices:
     - Objects: parent.child
@@ -25,7 +26,7 @@ class DuplicateKeyChecker:
         self.current_duplicate_index: Dict[str, int] = {}
 
     def get_path_with_index(self, path: List[str], key: str) -> List[str]:
-        current_level = '.'.join(path)
+        current_level = ".".join(path)
         index_map = self.current_duplicate_index.setdefault(current_level, {})
         count = index_map.get(key, 0)
         index_map[key] = count + 1
@@ -39,20 +40,22 @@ class DuplicateKeyChecker:
 
     def check_key(self, key: str, path: List[str]) -> None:
         """Check if a key at the current path is a duplicate.
-        
+
         A duplicate occurs when the same key appears twice at the same
         nesting level, even if the values differ.
         """
-        current_level = '.'.join(path)
+        current_level = ".".join(path)
         current_keys = self.key_registry.setdefault(current_level, {})
         if key in current_keys:
             self.duplicate_keys.add(key)
-            self.duplicate_paths.add('.'.join(path + [key]))
+            self.duplicate_paths.add(".".join(path + [key]))
             print(f"Found duplicate key: {key} at path: {'.'.join(path + [key])}")
         else:
             current_keys[key] = True
 
-    def process_collection(self, value: JsonObject | JsonArray, path: list[str], key: str) -> None:
+    def process_collection(
+        self, value: JsonObject | JsonArray, path: list[str], key: str
+    ) -> None:
         """Determine if the given 'value' is an object or an array and handle it."""
         new_path = self.get_path_with_index(path, key)
         if value and isinstance(value[0], tuple):
@@ -78,13 +81,14 @@ class DuplicateKeyChecker:
                 continue
             self.process_collection(item, base_path, f"{array_path}[{idx}]")
 
+
 def check_duplicate_keys(json_content: str) -> Tuple[List[str], List[str]]:
     """Find all duplicate keys in a JSON string.
-    
+
     Traverses the entire JSON structure and reports:
     - List of keys that appear multiple times at the same level
     - Full paths to each duplicate key occurrence
-    
+
     A key is considered duplicate if it appears multiple times within
     the same object, regardless of nesting level or array position.
     """
@@ -93,10 +97,10 @@ def check_duplicate_keys(json_content: str) -> Tuple[List[str], List[str]]:
         print("Parsed JSON:", parsed_data)
     except json.JSONDecodeError:
         raise ValueError("Error: Invalid JSON format")
-    
+
     checker = DuplicateKeyChecker()
-    checker.traverse_json(parsed_data, ['root'])
-    
+    checker.traverse_json(parsed_data, ["root"])
+
     duplicates = list(checker.duplicate_keys)
     paths = list(checker.duplicate_paths)
     print("Final duplicates:", duplicates)

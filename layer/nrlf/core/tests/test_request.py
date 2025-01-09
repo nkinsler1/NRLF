@@ -150,13 +150,14 @@ def test_parse_body_valid_docref():
 
     assert isinstance(result, DocumentReference)
 
+
 # another test similar to test_parse_body_valid_docref but with a duplicate key
 def test_parse_body_valid_docref_with_duplicate_key():
     model = DocumentReference
     docref_body = load_document_reference_data("Y05868-736253002-Valid")
 
     str_to_duplicate = '"docStatus": "final",'
-    docref_body = docref_body.replace(str_to_duplicate, str_to_duplicate*2)
+    docref_body = docref_body.replace(str_to_duplicate, str_to_duplicate * 2)
 
     with pytest.raises(OperationOutcomeError) as error:
         parse_body(model, docref_body)

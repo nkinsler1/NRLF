@@ -6,9 +6,9 @@ from pydantic import BaseModel, ValidationError
 from nrlf.core.codes import SpineErrorConcept
 from nrlf.core.constants import CLIENT_RP_DETAILS, CONNECTION_METADATA
 from nrlf.core.errors import OperationOutcomeError, ParseError
+from nrlf.core.json_duplicate_checker import check_duplicate_keys
 from nrlf.core.logger import LogReference, logger
 from nrlf.core.model import ClientRpDetails, ConnectionMetadata
-from nrlf.core.json_duplicate_checker import check_duplicate_keys
 
 
 def parse_headers(headers: Dict[str, str]) -> ConnectionMetadata:
@@ -100,6 +100,7 @@ def parse_body(
             msg="Request body could not be parsed",
         ) from None
 
+
 def raise_when_duplicate_keys(json_content: str) -> None:
     """
     Raises an error if duplicate keys are found in the JSON content.
@@ -139,4 +140,3 @@ def parse_path(
             details=SpineErrorConcept.from_code("INVALID_PARAMETER"),
             msg="Invalid path parameter",
         ) from None
-
