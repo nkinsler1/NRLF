@@ -109,7 +109,7 @@ def raise_when_duplicate_keys(json_content: str) -> None:
     if duplicates:
         raise OperationOutcomeError(
             severity="error",
-            code="required",
+            code="invalid",
             details=SpineErrorConcept.from_code("MESSAGE_NOT_WELL_FORMED"),
             diagnostics=f"Duplicate keys found in FHIR document: {duplicates}",
             expression=paths,

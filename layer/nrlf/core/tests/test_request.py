@@ -170,7 +170,7 @@ def test_parse_body_valid_docref_with_duplicate_key():
         "issue": [
             {
                 "severity": "error",
-                "code": "required",
+                "code": "invalid",
                 "details": {
                     "coding": [
                         {
