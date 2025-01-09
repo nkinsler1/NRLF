@@ -1,10 +1,11 @@
 import json
-from typing import List, Tuple, Set, Any, Dict, Union
-from nrlf.core.errors import OperationOutcomeError
-from nrlf.core.response import SpineErrorConcept
+from typing import List, Tuple, Set, Dict
 
-JsonValue = List[Any] | Tuple[Any, ...] | Any
-JsonPair = Tuple[str, JsonValue]
+JsonPrimitive = str | int | float | bool | None
+type JsonValue = JsonPrimitive | JsonObject | JsonArray
+JsonPair = tuple[str, JsonValue]
+JsonObject = list[JsonPair]
+JsonArray = list[JsonValue]
 
 class DuplicateKeyChecker:
     """JSON structure duplicate key detector.
@@ -21,6 +22,20 @@ class DuplicateKeyChecker:
         self.duplicate_paths: Set[str] = set()
         # Track keys at each path level to detect duplicates
         self.key_registry: Dict[str, Dict[str, bool]] = {}
+        self.current_duplicate_index: Dict[str, int] = {}
+
+    def get_path_with_index(self, path: List[str], key: str) -> List[str]:
+        current_level = '.'.join(path)
+        index_map = self.current_duplicate_index.setdefault(current_level, {})
+        count = index_map.get(key, 0)
+        index_map[key] = count + 1
+
+        # If it's the first occurrence, keep the key as is.
+        # Subsequent occurrences get bracket-indexed.
+        if count == 0:
+            return path + [key]
+        else:
+            return path + [f"{key}[{count - 1}]"]
 
     def check_key(self, key: str, path: List[str]) -> None:
         """Check if a key at the current path is a duplicate.
@@ -29,53 +44,39 @@ class DuplicateKeyChecker:
         nesting level, even if the values differ.
         """
         current_level = '.'.join(path)
-        
-        if current_level not in self.key_registry:
-            self.key_registry[current_level] = {}
-            
-        if key in self.key_registry[current_level]:
+        current_keys = self.key_registry.setdefault(current_level, {})
+        if key in current_keys:
             self.duplicate_keys.add(key)
-            full_path = '.'.join(path + [key])
-            self.duplicate_paths.add(full_path)
-            print(f"Found duplicate key: {key} at path: {full_path}")
+            self.duplicate_paths.add('.'.join(path + [key]))
+            print(f"Found duplicate key: {key} at path: {'.'.join(path + [key])}")
         else:
-            self.key_registry[current_level][key] = True
+            current_keys[key] = True
 
-    def traverse_json(self, data: List[JsonPair], path: List[str]) -> None:
-        """Traverse JSON structure and check for duplicate keys.
-        
-        Handles both objects and arrays, maintaining proper path context
-        during traversal.
-        """
+    def process_collection(self, value: JsonObject | JsonArray, path: list[str], key: str) -> None:
+        """Determine if the given 'value' is an object or an array and handle it."""
+        new_path = self.get_path_with_index(path, key)
+        if value and isinstance(value[0], tuple):
+            self.traverse_json(value, new_path)
+        else:
+            self.traverse_array(value, new_path)
+
+    def traverse_json(self, data: JsonObject, path: list[str]) -> None:
+        """Traverse JSON object and check for duplicate keys."""
         for key, value in data:
             print(f"Processing key: {key}, value: {value}")
             self.check_key(key, path)
-            
             if isinstance(value, (list, tuple)):
-                if value and isinstance(value[0], tuple):
-                    # Handle nested object
-                    self.traverse_json(value, path + [key])
-                else:
-                    # Handle array
-                    self.traverse_array(value, path + [key])
+                self.process_collection(value, path, key)
 
-    def traverse_array(self, items: List[Any], path: List[str]) -> None:
-        """Process array items while tracking their indices in the path."""
+    def traverse_array(self, items: JsonArray, path: list[str]) -> None:
+        """Process JSON array items while updating the path for duplicates."""
         array_path = path[-1]
         base_path = path[:-1]
-        
+
         for idx, item in enumerate(items):
-            if not isinstance(item, (tuple, list)):
+            if not isinstance(item, (list, tuple)):
                 continue
-                
-            current_path = base_path + [f"{array_path}[{idx}]"]
-            if item and isinstance(item[0], tuple):
-                # Handle object in array
-                pairs = [item] if isinstance(item, tuple) else item
-                self.traverse_json(pairs, current_path)
-            else:
-                # Handle nested array
-                self.traverse_array(item, current_path)
+            self.process_collection(item, base_path, f"{array_path}[{idx}]")
 
 def check_duplicate_keys(json_content: str) -> Tuple[List[str], List[str]]:
     """Find all duplicate keys in a JSON string.
