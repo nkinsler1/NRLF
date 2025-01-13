@@ -20,6 +20,7 @@ jobs:
   set-environment-id:
     name: Set Environment ID
     runs-on: [self-hosted, ci]
+    environment: pull-request
     steps:
       - name: Set a ID based on the branch name
         id: set_environment_id
@@ -44,6 +45,7 @@ jobs:
   build:
     name: Build Application
     runs-on: [self-hosted, ci]
+    environment: pull-request
     steps:
       - name: Git Clone - ${{ github.event.pull_request.head.ref }}
         uses: actions/checkout@v4
