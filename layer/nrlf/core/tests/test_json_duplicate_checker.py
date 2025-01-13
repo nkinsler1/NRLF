@@ -292,19 +292,19 @@ class TestJsonDuplicateChecker(unittest.TestCase):
                 expected_duplicates = self.get_expected_duplicates(depth)
                 expected_paths = self.get_expected_paths(depth)
 
-                print("\nActual duplicates:", sorted(duplicates))
+                print("\nActual duplicates:", duplicates)
                 print("Expected duplicates:", expected_duplicates)
-                print("\nActual paths:", sorted(paths))
+                print("\nActual paths:", paths)
                 print("Expected paths:", expected_paths)
 
                 self.assertEqual(
                     sorted(duplicates),
-                    expected_duplicates,
+                    sorted(expected_duplicates),
                     f"Failed for depth {depth} - duplicates mismatch",
                 )
                 self.assertEqual(
                     sorted(paths),
-                    expected_paths,
+                    sorted(expected_paths),
                     f"Failed for depth {depth} - paths mismatch",
                 )
                 print("=== Test passed for depth", depth, "===\n")

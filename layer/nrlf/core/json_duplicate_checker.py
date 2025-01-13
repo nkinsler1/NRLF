@@ -1,5 +1,6 @@
 import json
-from typing import Dict, List, Set, Tuple
+from collections import OrderedDict
+from typing import Dict, List, Tuple
 
 JsonPrimitive = str | int | float | bool | None
 type JsonValue = JsonPrimitive | JsonObject | JsonArray
@@ -19,8 +20,8 @@ class DuplicateKeyChecker:
     """
 
     def __init__(self):
-        self.duplicate_keys: Set[str] = set()
-        self.duplicate_paths: Set[str] = set()
+        # Here a list of paths because the same key name could be at different levels
+        self.duplicate_keys_and_paths: OrderedDict[str, list[str]] = OrderedDict()
         # Track keys at each path level to detect duplicates
         self.key_registry: Dict[str, Dict[str, bool]] = {}
         self.current_duplicate_index: Dict[str, int] = {}
@@ -47,8 +48,8 @@ class DuplicateKeyChecker:
         current_level = ".".join(path)
         current_keys = self.key_registry.setdefault(current_level, {})
         if key in current_keys:
-            self.duplicate_keys.add(key)
-            self.duplicate_paths.add(".".join(path + [key]))
+            duplicate_path = ".".join(path + [key])
+            self.duplicate_keys_and_paths.setdefault(key, []).append(duplicate_path)
             print(f"Found duplicate key: {key} at path: {'.'.join(path + [key])}")
         else:
             current_keys[key] = True
@@ -101,8 +102,9 @@ def check_duplicate_keys(json_content: str) -> Tuple[List[str], List[str]]:
     checker = DuplicateKeyChecker()
     checker.traverse_json(parsed_data, ["root"])
 
-    duplicates = list(checker.duplicate_keys)
-    paths = list(checker.duplicate_paths)
+    duplicates = list(checker.duplicate_keys_and_paths.keys())
+    # flatten the list of paths
+    paths = sum(checker.duplicate_keys_and_paths.values(), [])
     print("Final duplicates:", duplicates)
     print("Final paths:", paths)
 
