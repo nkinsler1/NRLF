@@ -91,8 +91,3 @@ resource "aws_iam_role_policy_attachment" "glue_service" {
   role       = aws_iam_role.glue_service_role.name
   policy_arn = aws_iam_policy.glue_service.arn
 }
-
-# resource "aws_iam_role_policy_attachment" "glue_service" {
-#   role       = aws_iam_role.glue_service_role.id
-#   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
-# }
