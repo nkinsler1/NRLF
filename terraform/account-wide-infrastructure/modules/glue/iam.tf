@@ -71,7 +71,7 @@ data "aws_iam_policy_document" "glue_service" {
 
   statement {
     actions = [
-      "glue: *",
+      "glue:*",
     ]
 
     resources = [
