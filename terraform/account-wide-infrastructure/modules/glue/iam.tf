@@ -53,6 +53,21 @@ data "aws_iam_policy_document" "glue_service" {
 
     effect = "Allow"
   }
+
+  statement {
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents"
+    ]
+
+    resources = [
+      "arn:aws:logs:*:*:*:/aws-glue/*",
+      # "arn:aws:logs:*:*:*:/customlogs/*"
+    ]
+
+    effect = "Allow"
+  }
 }
 
 resource "aws_iam_policy" "glue_service" {

@@ -49,7 +49,7 @@ resource "aws_glue_job" "glue_job" {
     "--enable-auto-scaling"             = "true"
     "--enable-continous-cloudwatch-log" = "true"
     "--datalake-formats"                = "delta"
-    "--source_path"                     = "s3://${aws_s3_bucket.target-data-bucket.id}/"     # Specify the source S3 path
+    "--source_path"                     = "s3://${aws_s3_bucket.source-data-bucket.id}/"     # Specify the source S3 path
     "--target_path"                     = "s3://${aws_s3_bucket.target-data-bucket.id}/logs" # Specify the destination S3 path
     "--job_name"                        = "poc-glue-job"
     "--enable-continuous-log-filter"    = "true"
