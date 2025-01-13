@@ -6,7 +6,7 @@ resource "aws_athena_workgroup" "athena" {
     publish_cloudwatch_metrics_enabled = true
 
     result_configuration {
-      output_location = "s3://{aws_s3_bucket.athena.bucket}/output/"
+      output_location = "s3://${aws_s3_bucket.athena.id}/output/"
 
       encryption_configuration {
         encryption_option = "SSE_KMS"
