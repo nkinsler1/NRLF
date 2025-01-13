@@ -308,3 +308,19 @@ class TestJsonDuplicateChecker(unittest.TestCase):
                     f"Failed for depth {depth} - paths mismatch",
                 )
                 print("=== Test passed for depth", depth, "===\n")
+
+    def test_array_edge_case_duplicate(self):
+        json_content = """
+        {
+            "array": [
+                1,
+                "string",
+                {"key": "value"},
+                [1, 2, 3]
+            ],
+            "array": "duplicate"
+        }
+        """
+        duplicates, paths = check_duplicate_keys(json_content)
+        self.assertEqual(duplicates, ["array"])
+        self.assertEqual(paths, ["root.array"])
