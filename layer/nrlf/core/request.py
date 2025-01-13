@@ -105,6 +105,7 @@ def raise_when_duplicate_keys(json_content: str) -> None:
     """
     Raises an error if duplicate keys are found in the JSON content.
     """
+    logger.log(LogReference.HANDLER018)
     duplicates, paths = check_duplicate_keys(json_content)
     if duplicates:
         raise OperationOutcomeError(
