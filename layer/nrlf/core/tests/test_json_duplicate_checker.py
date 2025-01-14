@@ -375,4 +375,9 @@ class TestJsonDuplicateChecker(unittest.TestCase):
         duplicates, paths = check_duplicate_keys(json_content)
         self.assertEqual(duplicates, ["array[1]"])
         # duplicate root here needs fixing in traverse_array loop
-        self.assertEqual(paths, ["root.root.level1.level2.level3.level4.level5.level6.level7.level8.level9.level10.array[1]"])
+        self.assertEqual(
+            paths,
+            [
+                "root.root.level1.level2.level3.level4.level5.level6.level7.level8.level9.level10.array[1]"
+            ],
+        )

@@ -18,34 +18,34 @@ Feature: Producer - updateDocumentReference - Duplicate Field Scenarios
       | author      | TSTCUS                          |
     When producer 'TSTCUS' requests update of a DocumentReference with pointerId 'TSTCUS-updateDuplicateTest-1234' but replacing 'content':
       """
-        [
-          {
-            "attachment": {
-                "contentType": "application/pdf",
-                "url": "https://example.org/my-doc.pdf",
-                "url": "https://example.org/duplicate-url.pdf"
-            },
-            "format": {
-                "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
-                "code": "urn:nhs-ic:unstructured",
-                "display": "Unstructured Document"
-            },
-            "extension": [
-              {
-                "url": "https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability",
-                "valueCodeableConcept": {
-                  "coding": [
-                    {
-                      "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability",
-                      "code": "static",
-                      "display": "Static"
-                    }
-                  ]
-                }
+      [
+        {
+          "attachment": {
+              "contentType": "application/pdf",
+              "url": "https://example.org/my-doc.pdf",
+              "url": "https://example.org/duplicate-url.pdf"
+          },
+          "format": {
+              "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
+              "code": "urn:nhs-ic:unstructured",
+              "display": "Unstructured Document"
+          },
+          "extension": [
+            {
+              "url": "https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability",
+                    "code": "static",
+                    "display": "Static"
+                  }
+                ]
               }
-            ]
-          }
-        ]
+            }
+          ]
+        }
+      ]
       """
     Then the response status code is 400
     And the response is an OperationOutcome with 1 issue
@@ -88,42 +88,42 @@ Feature: Producer - updateDocumentReference - Duplicate Field Scenarios
       | author      | TSTCUS                          |
     When producer 'TSTCUS' requests update of a DocumentReference with pointerId 'TSTCUS-updateDuplicateTest-1235' but replacing 'content':
       """
-        [
-          {
-            "attachment": {
-                "contentType": "application/pdf",
-                "url": "https://example.org/my-doc.pdf"
-            },
-            "attachment": {
-                "contentType": "text/html",
-                "url": "https://example.org/contact-details.html"
-            },
-            "format": {
-                "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
-                "code": "urn:nhs-ic:unstructured",
-                "display": "Unstructured Document"
-            },
-            "format": {
-                "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
-                "code": "urn:nhs-ic:record-contact",
-                "display": "Contact details (HTTP Unsecured)"
-            },
-            "extension": [
-              {
-                "url": "https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability",
-                "valueCodeableConcept": {
-                  "coding": [
-                    {
-                      "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability",
-                      "code": "static",
-                      "display": "Static"
-                    }
-                  ]
-                }
+      [
+        {
+          "attachment": {
+              "contentType": "application/pdf",
+              "url": "https://example.org/my-doc.pdf"
+          },
+          "attachment": {
+              "contentType": "text/html",
+              "url": "https://example.org/contact-details.html"
+          },
+          "format": {
+              "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
+              "code": "urn:nhs-ic:unstructured",
+              "display": "Unstructured Document"
+          },
+          "format": {
+              "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
+              "code": "urn:nhs-ic:record-contact",
+              "display": "Contact details (HTTP Unsecured)"
+          },
+          "extension": [
+            {
+              "url": "https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability",
+                    "code": "static",
+                    "display": "Static"
+                  }
+                ]
               }
-            ]
-          }
-        ]
+            }
+          ]
+        }
+      ]
       """
     Then the response status code is 400
     And the response is an OperationOutcome with 1 issue
