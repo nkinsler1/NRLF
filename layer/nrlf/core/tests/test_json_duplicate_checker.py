@@ -324,3 +324,55 @@ class TestJsonDuplicateChecker(unittest.TestCase):
         duplicates, paths = check_duplicate_keys(json_content)
         self.assertEqual(duplicates, ["array"])
         self.assertEqual(paths, ["root.array"])
+
+    def test_array_element_duplicate(self):
+        json_content = """
+        {
+            "array": [
+                1,
+                2,
+                3,
+                1
+            ]
+        }
+        """
+        duplicates, paths = check_duplicate_keys(json_content)
+        self.assertEqual(duplicates, ["array[3]"])
+        self.assertEqual(paths, ["root.array[3]"])
+
+    # deeply nested object with a deeply nested array with a duplicate
+    def test_deeply_nested_object_with_deeply_nested_array_duplicate(self):
+        json_content = """
+        {
+            "root": {
+                "level1": {
+                    "level2": {
+                        "level3": {
+                            "level4": {
+                                "level5": {
+                                    "level6": {
+                                        "level7": {
+                                            "level8": {
+                                                "level9": {
+                                                    "level10": {
+                                                        "array": [
+                                                            {"key1": 1, "key2": 2},
+                                                            {"key1": 1, "key2": 2}
+                                                        ]
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        """
+        duplicates, paths = check_duplicate_keys(json_content)
+        self.assertEqual(duplicates, ["array[1]"])
+        # duplicate root here needs fixing in traverse_array loop
+        self.assertEqual(paths, ["root.root.level1.level2.level3.level4.level5.level6.level7.level8.level9.level10.array[1]"])

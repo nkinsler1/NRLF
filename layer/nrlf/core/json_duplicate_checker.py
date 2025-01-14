@@ -25,6 +25,8 @@ class DuplicateKeyChecker:
         # Track keys at each path level to detect duplicates
         self.key_registry: Dict[str, Dict[str, bool]] = {}
         self.current_duplicate_index: Dict[str, int] = {}
+        # Track seen array elements to detect duplicates
+        self.seen_array_elements: Dict[str, List[JsonValue]] = {}
 
     def get_path_with_index(self, path: List[str], key: str) -> List[str]:
         current_level = ".".join(path)
@@ -76,8 +78,24 @@ class DuplicateKeyChecker:
         """Process JSON array items while updating the path for duplicates."""
         array_path = path[-1]
         base_path = path[:-1]
+        seen_elements = self.seen_array_elements.setdefault(".".join(path), set())
 
         for idx, item in enumerate(items):
+            serialized_item = json.dumps(item, sort_keys=True)
+            if serialized_item in seen_elements:
+                element = f"{array_path}[{idx}]"
+                duplicate_path = ".".join(base_path + [element])
+                self.duplicate_keys_and_paths.setdefault(element, []).append(duplicate_path)
+                print(f"Found duplicate array element at path: {duplicate_path}")
+            else:
+                seen_elements.add(serialized_item)
+
+            # if item in seen_elements:
+            #     duplicate_path = f"{array_path}[{idx}]"
+            #     self.duplicate_keys_and_paths.setdefault(duplicate_path, []).append(f"{base_path[0]}.{duplicate_path}")
+            #     print(f"Found duplicate array element at path: {duplicate_path}")
+            # else:
+            #     seen_elements.append(item)
             if not isinstance(item, (list, tuple)):
                 continue
             self.process_collection(item, base_path, f"{array_path}[{idx}]")
