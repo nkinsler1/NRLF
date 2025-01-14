@@ -90,12 +90,6 @@ class DuplicateKeyChecker:
             else:
                 seen_elements.add(serialized_item)
 
-            # if item in seen_elements:
-            #     duplicate_path = f"{array_path}[{idx}]"
-            #     self.duplicate_keys_and_paths.setdefault(duplicate_path, []).append(f"{base_path[0]}.{duplicate_path}")
-            #     print(f"Found duplicate array element at path: {duplicate_path}")
-            # else:
-            #     seen_elements.append(item)
             if not isinstance(item, (list, tuple)):
                 continue
             self.process_collection(item, base_path, f"{array_path}[{idx}]")
