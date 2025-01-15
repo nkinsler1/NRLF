@@ -1354,12 +1354,12 @@ components:
           enum: ["entered-in-error", "amended", "preliminary", "final"]
           description: The status of the underlying document.
         type:
-          $ref: "#/components/schemas/CodeableConcept"
+          $ref: "#/components/schemas/NRLCodeableConcept"
           description: Specifies the particular kind of document referenced  (e.g. History and Physical, Discharge Summary, Progress Note). This usually equates to the purpose of making the document referenced.
         category:
           type: array
           items:
-            $ref: "#/components/schemas/CodeableConcept"
+            $ref: "#/components/schemas/NRLCodeableConcept"
             description: A categorization for the type of document referenced &ndash; helps for indexing and searching. This may be implied by or derived from the code specified in the DocumentReference.type.
         subject:
           $ref: "#/components/schemas/Reference"
@@ -1607,7 +1607,7 @@ components:
           $ref: "#/components/schemas/CodeableConcept"
           description: The kind of facility where the patient was seen.
         practiceSetting:
-          $ref: "#/components/schemas/CodeableConcept"
+          $ref: "#/components/schemas/NRLCodeableConcept"
           description: This property may convey specifics about the practice setting where the content was created, often reflecting the clinical specialty.
         sourcePatientInfo:
           $ref: "#/components/schemas/Reference"
@@ -1718,6 +1718,27 @@ components:
           type: string
           pattern: "[ \\r\\n\\t\\S]+"
           description: A human language representation of the concept as seen/selected/uttered by the user who entered the data and/or which represents the intended meaning of the user.
+    NRLCodeableConcept:
+      type: object
+      properties:
+        id:
+          type: string
+          pattern: "[A-Za-z0-9\\-\\.]{1,64}"
+          description: Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces.
+        coding:
+          type: array
+          items:
+            $ref: "#/components/schemas/NRLCoding"
+            description: A reference to a code defined by a terminology system.
+          minItems: 1
+          maxItems: 1
+        text:
+          type: string
+          pattern: "[ \\r\\n\\t\\S]+"
+          description: A human language representation of the concept as seen/selected/uttered by the user who entered the data and/or which represents the intended meaning of the user.
+      required:
+        - coding
+
     Coding:
       type: object
       properties:
@@ -1727,7 +1748,7 @@ components:
           description: Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces.
         system:
           type: string
-          pattern: \S*
+          pattern: \S+
           description: The identification of the code system that defines the meaning of the symbol in the code.
         version:
           type: string
@@ -1744,6 +1765,36 @@ components:
         userSelected:
           type: boolean
           description: Indicates that this coding was chosen by a user directly &ndash; e.g. off a pick list of available items (codes or displays).
+    NRLCoding:
+      type: object
+      properties:
+        id:
+          type: string
+          pattern: "[A-Za-z0-9\\-\\.]{1,64}"
+          description: Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces.
+        system:
+          type: string
+          pattern: \S+
+          description: The identification of the code system that defines the meaning of the symbol in the code.
+        version:
+          type: string
+          pattern: "[ \\r\\n\\t\\S]+"
+          description: The version of the code system which was used when choosing this code. Note that a well&ndash;maintained code system does not need the version reported, because the meaning of codes is consistent across versions. However this cannot consistently be assured, and when the meaning is not guaranteed to be consistent, the version SHOULD be exchanged.
+        code:
+          type: string
+          pattern: "[^\\s]+(\\s[^\\s]+)*"
+          description: A symbol in syntax defined by the system. The symbol may be a predefined code or an expression in a syntax defined by the coding system (e.g. post&ndash;coordination).
+        display:
+          type: string
+          pattern: "[ \\r\\n\\t\\S]+"
+          description: A representation of the meaning of the code in the system, following the rules of the system.
+        userSelected:
+          type: boolean
+          description: Indicates that this coding was chosen by a user directly &ndash; e.g. off a pick list of available items (codes or displays).
+      required:
+        - system
+        - code
+        - display
     Extension:
       type: object
       properties:
