@@ -38,7 +38,11 @@ class LogPipeline:
     def extract(self):
         """Extract JSON data from S3"""
         self.logger.info(f"Extracting data from {self.source_path} as JSON")
-        return self.spark.read.schema(self.schema).json(self.source_path)
+        return (
+            self.spark.read.option("recursiveFileLookup", "true")
+            .schema(self.schema)
+            .json(self.source_path)
+        )
 
     def transform(self, dataframe):
         """Apply a list of transformations on the dataframe"""
