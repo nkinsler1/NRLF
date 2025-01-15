@@ -1,3 +1,4 @@
+from pyspark.sql.functions import to_timestamp
 from pyspark.sql.types import (
     BooleanType,
     StringType,
@@ -19,7 +20,7 @@ logSchema = StructType(
                     StructField("level", StringType(), True),
                     StructField("location", StringType(), True),
                     StructField("message", StringType(), True),
-                    StructField("timestamp", TimestampType(), True),
+                    StructField("timestamp", StringType(), True),
                     StructField("service", StringType(), True),
                     StructField("cold_start", BooleanType(), True),
                     StructField("function_name", StringType(), True),
@@ -68,5 +69,8 @@ def flatten_df(df):
     return df.select(*cols, f"{nested_col}.*")
 
 
-def placeholder(df):
+def dtype_conversion(df):
+    df = df.withColumn(
+        "timestamp", to_timestamp(df["timestamp"], "yyyy-MM-dd HH:mm:ss,SSSXXX")
+    )
     return df
