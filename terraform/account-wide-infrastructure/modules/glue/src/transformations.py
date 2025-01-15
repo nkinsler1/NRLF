@@ -58,5 +58,15 @@ logSchema = StructType(
 )
 
 
+def flatten_df(df):
+    cols = []
+    for c in df.dtypes:
+        if "struct" in c[1]:
+            nested_col = c[0]
+        else:
+            cols.append(c[0])
+    return df.select(*cols, f"{nested_col}.*")
+
+
 def placeholder(df):
     return df

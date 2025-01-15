@@ -50,6 +50,6 @@ class LogPipeline:
     def load(self, dataframe):
         """Load transformed data into Parquet format"""
         self.logger.info(f"Loading data into {self.target_path} as Parquet")
-        dataframe.write.mode("overwrite").partitionBy(*self.partition_cols).parquet(
+        dataframe.write.mode("append").partitionBy(*self.partition_cols).parquet(
             self.target_path
         )
