@@ -174,6 +174,7 @@ data "archive_file" "python" {
 
 resource "aws_s3_object" "zip" {
   bucket = aws_s3_bucket.code-bucket.bucket
-  key    = "main.py"
-  source = "${path.module}/files/src.zip"
+  key    = "src.zip"
+  source = data.archive_file.python.output_path
+  etag   = filemd5(data.archive_file.python.output_path)
 }

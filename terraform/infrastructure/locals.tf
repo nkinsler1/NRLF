@@ -30,6 +30,13 @@ locals {
 
   # Logic / vars for reporting
   reporting_bucket_arn = local.is_dev_env ? data.aws_s3_bucket.source-data-bucket[0].arn : null
+  reporting_kms_arn    = local.is_dev_env ? data.aws_kms_key.glue[0].arn : null
+  firehose_lambda_subscriptions = local.is_dev_env ? [
+    module.firehose__processor.firehose_subscription,
+    module.firehose__processor.firehose_reporting_subscription
+    ] : [
+    module.firehose__processor.firehose_subscription
+  ]
 
   # Logic / vars for splunk environment
   splunk_environment = local.is_sandbox_env ? "${var.account_name}sandbox" : var.account_name
