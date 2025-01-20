@@ -69,7 +69,4 @@ class LogPipeline:
         )
 
     def trigger_crawler(self):
-        try:
-            self.glue.start_crawler(Name=f"{self.name_prefix}-log-crawler")
-        except Exception as e:
-            raise e
+        self.glue.start_crawler(Name=f"{self.name_prefix}-log-crawler")
