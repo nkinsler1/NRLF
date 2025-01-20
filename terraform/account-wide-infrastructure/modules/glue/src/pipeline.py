@@ -25,7 +25,7 @@ class LogPipeline:
         self.glue = boto3.client(
             service_name="glue",
             region_name="eu-west-2",
-            endpoint_url="your-endpoint-url",
+            endpoint_url="https://glue.eu-west-2.amazonaws.com",
         )
         self.name_prefix = "-".join(job_name.split("-")[:3])
 
