@@ -19,6 +19,7 @@ etl_job = LogPipeline(
     source_path=args["source_path"],
     target_path=args["target_path"],
     schema=logSchema,
+    job_name=args["job_name"],
     partition_cols=partition_cols,
     transformations=[flatten_df, dtype_conversion],
 )
