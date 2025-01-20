@@ -70,7 +70,8 @@ def flatten_df(df):
             if isinstance(field.dataType, StructType):
                 fields += flatten(field.dataType, name)
             else:
-                fields.append((name, field.name))
+                alias_name = name.replace(".", "_")
+                fields.append((name, alias_name))
         return fields
 
     flat_columns = flatten(df.schema)
