@@ -81,6 +81,7 @@ def flatten_df(df):
 
 def dtype_conversion(df):
     df = df.withColumn(
-        "timestamp", to_timestamp(df["timestamp"], "yyyy-MM-dd HH:mm:ss,SSSXXX")
+        "event_timestamp",
+        to_timestamp(df["event_timestamp"], "yyyy-MM-dd HH:mm:ss,SSSXXX"),
     )
     return df
