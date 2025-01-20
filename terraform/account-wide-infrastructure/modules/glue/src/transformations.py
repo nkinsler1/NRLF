@@ -1,4 +1,4 @@
-from pyspark.sql.functions import to_timestamp
+from pyspark.sql.functions import col, to_timestamp
 from pyspark.sql.types import (
     BooleanType,
     StringType,
@@ -60,13 +60,22 @@ logSchema = StructType(
 
 
 def flatten_df(df):
-    cols = []
-    for c in df.dtypes:
-        if "struct" in c[1]:
-            nested_col = c[0]
-        else:
-            cols.append(c[0])
-    return df.select(*cols, f"{nested_col}.*")
+    def flatten(schema, prefix=""):
+        """
+        Recursively traverse the schema to extract all nested fields.
+        """
+        fields = []
+        for field in schema.fields:
+            name = f"{prefix}.{field.name}" if prefix else field.name
+            if isinstance(field.dataType, StructType):
+                fields += flatten(field.dataType, name)
+            else:
+                fields.append((name, field.name))
+        return fields
+
+    flat_columns = flatten(df.schema)
+
+    return df.select([col(c).alias(n) for c, n in flat_columns])
 
 
 def dtype_conversion(df):
