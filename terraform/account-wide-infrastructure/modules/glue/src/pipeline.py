@@ -27,7 +27,7 @@ class LogPipeline:
             region_name="eu-west-2",
             endpoint_url="https://glue.eu-west-2.amazonaws.com",
         )
-        self.name_prefix = "-".join(job_name.split("-")[:3])
+        self.name_prefix = "-".join(job_name.split("-")[:4])
 
     def run(self):
         """Runs ETL"""
