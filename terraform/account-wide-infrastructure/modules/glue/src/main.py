@@ -6,7 +6,9 @@ from pyspark.context import SparkContext
 from transformations import dtype_conversion, flatten_df, logSchema
 
 # Get arguments from AWS Glue job
-args = getResolvedOptions(sys.argv, ["job_name", "source_path", "target_path"])
+args = getResolvedOptions(
+    sys.argv, ["job_name", "source_path", "target_path", "partition_cols"]
+)
 
 # Start Glue context
 sc = SparkContext()

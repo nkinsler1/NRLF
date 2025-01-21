@@ -1,15 +1,21 @@
-from pyspark.sql.functions import col, to_timestamp
+from pyspark.sql.functions import (
+    col,
+    from_unixtime,
+    regexp_replace,
+    to_date,
+    to_timestamp,
+)
 from pyspark.sql.types import (
     BooleanType,
+    DoubleType,
     StringType,
     StructField,
     StructType,
-    TimestampType,
 )
 
 logSchema = StructType(
     [
-        StructField("time", TimestampType(), True),
+        StructField("time", DoubleType(), True),
         StructField("index", StringType(), True),
         StructField("host", StringType(), True),
         StructField("source", StringType(), True),
@@ -80,8 +86,15 @@ def flatten_df(df):
 
 
 def dtype_conversion(df):
-    df = df.withColumn(
-        "event_timestamp",
-        to_timestamp(df["event_timestamp"], "yyyy-MM-dd HH:mm:ss,SSSXXX"),
+    df = (
+        df.withColumn(
+            "event_timestamp_cleaned", regexp_replace(col("event_timestamp"), ",", ".")
+        )
+        .withColumn(
+            "event_timestamp",
+            to_timestamp(col("event_timestamp_cleaned"), "yyyy-MM-dd HH:mm:ss.SSSZ"),
+        )
+        .withColumn("time", from_unixtime(col("time")).cast("timestamp"))
+        .withColumn("date", to_date(col("time")))
     )
-    return df
+    return df.drop("event_timestamp_cleaned")
