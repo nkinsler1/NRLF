@@ -1,7 +1,8 @@
 import json
 from typing import Any
 
-def check_for_duplicate_keys(pairs: list[tuple[str, Any]]):
+
+def check_for_duplicate_keys(pairs: list[tuple[str, Any]]) -> dict:
     keys = {}
     dupes = {}
     for key, value in pairs:
@@ -11,7 +12,6 @@ def check_for_duplicate_keys(pairs: list[tuple[str, Any]]):
                 dupes[key] = []
             dupes[key].append(value)
             continue
-
         keys[key] = value
 
     if dupes:
@@ -22,32 +22,27 @@ def check_for_duplicate_keys(pairs: list[tuple[str, Any]]):
 
 def flatten_duplicates(data: dict | list) -> list[str]:
     duplicates = []
-
     for key, value in data.items() if isinstance(data, dict) else enumerate(data):
         if key == "__duplicates__":
             duplicates.extend([f"{dupe_key}" for dupe_key in value.keys()])
             continue
-
         if isinstance(value, (dict, list)):
             dupes = flatten_duplicates(value)
-
             path = f"{key}" if isinstance(data, dict) else f"[{key}]"
             duplicates.extend([f"{path}.{dupe}" for dupe in dupes])
-
     print(f"flatten_duplicates data={data} dupes={duplicates}")
-
     return duplicates
 
 
-def format_path(path):
-    parts = path.split('.')
+def format_path(path: str) -> str:
+    parts = path.split(".")
     formatted_parts = []
     for part in parts:
-        if part.startswith('['):
+        if part.startswith("["):
             formatted_parts[-1] += part
         else:
             formatted_parts.append(part)
-    return '.'.join(formatted_parts)
+    return ".".join(formatted_parts)
 
 
 def check_duplicate_keys(json_content: str) -> tuple[list[str], list[str]]:
@@ -60,16 +55,14 @@ def check_duplicate_keys(json_content: str) -> tuple[list[str], list[str]]:
     A key is considered duplicate if it appears multiple times within
     the same object, regardless of nesting level or array position.
     """
-
-    use_hooks_approach = True
-
-    if use_hooks_approach:
-        try:
-            dupe_data = json.loads(
-                json_content, object_pairs_hook=check_for_duplicate_keys
-            )
-            duplicate_paths = [f"root.{format_path(path)}" for path in flatten_duplicates(dupe_data)]
-            duplicate_keys = list(dict.fromkeys([key.split(".")[-1] for key in duplicate_paths]))
-            return duplicate_keys, duplicate_paths
-        except json.JSONDecodeError:
-            raise ValueError("Error: Invalid JSON format")
+    try:
+        dupe_data = json.loads(json_content, object_pairs_hook=check_for_duplicate_keys)
+        duplicate_paths = [
+            f"root.{format_path(path)}" for path in flatten_duplicates(dupe_data)
+        ]
+        duplicate_keys = list(
+            dict.fromkeys([key.split(".")[-1] for key in duplicate_paths])
+        )
+        return duplicate_keys, duplicate_paths
+    except json.JSONDecodeError:
+        raise ValueError("Error: Invalid JSON format")
