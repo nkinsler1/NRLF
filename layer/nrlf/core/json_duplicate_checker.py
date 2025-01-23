@@ -5,13 +5,16 @@ from typing import Any
 def check_for_duplicate_keys(pairs: list[tuple[str, Any]]) -> dict:
     keys = {}
     dupes = {}
+    normalized_keys = []
 
     for key, value in pairs:
+        normalized_key = key.lower()
         print(f"Processing key: {key}, value: {value}")
-        if key in keys:
+        if normalized_key in normalized_keys:
             dupes.setdefault(key, []).append(value)
         else:
             keys[key] = value
+            normalized_keys += [normalized_key]
 
     if dupes:
         keys["__duplicates__"] = dupes

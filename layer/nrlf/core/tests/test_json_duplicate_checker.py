@@ -324,3 +324,9 @@ class TestJsonDuplicateChecker(unittest.TestCase):
         duplicates, paths = check_duplicate_keys(json_content)
         self.assertEqual(duplicates, ["array"])
         self.assertEqual(paths, ["root.array"])
+
+    def test_case_sensitive_keys(self):
+        json_content = '{"a": 1, "A": 2, "aA": 3, "Aa": 4}'
+        duplicates, paths = check_duplicate_keys(json_content)
+        self.assertEqual(duplicates, ["A", "Aa"])
+        self.assertEqual(paths, ["root.A", "root.Aa"])
