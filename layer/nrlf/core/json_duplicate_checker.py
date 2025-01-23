@@ -5,14 +5,13 @@ from typing import Any
 def check_for_duplicate_keys(pairs: list[tuple[str, Any]]) -> dict:
     keys = {}
     dupes = {}
+
     for key, value in pairs:
         print(f"Processing key: {key}, value: {value}")
         if key in keys:
-            if key not in dupes:
-                dupes[key] = []
-            dupes[key].append(value)
-            continue
-        keys[key] = value
+            dupes.setdefault(key, []).append(value)
+        else:
+            keys[key] = value
 
     if dupes:
         keys["__duplicates__"] = dupes
@@ -22,14 +21,16 @@ def check_for_duplicate_keys(pairs: list[tuple[str, Any]]) -> dict:
 
 def flatten_duplicates(data: dict | list) -> list[str]:
     duplicates = []
-    for key, value in data.items() if isinstance(data, dict) else enumerate(data):
+    items = data.items() if isinstance(data, dict) else enumerate(data)
+
+    for key, value in items:
         if key == "__duplicates__":
-            duplicates.extend([f"{dupe_key}" for dupe_key in value.keys()])
-            continue
-        if isinstance(value, (dict, list)):
-            dupes = flatten_duplicates(value)
+            duplicates.extend(value.keys())
+        elif isinstance(value, (dict, list)):
             path = f"{key}" if isinstance(data, dict) else f"[{key}]"
+            dupes = flatten_duplicates(value)
             duplicates.extend([f"{path}.{dupe}" for dupe in dupes])
+
     print(f"flatten_duplicates data={data} dupes={duplicates}")
     return duplicates
 
