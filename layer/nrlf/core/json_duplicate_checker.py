@@ -12,6 +12,7 @@ def check_for_duplicate_keys(pairs: list[tuple[str, Any]]) -> dict:
         print(f"Processing key: {key}, value: {value}")
         if normalized_key in normalized_keys:
             dupes.setdefault(key, []).append(value)
+            print(f"Duplicate key found: {key}")
         else:
             keys[key] = value
             normalized_keys += [normalized_key]
@@ -61,6 +62,9 @@ def check_duplicate_keys(json_content: str) -> tuple[list[str], list[str]]:
     the same object, regardless of nesting level or array position.
     """
     try:
+        print("JSON content to be processed:")
+        print(json_content)
+        print("================================")
         dupe_data = json.loads(json_content, object_pairs_hook=check_for_duplicate_keys)
         duplicate_paths = [
             f"root.{format_path(path)}" for path in flatten_duplicates(dupe_data)
@@ -68,6 +72,9 @@ def check_duplicate_keys(json_content: str) -> tuple[list[str], list[str]]:
         duplicate_keys = list(
             dict.fromkeys([key.split(".")[-1] for key in duplicate_paths])
         )
+        print("================================")
+        print(f"Duplicate keys: {duplicate_keys}")
+        print(f"Duplicate paths: {duplicate_paths}")
         return duplicate_keys, duplicate_paths
     except json.JSONDecodeError:
         raise ValueError("Error: Invalid JSON format")
