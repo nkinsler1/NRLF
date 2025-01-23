@@ -36,6 +36,7 @@ def flatten_duplicates(data: dict | list) -> list[str]:
 
 
 def format_path(path: str) -> str:
+    """Transforms a path like root.key1.[2].key2 into root.key1[2].key2"""
     parts = path.split(".")
     formatted_parts = []
     for part in parts:
