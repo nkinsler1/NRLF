@@ -283,19 +283,11 @@ class TestJsonDuplicateChecker(unittest.TestCase):
         for depth in range(1, 11):  # Test depths 1 through 10
             with self.subTest(depth=depth):
                 json_content = self.generate_nested_json(depth)
-                print(f"\n=== Testing depth {depth} ===")
-                print("Generated JSON:")
-                print(json_content)
 
                 duplicates, paths = check_duplicate_keys(json_content)
 
                 expected_duplicates = self.get_expected_duplicates(depth)
                 expected_paths = self.get_expected_paths(depth)
-
-                print("\nActual duplicates:", duplicates)
-                print("Expected duplicates:", expected_duplicates)
-                print("\nActual paths:", paths)
-                print("Expected paths:", expected_paths)
 
                 self.assertEqual(
                     sorted(duplicates),
@@ -307,7 +299,6 @@ class TestJsonDuplicateChecker(unittest.TestCase):
                     sorted(expected_paths),
                     f"Failed for depth {depth} - paths mismatch",
                 )
-                print("=== Test passed for depth", depth, "===\n")
 
     def test_array_edge_case_duplicate(self):
         json_content = """

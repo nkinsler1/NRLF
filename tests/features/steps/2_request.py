@@ -149,7 +149,6 @@ def update_post_body_step(context: Context, section: str, pointer_id: str):
     doc_ref[section] = "placeholder"
     doc_ref_text = json.dumps(doc_ref)
     doc_ref_text = doc_ref_text.replace('"placeholder"', context.text)
-    print(doc_ref_text)
 
     producer_client = producer_client_from_context(context, "TSTCUS")
     context.response = producer_client.update_text(doc_ref_text, pointer_id)
