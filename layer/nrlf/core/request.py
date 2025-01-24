@@ -108,13 +108,15 @@ def raise_when_duplicate_keys(json_content: str) -> None:
     logger.log(LogReference.HANDLER018)
     duplicates, paths = check_duplicate_keys(json_content)
     if duplicates:
-        raise OperationOutcomeError(
+        error = OperationOutcomeError(
             severity="error",
             code="invalid",
             details=SpineErrorConcept.from_code("MESSAGE_NOT_WELL_FORMED"),
             diagnostics=f"Duplicate keys found in FHIR document: {duplicates}",
             expression=paths,
         )
+        logger.log(LogReference.HANDLER019, error=str(error))
+        raise error
 
 
 def parse_path(
