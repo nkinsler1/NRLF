@@ -3,6 +3,7 @@ from typing import Any
 
 
 def check_for_duplicate_keys(pairs: list[tuple[str, Any]]) -> dict:
+    """Custom JSON object_pairs_hook that checks for duplicate keys."""
     keys = {}
     dupes = {}
     normalized_keys = []
@@ -22,6 +23,7 @@ def check_for_duplicate_keys(pairs: list[tuple[str, Any]]) -> dict:
 
 
 def flatten_duplicates(data: dict | list) -> list[str]:
+    """Flattens a JSON structure and returns a list of duplicate paths."""
     duplicates = []
     items = data.items() if isinstance(data, dict) else enumerate(data)
 
