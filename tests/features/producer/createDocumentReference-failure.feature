@@ -900,3 +900,61 @@ Feature: Producer - createDocumentReference - Failure Scenarios
         ]
       }
       """
+
+  Scenario: contentType empty string
+    Given the application 'DataShare' (ID 'z00z-y11y-x22x') is registered to access the API
+    And the organisation 'TSTCUS' is authorised to access pointer types:
+      | system                 | value     |
+      | http://snomed.info/sct | 736253002 |
+    When producer 'TSTCUS' requests creation of a DocumentReference with default test values except 'content' is:
+      """
+      "content": [
+        {
+          "attachment": {
+              "contentType": "",
+              "url": "https://spine-proxy.national.ncrs.nhs.uk/https%3A%2F%2Fp1.nhs.uk%2FMentalhealthCrisisPlanReport.pdf"
+          },
+          "format": {
+              "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
+              "code": "urn:nhs-ic:unstructured",
+              "display": "Unstructured Document"
+          },
+          "extension": [
+            {
+              "url": "https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability",
+                    "code": "static",
+                    "display": "Static"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+      """
+    Then the response status code is 400
+    And the response is an OperationOutcome with 1 issue
+    And the OperationOutcome contains the issue:
+      """
+      {
+        "severity": "error",
+        "code": "invalid",
+        "details": {
+            "coding": [
+            {
+                "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                "code": "MESSAGE_NOT_WELL_FORMED",
+                "display": "Message not well formed"
+            }
+            ]
+        },
+        "diagnostics": "Request body could not be parsed (content[0].attachment.contentType: String should match pattern '[^\\s]+(\\s[^\\s]+)*')",
+        "expression": [
+            "content[0].attachment.contentType"
+        ]
+      }
+      """

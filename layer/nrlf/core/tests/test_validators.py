@@ -204,7 +204,7 @@ def test_document_reference_validator_parse_invalid():
                 }
             ]
         },
-        "diagnostics": "Failed to parse DocumentReference resource (type: Input should be a valid dictionary or instance of CodeableConcept)",
+        "diagnostics": "Failed to parse DocumentReference resource (type: Input should be a valid dictionary or instance of NRLCodeableConcept)",
         "expression": ["type"],
     }
 
@@ -225,16 +225,14 @@ def test_validate_document_reference_missing_fields():
     document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
 
     del document_ref_data["id"]
-    del document_ref_data["type"]
     del document_ref_data["custodian"]
     del document_ref_data["subject"]
-    del document_ref_data["category"]
 
     result = validator.validate(document_ref_data)
 
     assert result.is_valid is False
     assert result.resource.id is None
-    assert len(result.issues) == 5
+    assert len(result.issues) == 3
     assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
         "code": "required",
@@ -255,9 +253,7 @@ def test_validate_document_reference_missing_fields():
     assert diagnostics == [
         "The required field 'custodian' is missing",
         "The required field 'id' is missing",
-        "The required field 'type' is missing",
         "The required field 'subject' is missing",
-        "The required field 'category' is missing",
     ]
 
 
@@ -359,34 +355,6 @@ def test_validate_identifiers_no_subject_identifier():
         },
         "diagnostics": "Subject must have an identifier",
         "expression": ["subject.identifier"],
-    }
-
-
-def test_validate_category_no_category():
-    validator = DocumentReferenceValidator()
-    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
-
-    del document_ref_data["category"]
-
-    result = validator.validate(document_ref_data)
-
-    assert result.is_valid is False
-    assert result.resource.id == "Y05868-99999-99999-999999"
-    assert len(result.issues) == 1
-    assert result.issues[0].model_dump(exclude_none=True) == {
-        "severity": "error",
-        "code": "required",
-        "details": {
-            "coding": [
-                {
-                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
-                }
-            ]
-        },
-        "diagnostics": "The required field 'category' is missing",
-        "expression": ["category"],
     }
 
 
@@ -497,52 +465,6 @@ def test_validate_category_coding_display_mismatch(
     }
 
 
-def test_validate_category_coding_multiple_codings():
-    validator = DocumentReferenceValidator()
-    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
-
-    document_ref_data["category"][0] = {
-        "coding": [
-            {
-                "system": "http://snomed.info/sct",
-                "code": "734163000",
-                "display": "Care plan",
-            },
-            {
-                "system": "http://snomed.info/sct",
-                "code": "734163000",
-                "display": "Care plan",
-            },
-            {
-                "system": "http://snomed.info/sct",
-                "code": "734163000",
-                "display": "Care plan",
-            },
-        ]
-    }
-
-    result = validator.validate(document_ref_data)
-
-    assert result.is_valid is False
-    assert result.resource.id == "Y05868-99999-99999-999999"
-    assert len(result.issues) == 1
-    assert result.issues[0].model_dump(exclude_none=True) == {
-        "severity": "error",
-        "code": "invalid",
-        "details": {
-            "coding": [
-                {
-                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
-                }
-            ]
-        },
-        "diagnostics": "Invalid category coding length: 3 Category Coding must only contain a single value",
-        "expression": ["category[0].coding"],
-    }
-
-
 def test_validate_category_coding_invalid_code():
     validator = DocumentReferenceValidator()
     document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
@@ -644,52 +566,6 @@ def test_validate_type_coding_invalid_code():
         },
         "diagnostics": "Invalid type code: 1234 Type must be a member of the England-NRLRecordType value set (https://fhir.nhs.uk/England/CodeSystem/England-NRLRecordType)",
         "expression": ["type.coding[0].code"],
-    }
-
-
-def test_validate_type_coding_multiple_codings():
-    validator = DocumentReferenceValidator()
-    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
-
-    document_ref_data["type"] = {
-        "coding": [
-            {
-                "system": "http://snomed.info/sct",
-                "code": "736253002",
-                "display": "Mental health crisis plan",
-            },
-            {
-                "system": "http://snomed.info/sct",
-                "code": "736253002",
-                "display": "Mental health crisis plan",
-            },
-            {
-                "system": "http://snomed.info/sct",
-                "code": "736253002",
-                "display": "Mental health crisis plan",
-            },
-        ]
-    }
-
-    result = validator.validate(document_ref_data)
-
-    assert result.is_valid is False
-    assert result.resource.id == "Y05868-99999-99999-999999"
-    assert len(result.issues) == 1
-    assert result.issues[0].model_dump(exclude_none=True) == {
-        "severity": "error",
-        "code": "invalid",
-        "details": {
-            "coding": [
-                {
-                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
-                }
-            ]
-        },
-        "diagnostics": "Invalid type coding length: 3 Type Coding must only contain a single value",
-        "expression": ["type.coding"],
     }
 
 
@@ -1363,35 +1239,6 @@ def test_validate_content_format_invalid_code_for_contact_details():
     }
 
 
-def test_validate_practiceSetting_no_coding():
-    validator = DocumentReferenceValidator()
-    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
-
-    document_ref_data["context"]["practiceSetting"] = {
-        "text": "Description of the clinic"
-    }
-
-    result = validator.validate(document_ref_data)
-
-    assert result.is_valid is False
-    assert len(result.issues) == 1
-    assert result.issues[0].model_dump(exclude_none=True) == {
-        "severity": "error",
-        "code": "value",
-        "details": {
-            "coding": [
-                {
-                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
-                }
-            ]
-        },
-        "diagnostics": "Invalid practice setting: must contain a Coding",
-        "expression": ["context.practiceSetting.coding"],
-    }
-
-
 def test_validate_practiceSetting_coding_invalid_system():
     validator = DocumentReferenceValidator()
     document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
@@ -1459,74 +1306,6 @@ def test_validate_practiceSetting_coding_invalid_code():
         },
         "diagnostics": "Invalid practice setting code: 123 Practice Setting coding must be a member of value set https://fhir.nhs.uk/England/ValueSet/England-PracticeSetting",
         "expression": ["context.practiceSetting.coding[0].code"],
-    }
-
-
-def test_validate_practiceSetting_coding_missing_code():
-    validator = DocumentReferenceValidator()
-    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
-
-    document_ref_data["context"]["practiceSetting"] = {
-        "coding": [
-            {
-                "system": "http://snomed.info/sct",
-                "display": "Adult mental health service",
-            }
-        ]
-    }
-
-    result = validator.validate(document_ref_data)
-
-    assert result.is_valid is False
-    assert len(result.issues) == 1
-    assert result.issues[0].model_dump(exclude_none=True) == {
-        "severity": "error",
-        "code": "value",
-        "details": {
-            "coding": [
-                {
-                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
-                }
-            ]
-        },
-        "diagnostics": "Invalid practice setting code: None Practice Setting coding must be a member of value set https://fhir.nhs.uk/England/ValueSet/England-PracticeSetting",
-        "expression": ["context.practiceSetting.coding[0].code"],
-    }
-
-
-def test_validate_practiceSetting_coding_missing_display():
-    validator = DocumentReferenceValidator()
-    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
-
-    document_ref_data["context"]["practiceSetting"] = {
-        "coding": [
-            {
-                "system": "http://snomed.info/sct",
-                "code": "788002001",
-            }
-        ]
-    }
-
-    result = validator.validate(document_ref_data)
-
-    assert result.is_valid is False
-    assert len(result.issues) == 1
-    assert result.issues[0].model_dump(exclude_none=True) == {
-        "severity": "error",
-        "code": "value",
-        "details": {
-            "coding": [
-                {
-                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
-                }
-            ]
-        },
-        "diagnostics": "Invalid practice setting coding: display None does not match the expected display for 788002001 Practice Setting coding is bound to value set https://fhir.nhs.uk/England/ValueSet/England-PracticeSetting",
-        "expression": ["context.practiceSetting.coding[0]"],
     }
 
 

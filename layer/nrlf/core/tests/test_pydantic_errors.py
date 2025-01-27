@@ -301,3 +301,297 @@ def test_validate_content_missing_content_stability_coding():
         "diagnostics": "Failed to parse DocumentReference resource (content[0].extension[0].valueCodeableConcept.coding: Field required. See ValueSet: https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability)",
         "expression": ["content[0].extension[0].valueCodeableConcept.coding"],
     }
+
+
+def test_validate_multiple_codings():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["category"][0] = {
+        "coding": [
+            {
+                "system": "http://snomed.info/sct",
+                "code": "734163000",
+                "display": "Care plan",
+            },
+            {
+                "system": "http://snomed.info/sct",
+                "code": "734163000",
+                "display": "Care plan",
+            },
+            {
+                "system": "http://snomed.info/sct",
+                "code": "734163000",
+                "display": "Care plan",
+            },
+        ]
+    }
+
+    with pytest.raises(ParseError) as error:
+        validator.validate(document_ref_data)
+
+    exc = error.value
+    assert len(exc.issues) == 1
+    assert exc.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "invalid",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Failed to parse DocumentReference resource (category[0].coding: List should have at most 1 item after validation, not 3)",
+        "expression": ["category[0].coding"],
+    }
+
+
+def test_validate_missing_coding():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["category"][0] = {"coding": []}
+
+    with pytest.raises(ParseError) as error:
+        validator.validate(document_ref_data)
+
+    exc = error.value
+    assert len(exc.issues) == 1
+    assert exc.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "invalid",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Failed to parse DocumentReference resource (category[0].coding: List should have at least 1 item after validation, not 0)",
+        "expression": ["category[0].coding"],
+    }
+
+
+def test_validate_empty_strings():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["category"][0] = {
+        "coding": [
+            {
+                "system": "http://snomed.info/sct",
+                "code": "734163000",
+                "display": "",
+            }
+        ]
+    }
+
+    with pytest.raises(ParseError) as error:
+        validator.validate(document_ref_data)
+
+    exc = error.value
+    assert len(exc.issues) == 1
+    assert exc.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "invalid",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Failed to parse DocumentReference resource (category[0].coding[0].display: String should match pattern '[\\S]+[ \\r\\n\\t\\S]*')",
+        "expression": ["category[0].coding[0].display"],
+    }
+
+
+def test_validate_whitespace_strings():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["category"][0] = {
+        "coding": [
+            {
+                "system": "http://snomed.info/sct",
+                "code": "734163000",
+                "display": "  ",
+            }
+        ]
+    }
+
+    with pytest.raises(ParseError) as error:
+        validator.validate(document_ref_data)
+
+    exc = error.value
+    assert len(exc.issues) == 1
+    assert exc.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "invalid",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Failed to parse DocumentReference resource (category[0].coding[0].display: String should match pattern '[\\S]+[ \\r\\n\\t\\S]*')",
+        "expression": ["category[0].coding[0].display"],
+    }
+
+
+def test_validate_no_coding_where_mandatory():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["context"]["practiceSetting"] = {
+        "text": "Description of the clinic in text"
+    }
+
+    with pytest.raises(ParseError) as error:
+        validator.validate(document_ref_data)
+
+    exc = error.value
+    assert len(exc.issues) == 1
+    assert exc.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "invalid",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Failed to parse DocumentReference resource (context.practiceSetting.coding: Field required)",
+        "expression": ["context.practiceSetting.coding"],
+    }
+
+
+def test_validate_no_coding_where_optional():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["context"]["facilityType"] = {
+        "text": "Description of the facility type in text"
+    }
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid
+
+
+def test_validate_missing_system_from_coding_where_mandatory():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["context"]["practiceSetting"] = {
+        "coding": [
+            {
+                "code": "734163000",
+                "display": "Valid display string",
+            }
+        ]
+    }
+
+    with pytest.raises(ParseError) as error:
+        validator.validate(document_ref_data)
+
+    exc = error.value
+    assert len(exc.issues) == 1
+    assert exc.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "invalid",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Failed to parse DocumentReference resource (context.practiceSetting.coding[0].system: Field required)",
+        "expression": ["context.practiceSetting.coding[0].system"],
+    }
+
+
+def test_validate_missing_code_from_coding_where_mandatory():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["context"]["practiceSetting"] = {
+        "coding": [
+            {
+                "system": "http://snomed.info/sct",
+                "display": "Valid display string",
+            }
+        ]
+    }
+
+    with pytest.raises(ParseError) as error:
+        validator.validate(document_ref_data)
+
+    exc = error.value
+    assert len(exc.issues) == 1
+    assert exc.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "invalid",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Failed to parse DocumentReference resource (context.practiceSetting.coding[0].code: Field required)",
+        "expression": ["context.practiceSetting.coding[0].code"],
+    }
+
+
+def test_validate_missing_display_from_coding_where_mandatory():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["context"]["practiceSetting"] = {
+        "coding": [
+            {
+                "system": "http://snomed.info/sct",
+                "code": "788002001",
+            }
+        ]
+    }
+
+    with pytest.raises(ParseError) as error:
+        validator.validate(document_ref_data)
+
+    exc = error.value
+    assert len(exc.issues) == 1
+    assert exc.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "invalid",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Failed to parse DocumentReference resource (context.practiceSetting.coding[0].display: Field required)",
+        "expression": ["context.practiceSetting.coding[0].display"],
+    }
