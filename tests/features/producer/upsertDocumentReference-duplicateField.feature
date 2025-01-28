@@ -54,7 +54,7 @@ Feature: Producer - upsertDocumentReference - Duplicate Field Scenarios
         },
         "diagnostics": "Duplicate keys found in FHIR document: ['url']",
         "expression": [
-            "root.content[0].attachment.url"
+            "DocumentReference.content[0].attachment.url"
         ]
       }
       """
@@ -121,8 +121,8 @@ Feature: Producer - upsertDocumentReference - Duplicate Field Scenarios
         },
         "diagnostics": "Duplicate keys found in FHIR document: ['attachment', 'format']",
         "expression": [
-            "root.content[0].attachment",
-            "root.content[0].format"
+            "DocumentReference.content[0].attachment",
+            "DocumentReference.content[0].format"
         ]
       }
       """
