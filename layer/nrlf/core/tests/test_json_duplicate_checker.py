@@ -14,7 +14,7 @@ class TestJsonDuplicateChecker(unittest.TestCase):
         json_content = '{"a": 1, "b": 2, "a": 3}'
         duplicates, paths = check_duplicate_keys(json_content)
         self.assertEqual(duplicates, ["a"])
-        self.assertEqual(paths, ["root.a"])
+        self.assertEqual(paths, ["DocumentReference.a"])
 
     def test_nested_duplicates(self):
         # This JSON has no duplicates because the 'b' keys are at different levels
@@ -28,7 +28,7 @@ class TestJsonDuplicateChecker(unittest.TestCase):
         json_content = '{"a": {"b": 1, "b": 2}, "c": {"d": 3}}'
         duplicates, paths = check_duplicate_keys(json_content)
         self.assertEqual(duplicates, ["b"])
-        self.assertEqual(paths, ["root.a.b"])
+        self.assertEqual(paths, ["DocumentReference.a.b"])
 
     def test_same_level_duplicates_objects(self):
         # This JSON has duplicates because there are two 'b' keys at the same level
@@ -38,14 +38,16 @@ class TestJsonDuplicateChecker(unittest.TestCase):
         )
         duplicates, paths = check_duplicate_keys(json_content)
         self.assertEqual(duplicates, ["b"])
-        self.assertEqual(paths, ["root.a.b"])
+        self.assertEqual(paths, ["DocumentReference.a.b"])
 
     def test_multiple_level_duplicates(self):
         # This JSON has duplicates at multiple levels
         json_content = '{"a": 1, "b": {"c": 2, "c": 3}, "a": 4}'
         duplicates, paths = check_duplicate_keys(json_content)
         self.assertEqual(sorted(duplicates), sorted(["a", "c"]))
-        self.assertEqual(sorted(paths), sorted(["root.a", "root.b.c"]))
+        self.assertEqual(
+            sorted(paths), sorted(["DocumentReference.a", "DocumentReference.b.c"])
+        )
 
     def test_invalid_json(self):
         json_content = "{invalid json}"
@@ -56,7 +58,7 @@ class TestJsonDuplicateChecker(unittest.TestCase):
         json_content = '{"a": {"b": 1, "c": {"d": 2, "c": 3}}, "a": {"e": 4}}'
         duplicates, paths = check_duplicate_keys(json_content)
         self.assertEqual(sorted(duplicates), sorted(["a"]))
-        self.assertEqual(sorted(paths), sorted(["root.a"]))
+        self.assertEqual(sorted(paths), sorted(["DocumentReference.a"]))
 
     def test_multiple_duplicates_same_path(self):
         json_content = """
@@ -82,7 +84,15 @@ class TestJsonDuplicateChecker(unittest.TestCase):
         duplicates, paths = check_duplicate_keys(json_content)
         self.assertEqual(sorted(duplicates), sorted(["b", "c", "e", "g"]))
         self.assertEqual(
-            sorted(paths), sorted(["root.b", "root.b.c", "root.b.d.e", "root.b.d.f.g"])
+            sorted(paths),
+            sorted(
+                [
+                    "DocumentReference.b",
+                    "DocumentReference.b.c",
+                    "DocumentReference.b.d.e",
+                    "DocumentReference.b.d.f.g",
+                ]
+            ),
         )
 
     def test_no_duplicates_deeply_nested(self):
@@ -119,7 +129,10 @@ class TestJsonDuplicateChecker(unittest.TestCase):
         """
         duplicates, paths = check_duplicate_keys(json_content)
         self.assertEqual(sorted(duplicates), sorted(["b", "c"]))
-        self.assertEqual(sorted(paths), sorted(["root.a[0].b", "root.a[1].c"]))
+        self.assertEqual(
+            sorted(paths),
+            sorted(["DocumentReference.a[0].b", "DocumentReference.a[1].c"]),
+        )
 
     def test_large_json_with_mixed_duplicates(self):
         json_content = """
@@ -148,7 +161,14 @@ class TestJsonDuplicateChecker(unittest.TestCase):
         self.assertEqual(sorted(duplicates), sorted(["c", "f", "h", "j"]))
         self.assertEqual(
             sorted(paths),
-            sorted(["root.b.c", "root.b.e.f", "root.b.e.g.h", "root.i.j"]),
+            sorted(
+                [
+                    "DocumentReference.b.c",
+                    "DocumentReference.b.e.f",
+                    "DocumentReference.b.e.g.h",
+                    "DocumentReference.i.j",
+                ]
+            ),
         )
 
     def test_complex_nested_arrays_with_duplicates(self):
@@ -190,13 +210,13 @@ class TestJsonDuplicateChecker(unittest.TestCase):
             sorted(paths),
             sorted(
                 [
-                    "root.level1.arrays",
-                    "root.level1.arrays[0].a",
-                    "root.level1.arrays[0].nested.b",
-                    "root.level1.arrays[0].nested.b[0].c",
-                    "root.level1.arrays[1].mixed",
-                    "root.level1.arrays[1].mixed[1].f[0].g",
-                    "root.level1.arrays[1].mixed[1].f[1].h.i",
+                    "DocumentReference.level1.arrays",
+                    "DocumentReference.level1.arrays[0].a",
+                    "DocumentReference.level1.arrays[0].nested.b",
+                    "DocumentReference.level1.arrays[0].nested.b[0].c",
+                    "DocumentReference.level1.arrays[1].mixed",
+                    "DocumentReference.level1.arrays[1].mixed[1].f[0].g",
+                    "DocumentReference.level1.arrays[1].mixed[1].f[1].h.i",
                 ]
             ),
         )
@@ -233,8 +253,8 @@ class TestJsonDuplicateChecker(unittest.TestCase):
             sorted(paths),
             sorted(
                 [
-                    "root.root.level1[0].level2[0][0].data",
-                    "root.root.level1[0].level2[1][0].other",
+                    "DocumentReference.root.level1[0].level2[0][0].data",
+                    "DocumentReference.root.level1[0].level2[1][0].other",
                 ]
             ),
         )
@@ -263,7 +283,7 @@ class TestJsonDuplicateChecker(unittest.TestCase):
     def get_expected_paths(self, max_depth):
         """Helper function to get expected duplicate paths."""
         paths = []
-        current_path = "root"
+        current_path = "DocumentReference"
 
         # Start from level0 and increment
         for i in range(max_depth):
@@ -314,10 +334,10 @@ class TestJsonDuplicateChecker(unittest.TestCase):
         """
         duplicates, paths = check_duplicate_keys(json_content)
         self.assertEqual(duplicates, ["array"])
-        self.assertEqual(paths, ["root.array"])
+        self.assertEqual(paths, ["DocumentReference.array"])
 
     def test_case_sensitive_keys(self):
         json_content = '{"a": 1, "A": 2, "aA": 3, "Aa": 4}'
         duplicates, paths = check_duplicate_keys(json_content)
         self.assertEqual(duplicates, ["A", "Aa"])
-        self.assertEqual(paths, ["root.A", "root.Aa"])
+        self.assertEqual(paths, ["DocumentReference.A", "DocumentReference.Aa"])

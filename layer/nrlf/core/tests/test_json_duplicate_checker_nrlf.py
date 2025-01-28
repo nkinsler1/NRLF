@@ -59,4 +59,4 @@ def test_parse_body_valid_docref_with_duplicate_keys(field):
 
     node = field.split(".")[-1]
     assert result[0] == [node]
-    assert result[1] == [f"root.{field}"]
+    assert result[1] == [f"DocumentReference.{field}"]

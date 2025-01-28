@@ -2,11 +2,11 @@ import json
 from typing import Any
 
 
-def check_for_duplicate_keys(pairs: list[tuple[str, Any]]) -> dict:
+def check_for_duplicate_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
     """Custom JSON object_pairs_hook that checks for duplicate keys."""
-    keys = {}
-    dupes = {}
-    normalized_keys = []
+    keys: dict[str, Any] = {}
+    dupes: dict[str, Any] = {}
+    normalized_keys: list[str] = []
 
     for key, value in pairs:
         normalized_key = key.lower()
@@ -22,9 +22,9 @@ def check_for_duplicate_keys(pairs: list[tuple[str, Any]]) -> dict:
     return keys
 
 
-def flatten_duplicates(data: dict | list) -> list[str]:
+def flatten_duplicates(data: dict[str, Any] | list[Any]) -> list[str]:
     """Flattens a JSON structure and returns a list of duplicate paths."""
-    duplicates = []
+    duplicates: list[str] = []
     items = data.items() if isinstance(data, dict) else enumerate(data)
 
     for key, value in items:
@@ -39,9 +39,9 @@ def flatten_duplicates(data: dict | list) -> list[str]:
 
 
 def format_path(path: str) -> str:
-    """Transforms a path like root.key1.[2].key2 into root.key1[2].key2"""
+    """Transforms a path like key1.[2].key2 into key1[2].key2"""
     parts = path.split(".")
-    formatted_parts = []
+    formatted_parts: list[str] = []
     for part in parts:
         if part.startswith("["):
             formatted_parts[-1] += part
@@ -55,7 +55,7 @@ def check_duplicate_keys(json_content: str) -> tuple[list[str], list[str]]:
 
     Traverses the entire JSON structure and reports:
     - List of keys that appear multiple times at the same level
-    - Full paths to each duplicate key occurrence
+    - Full paths to each duplicate key occurrkeysence
 
     A key is considered duplicate if it appears multiple times within
     the same object, regardless of nesting level or array position.
@@ -63,7 +63,8 @@ def check_duplicate_keys(json_content: str) -> tuple[list[str], list[str]]:
     try:
         dupe_data = json.loads(json_content, object_pairs_hook=check_for_duplicate_keys)
         duplicate_paths = [
-            f"root.{format_path(path)}" for path in flatten_duplicates(dupe_data)
+            f"DocumentReference.{format_path(path)}"
+            for path in flatten_duplicates(dupe_data)
         ]
         duplicate_keys = list(
             dict.fromkeys([key.split(".")[-1] for key in duplicate_paths])
