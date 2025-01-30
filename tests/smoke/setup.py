@@ -8,8 +8,6 @@ from nrlf.core.constants import (
 )
 from nrlf.producer.fhir.r4.model import (
     Attachment,
-    CodeableConcept,
-    Coding,
     ContentStabilityExtension,
     ContentStabilityExtensionCoding,
     ContentStabilityExtensionValueCodeableConcept,
@@ -19,6 +17,7 @@ from nrlf.producer.fhir.r4.model import (
     DocumentReferenceRelatesTo,
     Identifier,
     NRLCodeableConcept,
+    NRLCoding,
     NRLFormatCode,
     Reference,
 )
@@ -66,9 +65,9 @@ def build_document_reference(
                 ],
             )
         ],
-        type=CodeableConcept(
+        type=NRLCodeableConcept(
             coding=[
-                Coding(
+                NRLCoding(
                     system="http://snomed.info/sct",
                     code=type,
                     display=TYPE_ATTRIBUTES.get(f"http://snomed.info/sct|{type}").get(
@@ -95,9 +94,9 @@ def build_document_reference(
             )
         ],
         category=[
-            CodeableConcept(
+            NRLCodeableConcept(
                 coding=[
-                    Coding(
+                    NRLCoding(
                         system="http://snomed.info/sct",
                         code=category,
                         display=(
@@ -110,7 +109,7 @@ def build_document_reference(
         context=DocumentReferenceContext(
             practiceSetting=NRLCodeableConcept(
                 coding=[
-                    Coding(
+                    NRLCoding(
                         system="http://snomed.info/sct",
                         code="224891009",
                         display="Healthcare services",
