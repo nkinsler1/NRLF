@@ -18,6 +18,7 @@ from nrlf.producer.fhir.r4.model import (
     DocumentReferenceContext,
     DocumentReferenceRelatesTo,
     Identifier,
+    NRLCodeableConcept,
     NRLFormatCode,
     Reference,
 )
@@ -107,7 +108,7 @@ def build_document_reference(
             )
         ],
         context=DocumentReferenceContext(
-            practiceSetting=CodeableConcept(
+            practiceSetting=NRLCodeableConcept(
                 coding=[
                     Coding(
                         system="http://snomed.info/sct",
