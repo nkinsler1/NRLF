@@ -103,7 +103,7 @@ def create_test_document_reference(items: dict) -> DocumentReference:
             "type_display", TYPE_ATTRIBUTES.get(type_str, {}).get("display")
         )
 
-        base_doc_ref.type = CodeableConcept(
+        base_doc_ref.type = NRLCodeableConcept(
             coding=[NRLCoding(system=type_system, code=type_code, display=type_display)]
         )
 
