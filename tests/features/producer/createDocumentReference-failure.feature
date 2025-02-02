@@ -927,14 +927,13 @@ Feature: Producer - createDocumentReference - Failure Scenarios
       {
       "system": " system",
       "code": "1234",
-      "display": "Tertiary care facility"
       }
       ]
       }
       }
       """
     Then the response status code is 400
-    And the response is an OperationOutcome with 2 issues
+    And the response is an OperationOutcome with 1 issue
     And the OperationOutcome contains the issue:
       """
       {
@@ -949,9 +948,9 @@ Feature: Producer - createDocumentReference - Failure Scenarios
             }
             ]
         },
-        "diagnostics": "Request body could not be parsed (context.practiceSetting.coding[0].display: String should match pattern '[^\\s]+(\\s[^\\s]+)*')",
+        "diagnostics": "Request body could not be parsed (context.practiceSetting.coding[0].system: String should match pattern '[^\\s]+(\\s[^\\s]+)*')",
         "expression": [
-            "context.practiceSetting.coding[0].display"
+            "context.practiceSetting.coding[0].system"
         ]
       }
       """
