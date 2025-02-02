@@ -545,15 +545,16 @@ Feature: Producer - createDocumentReference - Failure Scenarios
       | system                 | value     |
       | http://snomed.info/sct | 736253002 |
     When producer 'ANGY1' creates a DocumentReference with values:
-      | property    | value                          |
-      | subject     | 9278693472                     |
-      | status      | current                        |
-      | type_system | http://invalidsystem.info/sct  |
-      | type        | 736253002                      |
-      | category    | 734163000                      |
-      | custodian   | ANGY1                          |
-      | author      | HAR1                           |
-      | url         | https://example.org/my-doc.pdf |
+      | property     | value                          |
+      | subject      | 9278693472                     |
+      | status       | current                        |
+      | type_system  | http://invalidsystem.info/sct  |
+      | type_display | Mental health crisis plan      |
+      | type         | 736253002                      |
+      | category     | 734163000                      |
+      | custodian    | ANGY1                          |
+      | author       | HAR1                           |
+      | url          | https://example.org/my-doc.pdf |
     Then the response status code is 400
     And the response is an OperationOutcome with 1 issue
     And the OperationOutcome contains the issue:
@@ -581,14 +582,15 @@ Feature: Producer - createDocumentReference - Failure Scenarios
       | system                 | value     |
       | http://snomed.info/sct | 736253002 |
     When producer 'ANGY1' creates a DocumentReference with values:
-      | property  | value                          |
-      | subject   | 9999999999                     |
-      | status    | current                        |
-      | type      | invalid                        |
-      | category  | 734163000                      |
-      | custodian | ANGY1                          |
-      | author    | HAR1                           |
-      | url       | https://example.org/my-doc.pdf |
+      | property     | value                          |
+      | subject      | 9999999999                     |
+      | status       | current                        |
+      | type         | invalid                        |
+      | type_display | Mental health crisis plan      |
+      | category     | 734163000                      |
+      | custodian    | ANGY1                          |
+      | author       | HAR1                           |
+      | url          | https://example.org/my-doc.pdf |
     Then the response status code is 400
     And the response is an OperationOutcome with 1 issue
     And the OperationOutcome contains the issue:
@@ -714,6 +716,8 @@ Feature: Producer - createDocumentReference - Failure Scenarios
       }
       }
       """
+    Then the response status code is 400
+    And the response is an OperationOutcome with 1 issue
 
   Scenario: Missing content
     Given the application 'DataShare' (ID 'z00z-y11y-x22x') is registered to access the API
@@ -901,43 +905,36 @@ Feature: Producer - createDocumentReference - Failure Scenarios
       }
       """
 
-  Scenario: contentType empty string
+  Scenario: codings with empty string or leading whitespace
     Given the application 'DataShare' (ID 'z00z-y11y-x22x') is registered to access the API
     And the organisation 'TSTCUS' is authorised to access pointer types:
       | system                 | value     |
       | http://snomed.info/sct | 736253002 |
-    When producer 'TSTCUS' requests creation of a DocumentReference with default test values except 'content' is:
+    When producer 'TSTCUS' requests creation of a DocumentReference with default test values except 'context' is:
       """
-      "content": [
-        {
-          "attachment": {
-              "contentType": "",
-              "url": "https://spine-proxy.national.ncrs.nhs.uk/https%3A%2F%2Fp1.nhs.uk%2FMentalhealthCrisisPlanReport.pdf"
-          },
-          "format": {
-              "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
-              "code": "urn:nhs-ic:unstructured",
-              "display": "Unstructured Document"
-          },
-          "extension": [
-            {
-              "url": "https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability",
-              "valueCodeableConcept": {
-                "coding": [
-                  {
-                    "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability",
-                    "code": "static",
-                    "display": "Static"
-                  }
-                ]
-              }
-            }
-          ]
-        }
+      "context": {
+      "practiceSetting": {
+      "coding": [
+      {
+      "system": "http://snomed.info/sct",
+      "code": "788002001",
+      "display": ""
+      }
       ]
+      },
+      "facilityType": {
+      "coding": [
+      {
+      "system": " system",
+      "code": "1234",
+      "display": "Tertiary care facility"
+      }
+      ]
+      }
+      }
       """
     Then the response status code is 400
-    And the response is an OperationOutcome with 1 issue
+    And the response is an OperationOutcome with 2 issues
     And the OperationOutcome contains the issue:
       """
       {
@@ -952,9 +949,9 @@ Feature: Producer - createDocumentReference - Failure Scenarios
             }
             ]
         },
-        "diagnostics": "Request body could not be parsed (content[0].attachment.contentType: String should match pattern '[^\\s]+(\\s[^\\s]+)*')",
+        "diagnostics": "Request body could not be parsed (context.practiceSetting.coding[0].display: String should match pattern '[^\\s]+(\\s[^\\s]+)*')",
         "expression": [
-            "content[0].attachment.contentType"
+            "context.practiceSetting.coding[0].display"
         ]
       }
       """
