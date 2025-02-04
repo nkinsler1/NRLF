@@ -35,6 +35,8 @@ class LogReference(Enum):
     )
     HANDLER016 = _Reference("INFO", "Set response headers")
     HANDLER017 = _Reference("WARN", "Correlation ID not found in request headers")
+    HANDLER018 = _Reference("INFO", "Checking for duplicate keys in request body")
+    HANDLER019 = _Reference("ERROR", "Duplicate keys found in the request body")
     HANDLER999 = _Reference("INFO", "Request handler returned successfully")
 
     # Error Logs

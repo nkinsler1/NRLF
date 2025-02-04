@@ -79,6 +79,9 @@ class OperationOutcomeError(Exception):
             body=self.operation_outcome.model_dump_json(exclude_none=True, indent=2),
         )
 
+    def __str__(self):
+        return f"OperationOutcomeError: {self.operation_outcome}"
+
 
 class ParseError(Exception):
     issues: List[OperationOutcomeIssue]
