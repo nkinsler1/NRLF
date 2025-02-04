@@ -913,23 +913,23 @@ Feature: Producer - createDocumentReference - Failure Scenarios
     When producer 'TSTCUS' requests creation of a DocumentReference with default test values except 'context' is:
       """
       "context": {
-      "practiceSetting": {
-      "coding": [
-      {
-      "system": "http://snomed.info/sct",
-      "code": "788002001",
-      "display": ""
-      }
-      ]
-      },
-      "facilityType": {
-      "coding": [
-      {
-      "system": " system",
-      "code": "1234"
-      }
-      ]
-      }
+        "practiceSetting": {
+          "coding": [
+            {
+              "system": "http://snomed.info/sct",
+              "code": "788002001",
+              "display": ""
+            }
+          ]
+        },
+        "facilityType": {
+          "coding": [
+            {
+              "system": " system",
+              "code": "1234"
+            }
+          ]
+        }
       }
       """
     Then the response status code is 400
@@ -948,27 +948,7 @@ Feature: Producer - createDocumentReference - Failure Scenarios
             }
             ]
         },
-        "diagnostics": "Request body could not be parsed (context.facilityType.coding[0].system: String should match pattern '[^\\s]+(\\s[^\\s]+)*')",
-        "expression": [
-            "context.facilityType.coding[0].system"
-        ]
-      }
-      """
-    And the OperationOutcome contains the issue:
-      """
-      {
-        "severity": "error",
-        "code": "invalid",
-        "details": {
-            "coding": [
-            {
-                "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                "code": "MESSAGE_NOT_WELL_FORMED",
-                "display": "Message not well formed"
-            }
-            ]
-        },
-        "diagnostics": "Request body could not be parsed (context.practiceSetting.coding[0].display: String should match pattern '[^\\s]+(\\s[^\\s]+)*')",
+        "diagnostics": "Request body could not be parsed (context.practiceSetting.coding[0].display: String should match pattern '[\\S]+[ \\r\\n\\t\\S]*')",
         "expression": [
             "context.practiceSetting.coding[0].display"
         ]

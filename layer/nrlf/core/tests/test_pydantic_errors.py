@@ -1,5 +1,6 @@
 import pytest
 
+from nrlf.core.constants import SNOMED_SYSTEM_URL
 from nrlf.core.errors import ParseError
 from nrlf.core.validators import DocumentReferenceValidator
 from nrlf.tests.data import load_document_reference_json
@@ -310,17 +311,17 @@ def test_validate_multiple_codings():
     document_ref_data["category"][0] = {
         "coding": [
             {
-                "system": "http://snomed.info/sct",
+                "system": SNOMED_SYSTEM_URL,
                 "code": "734163000",
                 "display": "Care plan",
             },
             {
-                "system": "http://snomed.info/sct",
+                "system": SNOMED_SYSTEM_URL,
                 "code": "734163000",
                 "display": "Care plan",
             },
             {
-                "system": "http://snomed.info/sct",
+                "system": SNOMED_SYSTEM_URL,
                 "code": "734163000",
                 "display": "Care plan",
             },
@@ -384,7 +385,7 @@ def test_validate_empty_strings():
     document_ref_data["category"][0] = {
         "coding": [
             {
-                "system": "http://snomed.info/sct",
+                "system": SNOMED_SYSTEM_URL,
                 "code": "734163000",
                 "display": "",
             }
@@ -420,7 +421,7 @@ def test_validate_whitespace_strings():
     document_ref_data["category"][0] = {
         "coding": [
             {
-                "system": "http://snomed.info/sct",
+                "system": SNOMED_SYSTEM_URL,
                 "code": "734163000",
                 "display": "  ",
             }
@@ -534,7 +535,7 @@ def test_validate_missing_code_from_coding_where_mandatory():
     document_ref_data["context"]["practiceSetting"] = {
         "coding": [
             {
-                "system": "http://snomed.info/sct",
+                "system": SNOMED_SYSTEM_URL,
                 "display": "Valid display string",
             }
         ]
@@ -569,7 +570,7 @@ def test_validate_missing_display_from_coding_where_mandatory():
     document_ref_data["context"]["practiceSetting"] = {
         "coding": [
             {
-                "system": "http://snomed.info/sct",
+                "system": SNOMED_SYSTEM_URL,
                 "code": "788002001",
             }
         ]
