@@ -151,6 +151,42 @@ def test_parse_body_valid_docref():
     assert isinstance(result, DocumentReference)
 
 
+# another test similar to test_parse_body_valid_docref but with a duplicate key
+def test_parse_body_valid_docref_with_duplicate_key():
+    model = DocumentReference
+    docref_body = load_document_reference_data("Y05868-736253002-Valid")
+
+    str_to_duplicate = '"docStatus": "final",'
+    docref_body = docref_body.replace(str_to_duplicate, str_to_duplicate * 2)
+
+    with pytest.raises(OperationOutcomeError) as error:
+        parse_body(model, docref_body)
+
+    response = error.value.response
+
+    assert response.statusCode == "400"
+    assert json.loads(response.body) == {
+        "resourceType": "OperationOutcome",
+        "issue": [
+            {
+                "severity": "error",
+                "code": "invalid",
+                "details": {
+                    "coding": [
+                        {
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                            "code": "MESSAGE_NOT_WELL_FORMED",
+                            "display": "Message not well formed",
+                        }
+                    ]
+                },
+                "diagnostics": "Duplicate keys found in FHIR document: ['docStatus']",
+                "expression": ["DocumentReference.docStatus"],
+            }
+        ],
+    }
+
+
 def test_parse_body_no_body():
     model = DocumentReference
     body = None
@@ -273,6 +309,23 @@ def test_parse_body_invalid_json():
                 },
                 "diagnostics": "Request body could not be parsed (type: Input should be an object)",
                 "expression": ["type"],
+            },
+            {
+                "code": "invalid",
+                "details": {
+                    "coding": [
+                        {
+                            "code": "MESSAGE_NOT_WELL_FORMED",
+                            "display": "Message not well formed",
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                        },
+                    ],
+                },
+                "diagnostics": "Request body could not be parsed (category: Field required)",
+                "expression": [
+                    "category",
+                ],
+                "severity": "error",
             },
             {
                 "code": "invalid",
