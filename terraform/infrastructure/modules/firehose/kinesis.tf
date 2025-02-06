@@ -67,7 +67,25 @@ resource "aws_kinesis_firehose_delivery_stream" "reporting_stream" {
     bucket_arn = var.reporting_bucket_arn
 
     processing_configuration {
-      enabled = "false"
+      enabled = "true"
+
+      processors {
+        type = "Decompression"
+        parameters {
+          parameter_name  = "CompressionFormat"
+          parameter_value = "GZIP"
+        }
+      }
+
+      processors {
+        type = "CloudWatchLogProcessing"
+
+        parameters {
+          parameter_name  = "DataMessageExtraction"
+          parameter_value = "true"
+        }
+      }
+
     }
 
     cloudwatch_logging_options {

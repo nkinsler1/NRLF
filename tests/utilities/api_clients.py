@@ -229,6 +229,14 @@ class ProducerTestClient:
             cert=self.config.client_cert,
         )
 
+    def update_text(self, doc_ref, doc_ref_id: str):
+        return requests.put(
+            f"{self.api_url}/DocumentReference/{doc_ref_id}",
+            data=doc_ref,
+            headers=self.request_headers,
+            cert=self.config.client_cert,
+        )
+
     def delete(self, doc_ref_id: str):
         return requests.delete(
             f"{self.api_url}/DocumentReference/{doc_ref_id}",

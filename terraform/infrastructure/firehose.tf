@@ -9,5 +9,6 @@ module "firehose__processor" {
   splunk_index           = local.splunk_index
   destination            = "splunk"
   reporting_bucket_arn   = local.reporting_bucket_arn
-  reporting_infra_toggle = local.is_dev_env
+  reporting_kms_arn      = local.reporting_kms_arn
+  reporting_infra_toggle = local.is_dev_env && !local.is_sandbox_env
 }

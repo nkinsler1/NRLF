@@ -176,7 +176,7 @@ class Attachment(Parent):
         Optional[str],
         Field(
             description="A label or set of text to display in place of the data.",
-            pattern="[ \\r\\n\\t\\S]+",
+            pattern="[\\S]+[ \\r\\n\\t\\S]*",
         ),
     ] = None
     creation: Annotated[
@@ -200,14 +200,14 @@ class Coding(Parent):
         Optional[str],
         Field(
             description="The identification of the code system that defines the meaning of the symbol in the code.",
-            pattern="\\S*",
+            pattern="\\S+",
         ),
     ] = None
     version: Annotated[
         Optional[str],
         Field(
             description="The version of the code system which was used when choosing this code. Note that a well&ndash;maintained code system does not need the version reported, because the meaning of codes is consistent across versions. However this cannot consistently be assured, and when the meaning is not guaranteed to be consistent, the version SHOULD be exchanged.",
-            pattern="[ \\r\\n\\t\\S]+",
+            pattern="[\\S]+[ \\r\\n\\t\\S]*",
         ),
     ] = None
     code: Annotated[
@@ -221,9 +221,53 @@ class Coding(Parent):
         Optional[str],
         Field(
             description="A representation of the meaning of the code in the system, following the rules of the system.",
-            pattern="[ \\r\\n\\t\\S]+",
+            pattern="[\\S]+[ \\r\\n\\t\\S]*",
         ),
     ] = None
+    userSelected: Annotated[
+        Optional[bool],
+        Field(
+            description="Indicates that this coding was chosen by a user directly &ndash; e.g. off a pick list of available items (codes or displays)."
+        ),
+    ] = None
+
+
+class NRLCoding(BaseModel):
+    id: Annotated[
+        Optional[str],
+        Field(
+            description="Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces.",
+            pattern="[A-Za-z0-9\\-\\.]{1,64}",
+        ),
+    ] = None
+    system: Annotated[
+        str,
+        Field(
+            description="The identification of the code system that defines the meaning of the symbol in the code.",
+            pattern="\\S+",
+        ),
+    ]
+    version: Annotated[
+        Optional[str],
+        Field(
+            description="The version of the code system which was used when choosing this code. Note that a well&ndash;maintained code system does not need the version reported, because the meaning of codes is consistent across versions. However this cannot consistently be assured, and when the meaning is not guaranteed to be consistent, the version SHOULD be exchanged.",
+            pattern="[\\S]+[ \\r\\n\\t\\S]*",
+        ),
+    ] = None
+    code: Annotated[
+        str,
+        Field(
+            description="A symbol in syntax defined by the system. The symbol may be a predefined code or an expression in a syntax defined by the coding system (e.g. post&ndash;coordination).",
+            pattern="[^\\s]+(\\s[^\\s]+)*",
+        ),
+    ]
+    display: Annotated[
+        str,
+        Field(
+            description="A representation of the meaning of the code in the system, following the rules of the system.",
+            pattern="[\\S]+[ \\r\\n\\t\\S]*",
+        ),
+    ]
     userSelected: Annotated[
         Optional[bool],
         Field(
@@ -304,14 +348,14 @@ class Quantity(Parent):
         Optional[str],
         Field(
             description="A human&ndash;readable form of the unit.",
-            pattern="[ \\r\\n\\t\\S]+",
+            pattern="[\\S]+[ \\r\\n\\t\\S]*",
         ),
     ] = None
     system: Annotated[
         Optional[str],
         Field(
             description="The identification of the system that provides the coded form of the unit.",
-            pattern="\\S*",
+            pattern="[\\S]+[ \\r\\n\\t\\S]*",
         ),
     ] = None
     code: Annotated[
@@ -328,7 +372,7 @@ class ProfileItem(RootModel[str]):
         str,
         Field(
             description="A list of profiles (references to [StructureDefinition](structuredefinition.html#) resources) that this resource claims to conform to. The URL is a reference to [StructureDefinition.url](structuredefinition&ndash;definitions.html#StructureDefinition.url).",
-            pattern="\\S*",
+            pattern="[\\S]+[ \\r\\n\\t\\S]*",
         ),
     ]
 
@@ -359,7 +403,7 @@ class Meta(Parent):
         Optional[str],
         Field(
             description="A uri that identifies the source system of the resource. This provides a minimal amount of [Provenance](provenance.html#) information that can be used to track or differentiate the source of information in the resource. The source may identify another FHIR server, document, message, database, etc.",
-            pattern="\\S*",
+            pattern="[\\S]+[ \\r\\n\\t\\S]*",
         ),
     ] = None
     profile: Optional[List[ProfileItem]] = None
@@ -455,7 +499,25 @@ class CodeableConcept(Parent):
         Optional[str],
         Field(
             description="A human language representation of the concept as seen/selected/uttered by the user who entered the data and/or which represents the intended meaning of the user.",
-            pattern="[ \\r\\n\\t\\S]+",
+            pattern="[\\S]+[ \\r\\n\\t\\S]*",
+        ),
+    ] = None
+
+
+class NRLCodeableConcept(BaseModel):
+    id: Annotated[
+        Optional[str],
+        Field(
+            description="Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces.",
+            pattern="[A-Za-z0-9\\-\\.]{1,64}",
+        ),
+    ] = None
+    coding: Annotated[List[NRLCoding], Field(max_length=1, min_length=1)]
+    text: Annotated[
+        Optional[str],
+        Field(
+            description="A human language representation of the concept as seen/selected/uttered by the user who entered the data and/or which represents the intended meaning of the user.",
+            pattern="[\\S]+[ \\r\\n\\t\\S]*",
         ),
     ] = None
 
@@ -659,12 +721,12 @@ class DocumentReference(Parent):
         Field(description="The status of the underlying document."),
     ] = None
     type: Annotated[
-        Optional[CodeableConcept],
+        NRLCodeableConcept,
         Field(
             description="Specifies the particular kind of document referenced  (e.g. History and Physical, Discharge Summary, Progress Note). This usually equates to the purpose of making the document referenced."
         ),
-    ] = None
-    category: Optional[List[CodeableConcept]] = None
+    ]
+    category: List[NRLCodeableConcept]
     subject: Annotated[
         Optional[Reference],
         Field(
@@ -696,7 +758,7 @@ class DocumentReference(Parent):
         Optional[str],
         Field(
             description="Human&ndash;readable description of the source document.",
-            pattern="[ \\r\\n\\t\\S]+",
+            pattern="[\\S]+[ \\r\\n\\t\\S]*",
         ),
     ] = None
     securityLabel: Optional[List[CodeableConcept]] = None
@@ -879,7 +941,7 @@ class DocumentReferenceContext(Parent):
         Field(description="The kind of facility where the patient was seen."),
     ] = None
     practiceSetting: Annotated[
-        CodeableConcept,
+        NRLCodeableConcept,
         Field(
             description="This property may convey specifics about the practice setting where the content was created, often reflecting the clinical specialty."
         ),
@@ -938,14 +1000,14 @@ class Identifier(Parent):
         Optional[str],
         Field(
             description="Establishes the namespace for the value &ndash; that is, a URL that describes a set values that are unique.",
-            pattern="\\S*",
+            pattern="[\\S]+[ \\r\\n\\t\\S]*",
         ),
     ] = None
     value: Annotated[
         Optional[str],
         Field(
             description="The portion of the identifier typically relevant to the user and which is unique within the context of the system.",
-            pattern="[ \\r\\n\\t\\S]+",
+            pattern="[\\S]+[ \\r\\n\\t\\S]*",
         ),
     ] = None
     period: Annotated[
@@ -970,14 +1032,14 @@ class Reference(Parent):
         Optional[str],
         Field(
             description="A reference to a location at which the other resource is found. The reference may be a relative reference, in which case it is relative to the service base URL, or an absolute URL that resolves to the location where the resource is found. The reference may be version specific or not. If the reference is not to a FHIR RESTful server, then it should be assumed to be version specific. Internal fragment references (start with '#') refer to contained resources.",
-            pattern="[ \\r\\n\\t\\S]+",
+            pattern="[\\S]+[ \\r\\n\\t\\S]*",
         ),
     ] = None
     type: Annotated[
         Optional[str],
         Field(
             description='The expected type of the target of the reference. If both Reference.type and Reference.reference are populated and Reference.reference is a FHIR URL, both SHALL be consistent.\nThe type is the Canonical URL of Resource Definition that is the type this reference refers to. References are URLs that are relative to http://hl7.org/fhir/StructureDefinition/ e.g. "Patient" is a reference to http://hl7.org/fhir/StructureDefinition/Patient. Absolute URLs are only allowed for logical models (and can only be used in references in logical models, not resources).',
-            pattern="\\S*",
+            pattern="[\\S]+[ \\r\\n\\t\\S]*",
         ),
     ] = None
     identifier: Annotated[
@@ -990,7 +1052,7 @@ class Reference(Parent):
         Optional[str],
         Field(
             description="Plain text narrative that identifies the resource in addition to the resource reference.",
-            pattern="[ \\r\\n\\t\\S]+",
+            pattern="[\\S]+[ \\r\\n\\t\\S]*",
         ),
     ] = None
 

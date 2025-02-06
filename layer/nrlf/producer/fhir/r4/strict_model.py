@@ -208,6 +208,45 @@ class Coding(Parent):
     ] = None
 
 
+class NRLCoding(BaseModel):
+    id: Annotated[
+        Optional[StrictStr],
+        Field(
+            description="Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."
+        ),
+    ] = None
+    system: Annotated[
+        StrictStr,
+        Field(
+            description="The identification of the code system that defines the meaning of the symbol in the code."
+        ),
+    ]
+    version: Annotated[
+        Optional[StrictStr],
+        Field(
+            description="The version of the code system which was used when choosing this code. Note that a well&ndash;maintained code system does not need the version reported, because the meaning of codes is consistent across versions. However this cannot consistently be assured, and when the meaning is not guaranteed to be consistent, the version SHOULD be exchanged."
+        ),
+    ] = None
+    code: Annotated[
+        StrictStr,
+        Field(
+            description="A symbol in syntax defined by the system. The symbol may be a predefined code or an expression in a syntax defined by the coding system (e.g. post&ndash;coordination)."
+        ),
+    ]
+    display: Annotated[
+        StrictStr,
+        Field(
+            description="A representation of the meaning of the code in the system, following the rules of the system."
+        ),
+    ]
+    userSelected: Annotated[
+        Optional[StrictBool],
+        Field(
+            description="Indicates that this coding was chosen by a user directly &ndash; e.g. off a pick list of available items (codes or displays)."
+        ),
+    ] = None
+
+
 class ContentStabilityExtensionCoding(Coding):
     system: Literal[
         "https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability"
@@ -405,6 +444,22 @@ class CodeableConcept(Parent):
     ] = None
 
 
+class NRLCodeableConcept(Parent):
+    id: Annotated[
+        Optional[StrictStr],
+        Field(
+            description="Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces."
+        ),
+    ] = None
+    coding: Annotated[List[NRLCoding], Field(max_length=1, min_length=1)]
+    text: Annotated[
+        Optional[StrictStr],
+        Field(
+            description="A human language representation of the concept as seen/selected/uttered by the user who entered the data and/or which represents the intended meaning of the user."
+        ),
+    ] = None
+
+
 class Extension(Parent):
     valueCodeableConcept: Annotated[
         Optional[CodeableConcept],
@@ -583,12 +638,12 @@ class DocumentReference(Parent):
         Field(description="The status of the underlying document."),
     ] = None
     type: Annotated[
-        Optional[CodeableConcept],
+        NRLCodeableConcept,
         Field(
             description="Specifies the particular kind of document referenced  (e.g. History and Physical, Discharge Summary, Progress Note). This usually equates to the purpose of making the document referenced."
         ),
-    ] = None
-    category: Optional[List[CodeableConcept]] = None
+    ]
+    category: List[NRLCodeableConcept]
     subject: Annotated[
         Optional[Reference],
         Field(
@@ -782,7 +837,7 @@ class DocumentReferenceContext(Parent):
         Field(description="The kind of facility where the patient was seen."),
     ] = None
     practiceSetting: Annotated[
-        CodeableConcept,
+        NRLCodeableConcept,
         Field(
             description="This property may convey specifics about the practice setting where the content was created, often reflecting the clinical specialty."
         ),
