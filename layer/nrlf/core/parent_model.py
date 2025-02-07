@@ -1,7 +1,8 @@
 from typing import Annotated, List, Optional
 
-from consumer.fhir.r4.model import CodeableConcept
 from pydantic import BaseModel, ConfigDict, Field
+
+from nrlf.consumer.fhir.r4.model import CodeableConcept
 
 
 class Extension(BaseModel):
