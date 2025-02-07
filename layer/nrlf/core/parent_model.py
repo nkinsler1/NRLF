@@ -3,7 +3,7 @@ from typing import Annotated, List, Optional
 from pydantic import BaseModel, ConfigDict, Field
 
 
-class Coding(BaseModel):
+class ParentCoding(BaseModel):
     model_config = ConfigDict(regex_engine="python-re", extra="forbid")
     id: Annotated[
         Optional[str],
@@ -48,7 +48,7 @@ class Coding(BaseModel):
     ] = None
 
 
-class CodeableConcept(BaseModel):
+class ParentCodeableConcept(BaseModel):
     model_config = ConfigDict(regex_engine="python-re", extra="forbid")
     id: Annotated[
         Optional[str],
@@ -57,7 +57,7 @@ class CodeableConcept(BaseModel):
             pattern="[A-Za-z0-9\\-\\.]{1,64}",
         ),
     ] = None
-    coding: Optional[List[Coding]] = None
+    coding: Optional[List[ParentCoding]] = None
     text: Annotated[
         Optional[str],
         Field(
@@ -67,10 +67,9 @@ class CodeableConcept(BaseModel):
     ] = None
 
 
-class Extension(BaseModel):
-    model_config = ConfigDict(regex_engine="python-re", extra="forbid")
+class ParentExtension(BaseModel):
     valueCodeableConcept: Annotated[
-        Optional[CodeableConcept],
+        Optional[ParentCodeableConcept],
         Field(
             description="A name which details the functional use for this link &ndash; see [http://www.iana.org/assignments/link&ndash;relations/link&ndash;relations.xhtml#link&ndash;relations&ndash;1](http://www.iana.org/assignments/link&ndash;relations/link&ndash;relations.xhtml#link&ndash;relations&ndash;1)."
         ),
@@ -84,5 +83,6 @@ class Extension(BaseModel):
 class Parent(BaseModel):
     model_config = ConfigDict(regex_engine="python-re", extra="forbid")
     extension: Annotated[
-        Optional[List[Extension]], Field(description="A list of relevant extensions")
-    ]
+        Optional[List[ParentExtension]],
+        Field(description="A list of relevant extensions"),
+    ] = None
