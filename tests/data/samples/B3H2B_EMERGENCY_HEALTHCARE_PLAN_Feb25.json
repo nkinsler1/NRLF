@@ -1,0 +1,110 @@
+{
+  "resourceType": "DocumentReference",
+  "id": "B3H2B-c2a99222-eb50-4451-ad6e-1e951627800e",
+  "meta": {
+    "lastUpdated": "2025-02-10T16:48:27.326Z"
+  },
+  "masterIdentifier": {
+    "system": "better.pdfCompositionUid",
+    "value": "mid_c2a99222-eb50-4451-ad6e-1e951627800e"
+  },
+  "status": "current",
+  "type": {
+    "coding": [
+      {
+        "system": "http://snomed.info/sct",
+        "code": "887701000000100",
+        "display": "Emergency health care plan"
+      }
+    ]
+  },
+  "category": [
+    {
+      "coding": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "734163000",
+          "display": "Care plan"
+        }
+      ]
+    }
+  ],
+  "subject": {
+    "identifier": {
+      "system": "https://fhir.nhs.uk/Id/nhs-number",
+      "value": "9999999999"
+    }
+  },
+  "date": "2025-02-10T16:48:27.326Z",
+  "author": [
+    {
+      "identifier": {
+        "system": "https://fhir.nhs.uk/Id/ods-organization-code",
+        "value": "B3H2B"
+      }
+    }
+  ],
+  "custodian": {
+    "identifier": {
+      "system": "https://fhir.nhs.uk/Id/ods-organization-code",
+      "value": "B3H2B"
+    }
+  },
+  "relatesTo": [
+    {
+      "code": "replaces",
+      "target": {
+        "identifier": {
+          "value": "rel_c2a99222-eb50-4451-ad6e-1e951627800e"
+        }
+      }
+    }
+  ],
+  "content": [
+    {
+      "attachment": {
+        "contentType": "application/pdf",
+        "url": "ssp://content.test.local/content",
+        "creation": "2025-02-10T16:48:27.326Z"
+      },
+      "format": {
+        "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
+        "code": "urn:nhs-ic:unstructured",
+        "display": "Unstructured Document"
+      },
+      "extension": [
+        {
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability",
+                "code": "static",
+                "display": "Static"
+              }
+            ]
+          },
+          "url": "https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability"
+        }
+      ]
+    }
+  ],
+  "context": {
+    "practiceSetting": {
+      "coding": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "224891009",
+          "display": "Healthcare services"
+        }
+      ]
+    },
+    "related": [
+      {
+        "identifier": {
+          "system": "https://fhir.nhs.uk/Id/nhsSpineASID",
+          "value": "012345678910"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "resourceType": "DocumentReference",
+  "id": "QUY-c2a99222-eb50-4451-ad6e-1e951627800e",
+  "meta": {
+    "lastUpdated": "2025-02-10T16:48:27.327Z"
+  },
+  "masterIdentifier": {
+    "system": "urn:ietf:rfc:3986",
+    "value": "mid_c2a99222-eb50-4451-ad6e-1e951627800e"
+  },
+  "status": "current",
+  "type": {
+    "coding": [
+      {
+        "system": "http://snomed.info/sct",
+        "code": "1382601000000107",
+        "display": "ReSPECT (Recommended Summary Plan for Emergency Care and Treatment) form"
+      }
+    ]
+  },
+  "category": [
+    {
+      "coding": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "734163000",
+          "display": "Care plan"
+        }
+      ]
+    }
+  ],
+  "subject": {
+    "identifier": {
+      "system": "https://fhir.nhs.uk/Id/nhs-number",
+      "value": "9999999999"
+    }
+  },
+  "date": "2025-02-10T16:48:27.327Z",
+  "author": [
+    {
+      "identifier": {
+        "system": "https://fhir.nhs.uk/Id/ods-organization-code",
+        "value": "L81014"
+      }
+    }
+  ],
+  "custodian": {
+    "identifier": {
+      "system": "https://fhir.nhs.uk/Id/ods-organization-code",
+      "value": "QUY"
+    }
+  },
+  "content": [
+    {
+      "attachment": {
+        "contentType": "application/pdf",
+        "url": "ssp://content.test.local/content",
+        "creation": "2025-02-10T16:48:27.327Z"
+      },
+      "format": {
+        "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
+        "code": "urn:nhs-ic:unstructured",
+        "display": "Unstructured Document"
+      },
+      "extension": [
+        {
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability",
+                "code": "static",
+                "display": "Static"
+              }
+            ]
+          },
+          "url": "https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability"
+        }
+      ]
+    }
+  ],
+  "context": {
+    "period": {
+      "start": "2025-02-10T16:48:27.327Z"
+    },
+    "practiceSetting": {
+      "coding": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "1060971000000108",
+          "display": "General practice service"
+        }
+      ]
+    },
+    "related": [
+      {
+        "identifier": {
+          "system": "https://fhir.nhs.uk/Id/nhsSpineASID",
+          "value": "012345678910"
+        }
+      }
+    ]
+  }
+}
