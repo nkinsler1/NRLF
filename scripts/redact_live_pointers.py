@@ -20,6 +20,48 @@ logger.setLevel("ERROR")
 type_to_name = {pointer_type.value: pointer_type.name for pointer_type in PointerTypes}
 
 
+def _redact_timestamps(docref: DocumentReference) -> None:
+    mock_timestamp = create_fhir_instant()
+    docref.meta.lastUpdated = mock_timestamp
+    docref.date = mock_timestamp
+
+
+def _redact_ids(docref: DocumentReference) -> None:
+    ods_code = docref.custodian.identifier.value
+
+    mock_id = "c2a99222-eb50-4451-ad6e-1e951627800e"
+    docref.subject.identifier.value = "9999999999"
+    docref.id = f"{ods_code}-{mock_id}"
+    if docref.masterIdentifier:
+        docref.masterIdentifier.value = f"mid_{mock_id}"
+    if docref.relatesTo:
+        for relates_to in docref.relatesTo:
+            relates_to.target.identifier.value = f"rel_{mock_id}"
+
+
+def _redact_content(docref: DocumentReference) -> None:
+    mock_timestamp = create_fhir_instant()
+    for content in docref.content:
+        if content.attachment.url.startswith("ssp://"):
+            content.attachment.url = "ssp://content.test.local/content"
+        else:
+            content.attachment.url = "https://content.test.local/content"
+        content.attachment.creation = mock_timestamp
+
+
+def _redact_context(docref: DocumentReference) -> None:
+    if docref.context.related:
+        for related in docref.context.related:
+            related.identifier.value = "012345678910"
+
+    mock_timestamp = create_fhir_instant()
+    if docref.context.period:
+        if docref.context.period.start:
+            docref.context.period.start = mock_timestamp
+        if docref.context.period.end:
+            docref.context.period.end = mock_timestamp
+
+
 def _redact_pointers(src_path: str, dest_path: str) -> None:
     """
     Redact pointers in .json files in from the source path and write the redacted pointer to the destination path.
@@ -40,33 +82,10 @@ def _redact_pointers(src_path: str, dest_path: str) -> None:
         type_coding = docref.type.coding[0]
         pointer_type = type_to_name[f"{type_coding.system}|{type_coding.code}"]
 
-        mock_timestamp = create_fhir_instant()
-        docref.meta.lastUpdated = mock_timestamp
-        docref.date = mock_timestamp
-
-        mock_id = f"c2a99222-eb50-4451-ad6e-1e951627800e"
-        docref.subject.identifier.value = "9999999999"
-        docref.id = f"{ods_code}-{mock_id}"
-        if docref.masterIdentifier:
-            docref.masterIdentifier.value = f"mid_{mock_id}"
-        if docref.relatesTo:
-            for relates_to in docref.relatesTo:
-                relates_to.target.identifier.value = f"rel_{mock_id}"
-
-        for content in docref.content:
-            if content.attachment.url.startswith("ssp://"):
-                content.attachment.url = "ssp://content.test.local/content"
-            else:
-                content.attachment.url = "https://content.test.local/content"
-            content.attachment.creation = mock_timestamp
-        if docref.context.related:
-            for related in docref.context.related:
-                related.identifier.value = "012345678910"
-        if docref.context.period:
-            if docref.context.period.start:
-                docref.context.period.start = mock_timestamp
-            if docref.context.period.end:
-                docref.context.period.end = mock_timestamp
+        _redact_ids(docref)
+        _redact_timestamps(docref)
+        _redact_content(docref)
+        _redact_context(docref)
 
         month_year = datetime.now().strftime("%b%y")
         filename = f"{dest_path}/{ods_code}_{pointer_type}_{month_year}.json"
