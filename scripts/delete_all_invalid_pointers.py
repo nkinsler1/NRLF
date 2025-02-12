@@ -31,6 +31,10 @@ def _find_invalid_pointers(table_name: str) -> dict[str, Any]:
     params: dict[str, Any] = {
         "TableName": table_name,
         "PaginationConfig": {"PageSize": 50},
+        "FilterExpression": "created_on < :date",
+        "ExpressionAttributeValues": {
+            ":date": {"S": "2025-01-20T00:00:00.000000+0000"}
+        }
     }
 
     invalid_pointers = []
@@ -41,6 +45,11 @@ def _find_invalid_pointers(table_name: str) -> dict[str, Any]:
     for page in paginator.paginate(**params):
         for item in page["Items"]:
             pointer_id = item.get("id", {}).get("S")
+            created_on = item.get("created_on", {}).get("S")
+            # parse datetime from created_on string
+            created_on = datetime.strptime(created_on, "%Y-%m-%dT%H:%M:%S.%f%z")
+            if created_on > datetime(2025, 1, 20, tzinfo=timezone.utc):
+                continue
             document = item.get("document", {}).get("S", "")
             try:
                 _validate_document(document)
@@ -146,5 +155,82 @@ def _find_and_delete_invalid_pointers(table_name: str) -> dict[str, float | int]
     return {**find_result, **delete_result}
 
 
+def _fix_invalid_pointers(table_name: str) -> dict[str, Any]:
+    print(f"Finding and fixing invalid pointers in table {table_name}....")
+
+    params: dict[str, Any] = {
+        "TableName": table_name,
+        "PaginationConfig": {"PageSize": 50},
+        "FilterExpression": "created_on < :date",
+        "ExpressionAttributeValues": {
+            ":date": {"S": "2025-01-20T00:00:00.000000+0000"}
+        }
+    }
+
+    fixed_pointers = []
+    total_scanned_count = 0
+    total_fixed_count = 0
+
+    start_time = datetime.now(tz=timezone.utc)
+
+    for page in paginator.paginate(**params):
+        for item in page["Items"]:
+            pointer_id = item.get("id", {}).get("S")
+            created_on = item.get("created_on", {}).get("S")
+            # parse datetime from created_on string
+            created_on = datetime.strptime(created_on, "%Y-%m-%dT%H:%M:%S.%f%z")
+            if created_on > datetime(2025, 1, 20, tzinfo=timezone.utc):
+                continue
+            document = item.get("document", {}).get("S", "")
+            try:
+                docref = DocumentReference.model_validate_json(document)
+                if (
+                    docref.type.coding[0].display == "Mental Health Crisis plan"
+                ):
+                    #print(f"Fixing document {pointer_id}")
+                    docref.type.coding[0].display = "Mental health crisis plan"
+                    resource.Table(table_name).update_item(
+                        Key={"pk": f"D#{pointer_id}", "sk": f"D#{pointer_id}"},
+                        UpdateExpression="SET document = :d",
+                        ExpressionAttributeValues={":d": docref.json()},
+                    )
+                    fixed_pointers.append(pointer_id)
+                    total_fixed_count += 1
+            except Exception as exc:
+                print(f"Failed to fix document {pointer_id}: {exc}")
+
+        total_scanned_count += page["ScannedCount"]
+
+        if total_fixed_count % 100 == 0:
+            print("x", end="", flush=True)
+        
+        if total_scanned_count % 1000 == 0:
+            print(".", end="", flush=True)
+
+        if total_scanned_count % 100000 == 0:
+            print(f"scanned={total_scanned_count} fixed={len(fixed_pointers)}")
+
+    end_time = datetime.now(tz=timezone.utc)
+
+    print(f" Done. Fixed {len(fixed_pointers)} invalid pointers")
+
+    #save fixed pointers to file
+    if len(fixed_pointers) > 0:
+        print("Writing fixed pointers IDs to file ./fixed_pointers.txt ...")
+        with open("fixed_pointers.txt", "w") as f:
+            for _id in fixed_pointers:
+                f.write(f"{_id}\n")
+
+    return {
+        "fixed_pointers": fixed_pointers,
+        "scanned_count": total_scanned_count,
+        "fix-took-secs": timedelta.total_seconds(end_time - start_time),
+    }
+
+
 if __name__ == "__main__":
-    fire.Fire(_find_and_delete_invalid_pointers)
+    fire.Fire({
+        "find_and_delete_invalid_pointers": _find_and_delete_invalid_pointers,
+        "fix_invalid_pointers": _fix_invalid_pointers,
+        "find_invalid_pointers": _find_invalid_pointers,
+    })
