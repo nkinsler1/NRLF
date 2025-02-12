@@ -323,10 +323,63 @@ def _fix_invalid_pointers_from_file(table_name: str, file_path: str) -> dict[str
         "fix-took-secs": timedelta.total_seconds(end_time - start_time),
     }
 
+def _verify_pointers_from_file(table_name: str, file_path: str) -> dict[str, Any]:
+    print(f"Verifying pointers from file {file_path} in table {table_name}....")
+
+    with open(file_path, "r") as f:
+        pointer_ids = [line.split(":")[0] for line in f.readlines()]
+
+    verified_pointers = []
+    invalid_pointers = []
+    total_verified_count = 0
+
+    start_time = datetime.now(tz=timezone.utc)
+
+    for pointer_id in pointer_ids:
+        try:
+            response = dynamodb.get_item(
+                TableName=table_name,
+                Key={"pk": {"S": f"D#{pointer_id}"}, "sk": {"S": f"D#{pointer_id}"}}
+            )
+            item = response.get("Item")
+            if not item:
+                print(f"Pointer {pointer_id} not found.")
+                continue
+
+            document = item.get("document", {}).get("S", "")
+            _validate_document(document)
+            verified_pointers.append(pointer_id)
+            total_verified_count += 1
+
+        except Exception as exc:
+            print(f"Failed to verify document {pointer_id}: {exc}")
+            invalid_pointers.append(pointer_id)
+
+        if total_verified_count % 100 == 0:
+            print("x", end="", flush=True)
+
+    end_time = datetime.now(tz=timezone.utc)
+
+    print(f" Done. Verified {len(verified_pointers)} pointers")
+
+    if len(invalid_pointers) > 0:
+        print("Writing invalid pointers IDs to file ./invalid_pointers_from_file.txt ...")
+        with open("invalid_pointers_from_file.txt", "w") as f:
+            for _id in invalid_pointers:
+                f.write(f"{_id}\n")
+
+    return {
+        "verified_pointers": verified_pointers,
+        "invalid_pointers": invalid_pointers,
+        "total_verified_count": total_verified_count,
+        "verify-took-secs": timedelta.total_seconds(end_time - start_time),
+    }
+
 if __name__ == "__main__":
     fire.Fire({
         "find_and_delete_invalid_pointers": _find_and_delete_invalid_pointers,
         "fix_invalid_pointers": _fix_invalid_pointers,
         "find_invalid_pointers": _find_invalid_pointers,
         "fix_invalid_pointers_from_file": _fix_invalid_pointers_from_file,
+        "verify_pointers_from_file": _verify_pointers_from_file,
     })
