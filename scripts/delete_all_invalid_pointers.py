@@ -228,9 +228,105 @@ def _fix_invalid_pointers(table_name: str) -> dict[str, Any]:
     }
 
 
+def _fix_invalid_pointers_from_file(table_name: str, file_path: str) -> dict[str, Any]:
+    print(f"Fixing invalid pointers from file {file_path} in table {table_name}....")
+
+    with open(file_path, "r") as f:
+        pointer_ids = [line.split(":")[0] for line in f.readlines()]
+
+    fixed_pointers = []
+    total_fixed_count = 0
+
+    start_time = datetime.now(tz=timezone.utc)
+
+    for pointer_id in pointer_ids:
+        try:
+            response = dynamodb.get_item(
+                TableName=table_name,
+                Key={"pk": {"S": f"D#{pointer_id}"}, "sk": {"S": f"D#{pointer_id}"}}
+            )
+            item = response.get("Item")
+            if not item:
+                print(f"Pointer {pointer_id} not found.")
+                continue
+
+            document = item.get("document", {}).get("S", "")
+
+            # if "https://fhir.nhs.uk/STU3/CodeSystem/NRL-FormatCode-1" in document:
+            #     document = document.replace(
+            #         "https://fhir.nhs.uk/STU3/CodeSystem/NRL-FormatCode-1",
+            #         "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
+            #     )
+            #     resource.Table(table_name).update_item(
+            #         Key={"pk": f"D#{pointer_id}", "sk": f"D#{pointer_id}"},
+            #         UpdateExpression="SET document = :d",
+            #         ExpressionAttributeValues={":d": document},
+            #     )
+            #     fixed_pointers.append(pointer_id)
+            #     total_fixed_count += 1
+
+            docref: DocumentReference = DocumentReference.model_validate_json(document)
+            if docref.content[0].attachment.contentType.startswith("application/pdf") and len(docref.content[0].attachment.contentType) > len("application/pdf"):
+                docref.content[0].attachment.contentType = "application/pdf"
+                resource.Table(table_name).update_item(
+                    Key={"pk": f"D#{pointer_id}", "sk": f"D#{pointer_id}"},
+                    UpdateExpression="SET document = :d",
+                    ExpressionAttributeValues={":d": docref.json()},
+                )
+                fixed_pointers.append(pointer_id)
+                total_fixed_count += 1
+       
+            if docref.content[0].attachment.url.startswith("ssp://") and docref.content[0].attachment.contentType != "application/pdf":
+                docref.content[0].attachment.contentType = "application/pdf"
+                resource.Table(table_name).update_item(
+                    Key={"pk": f"D#{pointer_id}", "sk": f"D#{pointer_id}"},
+                    UpdateExpression="SET document = :d",
+                    ExpressionAttributeValues={":d": docref.json()},
+                )
+                fixed_pointers.append(pointer_id)
+                total_fixed_count += 1
+
+            if docref.content[0].attachment.contentType == "application/pdf" and docref.content[0].attachment.url.endswith("pdf"):
+                if docref.content[0].attachment.url.startswith("https://"):
+                    docref.content[0].attachment.url.replace(("https://"), ("ssp://"))
+                
+                if docref.content[0].format.code == "urn:nhs-ic:record-contact" or docref.content[0].format.display == "Contact details (HTTP Unsecured)":
+                    docref.content[0].format.code = "urn:nhs-ic:unstructured"
+                    docref.content[0].format.display = "Unstructured Document"
+                resource.Table(table_name).update_item(
+                    Key={"pk": f"D#{pointer_id}", "sk": f"D#{pointer_id}"},
+                    UpdateExpression="SET document = :d",
+                    ExpressionAttributeValues={":d": docref.json()},
+                )
+                fixed_pointers.append(pointer_id)
+                total_fixed_count += 1
+
+        except Exception as exc:
+            print(f"Failed to fix document {pointer_id}: {exc}")
+
+        if total_fixed_count % 100 == 0:
+            print("x", end="", flush=True)
+
+    end_time = datetime.now(tz=timezone.utc)
+
+    print(f" Done. Fixed {len(fixed_pointers)} invalid pointers")
+
+    if len(fixed_pointers) > 0:
+        print("Writing fixed pointers IDs to file ./fixed_pointers_from_file.txt ...")
+        with open("fixed_pointers_from_file.txt", "w") as f:
+            for _id in fixed_pointers:
+                f.write(f"{_id}\n")
+
+    return {
+        "fixed_pointers": fixed_pointers,
+        "total_fixed_count": total_fixed_count,
+        "fix-took-secs": timedelta.total_seconds(end_time - start_time),
+    }
+
 if __name__ == "__main__":
     fire.Fire({
         "find_and_delete_invalid_pointers": _find_and_delete_invalid_pointers,
         "fix_invalid_pointers": _fix_invalid_pointers,
         "find_invalid_pointers": _find_invalid_pointers,
+        "fix_invalid_pointers_from_file": _fix_invalid_pointers_from_file,
     })
