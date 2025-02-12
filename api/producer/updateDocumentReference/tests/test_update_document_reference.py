@@ -592,7 +592,6 @@ def test_update_document_reference_immutable_fields(repository):
             )
         ],
         text=None,
-        extension=None,
     )
 
     event = create_test_api_gateway_event(

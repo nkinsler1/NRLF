@@ -129,7 +129,6 @@ class DocumentReferenceValidator:
 
         try:
             self._validate_required_fields(resource)
-            self._validate_no_extra_fields(resource, data)
             self._validate_identifiers(resource)
             self._validate_relates_to(resource)
             self._validate_ssp_asid(resource)
@@ -173,29 +172,6 @@ class DocumentReferenceValidator:
 
         if not self.result.is_valid:
             raise StopValidationError()
-
-    def _validate_no_extra_fields(
-        self, resource: DocumentReference, data: Dict[str, Any] | DocumentReference
-    ):
-        """
-        Validate that there are no extra fields
-        """
-        logger.log(LogReference.VALIDATOR001, step="no_extra_fields")
-        has_extra_fields = False
-
-        if isinstance(data, DocumentReference):
-            has_extra_fields = (
-                len(set(resource.__dict__) - set(resource.model_fields)) > 0
-            )
-        else:
-            has_extra_fields = data != resource.model_dump(exclude_none=True)
-
-        if has_extra_fields:
-            self.result.add_error(
-                issue_code="invalid",
-                error_code="INVALID_RESOURCE",
-                diagnostics="The resource contains extra fields",
-            )
 
     def _validate_identifiers(self, model: DocumentReference):
         """ """

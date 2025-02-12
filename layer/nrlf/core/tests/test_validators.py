@@ -281,12 +281,12 @@ def test_validate_document_reference_extra_fields():
 
     document_ref_data["extra_field"] = "extra_value"
 
-    result = validator.validate(document_ref_data)
+    with pytest.raises(ParseError) as error:
+        validator.validate(document_ref_data)
 
-    assert result.is_valid is False
-    assert result.resource.id == "Y05868-99999-99999-999999"
-    assert len(result.issues) == 1
-    assert result.issues[0].model_dump(exclude_none=True) == {
+    exc = error.value
+    assert len(exc.issues) == 1
+    assert exc.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
         "code": "invalid",
         "details": {
@@ -298,7 +298,36 @@ def test_validate_document_reference_extra_fields():
                 }
             ]
         },
-        "diagnostics": "The resource contains extra fields",
+        "diagnostics": "Failed to parse DocumentReference resource (extra_field: Extra inputs are not permitted)",
+        "expression": ["extra_field"],
+    }
+
+
+def test_validate_document_reference_extra_fields_content():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["content"][0]["extra_field"] = "extra_value"
+
+    with pytest.raises(ParseError) as error:
+        validator.validate(document_ref_data)
+
+    exc = error.value
+    assert len(exc.issues) == 1
+    assert exc.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "invalid",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Failed to parse DocumentReference resource (content[0].extra_field: Extra inputs are not permitted)",
+        "expression": ["content[0].extra_field"],
     }
 
 
