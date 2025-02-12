@@ -31,10 +31,6 @@ def _find_invalid_pointers(table_name: str) -> dict[str, Any]:
     params: dict[str, Any] = {
         "TableName": table_name,
         "PaginationConfig": {"PageSize": 50},
-        "FilterExpression": "created_on < :date",
-        "ExpressionAttributeValues": {
-            ":date": {"S": "2025-01-20T00:00:00.000000+0000"}
-        }
     }
 
     invalid_pointers = []
@@ -45,11 +41,6 @@ def _find_invalid_pointers(table_name: str) -> dict[str, Any]:
     for page in paginator.paginate(**params):
         for item in page["Items"]:
             pointer_id = item.get("id", {}).get("S")
-            created_on = item.get("created_on", {}).get("S")
-            # parse datetime from created_on string
-            created_on = datetime.strptime(created_on, "%Y-%m-%dT%H:%M:%S.%f%z")
-            if created_on > datetime(2025, 1, 20, tzinfo=timezone.utc):
-                continue
             document = item.get("document", {}).get("S", "")
             try:
                 _validate_document(document)
