@@ -70,7 +70,7 @@ def _check_permissions(
     # Allow BARS proxy to create an appointment document reference for any organisation
     if (
         metadata.ods_code in ["V4TOL", "V4T0L"]
-        and core_model.type.coding[0].code == PointerTypes.APPOINTMENT.coding_value()
+        and core_model.type == PointerTypes.APPOINTMENT.value
     ):
         return
 

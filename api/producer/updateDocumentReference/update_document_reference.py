@@ -64,7 +64,7 @@ def handler(
 
     if (
         metadata.ods_code in ["V4TOL", "V4T0L"]
-        and core_model.type.coding[0].code == PointerTypes.APPOINTMENT.coding_value()
+        and core_model.type == PointerTypes.APPOINTMENT.value
     ):
         # If bars app - don't validate the ods code against the pointer
         logger.log(
