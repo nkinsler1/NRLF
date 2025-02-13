@@ -35,11 +35,16 @@ ALLOWED_RELATES_TO_CODES = {
     "incorporates",
     "summarizes",
 }
+
 CLIENT_RP_DETAILS = "nhsd-client-rp-details"
 CONNECTION_METADATA = "nhsd-connection-metadata"
 PERMISSION_AUDIT_DATES_FROM_PAYLOAD = "audit-dates-from-payload"
 PERMISSION_SUPERSEDE_IGNORE_DELETE_FAIL = "supersede-ignore-delete-fail"
 PERMISSION_ALLOW_ALL_POINTER_TYPES = "allow-all-pointer-types"
+
+# Bars prototype - Allow a application to proxy as any organisation
+METADATA_PROXY_ODS_CODE = "nrl.proxy-ods-code"
+PERMISSION_ALLOW_PROXY_ODS_CODES = "allow-proxy-ods-codes"
 
 
 NHSD_REQUEST_ID_HEADER = "NHSD-Request-Id"

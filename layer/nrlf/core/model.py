@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field, StrictStr
 
 import nrlf.consumer.fhir.r4.model as consumer_model
 import nrlf.producer.fhir.r4.model as producer_model
+from nrlf.core.constants import METADATA_PROXY_ODS_CODE
 
 
 class _NhsNumberMixin:
@@ -56,6 +57,7 @@ class ConnectionMetadata(BaseModel):
     ods_code_extension: str | None = Field(alias="nrl.ods-code-extension", default=None)
     nrl_permissions: list[str] = Field(alias="nrl.permissions", default_factory=list)
     nrl_app_id: str = Field(alias="nrl.app-id")
+    nrl_proxy_ods_code: str | None = Field(alias=METADATA_PROXY_ODS_CODE, default=None)
     is_test_event: bool = Field(alias="nrl.test-event", default=False)
     client_rp_details: ClientRpDetails
 

@@ -2,8 +2,10 @@ from uuid import uuid4
 
 from nrlf.core.codes import SpineErrorConcept
 from nrlf.core.constants import (
+    PERMISSION_ALLOW_PROXY_ODS_CODES,
     PERMISSION_AUDIT_DATES_FROM_PAYLOAD,
     PERMISSION_SUPERSEDE_IGNORE_DELETE_FAIL,
+    PointerTypes,
 )
 from nrlf.core.decorators import request_handler
 from nrlf.core.dynamodb.repository import DocumentPointer, DocumentPointerRepository
@@ -65,14 +67,29 @@ def _check_permissions(
     Check the requester has permissions to create the DocumentReference
     """
 
-    # Allow BARS proxy to create a document reference for any organisation
-    if metadata.ods_code == "V4TOL" and core_model.type in metadata.pointer_types:
+    # Allow BARS proxy to create an appointment document reference for any organisation
+    if (
+        metadata.ods_code in ["V4TOL", "V4T0L"]
+        and core_model.type.coding[0].code == PointerTypes.APPOINTMENT.coding_value()
+    ):
         return
+
+    allow_ods_code_proxying = False
+    if PERMISSION_ALLOW_PROXY_ODS_CODES in metadata.nrl_permissions:
+        if metadata.ods_code == metadata.nrl_proxy_ods_code:
+            allow_ods_code_proxying = True
+        else:
+            logger.log(
+                LogReference.PROCREATE003,
+                ods_code=metadata.ods_code,
+                proxy_ods_code=metadata.nrl_proxy_ods_code,
+                warning="Unable to allow ods code proxying as the ods code does not match the configured proxy ods code",
+            )
 
     custodian_parts = tuple(
         filter(None, (core_model.custodian, core_model.custodian_suffix))
     )
-    if metadata.ods_code_parts != custodian_parts:
+    if not allow_ods_code_proxying and metadata.ods_code_parts != custodian_parts:
         logger.log(
             LogReference.PROCREATE004,
             ods_code_parts=metadata.ods_code_parts,

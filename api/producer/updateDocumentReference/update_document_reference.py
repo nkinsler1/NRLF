@@ -63,7 +63,7 @@ def handler(
     core_model = DocumentPointer.from_document_reference(document_reference)
 
     if (
-        metadata.ods_code == "V4TOL"
+        metadata.ods_code in ["V4TOL", "V4T0L"]
         and core_model.type.coding[0].code == PointerTypes.APPOINTMENT.coding_value()
     ):
         # If bars app - don't validate the ods code against the pointer
