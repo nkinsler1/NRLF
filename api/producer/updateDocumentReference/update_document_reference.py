@@ -3,6 +3,7 @@ import urllib.parse
 from pydantic import ValidationError
 
 from nrlf.core.codes import SpineErrorConcept
+from nrlf.core.constants import PointerTypes
 from nrlf.core.decorators import DocumentPointerRepository, request_handler
 from nrlf.core.dynamodb.model import DocumentPointer
 from nrlf.core.errors import OperationOutcomeError
@@ -61,7 +62,17 @@ def handler(
 
     core_model = DocumentPointer.from_document_reference(document_reference)
 
-    if metadata.ods_code_parts != tuple(core_model.producer_id.split("|")):
+    if (
+        metadata.ods_code == "V4TOL"
+        and core_model.type.coding[0].code == PointerTypes.APPOINTMENT.coding_value()
+    ):
+        # If bars app - don't validate the ods code against the pointer
+        logger.log(
+            LogReference.PROUPDATE002,
+            msg="Allowing bars to update pointer",
+            pointer_id=core_model.id,
+        )
+    elif metadata.ods_code_parts != tuple(core_model.producer_id.split("|")):
         logger.log(
             LogReference.PROUPDATE004,
             metadata_ods_code_parts=metadata.ods_code_parts,

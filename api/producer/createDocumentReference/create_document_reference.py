@@ -64,6 +64,11 @@ def _check_permissions(
     """
     Check the requester has permissions to create the DocumentReference
     """
+
+    # Allow BARS proxy to create a document reference for any organisation
+    if metadata.ods_code == "V4TOL" and core_model.type in metadata.pointer_types:
+        return
+
     custodian_parts = tuple(
         filter(None, (core_model.custodian, core_model.custodian_suffix))
     )
