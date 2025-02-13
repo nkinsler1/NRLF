@@ -368,6 +368,10 @@ class DocumentReferenceValidator:
             )
             return
 
+        # Bypass display validation for bars appointments
+        if type_id == PointerTypes.APPOINTMENT.value:
+            return
+
         type_attributes = TYPE_ATTRIBUTES.get(type_id, {})
         if coding.display != type_attributes.get("display"):
             self.result.add_error(
@@ -421,6 +425,10 @@ class DocumentReferenceValidator:
                 diagnostics=f"Invalid category code: {coding.code} Category must be a member of the England-NRLRecordCategory value set (https://fhir.nhs.uk/England/CodeSystem/England-NRLRecordCategory)",
                 field="category[0].coding[0].code",
             )
+            return
+
+        # Bypass display validation for bars record artifacts
+        if category_id == Categories.RECORD_ARTIFACT.value:
             return
 
         category_attributes = CATEGORY_ATTRIBUTES.get(category_id, {})
@@ -623,7 +631,13 @@ class DocumentReferenceValidator:
         }
 
         for i, content in enumerate(model.content):
-            if content.attachment.contentType not in ["application/pdf", "text/html"]:
+            if content.attachment.contentType not in [
+                "application/pdf",
+                "text/html",
+                "application/fhir+json",
+                "application/json",
+                "application/json+fhir",
+            ]:
                 self.result.add_error(
                     issue_code="value",
                     error_code="INVALID_RESOURCE",

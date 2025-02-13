@@ -7,6 +7,7 @@ from nrlf.core.constants import (
     ODS_SYSTEM,
     TYPE_ATTRIBUTES,
     TYPE_CATEGORIES,
+    Categories,
     PointerTypes,
 )
 from nrlf.core.errors import ParseError
@@ -430,6 +431,7 @@ def test_validate_category_too_many_category():
     [
         (category_str.split("|")[1], display_dict["display"])
         for category_str, display_dict in CATEGORY_ATTRIBUTES.items()
+        if category_str != Categories.RECORD_ARTIFACT.value
     ],
 )
 def test_validate_category_coding_display_mismatch(
@@ -639,6 +641,7 @@ def test_validate_type_coding_invalid_system():
     [
         (type_str, display_dict["display"])
         for type_str, display_dict in TYPE_ATTRIBUTES.items()
+        if type_str != PointerTypes.APPOINTMENT.value
     ],
 )
 def test_validate_type_coding_display_mismatch(type_str: str, display: str):

@@ -66,6 +66,7 @@ class PointerTypes(Enum):
     PERSONALISED_CARE_AND_SUPPORT_PLAN = "http://snomed.info/sct|2181441000000107"
     MRA_UPPER_LIMB_ARTERY = "https://nicip.nhs.uk|MAULR"
     MRI_AXILLA_BOTH = "https://nicip.nhs.uk|MAXIB"
+    APPOINTMENT = "http://snomed.info/sct|749001000000101"
 
     @staticmethod
     def list():
@@ -84,6 +85,7 @@ class Categories(Enum):
     CLINICAL_NOTE = "http://snomed.info/sct|823651000000106"
     DIAGNOSTIC_STUDIES_REPORT = "http://snomed.info/sct|721981007"
     DIAGNOSTIC_PROCEDURE = "http://snomed.info/sct|103693007"
+    RECORD_ARTIFACT = "http://snomed.info/sct|419891008"
 
     @staticmethod
     def list():
@@ -111,6 +113,9 @@ CATEGORY_ATTRIBUTES = {
     },
     Categories.DIAGNOSTIC_PROCEDURE.value: {
         "display": "Diagnostic procedure",
+    },
+    Categories.RECORD_ARTIFACT.value: {
+        "display": "Record artifact (record artifact)",
     },
 }
 
@@ -157,6 +162,9 @@ TYPE_ATTRIBUTES = {
     PointerTypes.MRI_AXILLA_BOTH.value: {
         "display": "MRI Axilla Both",
     },
+    PointerTypes.APPOINTMENT.value: {
+        "display": "Appointment (record artifact)",
+    },
 }
 
 TYPE_CATEGORIES = {
@@ -182,6 +190,9 @@ TYPE_CATEGORIES = {
     # Imaging
     PointerTypes.MRA_UPPER_LIMB_ARTERY.value: Categories.DIAGNOSTIC_STUDIES_REPORT.value,
     PointerTypes.MRI_AXILLA_BOTH.value: Categories.DIAGNOSTIC_PROCEDURE.value,
+    #
+    # Bars
+    PointerTypes.APPOINTMENT.value: Categories.RECORD_ARTIFACT.value,
 }
 
 PRACTICE_SETTING_VALUE_SET_URL = (
@@ -653,6 +664,7 @@ SNOMED_PRACTICE_SETTINGS = {
     "24291000087104": "Geriatric chronic pain management service",
     "1323501000000109": "Special care dentistry service",
     "1423561000000102": "Acute oncology service",
+    "394802001": "General medicine (qualifier value)",
 }
 
 
