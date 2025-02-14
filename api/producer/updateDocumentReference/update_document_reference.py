@@ -69,7 +69,7 @@ def handler(
         # If bars app - don't validate the ods code against the pointer
         logger.log(
             LogReference.PROUPDATE002,
-            msg="Allowing bars to update pointer",
+            allow_rule="Allowing bars to update pointer",
             pointer_id=core_model.id,
         )
     elif metadata.ods_code_parts != tuple(core_model.producer_id.split("|")):
