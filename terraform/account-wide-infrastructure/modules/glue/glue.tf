@@ -1,7 +1,7 @@
 # Create Glue Data Catalog Database
 resource "aws_glue_catalog_database" "log_database" {
   name         = "${var.name_prefix}-reporting"
-  location_uri = "${aws_s3_bucket.target-data-bucket.id}/logs/"
+  location_uri = "${aws_s3_bucket.target-data-bucket.id}/"
 }
 
 # Create Glue Crawler
@@ -10,7 +10,7 @@ resource "aws_glue_crawler" "log_crawler" {
   database_name = aws_glue_catalog_database.log_database.name
   role          = aws_iam_role.glue_service_role.name
   s3_target {
-    path = "${aws_s3_bucket.target-data-bucket.id}/logs/"
+    path = "${aws_s3_bucket.target-data-bucket.id}/"
   }
   schema_change_policy {
     delete_behavior = "LOG"

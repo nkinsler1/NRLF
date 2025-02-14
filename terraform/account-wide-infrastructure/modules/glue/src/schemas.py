@@ -291,6 +291,6 @@ countDocumentReferenceSchema = StructType(
     ]
 )
 
-schemas = {
+schemaList = {
     "countDocumentReference": countDocumentReferenceSchema,
 }

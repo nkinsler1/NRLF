@@ -3,7 +3,7 @@ import sys
 from awsglue.utils import getResolvedOptions
 from pipeline import LogPipeline
 from pyspark.context import SparkContext
-from schemas import schemas
+from schemas import schemaList
 from transformations import dtype_conversion, flatten_df
 
 # Get arguments from AWS Glue job
@@ -21,7 +21,7 @@ etl_job = LogPipeline(
     spark_context=sc,
     source_path=args["source_path"],
     target_path=args["target_path"],
-    schema=schemas,
+    schemas=schemaList,
     job_name=args["job_name"],
     partition_cols=partition_cols,
     transformations=[flatten_df, dtype_conversion],
