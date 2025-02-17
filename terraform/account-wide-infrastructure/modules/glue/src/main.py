@@ -1,10 +1,10 @@
 import sys
 
 from awsglue.utils import getResolvedOptions
+from consumer_schemas import consumerSchemaList
 from pipeline import LogPipeline
+from producer_schemas import producerSchemaList
 from pyspark.context import SparkContext
-from schemas.consumer_schemas import consumerSchemaList
-from schemas.producer_schemas import producerSchemaList
 from transformations import dtype_conversion, flatten_df
 
 # Get arguments from AWS Glue job
