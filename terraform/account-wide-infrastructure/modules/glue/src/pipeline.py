@@ -70,6 +70,7 @@ class LogPipeline:
         """Load transformed data into Parquet format"""
         self.logger.info(f"Loading data into {self.target_path} as Parquet")
         for name, dataframe in data.items():
+            name = name.replace("--", "_")
             dataframe.write.mode("append").partitionBy(*self.partition_cols).parquet(
                 f"{self.target_path}{name}"
             )
