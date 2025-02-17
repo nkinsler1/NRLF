@@ -17,14 +17,14 @@ sc = SparkContext()
 
 partition_cols = args["partition_cols"].split(",") if "partition_cols" in args else []
 
-schema_list = consumerSchemaList.update(producerSchemaList)
+consumerSchemaList.update(producerSchemaList)
 
 # Initialize ETL process
 etl_job = LogPipeline(
     spark_context=sc,
     source_path=args["source_path"],
     target_path=args["target_path"],
-    schemas=schema_list,
+    schemas=consumerSchemaList,
     job_name=args["job_name"],
     partition_cols=partition_cols,
     transformations=[flatten_df, dtype_conversion],
