@@ -10,7 +10,37 @@ resource "aws_glue_crawler" "log_crawler" {
   database_name = aws_glue_catalog_database.log_database.name
   role          = aws_iam_role.glue_service_role.name
   s3_target {
-    path = "${aws_s3_bucket.target-data-bucket.id}/"
+    path = "${aws_s3_bucket.target-data-bucket.id}/consumer_countDocumentReference/"
+  }
+  s3_target {
+    path = "${aws_s3_bucket.target-data-bucket.id}/consumer_readDocumentReference/"
+  }
+  s3_target {
+    path = "${aws_s3_bucket.target-data-bucket.id}/consumer_searchDocumentReference/"
+  }
+  s3_target {
+    path = "${aws_s3_bucket.target-data-bucket.id}/consumer_searchPostDocumentReference/"
+  }
+  s3_target {
+    path = "${aws_s3_bucket.target-data-bucket.id}/producer_createDocumentReference/"
+  }
+  s3_target {
+    path = "${aws_s3_bucket.target-data-bucket.id}/producer_deleteDocumentReference/"
+  }
+  s3_target {
+    path = "${aws_s3_bucket.target-data-bucket.id}/producer_readDocumentReference/"
+  }
+  s3_target {
+    path = "${aws_s3_bucket.target-data-bucket.id}/producer_searchDocumentReference/"
+  }
+  s3_target {
+    path = "${aws_s3_bucket.target-data-bucket.id}/producer_searchPostDocumentReference/"
+  }
+  s3_target {
+    path = "${aws_s3_bucket.target-data-bucket.id}/producer_updateDocumentReference/"
+  }
+  s3_target {
+    path = "${aws_s3_bucket.target-data-bucket.id}/producer_upsertDocumentReference//"
   }
   schema_change_policy {
     delete_behavior = "LOG"
