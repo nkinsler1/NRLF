@@ -37,28 +37,28 @@ searchPostDocumentReferenceSchema = StructType(
                             [
                                 StructField("accept", StringType(), True),
                                 StructField("accept-encoding", StringType(), True),
-                                StructField("Authorization", StringType(), True),
+                                StructField("authorization", StringType(), True),
                                 StructField("content-type", StringType(), True),
-                                StructField("Host", StringType(), True),
+                                StructField("host", StringType(), True),
                                 StructField(
-                                    "NHSD-Client-RP-Details", StringType(), True
+                                    "nhsd-client-rp-details", StringType(), True
                                 ),
                                 StructField(
-                                    "NHSD-Connection-Metadata", StringType(), True
+                                    "nhsd-connection-metadata", StringType(), True
                                 ),
+                                StructField("nhsd-correlation-id", StringType(), True),
                                 StructField(
-                                    "NHSD-End-User-Organisation-ODS", StringType(), True
+                                    "nhsd-end-user-organisation-ods", StringType(), True
                                 ),
-                                StructField("NHSD-Request-ID", StringType(), True),
-                                StructField("User-Agent", StringType(), True),
+                                StructField("nhsd-request-id", StringType(), True),
+                                StructField("user-agent", StringType(), True),
                                 StructField("x-correlation-id", StringType(), True),
-                                StructField("X-Forwarded-For", StringType(), True),
-                                StructField("X-Forwarded-Port", StringType(), True),
-                                StructField("X-Forwarded-Proto", StringType(), True),
+                                StructField("x-forwarded-for", StringType(), True),
+                                StructField("x-forwarded-port", StringType(), True),
+                                StructField("x-forwarded-proto", StringType(), True),
                                 StructField("x-request-id", StringType(), True),
                                 StructField("cache-control", StringType(), True),
-                                StructField("NHSD-Correlation-ID", StringType(), True),
-                                StructField("Postman-Token", StringType(), True),
+                                StructField("postman-token", StringType(), True),
                             ]
                         ),
                         True,
@@ -69,13 +69,13 @@ searchPostDocumentReferenceSchema = StructType(
                         "config",
                         StructType(
                             [
-                                StructField("AWS_REGION", StringType(), True),
-                                StructField("PREFIX", StringType(), True),
-                                StructField("ENVIRONMENT", StringType(), True),
-                                StructField("SPLUNK_INDEX", StringType(), True),
-                                StructField("SOURCE", StringType(), True),
-                                StructField("AUTH_STORE", StringType(), True),
-                                StructField("TABLE_NAME", StringType(), True),
+                                StructField("aws_region", StringType(), True),
+                                StructField("prefix", StringType(), True),
+                                StructField("environment", StringType(), True),
+                                StructField("splunk_index", StringType(), True),
+                                StructField("source", StringType(), True),
+                                StructField("auth_store", StringType(), True),
+                                StructField("table_name", StringType(), True),
                             ]
                         ),
                         True,
@@ -84,12 +84,8 @@ searchPostDocumentReferenceSchema = StructType(
                         "metadata",
                         StructType(
                             [
-                                StructField("pointer_types", StringType(), True),
                                 StructField("ods_code", StringType(), True),
-                                StructField("ods_code_extension", StringType(), True),
-                                StructField("nrl_permissions", StringType(), True),
                                 StructField("nrl_app_id", StringType(), True),
-                                StructField("is_test_event", BooleanType(), True),
                                 StructField(
                                     "client_rp_details",
                                     StructType(
@@ -108,23 +104,6 @@ searchPostDocumentReferenceSchema = StructType(
                         ),
                         True,
                     ),
-                    StructField("error", StringType(), True),
-                    StructField("exception", StringType(), True),
-                    StructField("exception_name", StringType(), True),
-                    StructField(
-                        "stack_trace",
-                        StructType(
-                            [
-                                StructField("type", StringType(), True),
-                                StructField("value", StringType(), True),
-                                StructField("module", StringType(), True),
-                                StructField("frames", StructType([]), True),
-                            ]
-                        ),
-                        True,
-                    ),
-                    StructField("bucket", StringType(), True),
-                    StructField("key", StringType(), True),
                     StructField("pointer_types", StringType(), True),
                     StructField("body", StringType(), True),
                     StructField("model", StringType(), True),
@@ -133,10 +112,8 @@ searchPostDocumentReferenceSchema = StructType(
                         StructType(
                             [
                                 StructField("subject_identifier", StringType(), True),
-                                StructField("custodian_identifier", StringType(), True),
                                 StructField("type", StringType(), True),
-                                StructField("category", StringType(), True),
-                                StructField("next_page_token", StringType(), True),
+                                StructField("custodian_identifier", StringType(), True),
                             ]
                         ),
                         True,
@@ -150,12 +127,12 @@ searchPostDocumentReferenceSchema = StructType(
                         "query",
                         StructType(
                             [
-                                StructField("IndexName", StringType(), True),
+                                StructField("indexname", StringType(), True),
                                 StructField(
-                                    "KeyConditionExpression", StringType(), True
+                                    "keyconditionexpression", StringType(), True
                                 ),
                                 StructField(
-                                    "ExpressionAttributeValues",
+                                    "expressionattributevalues",
                                     StructType(
                                         [
                                             StructField(
@@ -182,11 +159,11 @@ searchPostDocumentReferenceSchema = StructType(
                                     True,
                                 ),
                                 StructField(
-                                    "ReturnConsumedCapacity", StringType(), True
+                                    "returnconsumedcapacity", StringType(), True
                                 ),
-                                StructField("FilterExpression", StringType(), True),
+                                StructField("filterexpression", StringType(), True),
                                 StructField(
-                                    "ExpressionAttributeNames",
+                                    "expressionattributenames",
                                     StructType(
                                         [
                                             StructField(
@@ -207,7 +184,6 @@ searchPostDocumentReferenceSchema = StructType(
                             [
                                 StructField("count", LongType(), True),
                                 StructField("scanned_count", LongType(), True),
-                                StructField("last_evaluated_key", StringType(), True),
                             ]
                         ),
                         True,
@@ -216,34 +192,22 @@ searchPostDocumentReferenceSchema = StructType(
                         "result",
                         StructType(
                             [
-                                StructField("Items", StructType([]), True),
-                                StructField("Count", LongType(), True),
-                                StructField("ScannedCount", LongType(), True),
+                                StructField("items", StructType([]), True),
+                                StructField("count", LongType(), True),
+                                StructField("scannedcount", LongType(), True),
                                 StructField(
-                                    "ConsumedCapacity",
+                                    "consumedcapacity",
                                     StructType(
                                         [
                                             StructField(
-                                                "TableName", StringType(), True
+                                                "tablename", StringType(), True
                                             ),
                                             StructField(
-                                                "CapacityUnits", DoubleType(), True
+                                                "capacityunits", DoubleType(), True
                                             ),
+                                            StructField("table", StructType([]), True),
                                             StructField(
-                                                "Table",
-                                                StructType(
-                                                    [
-                                                        StructField(
-                                                            "CapacityUnits",
-                                                            DoubleType(),
-                                                            True,
-                                                        )
-                                                    ]
-                                                ),
-                                                True,
-                                            ),
-                                            StructField(
-                                                "GlobalSecondaryIndexes",
+                                                "globalsecondaryindexes",
                                                 StructType(
                                                     [
                                                         StructField(
@@ -251,7 +215,7 @@ searchPostDocumentReferenceSchema = StructType(
                                                             StructType(
                                                                 [
                                                                     StructField(
-                                                                        "CapacityUnits",
+                                                                        "capacityunits",
                                                                         DoubleType(),
                                                                         True,
                                                                     )
@@ -268,17 +232,17 @@ searchPostDocumentReferenceSchema = StructType(
                                     True,
                                 ),
                                 StructField(
-                                    "ResponseMetadata",
+                                    "responsemetadata",
                                     StructType(
                                         [
                                             StructField(
-                                                "RequestId", StringType(), True
+                                                "requestid", StringType(), True
                                             ),
                                             StructField(
-                                                "HTTPStatusCode", LongType(), True
+                                                "httpstatuscode", LongType(), True
                                             ),
                                             StructField(
-                                                "HTTPHeaders",
+                                                "httpheaders",
                                                 StructType(
                                                     [
                                                         StructField(
@@ -316,26 +280,10 @@ searchPostDocumentReferenceSchema = StructType(
                                                 ),
                                                 True,
                                             ),
-                                            StructField(
-                                                "RetryAttempts", LongType(), True
-                                            ),
                                         ]
                                     ),
                                     True,
                                 ),
-                            ]
-                        ),
-                        True,
-                    ),
-                    StructField("status_code", StringType(), True),
-                    StructField(
-                        "response",
-                        StructType(
-                            [
-                                StructField("statusCode", StringType(), True),
-                                StructField("body", StringType(), True),
-                                StructField("headers", StructType([]), True),
-                                StructField("isBase64Encoded", BooleanType(), True),
                             ]
                         ),
                         True,
@@ -345,6 +293,35 @@ searchPostDocumentReferenceSchema = StructType(
                     StructField("custodian", StringType(), True),
                     StructField("id", StringType(), True),
                     StructField("count", LongType(), True),
+                    StructField("status_code", StringType(), True),
+                    StructField(
+                        "response",
+                        StructType(
+                            [
+                                StructField("statuscode", StringType(), True),
+                                StructField("body", StringType(), True),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField("error", StringType(), True),
+                    StructField("document", StringType(), True),
+                    StructField("exception", StringType(), True),
+                    StructField("exception_name", StringType(), True),
+                    StructField(
+                        "stack_trace",
+                        StructType(
+                            [
+                                StructField("type", StringType(), True),
+                                StructField("value", StringType(), True),
+                                StructField("module", StringType(), True),
+                                StructField("frames", StructType([]), True),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField("bucket", StringType(), True),
+                    StructField("key", StringType(), True),
                     StructField("subject_identifier", StringType(), True),
                     StructField("type", StringType(), True),
                 ]
@@ -384,26 +361,26 @@ searchDocumentReferenceSchema = StructType(
                             [
                                 StructField("accept", StringType(), True),
                                 StructField("accept-encoding", StringType(), True),
-                                StructField("Authorization", StringType(), True),
+                                StructField("authorization", StringType(), True),
                                 StructField("cache-control", StringType(), True),
-                                StructField("Host", StringType(), True),
+                                StructField("host", StringType(), True),
                                 StructField(
-                                    "NHSD-Client-RP-Details", StringType(), True
+                                    "nhsd-client-rp-details", StringType(), True
                                 ),
                                 StructField(
-                                    "NHSD-Connection-Metadata", StringType(), True
+                                    "nhsd-connection-metadata", StringType(), True
                                 ),
-                                StructField("NHSD-Correlation-ID", StringType(), True),
+                                StructField("nhsd-correlation-id", StringType(), True),
                                 StructField(
-                                    "NHSD-End-User-Organisation-ODS", StringType(), True
+                                    "nhsd-end-user-organisation-ods", StringType(), True
                                 ),
-                                StructField("NHSD-Request-ID", StringType(), True),
-                                StructField("Postman-Token", StringType(), True),
-                                StructField("User-Agent", StringType(), True),
+                                StructField("nhsd-request-id", StringType(), True),
+                                StructField("postman-token", StringType(), True),
+                                StructField("user-agent", StringType(), True),
                                 StructField("x-correlation-id", StringType(), True),
-                                StructField("X-Forwarded-For", StringType(), True),
-                                StructField("X-Forwarded-Port", StringType(), True),
-                                StructField("X-Forwarded-Proto", StringType(), True),
+                                StructField("x-forwarded-for", StringType(), True),
+                                StructField("x-forwarded-port", StringType(), True),
+                                StructField("x-forwarded-proto", StringType(), True),
                                 StructField("x-request-id", StringType(), True),
                             ]
                         ),
@@ -415,13 +392,13 @@ searchDocumentReferenceSchema = StructType(
                         "config",
                         StructType(
                             [
-                                StructField("AWS_REGION", StringType(), True),
-                                StructField("PREFIX", StringType(), True),
-                                StructField("ENVIRONMENT", StringType(), True),
-                                StructField("SPLUNK_INDEX", StringType(), True),
-                                StructField("SOURCE", StringType(), True),
-                                StructField("AUTH_STORE", StringType(), True),
-                                StructField("TABLE_NAME", StringType(), True),
+                                StructField("aws_region", StringType(), True),
+                                StructField("prefix", StringType(), True),
+                                StructField("environment", StringType(), True),
+                                StructField("splunk_index", StringType(), True),
+                                StructField("source", StringType(), True),
+                                StructField("auth_store", StringType(), True),
+                                StructField("table_name", StringType(), True),
                             ]
                         ),
                         True,
@@ -430,12 +407,8 @@ searchDocumentReferenceSchema = StructType(
                         "metadata",
                         StructType(
                             [
-                                StructField("pointer_types", StringType(), True),
                                 StructField("ods_code", StringType(), True),
-                                StructField("ods_code_extension", StringType(), True),
-                                StructField("nrl_permissions", StringType(), True),
                                 StructField("nrl_app_id", StringType(), True),
-                                StructField("is_test_event", BooleanType(), True),
                                 StructField(
                                     "client_rp_details",
                                     StructType(
@@ -471,10 +444,7 @@ searchDocumentReferenceSchema = StructType(
                         StructType(
                             [
                                 StructField("subject_identifier", StringType(), True),
-                                StructField("custodian_identifier", StringType(), True),
                                 StructField("type", StringType(), True),
-                                StructField("category", StringType(), True),
-                                StructField("next_page_token", StringType(), True),
                             ]
                         ),
                         True,
@@ -489,10 +459,8 @@ searchDocumentReferenceSchema = StructType(
                         "response",
                         StructType(
                             [
-                                StructField("statusCode", StringType(), True),
+                                StructField("statuscode", StringType(), True),
                                 StructField("body", StringType(), True),
-                                StructField("headers", StructType([]), True),
-                                StructField("isBase64Encoded", BooleanType(), True),
                             ]
                         ),
                         True,
@@ -502,12 +470,12 @@ searchDocumentReferenceSchema = StructType(
                         "query",
                         StructType(
                             [
-                                StructField("IndexName", StringType(), True),
+                                StructField("indexname", StringType(), True),
                                 StructField(
-                                    "KeyConditionExpression", StringType(), True
+                                    "keyconditionexpression", StringType(), True
                                 ),
                                 StructField(
-                                    "ExpressionAttributeValues",
+                                    "expressionattributevalues",
                                     StructType(
                                         [
                                             StructField(
@@ -520,16 +488,25 @@ searchDocumentReferenceSchema = StructType(
                                             StructField(
                                                 ":patient_sort", StringType(), True
                                             ),
+                                            StructField(":type_4", StringType(), True),
+                                            StructField(":type_5", StringType(), True),
+                                            StructField(":type_6", StringType(), True),
+                                            StructField(":type_7", StringType(), True),
+                                            StructField(":type_8", StringType(), True),
+                                            StructField(":type_9", StringType(), True),
+                                            StructField(":type_10", StringType(), True),
+                                            StructField(":type_11", StringType(), True),
+                                            StructField(":type_12", StringType(), True),
                                         ]
                                     ),
                                     True,
                                 ),
                                 StructField(
-                                    "ReturnConsumedCapacity", StringType(), True
+                                    "returnconsumedcapacity", StringType(), True
                                 ),
-                                StructField("FilterExpression", StringType(), True),
+                                StructField("filterexpression", StringType(), True),
                                 StructField(
-                                    "ExpressionAttributeNames",
+                                    "expressionattributenames",
                                     StructType(
                                         [
                                             StructField(
@@ -550,7 +527,6 @@ searchDocumentReferenceSchema = StructType(
                             [
                                 StructField("count", LongType(), True),
                                 StructField("scanned_count", LongType(), True),
-                                StructField("last_evaluated_key", StringType(), True),
                             ]
                         ),
                         True,
@@ -559,34 +535,22 @@ searchDocumentReferenceSchema = StructType(
                         "result",
                         StructType(
                             [
-                                StructField("Items", StructType([]), True),
-                                StructField("Count", LongType(), True),
-                                StructField("ScannedCount", LongType(), True),
+                                StructField("items", StructType([]), True),
+                                StructField("count", LongType(), True),
+                                StructField("scannedcount", LongType(), True),
                                 StructField(
-                                    "ConsumedCapacity",
+                                    "consumedcapacity",
                                     StructType(
                                         [
                                             StructField(
-                                                "TableName", StringType(), True
+                                                "tablename", StringType(), True
                                             ),
                                             StructField(
-                                                "CapacityUnits", DoubleType(), True
+                                                "capacityunits", DoubleType(), True
                                             ),
+                                            StructField("table", StructType([]), True),
                                             StructField(
-                                                "Table",
-                                                StructType(
-                                                    [
-                                                        StructField(
-                                                            "CapacityUnits",
-                                                            DoubleType(),
-                                                            True,
-                                                        )
-                                                    ]
-                                                ),
-                                                True,
-                                            ),
-                                            StructField(
-                                                "GlobalSecondaryIndexes",
+                                                "globalsecondaryindexes",
                                                 StructType(
                                                     [
                                                         StructField(
@@ -594,7 +558,7 @@ searchDocumentReferenceSchema = StructType(
                                                             StructType(
                                                                 [
                                                                     StructField(
-                                                                        "CapacityUnits",
+                                                                        "capacityunits",
                                                                         DoubleType(),
                                                                         True,
                                                                     )
@@ -611,17 +575,17 @@ searchDocumentReferenceSchema = StructType(
                                     True,
                                 ),
                                 StructField(
-                                    "ResponseMetadata",
+                                    "responsemetadata",
                                     StructType(
                                         [
                                             StructField(
-                                                "RequestId", StringType(), True
+                                                "requestid", StringType(), True
                                             ),
                                             StructField(
-                                                "HTTPStatusCode", LongType(), True
+                                                "httpstatuscode", LongType(), True
                                             ),
                                             StructField(
-                                                "HTTPHeaders",
+                                                "httpheaders",
                                                 StructType(
                                                     [
                                                         StructField(
@@ -658,9 +622,6 @@ searchDocumentReferenceSchema = StructType(
                                                     ]
                                                 ),
                                                 True,
-                                            ),
-                                            StructField(
-                                                "RetryAttempts", LongType(), True
                                             ),
                                         ]
                                     ),
@@ -716,26 +677,26 @@ readDocumentReferenceSchema = StructType(
                             [
                                 StructField("accept", StringType(), True),
                                 StructField("accept-encoding", StringType(), True),
-                                StructField("Authorization", StringType(), True),
+                                StructField("authorization", StringType(), True),
                                 StructField("cache-control", StringType(), True),
-                                StructField("Host", StringType(), True),
+                                StructField("host", StringType(), True),
                                 StructField(
-                                    "NHSD-Client-RP-Details", StringType(), True
+                                    "nhsd-client-rp-details", StringType(), True
                                 ),
                                 StructField(
-                                    "NHSD-Connection-Metadata", StringType(), True
+                                    "nhsd-connection-metadata", StringType(), True
                                 ),
-                                StructField("NHSD-Correlation-ID", StringType(), True),
+                                StructField("nhsd-correlation-id", StringType(), True),
                                 StructField(
-                                    "NHSD-End-User-Organisation-ODS", StringType(), True
+                                    "nhsd-end-user-organisation-ods", StringType(), True
                                 ),
-                                StructField("NHSD-Request-ID", StringType(), True),
-                                StructField("Postman-Token", StringType(), True),
-                                StructField("User-Agent", StringType(), True),
+                                StructField("nhsd-request-id", StringType(), True),
+                                StructField("postman-token", StringType(), True),
+                                StructField("user-agent", StringType(), True),
                                 StructField("x-correlation-id", StringType(), True),
-                                StructField("X-Forwarded-For", StringType(), True),
-                                StructField("X-Forwarded-Port", StringType(), True),
-                                StructField("X-Forwarded-Proto", StringType(), True),
+                                StructField("x-forwarded-for", StringType(), True),
+                                StructField("x-forwarded-port", StringType(), True),
+                                StructField("x-forwarded-proto", StringType(), True),
                                 StructField("x-request-id", StringType(), True),
                             ]
                         ),
@@ -747,13 +708,13 @@ readDocumentReferenceSchema = StructType(
                         "config",
                         StructType(
                             [
-                                StructField("AWS_REGION", StringType(), True),
-                                StructField("PREFIX", StringType(), True),
-                                StructField("ENVIRONMENT", StringType(), True),
-                                StructField("SPLUNK_INDEX", StringType(), True),
-                                StructField("SOURCE", StringType(), True),
-                                StructField("AUTH_STORE", StringType(), True),
-                                StructField("TABLE_NAME", StringType(), True),
+                                StructField("aws_region", StringType(), True),
+                                StructField("prefix", StringType(), True),
+                                StructField("environment", StringType(), True),
+                                StructField("splunk_index", StringType(), True),
+                                StructField("source", StringType(), True),
+                                StructField("auth_store", StringType(), True),
+                                StructField("table_name", StringType(), True),
                             ]
                         ),
                         True,
@@ -762,12 +723,8 @@ readDocumentReferenceSchema = StructType(
                         "metadata",
                         StructType(
                             [
-                                StructField("pointer_types", StringType(), True),
                                 StructField("ods_code", StringType(), True),
-                                StructField("ods_code_extension", StringType(), True),
-                                StructField("nrl_permissions", StringType(), True),
                                 StructField("nrl_app_id", StringType(), True),
-                                StructField("is_test_event", BooleanType(), True),
                                 StructField(
                                     "client_rp_details",
                                     StructType(
@@ -802,14 +759,8 @@ readDocumentReferenceSchema = StructType(
                         "response",
                         StructType(
                             [
-                                StructField("statusCode", StringType(), True),
+                                StructField("statuscode", StringType(), True),
                                 StructField("body", StringType(), True),
-                                StructField(
-                                    "headers",
-                                    StructType([StructField("id", StringType(), True)]),
-                                    True,
-                                ),
-                                StructField("isBase64Encoded", BooleanType(), True),
                             ]
                         ),
                         True,
@@ -824,20 +775,16 @@ readDocumentReferenceSchema = StructType(
                                 StructField("id", StringType(), True),
                                 StructField("nhs_number", StringType(), True),
                                 StructField("custodian", StringType(), True),
-                                StructField("custodian_suffix", StringType(), True),
                                 StructField("producer_id", StringType(), True),
                                 StructField("category_id", StringType(), True),
                                 StructField("category", StringType(), True),
                                 StructField("type_id", StringType(), True),
                                 StructField("type", StringType(), True),
-                                StructField("master_identifier", StringType(), True),
                                 StructField("author", StringType(), True),
                                 StructField("source", StringType(), True),
                                 StructField("version", LongType(), True),
                                 StructField("document", StringType(), True),
                                 StructField("created_on", StringType(), True),
-                                StructField("updated_on", StringType(), True),
-                                StructField("schemas", StringType(), True),
                                 StructField("pk", StringType(), True),
                                 StructField("sk", StringType(), True),
                                 StructField("patient_key", StringType(), True),
@@ -883,24 +830,24 @@ countDocumentReferenceSchema = StructType(
                             [
                                 StructField("accept", StringType(), True),
                                 StructField("accept-encoding", StringType(), True),
-                                StructField("Authorization", StringType(), True),
-                                StructField("Host", StringType(), True),
+                                StructField("authorization", StringType(), True),
+                                StructField("host", StringType(), True),
                                 StructField(
-                                    "NHSD-Client-RP-Details", StringType(), True
+                                    "nhsd-client-rp-details", StringType(), True
                                 ),
                                 StructField(
-                                    "NHSD-Connection-Metadata", StringType(), True
+                                    "nhsd-connection-metadata", StringType(), True
                                 ),
-                                StructField("NHSD-Correlation-Id", StringType(), True),
-                                StructField("User-Agent", StringType(), True),
-                                StructField("X-Forwarded-For", StringType(), True),
-                                StructField("X-Request-Id", StringType(), True),
+                                StructField("nhsd-correlation-id", StringType(), True),
+                                StructField("user-agent", StringType(), True),
+                                StructField("x-forwarded-for", StringType(), True),
+                                StructField("x-request-id", StringType(), True),
                                 StructField(
-                                    "NHSD-End-User-Organisation-ODS", StringType(), True
+                                    "nhsd-end-user-organisation-ods", StringType(), True
                                 ),
-                                StructField("NHSD-Request-ID", StringType(), True),
-                                StructField("X-Forwarded-Port", StringType(), True),
-                                StructField("X-Forwarded-Proto", StringType(), True),
+                                StructField("nhsd-request-id", StringType(), True),
+                                StructField("x-forwarded-port", StringType(), True),
+                                StructField("x-forwarded-proto", StringType(), True),
                             ]
                         ),
                         True,
@@ -911,13 +858,13 @@ countDocumentReferenceSchema = StructType(
                         "config",
                         StructType(
                             [
-                                StructField("AWS_REGION", StringType(), True),
-                                StructField("PREFIX", StringType(), True),
-                                StructField("ENVIRONMENT", StringType(), True),
-                                StructField("SPLUNK_INDEX", StringType(), True),
-                                StructField("SOURCE", StringType(), True),
-                                StructField("AUTH_STORE", StringType(), True),
-                                StructField("TABLE_NAME", StringType(), True),
+                                StructField("aws_region", StringType(), True),
+                                StructField("prefix", StringType(), True),
+                                StructField("environment", StringType(), True),
+                                StructField("splunk_index", StringType(), True),
+                                StructField("source", StringType(), True),
+                                StructField("auth_store", StringType(), True),
+                                StructField("table_name", StringType(), True),
                             ]
                         ),
                         True,
@@ -926,12 +873,8 @@ countDocumentReferenceSchema = StructType(
                         "metadata",
                         StructType(
                             [
-                                StructField("pointer_types", StringType(), True),
                                 StructField("ods_code", StringType(), True),
-                                StructField("ods_code_extension", StringType(), True),
-                                StructField("nrl_permissions", StringType(), True),
                                 StructField("nrl_app_id", StringType(), True),
-                                StructField("is_test_event", BooleanType(), True),
                                 StructField(
                                     "client_rp_details",
                                     StructType(
@@ -975,12 +918,12 @@ countDocumentReferenceSchema = StructType(
                         "query",
                         StructType(
                             [
-                                StructField("IndexName", StringType(), True),
+                                StructField("indexname", StringType(), True),
                                 StructField(
-                                    "KeyConditionExpression", StringType(), True
+                                    "keyconditionexpression", StringType(), True
                                 ),
                                 StructField(
-                                    "ExpressionAttributeValues",
+                                    "expressionattributevalues",
                                     StructType(
                                         [
                                             StructField(
@@ -993,9 +936,9 @@ countDocumentReferenceSchema = StructType(
                                     ),
                                     True,
                                 ),
-                                StructField("Select", StringType(), True),
+                                StructField("select", StringType(), True),
                                 StructField(
-                                    "ReturnConsumedCapacity", StringType(), True
+                                    "returnconsumedcapacity", StringType(), True
                                 ),
                             ]
                         ),
@@ -1006,33 +949,21 @@ countDocumentReferenceSchema = StructType(
                         "result",
                         StructType(
                             [
-                                StructField("Count", LongType(), True),
-                                StructField("ScannedCount", LongType(), True),
+                                StructField("count", LongType(), True),
+                                StructField("scannedcount", LongType(), True),
                                 StructField(
-                                    "ConsumedCapacity",
+                                    "consumedcapacity",
                                     StructType(
                                         [
                                             StructField(
-                                                "TableName", StringType(), True
+                                                "tablename", StringType(), True
                                             ),
                                             StructField(
-                                                "CapacityUnits", DoubleType(), True
+                                                "capacityunits", DoubleType(), True
                                             ),
+                                            StructField("table", StructType([]), True),
                                             StructField(
-                                                "Table",
-                                                StructType(
-                                                    [
-                                                        StructField(
-                                                            "CapacityUnits",
-                                                            DoubleType(),
-                                                            True,
-                                                        )
-                                                    ]
-                                                ),
-                                                True,
-                                            ),
-                                            StructField(
-                                                "GlobalSecondaryIndexes",
+                                                "globalsecondaryindexes",
                                                 StructType(
                                                     [
                                                         StructField(
@@ -1040,7 +971,7 @@ countDocumentReferenceSchema = StructType(
                                                             StructType(
                                                                 [
                                                                     StructField(
-                                                                        "CapacityUnits",
+                                                                        "capacityunits",
                                                                         DoubleType(),
                                                                         True,
                                                                     )
@@ -1057,17 +988,17 @@ countDocumentReferenceSchema = StructType(
                                     True,
                                 ),
                                 StructField(
-                                    "ResponseMetadata",
+                                    "responsemetadata",
                                     StructType(
                                         [
                                             StructField(
-                                                "RequestId", StringType(), True
+                                                "requestid", StringType(), True
                                             ),
                                             StructField(
-                                                "HTTPStatusCode", LongType(), True
+                                                "httpstatuscode", LongType(), True
                                             ),
                                             StructField(
-                                                "HTTPHeaders",
+                                                "httpheaders",
                                                 StructType(
                                                     [
                                                         StructField(
@@ -1105,9 +1036,6 @@ countDocumentReferenceSchema = StructType(
                                                 ),
                                                 True,
                                             ),
-                                            StructField(
-                                                "RetryAttempts", LongType(), True
-                                            ),
                                         ]
                                     ),
                                     True,
@@ -1121,10 +1049,8 @@ countDocumentReferenceSchema = StructType(
                         "response",
                         StructType(
                             [
-                                StructField("statusCode", StringType(), True),
+                                StructField("statuscode", StringType(), True),
                                 StructField("body", StringType(), True),
-                                StructField("headers", StructType([]), True),
-                                StructField("isBase64Encoded", BooleanType(), True),
                             ]
                         ),
                         True,

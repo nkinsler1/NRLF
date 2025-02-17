@@ -37,28 +37,28 @@ upsertDocumentReferenceSchema = StructType(
                             [
                                 StructField("accept", StringType(), True),
                                 StructField("accept-encoding", StringType(), True),
-                                StructField("Authorization", StringType(), True),
+                                StructField("authorization", StringType(), True),
+                                StructField("host", StringType(), True),
+                                StructField(
+                                    "nhsd-client-rp-details", StringType(), True
+                                ),
+                                StructField(
+                                    "nhsd-connection-metadata", StringType(), True
+                                ),
+                                StructField("nhsd-correlation-id", StringType(), True),
+                                StructField(
+                                    "nhsd-end-user-organisation-ods", StringType(), True
+                                ),
+                                StructField("nhsd-request-id", StringType(), True),
+                                StructField("user-agent", StringType(), True),
+                                StructField("x-correlation-id", StringType(), True),
+                                StructField("x-forwarded-for", StringType(), True),
+                                StructField("x-forwarded-port", StringType(), True),
+                                StructField("x-forwarded-proto", StringType(), True),
+                                StructField("x-request-id", StringType(), True),
                                 StructField("cache-control", StringType(), True),
                                 StructField("content-type", StringType(), True),
-                                StructField("Host", StringType(), True),
-                                StructField(
-                                    "NHSD-Client-RP-Details", StringType(), True
-                                ),
-                                StructField(
-                                    "NHSD-Connection-Metadata", StringType(), True
-                                ),
-                                StructField("NHSD-Correlation-ID", StringType(), True),
-                                StructField(
-                                    "NHSD-End-User-Organisation-ODS", StringType(), True
-                                ),
-                                StructField("NHSD-Request-ID", StringType(), True),
-                                StructField("Postman-Token", StringType(), True),
-                                StructField("User-Agent", StringType(), True),
-                                StructField("x-correlation-id", StringType(), True),
-                                StructField("X-Forwarded-For", StringType(), True),
-                                StructField("X-Forwarded-Port", StringType(), True),
-                                StructField("X-Forwarded-Proto", StringType(), True),
-                                StructField("x-request-id", StringType(), True),
+                                StructField("postman-token", StringType(), True),
                             ]
                         ),
                         True,
@@ -69,13 +69,13 @@ upsertDocumentReferenceSchema = StructType(
                         "config",
                         StructType(
                             [
-                                StructField("AWS_REGION", StringType(), True),
-                                StructField("PREFIX", StringType(), True),
-                                StructField("ENVIRONMENT", StringType(), True),
-                                StructField("SPLUNK_INDEX", StringType(), True),
-                                StructField("SOURCE", StringType(), True),
-                                StructField("AUTH_STORE", StringType(), True),
-                                StructField("TABLE_NAME", StringType(), True),
+                                StructField("aws_region", StringType(), True),
+                                StructField("prefix", StringType(), True),
+                                StructField("environment", StringType(), True),
+                                StructField("splunk_index", StringType(), True),
+                                StructField("source", StringType(), True),
+                                StructField("auth_store", StringType(), True),
+                                StructField("table_name", StringType(), True),
                             ]
                         ),
                         True,
@@ -84,12 +84,9 @@ upsertDocumentReferenceSchema = StructType(
                         "metadata",
                         StructType(
                             [
-                                StructField("pointer_types", StringType(), True),
                                 StructField("ods_code", StringType(), True),
-                                StructField("ods_code_extension", StringType(), True),
                                 StructField("nrl_permissions", StringType(), True),
                                 StructField("nrl_app_id", StringType(), True),
-                                StructField("is_test_event", BooleanType(), True),
                                 StructField(
                                     "client_rp_details",
                                     StructType(
@@ -108,192 +105,78 @@ upsertDocumentReferenceSchema = StructType(
                         ),
                         True,
                     ),
-                    StructField("pointer_types", StringType(), True),
                     StructField("body", StringType(), True),
                     StructField("model", StringType(), True),
                     StructField(
                         "parsed_body",
                         StructType(
                             [
-                                StructField("resourceType", StringType(), True),
+                                StructField("resourcetype", StringType(), True),
                                 StructField("id", StringType(), True),
-                                StructField("meta", StringType(), True),
-                                StructField("implicitRules", StringType(), True),
-                                StructField("language", StringType(), True),
-                                StructField("text", StringType(), True),
-                                StructField(
-                                    "masterIdentifier",
-                                    StructType(
-                                        [
-                                            StructField("id", StringType(), True),
-                                            StructField("use", StringType(), True),
-                                            StructField("type", StringType(), True),
-                                            StructField("system", StringType(), True),
-                                            StructField("value", StringType(), True),
-                                            StructField("period", StringType(), True),
-                                            StructField("assigner", StringType(), True),
-                                        ]
-                                    ),
-                                    True,
-                                ),
-                                StructField("identifier", StringType(), True),
                                 StructField("status", StringType(), True),
-                                StructField("docStatus", StringType(), True),
                                 StructField(
                                     "type",
                                     StructType(
-                                        [
-                                            StructField("id", StringType(), True),
-                                            StructField(
-                                                "coding",
-                                                StructType(
-                                                    [
-                                                        StructField(
-                                                            "Location",
-                                                            StringType(),
-                                                            True,
-                                                        )
-                                                    ]
-                                                ),
-                                                True,
-                                            ),
-                                            StructField("text", StringType(), True),
-                                        ]
+                                        [StructField("coding", StructType([]), True)]
                                     ),
                                     True,
                                 ),
-                                StructField(
-                                    "category",
-                                    StructType(
-                                        [StructField("Location", StringType(), True)]
-                                    ),
-                                    True,
-                                ),
+                                StructField("category", StructType([]), True),
                                 StructField(
                                     "subject",
                                     StructType(
                                         [
-                                            StructField("id", StringType(), True),
-                                            StructField(
-                                                "reference", StringType(), True
-                                            ),
-                                            StructField("type", StringType(), True),
                                             StructField(
                                                 "identifier",
                                                 StructType(
                                                     [
-                                                        StructField(
-                                                            "id", StringType(), True
-                                                        ),
-                                                        StructField(
-                                                            "use", StringType(), True
-                                                        ),
-                                                        StructField(
-                                                            "type", StringType(), True
-                                                        ),
                                                         StructField(
                                                             "system", StringType(), True
                                                         ),
                                                         StructField(
                                                             "value", StringType(), True
                                                         ),
-                                                        StructField(
-                                                            "period", StringType(), True
-                                                        ),
-                                                        StructField(
-                                                            "assigner",
-                                                            StringType(),
-                                                            True,
-                                                        ),
                                                     ]
                                                 ),
                                                 True,
-                                            ),
-                                            StructField("display", StringType(), True),
+                                            )
                                         ]
                                     ),
                                     True,
                                 ),
                                 StructField("date", StringType(), True),
-                                StructField(
-                                    "author",
-                                    StructType(
-                                        [StructField("Location", StringType(), True)]
-                                    ),
-                                    True,
-                                ),
-                                StructField("authenticator", StringType(), True),
+                                StructField("author", StructType([]), True),
                                 StructField(
                                     "custodian",
                                     StructType(
                                         [
-                                            StructField("id", StringType(), True),
-                                            StructField(
-                                                "reference", StringType(), True
-                                            ),
-                                            StructField("type", StringType(), True),
                                             StructField(
                                                 "identifier",
                                                 StructType(
                                                     [
-                                                        StructField(
-                                                            "id", StringType(), True
-                                                        ),
-                                                        StructField(
-                                                            "use", StringType(), True
-                                                        ),
-                                                        StructField(
-                                                            "type", StringType(), True
-                                                        ),
                                                         StructField(
                                                             "system", StringType(), True
                                                         ),
                                                         StructField(
                                                             "value", StringType(), True
                                                         ),
-                                                        StructField(
-                                                            "period", StringType(), True
-                                                        ),
-                                                        StructField(
-                                                            "assigner",
-                                                            StringType(),
-                                                            True,
-                                                        ),
                                                     ]
                                                 ),
                                                 True,
-                                            ),
-                                            StructField("display", StringType(), True),
+                                            )
                                         ]
                                     ),
                                     True,
                                 ),
-                                StructField("relatesTo", StringType(), True),
-                                StructField("description", StringType(), True),
-                                StructField("securityLabel", StringType(), True),
-                                StructField(
-                                    "content",
-                                    StructType(
-                                        [StructField("Location", StringType(), True)]
-                                    ),
-                                    True,
-                                ),
+                                StructField("content", StructType([]), True),
                                 StructField(
                                     "context",
                                     StructType(
                                         [
-                                            StructField("id", StringType(), True),
-                                            StructField(
-                                                "encounter", StringType(), True
-                                            ),
-                                            StructField("event", StringType(), True),
                                             StructField(
                                                 "period",
                                                 StructType(
                                                     [
-                                                        StructField(
-                                                            "id", StringType(), True
-                                                        ),
                                                         StructField(
                                                             "start", StringType(), True
                                                         ),
@@ -305,51 +188,31 @@ upsertDocumentReferenceSchema = StructType(
                                                 True,
                                             ),
                                             StructField(
-                                                "facilityType", StringType(), True
-                                            ),
-                                            StructField(
-                                                "practiceSetting",
+                                                "practicesetting",
                                                 StructType(
                                                     [
-                                                        StructField(
-                                                            "id", StringType(), True
-                                                        ),
                                                         StructField(
                                                             "coding",
-                                                            StructType(
-                                                                [
-                                                                    StructField(
-                                                                        "Location",
-                                                                        StringType(),
-                                                                        True,
-                                                                    )
-                                                                ]
-                                                            ),
-                                                            True,
-                                                        ),
-                                                        StructField(
-                                                            "text", StringType(), True
-                                                        ),
-                                                    ]
-                                                ),
-                                                True,
-                                            ),
-                                            StructField(
-                                                "sourcePatientInfo", StringType(), True
-                                            ),
-                                            StructField(
-                                                "related",
-                                                StructType(
-                                                    [
-                                                        StructField(
-                                                            "Location",
-                                                            StringType(),
+                                                            StructType([]),
                                                             True,
                                                         )
                                                     ]
                                                 ),
                                                 True,
                                             ),
+                                            StructField(
+                                                "related", StructType([]), True
+                                            ),
+                                        ]
+                                    ),
+                                    True,
+                                ),
+                                StructField(
+                                    "masteridentifier",
+                                    StructType(
+                                        [
+                                            StructField("system", StringType(), True),
+                                            StructField("value", StringType(), True),
                                         ]
                                     ),
                                     True,
@@ -368,7 +231,8 @@ upsertDocumentReferenceSchema = StructType(
                     StructField("required_fields", StringType(), True),
                     StructField("reason", StringType(), True),
                     StructField("is_valid", BooleanType(), True),
-                    StructField("issue_count", LongType(), True),
+                    StructField("id", StringType(), True),
+                    StructField("date", StringType(), True),
                     StructField("producer_id", StringType(), True),
                     StructField("document_id", StringType(), True),
                     StructField("custodian", StringType(), True),
@@ -389,69 +253,26 @@ upsertDocumentReferenceSchema = StructType(
                     ),
                     StructField("source", StringType(), True),
                     StructField("version", LongType(), True),
-                    StructField("error", StringType(), True),
-                    StructField(
-                        "response",
-                        StructType(
-                            [
-                                StructField("statusCode", StringType(), True),
-                                StructField("body", StringType(), True),
-                                StructField(
-                                    "headers",
-                                    StructType(
-                                        [StructField("Location", StringType(), True)]
-                                    ),
-                                    True,
-                                ),
-                                StructField("isBase64Encoded", BooleanType(), True),
-                            ]
-                        ),
-                        True,
-                    ),
-                    StructField("status_code", StringType(), True),
-                    StructField("exception", StringType(), True),
-                    StructField("exception_name", StringType(), True),
-                    StructField(
-                        "stack_trace",
-                        StructType(
-                            [
-                                StructField("type", StringType(), True),
-                                StructField("value", StringType(), True),
-                                StructField("module", StringType(), True),
-                                StructField(
-                                    "frames",
-                                    StructType(
-                                        [StructField("Location", StringType(), True)]
-                                    ),
-                                    True,
-                                ),
-                            ]
-                        ),
-                        True,
-                    ),
-                    StructField("bucket", StringType(), True),
-                    StructField("key", StringType(), True),
-                    StructField("ods_code", StringType(), True),
                     StructField(
                         "result",
                         StructType(
                             [
                                 StructField(
-                                    "ConsumedCapacity",
+                                    "consumedcapacity",
                                     StructType(
                                         [
                                             StructField(
-                                                "TableName", StringType(), True
+                                                "tablename", StringType(), True
                                             ),
                                             StructField(
-                                                "CapacityUnits", DoubleType(), True
+                                                "capacityunits", DoubleType(), True
                                             ),
                                             StructField(
-                                                "Table",
+                                                "table",
                                                 StructType(
                                                     [
                                                         StructField(
-                                                            "CapacityUnits",
+                                                            "capacityunits",
                                                             DoubleType(),
                                                             True,
                                                         )
@@ -460,15 +281,15 @@ upsertDocumentReferenceSchema = StructType(
                                                 True,
                                             ),
                                             StructField(
-                                                "GlobalSecondaryIndexes",
+                                                "globalsecondaryindexes",
                                                 StructType(
                                                     [
                                                         StructField(
-                                                            "masterid_gsi",
+                                                            "patient_gsi",
                                                             StructType(
                                                                 [
                                                                     StructField(
-                                                                        "CapacityUnits",
+                                                                        "capacityunits",
                                                                         DoubleType(),
                                                                         True,
                                                                     )
@@ -477,11 +298,11 @@ upsertDocumentReferenceSchema = StructType(
                                                             True,
                                                         ),
                                                         StructField(
-                                                            "patient_gsi",
+                                                            "masterid_gsi",
                                                             StructType(
                                                                 [
                                                                     StructField(
-                                                                        "CapacityUnits",
+                                                                        "capacityunits",
                                                                         DoubleType(),
                                                                         True,
                                                                     )
@@ -498,17 +319,17 @@ upsertDocumentReferenceSchema = StructType(
                                     True,
                                 ),
                                 StructField(
-                                    "ResponseMetadata",
+                                    "responsemetadata",
                                     StructType(
                                         [
                                             StructField(
-                                                "RequestId", StringType(), True
+                                                "requestid", StringType(), True
                                             ),
                                             StructField(
-                                                "HTTPStatusCode", LongType(), True
+                                                "httpstatuscode", LongType(), True
                                             ),
                                             StructField(
-                                                "HTTPHeaders",
+                                                "httpheaders",
                                                 StructType(
                                                     [
                                                         StructField(
@@ -546,9 +367,6 @@ upsertDocumentReferenceSchema = StructType(
                                                 ),
                                                 True,
                                             ),
-                                            StructField(
-                                                "RetryAttempts", LongType(), True
-                                            ),
                                         ]
                                     ),
                                     True,
@@ -557,6 +375,43 @@ upsertDocumentReferenceSchema = StructType(
                         ),
                         True,
                     ),
+                    StructField("status_code", StringType(), True),
+                    StructField(
+                        "response",
+                        StructType(
+                            [
+                                StructField("statuscode", StringType(), True),
+                                StructField("body", StringType(), True),
+                                StructField(
+                                    "headers",
+                                    StructType(
+                                        [StructField("location", StringType(), True)]
+                                    ),
+                                    True,
+                                ),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField("pointer_types", StringType(), True),
+                    StructField("error", StringType(), True),
+                    StructField("exception", StringType(), True),
+                    StructField("exception_name", StringType(), True),
+                    StructField(
+                        "stack_trace",
+                        StructType(
+                            [
+                                StructField("type", StringType(), True),
+                                StructField("value", StringType(), True),
+                                StructField("module", StringType(), True),
+                                StructField("frames", StructType([]), True),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField("bucket", StringType(), True),
+                    StructField("key", StringType(), True),
+                    StructField("ods_code", StringType(), True),
                 ]
             ),
             True,
@@ -598,27 +453,27 @@ updateDocumentReferenceSchema = StructType(
                             [
                                 StructField("accept", StringType(), True),
                                 StructField("accept-encoding", StringType(), True),
-                                StructField("Authorization", StringType(), True),
+                                StructField("authorization", StringType(), True),
                                 StructField("cache-control", StringType(), True),
                                 StructField("content-type", StringType(), True),
-                                StructField("Host", StringType(), True),
+                                StructField("host", StringType(), True),
                                 StructField(
-                                    "NHSD-Client-RP-Details", StringType(), True
+                                    "nhsd-client-rp-details", StringType(), True
                                 ),
                                 StructField(
-                                    "NHSD-Connection-Metadata", StringType(), True
+                                    "nhsd-connection-metadata", StringType(), True
                                 ),
-                                StructField("NHSD-Correlation-ID", StringType(), True),
+                                StructField("nhsd-correlation-id", StringType(), True),
                                 StructField(
-                                    "NHSD-End-User-Organisation-ODS", StringType(), True
+                                    "nhsd-end-user-organisation-ods", StringType(), True
                                 ),
-                                StructField("NHSD-Request-ID", StringType(), True),
-                                StructField("Postman-Token", StringType(), True),
-                                StructField("User-Agent", StringType(), True),
+                                StructField("nhsd-request-id", StringType(), True),
+                                StructField("postman-token", StringType(), True),
+                                StructField("user-agent", StringType(), True),
                                 StructField("x-correlation-id", StringType(), True),
-                                StructField("X-Forwarded-For", StringType(), True),
-                                StructField("X-Forwarded-Port", StringType(), True),
-                                StructField("X-Forwarded-Proto", StringType(), True),
+                                StructField("x-forwarded-for", StringType(), True),
+                                StructField("x-forwarded-port", StringType(), True),
+                                StructField("x-forwarded-proto", StringType(), True),
                                 StructField("x-request-id", StringType(), True),
                             ]
                         ),
@@ -630,13 +485,13 @@ updateDocumentReferenceSchema = StructType(
                         "config",
                         StructType(
                             [
-                                StructField("AWS_REGION", StringType(), True),
-                                StructField("PREFIX", StringType(), True),
-                                StructField("ENVIRONMENT", StringType(), True),
-                                StructField("SPLUNK_INDEX", StringType(), True),
-                                StructField("SOURCE", StringType(), True),
-                                StructField("AUTH_STORE", StringType(), True),
-                                StructField("TABLE_NAME", StringType(), True),
+                                StructField("aws_region", StringType(), True),
+                                StructField("prefix", StringType(), True),
+                                StructField("environment", StringType(), True),
+                                StructField("splunk_index", StringType(), True),
+                                StructField("source", StringType(), True),
+                                StructField("auth_store", StringType(), True),
+                                StructField("table_name", StringType(), True),
                             ]
                         ),
                         True,
@@ -645,12 +500,8 @@ updateDocumentReferenceSchema = StructType(
                         "metadata",
                         StructType(
                             [
-                                StructField("pointer_types", StringType(), True),
                                 StructField("ods_code", StringType(), True),
-                                StructField("ods_code_extension", StringType(), True),
-                                StructField("nrl_permissions", StringType(), True),
                                 StructField("nrl_app_id", StringType(), True),
-                                StructField("is_test_event", BooleanType(), True),
                                 StructField(
                                     "client_rp_details",
                                     StructType(
@@ -676,21 +527,23 @@ updateDocumentReferenceSchema = StructType(
                         "parsed_body",
                         StructType(
                             [
-                                StructField("resourceType", StringType(), True),
+                                StructField("resourcetype", StringType(), True),
                                 StructField("id", StringType(), True),
-                                StructField("meta", StringType(), True),
-                                StructField("implicitRules", StringType(), True),
-                                StructField("language", StringType(), True),
-                                StructField("text", StringType(), True),
-                                StructField("masterIdentifier", StringType(), True),
-                                StructField("identifier", StringType(), True),
+                                StructField(
+                                    "masteridentifier",
+                                    StructType(
+                                        [
+                                            StructField("system", StringType(), True),
+                                            StructField("value", StringType(), True),
+                                        ]
+                                    ),
+                                    True,
+                                ),
                                 StructField("status", StringType(), True),
-                                StructField("docStatus", StringType(), True),
                                 StructField(
                                     "type",
                                     StructType(
                                         [
-                                            StructField("id", StringType(), True),
                                             StructField(
                                                 "coding",
                                                 StructType(
@@ -701,8 +554,7 @@ updateDocumentReferenceSchema = StructType(
                                                     ]
                                                 ),
                                                 True,
-                                            ),
-                                            StructField("text", StringType(), True),
+                                            )
                                         ]
                                     ),
                                     True,
@@ -716,43 +568,20 @@ updateDocumentReferenceSchema = StructType(
                                     "subject",
                                     StructType(
                                         [
-                                            StructField("id", StringType(), True),
-                                            StructField(
-                                                "reference", StringType(), True
-                                            ),
-                                            StructField("type", StringType(), True),
                                             StructField(
                                                 "identifier",
                                                 StructType(
                                                     [
-                                                        StructField(
-                                                            "id", StringType(), True
-                                                        ),
-                                                        StructField(
-                                                            "use", StringType(), True
-                                                        ),
-                                                        StructField(
-                                                            "type", StringType(), True
-                                                        ),
                                                         StructField(
                                                             "system", StringType(), True
                                                         ),
                                                         StructField(
                                                             "value", StringType(), True
                                                         ),
-                                                        StructField(
-                                                            "period", StringType(), True
-                                                        ),
-                                                        StructField(
-                                                            "assigner",
-                                                            StringType(),
-                                                            True,
-                                                        ),
                                                     ]
                                                 ),
                                                 True,
-                                            ),
-                                            StructField("display", StringType(), True),
+                                            )
                                         ]
                                     ),
                                     True,
@@ -763,55 +592,28 @@ updateDocumentReferenceSchema = StructType(
                                     StructType([StructField("id", StringType(), True)]),
                                     True,
                                 ),
-                                StructField("authenticator", StringType(), True),
                                 StructField(
                                     "custodian",
                                     StructType(
                                         [
-                                            StructField("id", StringType(), True),
-                                            StructField(
-                                                "reference", StringType(), True
-                                            ),
-                                            StructField("type", StringType(), True),
                                             StructField(
                                                 "identifier",
                                                 StructType(
                                                     [
-                                                        StructField(
-                                                            "id", StringType(), True
-                                                        ),
-                                                        StructField(
-                                                            "use", StringType(), True
-                                                        ),
-                                                        StructField(
-                                                            "type", StringType(), True
-                                                        ),
                                                         StructField(
                                                             "system", StringType(), True
                                                         ),
                                                         StructField(
                                                             "value", StringType(), True
                                                         ),
-                                                        StructField(
-                                                            "period", StringType(), True
-                                                        ),
-                                                        StructField(
-                                                            "assigner",
-                                                            StringType(),
-                                                            True,
-                                                        ),
                                                     ]
                                                 ),
                                                 True,
-                                            ),
-                                            StructField("display", StringType(), True),
+                                            )
                                         ]
                                     ),
                                     True,
                                 ),
-                                StructField("relatesTo", StringType(), True),
-                                StructField("description", StringType(), True),
-                                StructField("securityLabel", StringType(), True),
                                 StructField(
                                     "content",
                                     StructType([StructField("id", StringType(), True)]),
@@ -821,38 +623,21 @@ updateDocumentReferenceSchema = StructType(
                                     "context",
                                     StructType(
                                         [
-                                            StructField("id", StringType(), True),
-                                            StructField(
-                                                "encounter", StringType(), True
-                                            ),
-                                            StructField("event", StringType(), True),
                                             StructField(
                                                 "period",
                                                 StructType(
                                                     [
                                                         StructField(
-                                                            "id", StringType(), True
-                                                        ),
-                                                        StructField(
                                                             "start", StringType(), True
-                                                        ),
-                                                        StructField(
-                                                            "end", StringType(), True
-                                                        ),
+                                                        )
                                                     ]
                                                 ),
                                                 True,
                                             ),
                                             StructField(
-                                                "facilityType", StringType(), True
-                                            ),
-                                            StructField(
-                                                "practiceSetting",
+                                                "practicesetting",
                                                 StructType(
                                                     [
-                                                        StructField(
-                                                            "id", StringType(), True
-                                                        ),
                                                         StructField(
                                                             "coding",
                                                             StructType(
@@ -865,16 +650,10 @@ updateDocumentReferenceSchema = StructType(
                                                                 ]
                                                             ),
                                                             True,
-                                                        ),
-                                                        StructField(
-                                                            "text", StringType(), True
-                                                        ),
+                                                        )
                                                     ]
                                                 ),
                                                 True,
-                                            ),
-                                            StructField(
-                                                "sourcePatientInfo", StringType(), True
                                             ),
                                             StructField(
                                                 "related",
@@ -909,7 +688,6 @@ updateDocumentReferenceSchema = StructType(
                     StructField("required_fields", StringType(), True),
                     StructField("reason", StringType(), True),
                     StructField("is_valid", BooleanType(), True),
-                    StructField("issue_count", LongType(), True),
                     StructField("producer_id", StringType(), True),
                     StructField("document_id", StringType(), True),
                     StructField("custodian", StringType(), True),
@@ -921,24 +699,122 @@ updateDocumentReferenceSchema = StructType(
                                 StructField("id", StringType(), True),
                                 StructField("nhs_number", StringType(), True),
                                 StructField("custodian", StringType(), True),
-                                StructField("custodian_suffix", StringType(), True),
                                 StructField("producer_id", StringType(), True),
                                 StructField("category_id", StringType(), True),
                                 StructField("category", StringType(), True),
                                 StructField("type_id", StringType(), True),
                                 StructField("type", StringType(), True),
-                                StructField("master_identifier", StringType(), True),
                                 StructField("author", StringType(), True),
                                 StructField("source", StringType(), True),
                                 StructField("version", LongType(), True),
                                 StructField("document", StringType(), True),
                                 StructField("created_on", StringType(), True),
                                 StructField("updated_on", StringType(), True),
-                                StructField("schemas", StringType(), True),
                                 StructField("pk", StringType(), True),
                                 StructField("sk", StringType(), True),
                                 StructField("patient_key", StringType(), True),
                                 StructField("patient_sort", StringType(), True),
+                                StructField(
+                                    "consumedcapacity",
+                                    StructType(
+                                        [
+                                            StructField(
+                                                "tablename", StringType(), True
+                                            ),
+                                            StructField(
+                                                "capacityunits", DoubleType(), True
+                                            ),
+                                            StructField(
+                                                "table",
+                                                StructType(
+                                                    [
+                                                        StructField(
+                                                            "capacityunits",
+                                                            DoubleType(),
+                                                            True,
+                                                        )
+                                                    ]
+                                                ),
+                                                True,
+                                            ),
+                                            StructField(
+                                                "globalsecondaryindexes",
+                                                StructType(
+                                                    [
+                                                        StructField(
+                                                            "patient_gsi",
+                                                            StructType(
+                                                                [
+                                                                    StructField(
+                                                                        "capacityunits",
+                                                                        DoubleType(),
+                                                                        True,
+                                                                    )
+                                                                ]
+                                                            ),
+                                                            True,
+                                                        )
+                                                    ]
+                                                ),
+                                                True,
+                                            ),
+                                        ]
+                                    ),
+                                    True,
+                                ),
+                                StructField(
+                                    "responsemetadata",
+                                    StructType(
+                                        [
+                                            StructField(
+                                                "requestid", StringType(), True
+                                            ),
+                                            StructField(
+                                                "httpstatuscode", LongType(), True
+                                            ),
+                                            StructField(
+                                                "httpheaders",
+                                                StructType(
+                                                    [
+                                                        StructField(
+                                                            "server", StringType(), True
+                                                        ),
+                                                        StructField(
+                                                            "date", StringType(), True
+                                                        ),
+                                                        StructField(
+                                                            "content-type",
+                                                            StringType(),
+                                                            True,
+                                                        ),
+                                                        StructField(
+                                                            "content-length",
+                                                            StringType(),
+                                                            True,
+                                                        ),
+                                                        StructField(
+                                                            "connection",
+                                                            StringType(),
+                                                            True,
+                                                        ),
+                                                        StructField(
+                                                            "x-amzn-requestid",
+                                                            StringType(),
+                                                            True,
+                                                        ),
+                                                        StructField(
+                                                            "x-amz-crc32",
+                                                            StringType(),
+                                                            True,
+                                                        ),
+                                                    ]
+                                                ),
+                                                True,
+                                            ),
+                                        ]
+                                    ),
+                                    True,
+                                ),
                             ]
                         ),
                         True,
@@ -950,14 +826,8 @@ updateDocumentReferenceSchema = StructType(
                         "response",
                         StructType(
                             [
-                                StructField("statusCode", StringType(), True),
+                                StructField("statuscode", StringType(), True),
                                 StructField("body", StringType(), True),
-                                StructField(
-                                    "headers",
-                                    StructType([StructField("id", StringType(), True)]),
-                                    True,
-                                ),
-                                StructField("isBase64Encoded", BooleanType(), True),
                             ]
                         ),
                         True,
@@ -999,27 +869,27 @@ searchPostDocumentReferenceSchema = StructType(
                             [
                                 StructField("accept", StringType(), True),
                                 StructField("accept-encoding", StringType(), True),
-                                StructField("Authorization", StringType(), True),
+                                StructField("authorization", StringType(), True),
                                 StructField("cache-control", StringType(), True),
                                 StructField("content-type", StringType(), True),
-                                StructField("Host", StringType(), True),
+                                StructField("host", StringType(), True),
                                 StructField(
-                                    "NHSD-Client-RP-Details", StringType(), True
+                                    "nhsd-client-rp-details", StringType(), True
                                 ),
                                 StructField(
-                                    "NHSD-Connection-Metadata", StringType(), True
+                                    "nhsd-connection-metadata", StringType(), True
                                 ),
-                                StructField("NHSD-Correlation-ID", StringType(), True),
+                                StructField("nhsd-correlation-id", StringType(), True),
                                 StructField(
-                                    "NHSD-End-User-Organisation-ODS", StringType(), True
+                                    "nhsd-end-user-organisation-ods", StringType(), True
                                 ),
-                                StructField("NHSD-Request-ID", StringType(), True),
-                                StructField("Postman-Token", StringType(), True),
-                                StructField("User-Agent", StringType(), True),
+                                StructField("nhsd-request-id", StringType(), True),
+                                StructField("postman-token", StringType(), True),
+                                StructField("user-agent", StringType(), True),
                                 StructField("x-correlation-id", StringType(), True),
-                                StructField("X-Forwarded-For", StringType(), True),
-                                StructField("X-Forwarded-Port", StringType(), True),
-                                StructField("X-Forwarded-Proto", StringType(), True),
+                                StructField("x-forwarded-for", StringType(), True),
+                                StructField("x-forwarded-port", StringType(), True),
+                                StructField("x-forwarded-proto", StringType(), True),
                                 StructField("x-request-id", StringType(), True),
                             ]
                         ),
@@ -1031,13 +901,13 @@ searchPostDocumentReferenceSchema = StructType(
                         "config",
                         StructType(
                             [
-                                StructField("AWS_REGION", StringType(), True),
-                                StructField("PREFIX", StringType(), True),
-                                StructField("ENVIRONMENT", StringType(), True),
-                                StructField("SPLUNK_INDEX", StringType(), True),
-                                StructField("SOURCE", StringType(), True),
-                                StructField("AUTH_STORE", StringType(), True),
-                                StructField("TABLE_NAME", StringType(), True),
+                                StructField("aws_region", StringType(), True),
+                                StructField("prefix", StringType(), True),
+                                StructField("environment", StringType(), True),
+                                StructField("splunk_index", StringType(), True),
+                                StructField("source", StringType(), True),
+                                StructField("auth_store", StringType(), True),
+                                StructField("table_name", StringType(), True),
                             ]
                         ),
                         True,
@@ -1046,12 +916,8 @@ searchPostDocumentReferenceSchema = StructType(
                         "metadata",
                         StructType(
                             [
-                                StructField("pointer_types", StringType(), True),
                                 StructField("ods_code", StringType(), True),
-                                StructField("ods_code_extension", StringType(), True),
-                                StructField("nrl_permissions", StringType(), True),
                                 StructField("nrl_app_id", StringType(), True),
-                                StructField("is_test_event", BooleanType(), True),
                                 StructField(
                                     "client_rp_details",
                                     StructType(
@@ -1079,8 +945,6 @@ searchPostDocumentReferenceSchema = StructType(
                             [
                                 StructField("subject_identifier", StringType(), True),
                                 StructField("type", StringType(), True),
-                                StructField("category", StringType(), True),
-                                StructField("next_page_token", StringType(), True),
                             ]
                         ),
                         True,
@@ -1091,19 +955,18 @@ searchPostDocumentReferenceSchema = StructType(
                     StructField("filtered_kwargs_keys", StringType(), True),
                     StructField("custodian", StringType(), True),
                     StructField("nhs_number", StringType(), True),
-                    StructField("categories", StringType(), True),
                     StructField("expression", StringType(), True),
                     StructField("values", StringType(), True),
                     StructField(
                         "query",
                         StructType(
                             [
-                                StructField("IndexName", StringType(), True),
+                                StructField("indexname", StringType(), True),
                                 StructField(
-                                    "KeyConditionExpression", StringType(), True
+                                    "keyconditionexpression", StringType(), True
                                 ),
                                 StructField(
-                                    "ExpressionAttributeValues",
+                                    "expressionattributevalues",
                                     StructType(
                                         [
                                             StructField(
@@ -1133,11 +996,11 @@ searchPostDocumentReferenceSchema = StructType(
                                     True,
                                 ),
                                 StructField(
-                                    "ReturnConsumedCapacity", StringType(), True
+                                    "returnconsumedcapacity", StringType(), True
                                 ),
-                                StructField("FilterExpression", StringType(), True),
+                                StructField("filterexpression", StringType(), True),
                                 StructField(
-                                    "ExpressionAttributeNames",
+                                    "expressionattributenames",
                                     StructType(
                                         [
                                             StructField(
@@ -1158,7 +1021,6 @@ searchPostDocumentReferenceSchema = StructType(
                             [
                                 StructField("count", LongType(), True),
                                 StructField("scanned_count", LongType(), True),
-                                StructField("last_evaluated_key", StringType(), True),
                             ]
                         ),
                         True,
@@ -1167,34 +1029,22 @@ searchPostDocumentReferenceSchema = StructType(
                         "result",
                         StructType(
                             [
-                                StructField("Items", StructType([]), True),
-                                StructField("Count", LongType(), True),
-                                StructField("ScannedCount", LongType(), True),
+                                StructField("items", StructType([]), True),
+                                StructField("count", LongType(), True),
+                                StructField("scannedcount", LongType(), True),
                                 StructField(
-                                    "ConsumedCapacity",
+                                    "consumedcapacity",
                                     StructType(
                                         [
                                             StructField(
-                                                "TableName", StringType(), True
+                                                "tablename", StringType(), True
                                             ),
                                             StructField(
-                                                "CapacityUnits", DoubleType(), True
+                                                "capacityunits", DoubleType(), True
                                             ),
+                                            StructField("table", StructType([]), True),
                                             StructField(
-                                                "Table",
-                                                StructType(
-                                                    [
-                                                        StructField(
-                                                            "CapacityUnits",
-                                                            DoubleType(),
-                                                            True,
-                                                        )
-                                                    ]
-                                                ),
-                                                True,
-                                            ),
-                                            StructField(
-                                                "GlobalSecondaryIndexes",
+                                                "globalsecondaryindexes",
                                                 StructType(
                                                     [
                                                         StructField(
@@ -1202,7 +1052,7 @@ searchPostDocumentReferenceSchema = StructType(
                                                             StructType(
                                                                 [
                                                                     StructField(
-                                                                        "CapacityUnits",
+                                                                        "capacityunits",
                                                                         DoubleType(),
                                                                         True,
                                                                     )
@@ -1219,17 +1069,17 @@ searchPostDocumentReferenceSchema = StructType(
                                     True,
                                 ),
                                 StructField(
-                                    "ResponseMetadata",
+                                    "responsemetadata",
                                     StructType(
                                         [
                                             StructField(
-                                                "RequestId", StringType(), True
+                                                "requestid", StringType(), True
                                             ),
                                             StructField(
-                                                "HTTPStatusCode", LongType(), True
+                                                "httpstatuscode", LongType(), True
                                             ),
                                             StructField(
-                                                "HTTPHeaders",
+                                                "httpheaders",
                                                 StructType(
                                                     [
                                                         StructField(
@@ -1267,9 +1117,6 @@ searchPostDocumentReferenceSchema = StructType(
                                                 ),
                                                 True,
                                             ),
-                                            StructField(
-                                                "RetryAttempts", LongType(), True
-                                            ),
                                         ]
                                     ),
                                     True,
@@ -1287,14 +1134,30 @@ searchPostDocumentReferenceSchema = StructType(
                         "response",
                         StructType(
                             [
-                                StructField("statusCode", StringType(), True),
+                                StructField("statuscode", StringType(), True),
                                 StructField("body", StringType(), True),
-                                StructField("headers", StructType([]), True),
-                                StructField("isBase64Encoded", BooleanType(), True),
                             ]
                         ),
                         True,
                     ),
+                    StructField("error", StringType(), True),
+                    StructField("exception", StringType(), True),
+                    StructField("exception_name", StringType(), True),
+                    StructField(
+                        "stack_trace",
+                        StructType(
+                            [
+                                StructField("type", StringType(), True),
+                                StructField("value", StringType(), True),
+                                StructField("module", StringType(), True),
+                                StructField("frames", StructType([]), True),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField("bucket", StringType(), True),
+                    StructField("key", StringType(), True),
+                    StructField("ods_code", StringType(), True),
                 ]
             ),
             True,
@@ -1332,26 +1195,26 @@ searchDocumentReferenceSchema = StructType(
                             [
                                 StructField("accept", StringType(), True),
                                 StructField("accept-encoding", StringType(), True),
-                                StructField("Authorization", StringType(), True),
+                                StructField("authorization", StringType(), True),
                                 StructField("cache-control", StringType(), True),
-                                StructField("Host", StringType(), True),
+                                StructField("host", StringType(), True),
                                 StructField(
-                                    "NHSD-Client-RP-Details", StringType(), True
+                                    "nhsd-client-rp-details", StringType(), True
                                 ),
                                 StructField(
-                                    "NHSD-Connection-Metadata", StringType(), True
+                                    "nhsd-connection-metadata", StringType(), True
                                 ),
-                                StructField("NHSD-Correlation-ID", StringType(), True),
+                                StructField("nhsd-correlation-id", StringType(), True),
                                 StructField(
-                                    "NHSD-End-User-Organisation-ODS", StringType(), True
+                                    "nhsd-end-user-organisation-ods", StringType(), True
                                 ),
-                                StructField("NHSD-Request-ID", StringType(), True),
-                                StructField("Postman-Token", StringType(), True),
-                                StructField("User-Agent", StringType(), True),
+                                StructField("nhsd-request-id", StringType(), True),
+                                StructField("postman-token", StringType(), True),
+                                StructField("user-agent", StringType(), True),
                                 StructField("x-correlation-id", StringType(), True),
-                                StructField("X-Forwarded-For", StringType(), True),
-                                StructField("X-Forwarded-Port", StringType(), True),
-                                StructField("X-Forwarded-Proto", StringType(), True),
+                                StructField("x-forwarded-for", StringType(), True),
+                                StructField("x-forwarded-port", StringType(), True),
+                                StructField("x-forwarded-proto", StringType(), True),
                                 StructField("x-request-id", StringType(), True),
                             ]
                         ),
@@ -1363,13 +1226,13 @@ searchDocumentReferenceSchema = StructType(
                         "config",
                         StructType(
                             [
-                                StructField("AWS_REGION", StringType(), True),
-                                StructField("PREFIX", StringType(), True),
-                                StructField("ENVIRONMENT", StringType(), True),
-                                StructField("SPLUNK_INDEX", StringType(), True),
-                                StructField("SOURCE", StringType(), True),
-                                StructField("AUTH_STORE", StringType(), True),
-                                StructField("TABLE_NAME", StringType(), True),
+                                StructField("aws_region", StringType(), True),
+                                StructField("prefix", StringType(), True),
+                                StructField("environment", StringType(), True),
+                                StructField("splunk_index", StringType(), True),
+                                StructField("source", StringType(), True),
+                                StructField("auth_store", StringType(), True),
+                                StructField("table_name", StringType(), True),
                             ]
                         ),
                         True,
@@ -1378,12 +1241,8 @@ searchDocumentReferenceSchema = StructType(
                         "metadata",
                         StructType(
                             [
-                                StructField("pointer_types", StringType(), True),
                                 StructField("ods_code", StringType(), True),
-                                StructField("ods_code_extension", StringType(), True),
-                                StructField("nrl_permissions", StringType(), True),
                                 StructField("nrl_app_id", StringType(), True),
-                                StructField("is_test_event", BooleanType(), True),
                                 StructField(
                                     "client_rp_details",
                                     StructType(
@@ -1420,8 +1279,6 @@ searchDocumentReferenceSchema = StructType(
                             [
                                 StructField("subject_identifier", StringType(), True),
                                 StructField("type", StringType(), True),
-                                StructField("category", StringType(), True),
-                                StructField("next_page_token", StringType(), True),
                             ]
                         ),
                         True,
@@ -1432,19 +1289,18 @@ searchDocumentReferenceSchema = StructType(
                     StructField("filtered_kwargs_keys", StringType(), True),
                     StructField("custodian", StringType(), True),
                     StructField("nhs_number", StringType(), True),
-                    StructField("categories", StringType(), True),
                     StructField("expression", StringType(), True),
                     StructField("values", StringType(), True),
                     StructField(
                         "query",
                         StructType(
                             [
-                                StructField("IndexName", StringType(), True),
+                                StructField("indexname", StringType(), True),
                                 StructField(
-                                    "KeyConditionExpression", StringType(), True
+                                    "keyconditionexpression", StringType(), True
                                 ),
                                 StructField(
-                                    "ExpressionAttributeValues",
+                                    "expressionattributevalues",
                                     StructType(
                                         [
                                             StructField(
@@ -1460,16 +1316,25 @@ searchDocumentReferenceSchema = StructType(
                                             StructField(
                                                 ":patient_sort", StringType(), True
                                             ),
+                                            StructField(":type_4", StringType(), True),
+                                            StructField(":type_5", StringType(), True),
+                                            StructField(":type_6", StringType(), True),
+                                            StructField(":type_7", StringType(), True),
+                                            StructField(":type_8", StringType(), True),
+                                            StructField(":type_9", StringType(), True),
+                                            StructField(":type_10", StringType(), True),
+                                            StructField(":type_11", StringType(), True),
+                                            StructField(":type_12", StringType(), True),
                                         ]
                                     ),
                                     True,
                                 ),
                                 StructField(
-                                    "ReturnConsumedCapacity", StringType(), True
+                                    "returnconsumedcapacity", StringType(), True
                                 ),
-                                StructField("FilterExpression", StringType(), True),
+                                StructField("filterexpression", StringType(), True),
                                 StructField(
-                                    "ExpressionAttributeNames",
+                                    "expressionattributenames",
                                     StructType(
                                         [
                                             StructField(
@@ -1490,7 +1355,6 @@ searchDocumentReferenceSchema = StructType(
                             [
                                 StructField("count", LongType(), True),
                                 StructField("scanned_count", LongType(), True),
-                                StructField("last_evaluated_key", StringType(), True),
                             ]
                         ),
                         True,
@@ -1499,34 +1363,22 @@ searchDocumentReferenceSchema = StructType(
                         "result",
                         StructType(
                             [
-                                StructField("Items", StructType([]), True),
-                                StructField("Count", LongType(), True),
-                                StructField("ScannedCount", LongType(), True),
+                                StructField("items", StructType([]), True),
+                                StructField("count", LongType(), True),
+                                StructField("scannedcount", LongType(), True),
                                 StructField(
-                                    "ConsumedCapacity",
+                                    "consumedcapacity",
                                     StructType(
                                         [
                                             StructField(
-                                                "TableName", StringType(), True
+                                                "tablename", StringType(), True
                                             ),
                                             StructField(
-                                                "CapacityUnits", DoubleType(), True
+                                                "capacityunits", DoubleType(), True
                                             ),
+                                            StructField("table", StructType([]), True),
                                             StructField(
-                                                "Table",
-                                                StructType(
-                                                    [
-                                                        StructField(
-                                                            "CapacityUnits",
-                                                            DoubleType(),
-                                                            True,
-                                                        )
-                                                    ]
-                                                ),
-                                                True,
-                                            ),
-                                            StructField(
-                                                "GlobalSecondaryIndexes",
+                                                "globalsecondaryindexes",
                                                 StructType(
                                                     [
                                                         StructField(
@@ -1534,7 +1386,7 @@ searchDocumentReferenceSchema = StructType(
                                                             StructType(
                                                                 [
                                                                     StructField(
-                                                                        "CapacityUnits",
+                                                                        "capacityunits",
                                                                         DoubleType(),
                                                                         True,
                                                                     )
@@ -1551,17 +1403,17 @@ searchDocumentReferenceSchema = StructType(
                                     True,
                                 ),
                                 StructField(
-                                    "ResponseMetadata",
+                                    "responsemetadata",
                                     StructType(
                                         [
                                             StructField(
-                                                "RequestId", StringType(), True
+                                                "requestid", StringType(), True
                                             ),
                                             StructField(
-                                                "HTTPStatusCode", LongType(), True
+                                                "httpstatuscode", LongType(), True
                                             ),
                                             StructField(
-                                                "HTTPHeaders",
+                                                "httpheaders",
                                                 StructType(
                                                     [
                                                         StructField(
@@ -1599,9 +1451,6 @@ searchDocumentReferenceSchema = StructType(
                                                 ),
                                                 True,
                                             ),
-                                            StructField(
-                                                "RetryAttempts", LongType(), True
-                                            ),
                                         ]
                                     ),
                                     True,
@@ -1619,15 +1468,31 @@ searchDocumentReferenceSchema = StructType(
                         "response",
                         StructType(
                             [
-                                StructField("statusCode", StringType(), True),
+                                StructField("statuscode", StringType(), True),
                                 StructField("body", StringType(), True),
-                                StructField("headers", StructType([]), True),
-                                StructField("isBase64Encoded", BooleanType(), True),
                             ]
                         ),
                         True,
                     ),
                     StructField("type", StringType(), True),
+                    StructField("error", StringType(), True),
+                    StructField("exception", StringType(), True),
+                    StructField("exception_name", StringType(), True),
+                    StructField(
+                        "stack_trace",
+                        StructType(
+                            [
+                                StructField("type", StringType(), True),
+                                StructField("value", StringType(), True),
+                                StructField("module", StringType(), True),
+                                StructField("frames", StructType([]), True),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField("bucket", StringType(), True),
+                    StructField("key", StringType(), True),
+                    StructField("ods_code", StringType(), True),
                 ]
             ),
             True,
@@ -1669,26 +1534,26 @@ readDocumentReferenceSchema = StructType(
                             [
                                 StructField("accept", StringType(), True),
                                 StructField("accept-encoding", StringType(), True),
-                                StructField("Authorization", StringType(), True),
+                                StructField("authorization", StringType(), True),
                                 StructField("cache-control", StringType(), True),
-                                StructField("Host", StringType(), True),
+                                StructField("host", StringType(), True),
                                 StructField(
-                                    "NHSD-Client-RP-Details", StringType(), True
+                                    "nhsd-client-rp-details", StringType(), True
                                 ),
                                 StructField(
-                                    "NHSD-Connection-Metadata", StringType(), True
+                                    "nhsd-connection-metadata", StringType(), True
                                 ),
-                                StructField("NHSD-Correlation-ID", StringType(), True),
+                                StructField("nhsd-correlation-id", StringType(), True),
                                 StructField(
-                                    "NHSD-End-User-Organisation-ODS", StringType(), True
+                                    "nhsd-end-user-organisation-ods", StringType(), True
                                 ),
-                                StructField("NHSD-Request-ID", StringType(), True),
-                                StructField("Postman-Token", StringType(), True),
-                                StructField("User-Agent", StringType(), True),
+                                StructField("nhsd-request-id", StringType(), True),
+                                StructField("postman-token", StringType(), True),
+                                StructField("user-agent", StringType(), True),
                                 StructField("x-correlation-id", StringType(), True),
-                                StructField("X-Forwarded-For", StringType(), True),
-                                StructField("X-Forwarded-Port", StringType(), True),
-                                StructField("X-Forwarded-Proto", StringType(), True),
+                                StructField("x-forwarded-for", StringType(), True),
+                                StructField("x-forwarded-port", StringType(), True),
+                                StructField("x-forwarded-proto", StringType(), True),
                                 StructField("x-request-id", StringType(), True),
                             ]
                         ),
@@ -1700,13 +1565,13 @@ readDocumentReferenceSchema = StructType(
                         "config",
                         StructType(
                             [
-                                StructField("AWS_REGION", StringType(), True),
-                                StructField("PREFIX", StringType(), True),
-                                StructField("ENVIRONMENT", StringType(), True),
-                                StructField("SPLUNK_INDEX", StringType(), True),
-                                StructField("SOURCE", StringType(), True),
-                                StructField("AUTH_STORE", StringType(), True),
-                                StructField("TABLE_NAME", StringType(), True),
+                                StructField("aws_region", StringType(), True),
+                                StructField("prefix", StringType(), True),
+                                StructField("environment", StringType(), True),
+                                StructField("splunk_index", StringType(), True),
+                                StructField("source", StringType(), True),
+                                StructField("auth_store", StringType(), True),
+                                StructField("table_name", StringType(), True),
                             ]
                         ),
                         True,
@@ -1715,12 +1580,8 @@ readDocumentReferenceSchema = StructType(
                         "metadata",
                         StructType(
                             [
-                                StructField("pointer_types", StringType(), True),
                                 StructField("ods_code", StringType(), True),
-                                StructField("ods_code_extension", StringType(), True),
-                                StructField("nrl_permissions", StringType(), True),
                                 StructField("nrl_app_id", StringType(), True),
-                                StructField("is_test_event", BooleanType(), True),
                                 StructField(
                                     "client_rp_details",
                                     StructType(
@@ -1755,14 +1616,8 @@ readDocumentReferenceSchema = StructType(
                         "response",
                         StructType(
                             [
-                                StructField("statusCode", StringType(), True),
+                                StructField("statuscode", StringType(), True),
                                 StructField("body", StringType(), True),
-                                StructField(
-                                    "headers",
-                                    StructType([StructField("id", StringType(), True)]),
-                                    True,
-                                ),
-                                StructField("isBase64Encoded", BooleanType(), True),
                             ]
                         ),
                         True,
@@ -1777,20 +1632,16 @@ readDocumentReferenceSchema = StructType(
                                 StructField("id", StringType(), True),
                                 StructField("nhs_number", StringType(), True),
                                 StructField("custodian", StringType(), True),
-                                StructField("custodian_suffix", StringType(), True),
                                 StructField("producer_id", StringType(), True),
                                 StructField("category_id", StringType(), True),
                                 StructField("category", StringType(), True),
                                 StructField("type_id", StringType(), True),
                                 StructField("type", StringType(), True),
-                                StructField("master_identifier", StringType(), True),
                                 StructField("author", StringType(), True),
                                 StructField("source", StringType(), True),
                                 StructField("version", LongType(), True),
                                 StructField("document", StringType(), True),
                                 StructField("created_on", StringType(), True),
-                                StructField("updated_on", StringType(), True),
-                                StructField("schemas", StringType(), True),
                                 StructField("pk", StringType(), True),
                                 StructField("sk", StringType(), True),
                                 StructField("patient_key", StringType(), True),
@@ -1799,6 +1650,25 @@ readDocumentReferenceSchema = StructType(
                         ),
                         True,
                     ),
+                    StructField("exception", StringType(), True),
+                    StructField("exception_name", StringType(), True),
+                    StructField(
+                        "stack_trace",
+                        StructType(
+                            [
+                                StructField("type", StringType(), True),
+                                StructField("value", StringType(), True),
+                                StructField("module", StringType(), True),
+                                StructField(
+                                    "frames",
+                                    StructType([StructField("id", StringType(), True)]),
+                                    True,
+                                ),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField("ods_code_parts", StringType(), True),
                 ]
             ),
             True,
@@ -1840,27 +1710,27 @@ deleteDocumentReferenceSchema = StructType(
                             [
                                 StructField("accept", StringType(), True),
                                 StructField("accept-encoding", StringType(), True),
-                                StructField("Authorization", StringType(), True),
-                                StructField("cache-control", StringType(), True),
-                                StructField("Host", StringType(), True),
+                                StructField("authorization", StringType(), True),
+                                StructField("host", StringType(), True),
                                 StructField(
-                                    "NHSD-Client-RP-Details", StringType(), True
+                                    "nhsd-client-rp-details", StringType(), True
                                 ),
                                 StructField(
-                                    "NHSD-Connection-Metadata", StringType(), True
+                                    "nhsd-connection-metadata", StringType(), True
                                 ),
-                                StructField("NHSD-Correlation-ID", StringType(), True),
-                                StructField(
-                                    "NHSD-End-User-Organisation-ODS", StringType(), True
-                                ),
-                                StructField("NHSD-Request-ID", StringType(), True),
-                                StructField("Postman-Token", StringType(), True),
-                                StructField("User-Agent", StringType(), True),
-                                StructField("x-correlation-id", StringType(), True),
-                                StructField("X-Forwarded-For", StringType(), True),
-                                StructField("X-Forwarded-Port", StringType(), True),
-                                StructField("X-Forwarded-Proto", StringType(), True),
+                                StructField("nhsd-correlation-id", StringType(), True),
+                                StructField("user-agent", StringType(), True),
+                                StructField("x-forwarded-for", StringType(), True),
                                 StructField("x-request-id", StringType(), True),
+                                StructField(
+                                    "nhsd-end-user-organisation-ods", StringType(), True
+                                ),
+                                StructField("nhsd-request-id", StringType(), True),
+                                StructField("x-forwarded-port", StringType(), True),
+                                StructField("x-forwarded-proto", StringType(), True),
+                                StructField("cache-control", StringType(), True),
+                                StructField("postman-token", StringType(), True),
+                                StructField("x-correlation-id", StringType(), True),
                             ]
                         ),
                         True,
@@ -1871,13 +1741,13 @@ deleteDocumentReferenceSchema = StructType(
                         "config",
                         StructType(
                             [
-                                StructField("AWS_REGION", StringType(), True),
-                                StructField("PREFIX", StringType(), True),
-                                StructField("ENVIRONMENT", StringType(), True),
-                                StructField("SPLUNK_INDEX", StringType(), True),
-                                StructField("SOURCE", StringType(), True),
-                                StructField("AUTH_STORE", StringType(), True),
-                                StructField("TABLE_NAME", StringType(), True),
+                                StructField("aws_region", StringType(), True),
+                                StructField("prefix", StringType(), True),
+                                StructField("environment", StringType(), True),
+                                StructField("splunk_index", StringType(), True),
+                                StructField("source", StringType(), True),
+                                StructField("auth_store", StringType(), True),
+                                StructField("table_name", StringType(), True),
                             ]
                         ),
                         True,
@@ -1886,12 +1756,8 @@ deleteDocumentReferenceSchema = StructType(
                         "metadata",
                         StructType(
                             [
-                                StructField("pointer_types", StringType(), True),
                                 StructField("ods_code", StringType(), True),
-                                StructField("ods_code_extension", StringType(), True),
-                                StructField("nrl_permissions", StringType(), True),
                                 StructField("nrl_app_id", StringType(), True),
-                                StructField("is_test_event", BooleanType(), True),
                                 StructField(
                                     "client_rp_details",
                                     StructType(
@@ -1921,483 +1787,46 @@ deleteDocumentReferenceSchema = StructType(
                     StructField("item_type", StringType(), True),
                     StructField("original_kwargs_keys", StringType(), True),
                     StructField("filtered_kwargs_keys", StringType(), True),
-                    StructField("pointer_id", StringType(), True),
-                    StructField("status_code", StringType(), True),
-                    StructField(
-                        "response",
-                        StructType(
-                            [
-                                StructField("statusCode", StringType(), True),
-                                StructField("body", StringType(), True),
-                                StructField(
-                                    "headers",
-                                    StructType([StructField("id", StringType(), True)]),
-                                    True,
-                                ),
-                                StructField("isBase64Encoded", BooleanType(), True),
-                            ]
-                        ),
-                        True,
-                    ),
-                ]
-            ),
-            True,
-        ),
-    ]
-)
-
-createDocumentReferenceSchema = StructType(
-    [
-        StructField("raw_message", StringType(), True),
-        StructField("time", DoubleType(), True),
-        StructField("index", StringType(), True),
-        StructField("host", StringType(), True),
-        StructField("source", StringType(), True),
-        StructField(
-            "event",
-            StructType(
-                [
-                    StructField("level", StringType(), True),
-                    StructField("location", StringType(), True),
-                    StructField("message", StringType(), True),
-                    StructField("timestamp", StringType(), True),
-                    StructField("service", StringType(), True),
-                    StructField("cold_start", BooleanType(), True),
-                    StructField("function_name", StringType(), True),
-                    StructField("function_memory_size", StringType(), True),
-                    StructField("function_arn", StringType(), True),
-                    StructField("function_request_id", StringType(), True),
-                    StructField("correlation_id", StringType(), True),
-                    StructField("method", StringType(), True),
-                    StructField("path", StringType(), True),
-                    StructField(
-                        "headers",
-                        StructType(
-                            [
-                                StructField("accept", StringType(), True),
-                                StructField("accept-encoding", StringType(), True),
-                                StructField("Authorization", StringType(), True),
-                                StructField("cache-control", StringType(), True),
-                                StructField("content-type", StringType(), True),
-                                StructField("Host", StringType(), True),
-                                StructField(
-                                    "NHSD-Client-RP-Details", StringType(), True
-                                ),
-                                StructField(
-                                    "NHSD-Connection-Metadata", StringType(), True
-                                ),
-                                StructField("NHSD-Correlation-ID", StringType(), True),
-                                StructField(
-                                    "NHSD-End-User-Organisation-ODS", StringType(), True
-                                ),
-                                StructField("NHSD-Request-ID", StringType(), True),
-                                StructField("Postman-Token", StringType(), True),
-                                StructField("User-Agent", StringType(), True),
-                                StructField("x-correlation-id", StringType(), True),
-                                StructField("X-Forwarded-For", StringType(), True),
-                                StructField("X-Forwarded-Port", StringType(), True),
-                                StructField("X-Forwarded-Proto", StringType(), True),
-                                StructField("x-request-id", StringType(), True),
-                            ]
-                        ),
-                        True,
-                    ),
-                    StructField("log_reference", StringType(), True),
-                    StructField("xray_trace_id", StringType(), True),
-                    StructField(
-                        "config",
-                        StructType(
-                            [
-                                StructField("AWS_REGION", StringType(), True),
-                                StructField("PREFIX", StringType(), True),
-                                StructField("ENVIRONMENT", StringType(), True),
-                                StructField("SPLUNK_INDEX", StringType(), True),
-                                StructField("SOURCE", StringType(), True),
-                                StructField("AUTH_STORE", StringType(), True),
-                                StructField("TABLE_NAME", StringType(), True),
-                            ]
-                        ),
-                        True,
-                    ),
-                    StructField(
-                        "metadata",
-                        StructType(
-                            [
-                                StructField("pointer_types", StringType(), True),
-                                StructField("ods_code", StringType(), True),
-                                StructField("ods_code_extension", StringType(), True),
-                                StructField("nrl_permissions", StringType(), True),
-                                StructField("nrl_app_id", StringType(), True),
-                                StructField("is_test_event", BooleanType(), True),
-                                StructField(
-                                    "client_rp_details",
-                                    StructType(
-                                        [
-                                            StructField(
-                                                "developer_app_name", StringType(), True
-                                            ),
-                                            StructField(
-                                                "developer_app_id", StringType(), True
-                                            ),
-                                        ]
-                                    ),
-                                    True,
-                                ),
-                            ]
-                        ),
-                        True,
-                    ),
-                    StructField("pointer_types", StringType(), True),
-                    StructField("body", StringType(), True),
-                    StructField("model", StringType(), True),
-                    StructField("error", StringType(), True),
-                    StructField(
-                        "response",
-                        StructType(
-                            [
-                                StructField("statusCode", StringType(), True),
-                                StructField("body", StringType(), True),
-                                StructField(
-                                    "headers",
-                                    StructType(
-                                        [StructField("Location", StringType(), True)]
-                                    ),
-                                    True,
-                                ),
-                                StructField("isBase64Encoded", BooleanType(), True),
-                            ]
-                        ),
-                        True,
-                    ),
-                    StructField("status_code", StringType(), True),
-                    StructField(
-                        "parsed_body",
-                        StructType(
-                            [
-                                StructField("resourceType", StringType(), True),
-                                StructField("id", StringType(), True),
-                                StructField(
-                                    "meta",
-                                    StructType(
-                                        [
-                                            StructField("id", StringType(), True),
-                                            StructField(
-                                                "versionId", StringType(), True
-                                            ),
-                                            StructField(
-                                                "lastUpdated", StringType(), True
-                                            ),
-                                            StructField("source", StringType(), True),
-                                            StructField("profile", StringType(), True),
-                                            StructField("security", StringType(), True),
-                                            StructField("tag", StringType(), True),
-                                        ]
-                                    ),
-                                    True,
-                                ),
-                                StructField("implicitRules", StringType(), True),
-                                StructField("language", StringType(), True),
-                                StructField("text", StringType(), True),
-                                StructField(
-                                    "masterIdentifier",
-                                    StructType(
-                                        [
-                                            StructField("id", StringType(), True),
-                                            StructField("use", StringType(), True),
-                                            StructField("type", StringType(), True),
-                                            StructField("system", StringType(), True),
-                                            StructField("value", StringType(), True),
-                                            StructField("period", StringType(), True),
-                                            StructField("assigner", StringType(), True),
-                                        ]
-                                    ),
-                                    True,
-                                ),
-                                StructField("identifier", StringType(), True),
-                                StructField("status", StringType(), True),
-                                StructField("docStatus", StringType(), True),
-                                StructField(
-                                    "type",
-                                    StructType(
-                                        [
-                                            StructField("id", StringType(), True),
-                                            StructField(
-                                                "coding",
-                                                StructType(
-                                                    [
-                                                        StructField(
-                                                            "Location",
-                                                            StringType(),
-                                                            True,
-                                                        )
-                                                    ]
-                                                ),
-                                                True,
-                                            ),
-                                            StructField("text", StringType(), True),
-                                        ]
-                                    ),
-                                    True,
-                                ),
-                                StructField(
-                                    "category",
-                                    StructType(
-                                        [StructField("Location", StringType(), True)]
-                                    ),
-                                    True,
-                                ),
-                                StructField(
-                                    "subject",
-                                    StructType(
-                                        [
-                                            StructField("id", StringType(), True),
-                                            StructField(
-                                                "reference", StringType(), True
-                                            ),
-                                            StructField("type", StringType(), True),
-                                            StructField(
-                                                "identifier",
-                                                StructType(
-                                                    [
-                                                        StructField(
-                                                            "id", StringType(), True
-                                                        ),
-                                                        StructField(
-                                                            "use", StringType(), True
-                                                        ),
-                                                        StructField(
-                                                            "type", StringType(), True
-                                                        ),
-                                                        StructField(
-                                                            "system", StringType(), True
-                                                        ),
-                                                        StructField(
-                                                            "value", StringType(), True
-                                                        ),
-                                                        StructField(
-                                                            "period", StringType(), True
-                                                        ),
-                                                        StructField(
-                                                            "assigner",
-                                                            StringType(),
-                                                            True,
-                                                        ),
-                                                    ]
-                                                ),
-                                                True,
-                                            ),
-                                            StructField("display", StringType(), True),
-                                        ]
-                                    ),
-                                    True,
-                                ),
-                                StructField("date", StringType(), True),
-                                StructField(
-                                    "author",
-                                    StructType(
-                                        [StructField("Location", StringType(), True)]
-                                    ),
-                                    True,
-                                ),
-                                StructField("authenticator", StringType(), True),
-                                StructField(
-                                    "custodian",
-                                    StructType(
-                                        [
-                                            StructField("id", StringType(), True),
-                                            StructField(
-                                                "reference", StringType(), True
-                                            ),
-                                            StructField("type", StringType(), True),
-                                            StructField(
-                                                "identifier",
-                                                StructType(
-                                                    [
-                                                        StructField(
-                                                            "id", StringType(), True
-                                                        ),
-                                                        StructField(
-                                                            "use", StringType(), True
-                                                        ),
-                                                        StructField(
-                                                            "type", StringType(), True
-                                                        ),
-                                                        StructField(
-                                                            "system", StringType(), True
-                                                        ),
-                                                        StructField(
-                                                            "value", StringType(), True
-                                                        ),
-                                                        StructField(
-                                                            "period", StringType(), True
-                                                        ),
-                                                        StructField(
-                                                            "assigner",
-                                                            StringType(),
-                                                            True,
-                                                        ),
-                                                    ]
-                                                ),
-                                                True,
-                                            ),
-                                            StructField("display", StringType(), True),
-                                        ]
-                                    ),
-                                    True,
-                                ),
-                                StructField("relatesTo", StringType(), True),
-                                StructField("description", StringType(), True),
-                                StructField("securityLabel", StringType(), True),
-                                StructField(
-                                    "content",
-                                    StructType(
-                                        [StructField("Location", StringType(), True)]
-                                    ),
-                                    True,
-                                ),
-                                StructField(
-                                    "context",
-                                    StructType(
-                                        [
-                                            StructField("id", StringType(), True),
-                                            StructField(
-                                                "encounter", StringType(), True
-                                            ),
-                                            StructField(
-                                                "event",
-                                                StructType(
-                                                    [
-                                                        StructField(
-                                                            "Location",
-                                                            StringType(),
-                                                            True,
-                                                        )
-                                                    ]
-                                                ),
-                                                True,
-                                            ),
-                                            StructField(
-                                                "period",
-                                                StructType(
-                                                    [
-                                                        StructField(
-                                                            "id", StringType(), True
-                                                        ),
-                                                        StructField(
-                                                            "start", StringType(), True
-                                                        ),
-                                                        StructField(
-                                                            "end", StringType(), True
-                                                        ),
-                                                    ]
-                                                ),
-                                                True,
-                                            ),
-                                            StructField(
-                                                "facilityType", StringType(), True
-                                            ),
-                                            StructField(
-                                                "practiceSetting",
-                                                StructType(
-                                                    [
-                                                        StructField(
-                                                            "id", StringType(), True
-                                                        ),
-                                                        StructField(
-                                                            "coding",
-                                                            StructType(
-                                                                [
-                                                                    StructField(
-                                                                        "Location",
-                                                                        StringType(),
-                                                                        True,
-                                                                    )
-                                                                ]
-                                                            ),
-                                                            True,
-                                                        ),
-                                                        StructField(
-                                                            "text", StringType(), True
-                                                        ),
-                                                    ]
-                                                ),
-                                                True,
-                                            ),
-                                            StructField(
-                                                "sourcePatientInfo", StringType(), True
-                                            ),
-                                            StructField(
-                                                "related",
-                                                StructType(
-                                                    [
-                                                        StructField(
-                                                            "Location",
-                                                            StringType(),
-                                                            True,
-                                                        )
-                                                    ]
-                                                ),
-                                                True,
-                                            ),
-                                        ]
-                                    ),
-                                    True,
-                                ),
-                            ]
-                        ),
-                        True,
-                    ),
-                    StructField("table_name", StringType(), True),
-                    StructField("item_type", StringType(), True),
-                    StructField("original_kwargs_keys", StringType(), True),
-                    StructField("filtered_kwargs_keys", StringType(), True),
-                    StructField("resource", StringType(), True),
-                    StructField("resource_type", StringType(), True),
-                    StructField("step", StringType(), True),
-                    StructField("required_fields", StringType(), True),
-                    StructField("reason", StringType(), True),
-                    StructField("is_valid", BooleanType(), True),
-                    StructField("issue_count", LongType(), True),
                     StructField("producer_id", StringType(), True),
                     StructField("document_id", StringType(), True),
                     StructField("custodian", StringType(), True),
-                    StructField("type", StringType(), True),
-                    StructField("pointer_id", StringType(), True),
-                    StructField(
-                        "indexes",
-                        StructType(
-                            [
-                                StructField("pk", StringType(), True),
-                                StructField("sk", StringType(), True),
-                                StructField("patient_key", StringType(), True),
-                                StructField("patient_sort", StringType(), True),
-                                StructField("masterid_key", StringType(), True),
-                            ]
-                        ),
-                        True,
-                    ),
-                    StructField("source", StringType(), True),
-                    StructField("version", LongType(), True),
                     StructField(
                         "result",
                         StructType(
                             [
+                                StructField("id", StringType(), True),
+                                StructField("nhs_number", StringType(), True),
+                                StructField("custodian", StringType(), True),
+                                StructField("producer_id", StringType(), True),
+                                StructField("category_id", StringType(), True),
+                                StructField("category", StringType(), True),
+                                StructField("type_id", StringType(), True),
+                                StructField("type", StringType(), True),
+                                StructField("author", StringType(), True),
+                                StructField("source", StringType(), True),
+                                StructField("version", LongType(), True),
+                                StructField("document", StringType(), True),
+                                StructField("created_on", StringType(), True),
+                                StructField("pk", StringType(), True),
+                                StructField("sk", StringType(), True),
+                                StructField("patient_key", StringType(), True),
+                                StructField("patient_sort", StringType(), True),
                                 StructField(
-                                    "ConsumedCapacity",
+                                    "consumedcapacity",
                                     StructType(
                                         [
                                             StructField(
-                                                "TableName", StringType(), True
+                                                "tablename", StringType(), True
                                             ),
                                             StructField(
-                                                "CapacityUnits", DoubleType(), True
+                                                "capacityunits", DoubleType(), True
                                             ),
                                             StructField(
-                                                "Table",
+                                                "table",
                                                 StructType(
                                                     [
                                                         StructField(
-                                                            "CapacityUnits",
+                                                            "capacityunits",
                                                             DoubleType(),
                                                             True,
                                                         )
@@ -2406,35 +1835,22 @@ createDocumentReferenceSchema = StructType(
                                                 True,
                                             ),
                                             StructField(
-                                                "GlobalSecondaryIndexes",
+                                                "globalsecondaryindexes",
                                                 StructType(
                                                     [
-                                                        StructField(
-                                                            "masterid_gsi",
-                                                            StructType(
-                                                                [
-                                                                    StructField(
-                                                                        "CapacityUnits",
-                                                                        DoubleType(),
-                                                                        True,
-                                                                    )
-                                                                ]
-                                                            ),
-                                                            True,
-                                                        ),
                                                         StructField(
                                                             "patient_gsi",
                                                             StructType(
                                                                 [
                                                                     StructField(
-                                                                        "CapacityUnits",
+                                                                        "capacityunits",
                                                                         DoubleType(),
                                                                         True,
                                                                     )
                                                                 ]
                                                             ),
                                                             True,
-                                                        ),
+                                                        )
                                                     ]
                                                 ),
                                                 True,
@@ -2444,17 +1860,17 @@ createDocumentReferenceSchema = StructType(
                                     True,
                                 ),
                                 StructField(
-                                    "ResponseMetadata",
+                                    "responsemetadata",
                                     StructType(
                                         [
                                             StructField(
-                                                "RequestId", StringType(), True
+                                                "requestid", StringType(), True
                                             ),
                                             StructField(
-                                                "HTTPStatusCode", LongType(), True
+                                                "httpstatuscode", LongType(), True
                                             ),
                                             StructField(
-                                                "HTTPHeaders",
+                                                "httpheaders",
                                                 StructType(
                                                     [
                                                         StructField(
@@ -2492,8 +1908,124 @@ createDocumentReferenceSchema = StructType(
                                                 ),
                                                 True,
                                             ),
+                                        ]
+                                    ),
+                                    True,
+                                ),
+                                StructField("updated_on", StringType(), True),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField("partition_key", StringType(), True),
+                    StructField("sort_key", StringType(), True),
+                    StructField("status_code", StringType(), True),
+                    StructField(
+                        "response",
+                        StructType(
+                            [
+                                StructField("statuscode", StringType(), True),
+                                StructField("body", StringType(), True),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField("pointer_id", StringType(), True),
+                ]
+            ),
+            True,
+        ),
+    ]
+)
+
+createDocumentReferenceSchema = StructType(
+    [
+        StructField("raw_message", StringType(), True),
+        StructField("time", DoubleType(), True),
+        StructField("index", StringType(), True),
+        StructField("host", StringType(), True),
+        StructField("source", StringType(), True),
+        StructField(
+            "event",
+            StructType(
+                [
+                    StructField("level", StringType(), True),
+                    StructField("location", StringType(), True),
+                    StructField("message", StringType(), True),
+                    StructField("timestamp", StringType(), True),
+                    StructField("service", StringType(), True),
+                    StructField("cold_start", BooleanType(), True),
+                    StructField("function_name", StringType(), True),
+                    StructField("function_memory_size", StringType(), True),
+                    StructField("function_arn", StringType(), True),
+                    StructField("function_request_id", StringType(), True),
+                    StructField("correlation_id", StringType(), True),
+                    StructField("method", StringType(), True),
+                    StructField("path", StringType(), True),
+                    StructField(
+                        "headers",
+                        StructType(
+                            [
+                                StructField("accept", StringType(), True),
+                                StructField("accept-encoding", StringType(), True),
+                                StructField("authorization", StringType(), True),
+                                StructField("cache-control", StringType(), True),
+                                StructField("content-type", StringType(), True),
+                                StructField("host", StringType(), True),
+                                StructField(
+                                    "nhsd-client-rp-details", StringType(), True
+                                ),
+                                StructField(
+                                    "nhsd-connection-metadata", StringType(), True
+                                ),
+                                StructField("nhsd-correlation-id", StringType(), True),
+                                StructField(
+                                    "nhsd-end-user-organisation-ods", StringType(), True
+                                ),
+                                StructField("nhsd-request-id", StringType(), True),
+                                StructField("postman-token", StringType(), True),
+                                StructField("user-agent", StringType(), True),
+                                StructField("x-correlation-id", StringType(), True),
+                                StructField("x-forwarded-for", StringType(), True),
+                                StructField("x-forwarded-port", StringType(), True),
+                                StructField("x-forwarded-proto", StringType(), True),
+                                StructField("x-request-id", StringType(), True),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField("log_reference", StringType(), True),
+                    StructField("xray_trace_id", StringType(), True),
+                    StructField(
+                        "config",
+                        StructType(
+                            [
+                                StructField("aws_region", StringType(), True),
+                                StructField("prefix", StringType(), True),
+                                StructField("environment", StringType(), True),
+                                StructField("splunk_index", StringType(), True),
+                                StructField("source", StringType(), True),
+                                StructField("auth_store", StringType(), True),
+                                StructField("table_name", StringType(), True),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField(
+                        "metadata",
+                        StructType(
+                            [
+                                StructField("ods_code", StringType(), True),
+                                StructField("nrl_app_id", StringType(), True),
+                                StructField(
+                                    "client_rp_details",
+                                    StructType(
+                                        [
                                             StructField(
-                                                "RetryAttempts", LongType(), True
+                                                "developer_app_name", StringType(), True
+                                            ),
+                                            StructField(
+                                                "developer_app_id", StringType(), True
                                             ),
                                         ]
                                     ),
@@ -2503,8 +2035,326 @@ createDocumentReferenceSchema = StructType(
                         ),
                         True,
                     ),
+                    StructField("pointer_types", StringType(), True),
+                    StructField("body", StringType(), True),
+                    StructField("model", StringType(), True),
+                    StructField(
+                        "parsed_body",
+                        StructType(
+                            [
+                                StructField("resourcetype", StringType(), True),
+                                StructField("status", StringType(), True),
+                                StructField(
+                                    "type",
+                                    StructType(
+                                        [StructField("coding", StructType([]), True)]
+                                    ),
+                                    True,
+                                ),
+                                StructField("category", StructType([]), True),
+                                StructField(
+                                    "subject",
+                                    StructType(
+                                        [
+                                            StructField(
+                                                "identifier",
+                                                StructType(
+                                                    [
+                                                        StructField(
+                                                            "system", StringType(), True
+                                                        ),
+                                                        StructField(
+                                                            "value", StringType(), True
+                                                        ),
+                                                    ]
+                                                ),
+                                                True,
+                                            )
+                                        ]
+                                    ),
+                                    True,
+                                ),
+                                StructField("date", StringType(), True),
+                                StructField("author", StructType([]), True),
+                                StructField(
+                                    "custodian",
+                                    StructType(
+                                        [
+                                            StructField(
+                                                "identifier",
+                                                StructType(
+                                                    [
+                                                        StructField(
+                                                            "system", StringType(), True
+                                                        ),
+                                                        StructField(
+                                                            "value", StringType(), True
+                                                        ),
+                                                    ]
+                                                ),
+                                                True,
+                                            )
+                                        ]
+                                    ),
+                                    True,
+                                ),
+                                StructField("content", StructType([]), True),
+                                StructField(
+                                    "context",
+                                    StructType(
+                                        [
+                                            StructField(
+                                                "period",
+                                                StructType(
+                                                    [
+                                                        StructField(
+                                                            "start", StringType(), True
+                                                        ),
+                                                        StructField(
+                                                            "end", StringType(), True
+                                                        ),
+                                                    ]
+                                                ),
+                                                True,
+                                            ),
+                                            StructField(
+                                                "practicesetting",
+                                                StructType(
+                                                    [
+                                                        StructField(
+                                                            "coding",
+                                                            StructType([]),
+                                                            True,
+                                                        )
+                                                    ]
+                                                ),
+                                                True,
+                                            ),
+                                            StructField(
+                                                "related", StructType([]), True
+                                            ),
+                                            StructField("event", StructType([]), True),
+                                        ]
+                                    ),
+                                    True,
+                                ),
+                                StructField("relatesto", StructType([]), True),
+                                StructField("id", StringType(), True),
+                                StructField(
+                                    "meta",
+                                    StructType(
+                                        [StructField("lastupdated", StringType(), True)]
+                                    ),
+                                    True,
+                                ),
+                                StructField(
+                                    "masteridentifier",
+                                    StructType(
+                                        [
+                                            StructField("system", StringType(), True),
+                                            StructField("value", StringType(), True),
+                                        ]
+                                    ),
+                                    True,
+                                ),
+                                StructField("identifier", StructType([]), True),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField("table_name", StringType(), True),
+                    StructField("item_type", StringType(), True),
+                    StructField("original_kwargs_keys", StringType(), True),
+                    StructField("filtered_kwargs_keys", StringType(), True),
+                    StructField("resource", StringType(), True),
+                    StructField("resource_type", StringType(), True),
+                    StructField("step", StringType(), True),
+                    StructField("required_fields", StringType(), True),
+                    StructField("reason", StringType(), True),
+                    StructField("is_valid", BooleanType(), True),
+                    StructField("producer_id", StringType(), True),
+                    StructField("document_id", StringType(), True),
+                    StructField("custodian", StringType(), True),
+                    StructField("type", StringType(), True),
+                    StructField("pointer_id", StringType(), True),
+                    StructField(
+                        "indexes",
+                        StructType(
+                            [
+                                StructField("pk", StringType(), True),
+                                StructField("sk", StringType(), True),
+                                StructField("patient_key", StringType(), True),
+                                StructField("patient_sort", StringType(), True),
+                                StructField("masterid_key", StringType(), True),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField("source", StringType(), True),
+                    StructField("version", LongType(), True),
+                    StructField(
+                        "result",
+                        StructType(
+                            [
+                                StructField(
+                                    "consumedcapacity",
+                                    StructType(
+                                        [
+                                            StructField(
+                                                "tablename", StringType(), True
+                                            ),
+                                            StructField(
+                                                "capacityunits", DoubleType(), True
+                                            ),
+                                            StructField(
+                                                "table",
+                                                StructType(
+                                                    [
+                                                        StructField(
+                                                            "capacityunits",
+                                                            DoubleType(),
+                                                            True,
+                                                        )
+                                                    ]
+                                                ),
+                                                True,
+                                            ),
+                                            StructField(
+                                                "globalsecondaryindexes",
+                                                StructType(
+                                                    [
+                                                        StructField(
+                                                            "patient_gsi",
+                                                            StructType(
+                                                                [
+                                                                    StructField(
+                                                                        "capacityunits",
+                                                                        DoubleType(),
+                                                                        True,
+                                                                    )
+                                                                ]
+                                                            ),
+                                                            True,
+                                                        ),
+                                                        StructField(
+                                                            "masterid_gsi",
+                                                            StructType(
+                                                                [
+                                                                    StructField(
+                                                                        "capacityunits",
+                                                                        DoubleType(),
+                                                                        True,
+                                                                    )
+                                                                ]
+                                                            ),
+                                                            True,
+                                                        ),
+                                                    ]
+                                                ),
+                                                True,
+                                            ),
+                                        ]
+                                    ),
+                                    True,
+                                ),
+                                StructField(
+                                    "responsemetadata",
+                                    StructType(
+                                        [
+                                            StructField(
+                                                "requestid", StringType(), True
+                                            ),
+                                            StructField(
+                                                "httpstatuscode", LongType(), True
+                                            ),
+                                            StructField(
+                                                "httpheaders",
+                                                StructType(
+                                                    [
+                                                        StructField(
+                                                            "server", StringType(), True
+                                                        ),
+                                                        StructField(
+                                                            "date", StringType(), True
+                                                        ),
+                                                        StructField(
+                                                            "content-type",
+                                                            StringType(),
+                                                            True,
+                                                        ),
+                                                        StructField(
+                                                            "content-length",
+                                                            StringType(),
+                                                            True,
+                                                        ),
+                                                        StructField(
+                                                            "connection",
+                                                            StringType(),
+                                                            True,
+                                                        ),
+                                                        StructField(
+                                                            "x-amzn-requestid",
+                                                            StringType(),
+                                                            True,
+                                                        ),
+                                                        StructField(
+                                                            "x-amz-crc32",
+                                                            StringType(),
+                                                            True,
+                                                        ),
+                                                    ]
+                                                ),
+                                                True,
+                                            ),
+                                        ]
+                                    ),
+                                    True,
+                                ),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField("status_code", StringType(), True),
+                    StructField(
+                        "response",
+                        StructType(
+                            [
+                                StructField("statuscode", StringType(), True),
+                                StructField("body", StringType(), True),
+                                StructField(
+                                    "headers",
+                                    StructType(
+                                        [StructField("location", StringType(), True)]
+                                    ),
+                                    True,
+                                ),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField("error", StringType(), True),
+                    StructField(
+                        "issue",
+                        StructType(
+                            [
+                                StructField("severity", StringType(), True),
+                                StructField("code", StringType(), True),
+                                StructField(
+                                    "details",
+                                    StructType(
+                                        [StructField("coding", StructType([]), True)]
+                                    ),
+                                    True,
+                                ),
+                                StructField("diagnostics", StringType(), True),
+                                StructField("expression", StringType(), True),
+                            ]
+                        ),
+                        True,
+                    ),
+                    StructField("issue_count", LongType(), True),
                     StructField("ods_code", StringType(), True),
-                    StructField("relatesTo", StringType(), True),
+                    StructField("relatesto", StringType(), True),
                     StructField("related_identifier", StringType(), True),
                 ]
             ),
