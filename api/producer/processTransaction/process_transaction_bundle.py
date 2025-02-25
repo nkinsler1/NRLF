@@ -11,11 +11,11 @@ from nrlf.core.dynamodb.repository import DocumentPointer, DocumentPointerReposi
 from nrlf.core.errors import OperationOutcomeError
 from nrlf.core.logger import LogReference, logger
 from nrlf.core.model import ConnectionMetadata
+from nrlf.core.parent_model import Parent
 from nrlf.core.response import NRLResponse, Response, SpineErrorResponse
 from nrlf.core.utils import create_fhir_instant
 from nrlf.core.validators import DocumentReferenceValidator
 from nrlf.producer.fhir.r4.model import (
-    BaseModel,
     Bundle,
     BundleEntry,
     BundleEntryResponse,
@@ -358,7 +358,7 @@ def handler(
         )
 
     entries: list[BundleEntry] = []
-    issues: list[BaseModel] = []
+    issues: list[Parent] = []
 
     for entry in body.entry:
         if not entry.resource or entry.resource["resourceType"] != "DocumentReference":
