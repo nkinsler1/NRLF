@@ -135,6 +135,26 @@ def upsert_post_body_step(context: Context, section: str, pointer_id: str):
 
 
 @when(
+    "producer 'TSTCUS' requests update of a DocumentReference with pointerId '{pointer_id}' but replacing '{section}'"
+)
+def update_post_body_step(context: Context, section: str, pointer_id: str):
+    """This can only update top level fields"""
+    consumer_client = consumer_client_from_context(context, "TSTCUS")
+    context.response = consumer_client.read(pointer_id)
+
+    if context.response.status_code != 200:
+        raise ValueError(f"Failed to read existing pointer: {context.response.text}")
+
+    doc_ref = context.response.json()
+    doc_ref[section] = "placeholder"
+    doc_ref_text = json.dumps(doc_ref)
+    doc_ref_text = doc_ref_text.replace('"placeholder"', context.text)
+
+    producer_client = producer_client_from_context(context, "TSTCUS")
+    context.response = producer_client.update_text(doc_ref_text, pointer_id)
+
+
+@when(
     "producer 'TSTCUS' requests update of a DocumentReference with pointerId '{pointer_id}' and only changing"
 )
 def update_post_body_step(context: Context, pointer_id: str):

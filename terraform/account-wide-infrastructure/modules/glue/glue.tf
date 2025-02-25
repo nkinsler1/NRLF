@@ -1,16 +1,46 @@
 # Create Glue Data Catalog Database
-resource "aws_glue_catalog_database" "raw_log_database" {
-  name         = "${var.name_prefix}-raw_log"
-  location_uri = "${aws_s3_bucket.source-data-bucket.id}/"
+resource "aws_glue_catalog_database" "log_database" {
+  name         = "${var.name_prefix}-reporting"
+  location_uri = "${aws_s3_bucket.target-data-bucket.id}/"
 }
 
 # Create Glue Crawler
-resource "aws_glue_crawler" "raw_log_crawler" {
-  name          = "${var.name_prefix}-raw-log-crawler"
-  database_name = aws_glue_catalog_database.raw_log_database.name
+resource "aws_glue_crawler" "log_crawler" {
+  name          = "${var.name_prefix}-log-crawler"
+  database_name = aws_glue_catalog_database.log_database.name
   role          = aws_iam_role.glue_service_role.name
   s3_target {
-    path = "${aws_s3_bucket.source-data-bucket.id}/"
+    path = "${aws_s3_bucket.target-data-bucket.id}/consumer_countDocumentReference/"
+  }
+  s3_target {
+    path = "${aws_s3_bucket.target-data-bucket.id}/consumer_readDocumentReference/"
+  }
+  s3_target {
+    path = "${aws_s3_bucket.target-data-bucket.id}/consumer_searchDocumentReference/"
+  }
+  s3_target {
+    path = "${aws_s3_bucket.target-data-bucket.id}/consumer_searchPostDocumentReference/"
+  }
+  s3_target {
+    path = "${aws_s3_bucket.target-data-bucket.id}/producer_createDocumentReference/"
+  }
+  s3_target {
+    path = "${aws_s3_bucket.target-data-bucket.id}/producer_deleteDocumentReference/"
+  }
+  s3_target {
+    path = "${aws_s3_bucket.target-data-bucket.id}/producer_readDocumentReference/"
+  }
+  s3_target {
+    path = "${aws_s3_bucket.target-data-bucket.id}/producer_searchDocumentReference/"
+  }
+  s3_target {
+    path = "${aws_s3_bucket.target-data-bucket.id}/producer_searchPostDocumentReference/"
+  }
+  s3_target {
+    path = "${aws_s3_bucket.target-data-bucket.id}/producer_updateDocumentReference/"
+  }
+  s3_target {
+    path = "${aws_s3_bucket.target-data-bucket.id}/producer_upsertDocumentReference//"
   }
   schema_change_policy {
     delete_behavior = "LOG"
@@ -22,11 +52,11 @@ resource "aws_glue_crawler" "raw_log_crawler" {
     }
   })
 }
-resource "aws_glue_trigger" "raw_log_trigger" {
+resource "aws_glue_trigger" "log_trigger" {
   name = "${var.name_prefix}-org-report-trigger"
   type = "ON_DEMAND"
   actions {
-    crawler_name = aws_glue_crawler.raw_log_crawler.name
+    crawler_name = aws_glue_crawler.log_crawler.name
   }
 }
 
@@ -49,9 +79,10 @@ resource "aws_glue_job" "glue_job" {
     "--enable-auto-scaling"             = "true"
     "--enable-continous-cloudwatch-log" = "true"
     "--datalake-formats"                = "delta"
-    "--source-path"                     = "s3://${aws_s3_bucket.source-data-bucket.id}/" # Specify the source S3 path
-    "--destination-path"                = "s3://${aws_s3_bucket.target-data-bucket.id}/" # Specify the destination S3 path
-    "--job-name"                        = "poc-glue-job"
+    "--source_path"                     = "s3://${aws_s3_bucket.source-data-bucket.id}/" # Specify the source S3 path
+    "--target_path"                     = "s3://${aws_s3_bucket.target-data-bucket.id}/" # Specify the destination S3 path
+    "--job_name"                        = "${var.name_prefix}-glue-job"
+    "--partition_cols"                  = "date"
     "--enable-continuous-log-filter"    = "true"
     "--enable-metrics"                  = "true"
     "--extra-py-files"                  = "s3://${aws_s3_bucket.code-bucket.id}/src.zip"

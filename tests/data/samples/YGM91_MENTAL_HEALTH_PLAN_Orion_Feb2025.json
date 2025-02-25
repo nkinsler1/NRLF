@@ -1,0 +1,97 @@
+{
+  "resourceType": "DocumentReference",
+  "id": "YGM91-b5a1aef1-a3ee-4c38-be31-e98968fe7ae9",
+  "masterIdentifier": {
+    "system": "urn:ietf:rfc:3986",
+    "value": "b5a1aef1-a3ee-4c38-be31-e98968fe7ae9"
+  },
+  "status": "current",
+  "type": {
+    "coding": [
+      {
+        "system": "http://snomed.info/sct",
+        "code": "736253002",
+        "display": "Mental health crisis plan"
+      }
+    ]
+  },
+  "category": [
+    {
+      "coding": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "734163000",
+          "display": "Care plan"
+        }
+      ]
+    }
+  ],
+  "subject": {
+    "identifier": {
+      "system": "https://fhir.nhs.uk/Id/nhs-number",
+      "value": "9658218873"
+    }
+  },
+  "author": [
+    {
+      "identifier": {
+        "system": "https://fhir.nhs.uk/Id/ods-organization-code",
+        "value": "YGM91"
+      }
+    }
+  ],
+  "custodian": {
+    "identifier": {
+      "system": "https://fhir.nhs.uk/Id/ods-organization-code",
+      "value": "YGM91"
+    }
+  },
+  "content": [
+    {
+      "extension": [
+        {
+          "url": "https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability",
+                "code": "dynamic",
+                "display": "Dynamic"
+              }
+            ]
+          }
+        }
+      ],
+      "attachment": {
+        "contentType": "application/pdf",
+        "language": "en",
+        "url": "ssp://endpoint.nrlproducer.thirdparty.nhs.uk/nrl/content",
+        "title": "Treatment Escalation Plan"
+      },
+      "format": {
+        "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
+        "code": "urn:nhs-ic:unstructured",
+        "display": "Unstructured Document"
+      }
+    }
+  ],
+  "context": {
+    "practiceSetting": {
+      "coding": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "92221000000103",
+          "display": "Mental health home treatment team"
+        }
+      ]
+    },
+    "related": [
+      {
+        "identifier": {
+          "system": "https://fhir.nhs.uk/Id/nhsSpineASID",
+          "value": "012345678910"
+        }
+      }
+    ]
+  }
+}

@@ -10,7 +10,6 @@ from layer.nrlf.core.constants import (
 from nrlf.producer.fhir.r4.model import (
     Attachment,
     CodeableConcept,
-    Coding,
     ContentStabilityExtension,
     ContentStabilityExtensionCoding,
     ContentStabilityExtensionValueCodeableConcept,
@@ -19,6 +18,8 @@ from nrlf.producer.fhir.r4.model import (
     DocumentReferenceContext,
     DocumentReferenceRelatesTo,
     Identifier,
+    NRLCodeableConcept,
+    NRLCoding,
     NRLFormatCode,
     Reference,
 )
@@ -80,9 +81,9 @@ def create_test_document_reference(items: dict) -> DocumentReference:
             ],
         ),
         context=DocumentReferenceContext(
-            practiceSetting=CodeableConcept(
+            practiceSetting=NRLCodeableConcept(
                 coding=[
-                    Coding(
+                    NRLCoding(
                         system=SNOMED_SYSTEM_URL,
                         code=str(practice_setting_code),
                         display=practice_setting_display,
@@ -102,8 +103,8 @@ def create_test_document_reference(items: dict) -> DocumentReference:
             "type_display", TYPE_ATTRIBUTES.get(type_str, {}).get("display")
         )
 
-        base_doc_ref.type = CodeableConcept(
-            coding=[Coding(system=type_system, code=type_code, display=type_display)]
+        base_doc_ref.type = NRLCodeableConcept(
+            coding=[NRLCoding(system=type_system, code=type_code, display=type_display)]
         )
 
     if items.get("subject"):
@@ -136,9 +137,9 @@ def create_test_document_reference(items: dict) -> DocumentReference:
             f"{SNOMED_SYSTEM_URL}|{items['category']}", {}
         ).get("display")
         base_doc_ref.category = [
-            CodeableConcept(
+            NRLCodeableConcept(
                 coding=[
-                    Coding(
+                    NRLCoding(
                         system=SNOMED_SYSTEM_URL,
                         code=items["category"],
                         display=category_display,

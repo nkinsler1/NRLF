@@ -3,6 +3,7 @@ import json
 from moto import mock_aws
 
 from api.consumer.searchDocumentReference.search_document_reference import handler
+from nrlf.consumer.fhir.r4.model import CodeableConcept, Identifier
 from nrlf.core.constants import (
     CATEGORY_ATTRIBUTES,
     TYPE_ATTRIBUTES,
@@ -66,7 +67,9 @@ def test_search_document_reference_accession_number_in_pointer(
 ):
     doc_ref = load_document_reference("Y05868-736253002-Valid")
     doc_ref.identifier = [
-        {"type": {"text": "Accession-Number"}, "value": "Y05868.123456789"}
+        Identifier(
+            type=CodeableConcept(text="Accession-Number"), value="Y05868.123456789"
+        )
     ]
     doc_pointer = DocumentPointer.from_document_reference(doc_ref)
     repository.create(doc_pointer)

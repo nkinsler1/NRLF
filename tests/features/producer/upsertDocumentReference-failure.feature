@@ -83,16 +83,17 @@ Feature: Producer - upsertDocumentReference - Failure Scenarios
       | system                 | value     |
       | http://snomed.info/sct | 736253002 |
     When producer 'ANGY1' upserts a DocumentReference with values:
-      | property    | value                          |
-      | id          | X26-testid-upsert-0001-0001    |
-      | subject     | 9278693472                     |
-      | status      | current                        |
-      | type_system | http://invalidsystem.info/sct  |
-      | type        | 736253002                      |
-      | category    | 734163000                      |
-      | custodian   | ANGY1                          |
-      | author      | HAR1                           |
-      | url         | https://example.org/my-doc.pdf |
+      | property     | value                          |
+      | id           | X26-testid-upsert-0001-0001    |
+      | subject      | 9278693472                     |
+      | status       | current                        |
+      | type_system  | http://invalidsystem.info/sct  |
+      | type_display | Mental health crisis plan      |
+      | type         | 736253002                      |
+      | category     | 734163000                      |
+      | custodian    | ANGY1                          |
+      | author       | HAR1                           |
+      | url          | https://example.org/my-doc.pdf |
     Then the response status code is 400
     And the response is an OperationOutcome with 1 issue
     And the OperationOutcome contains the issue:
@@ -120,15 +121,17 @@ Feature: Producer - upsertDocumentReference - Failure Scenarios
       | system                 | value     |
       | http://snomed.info/sct | 736253002 |
     When producer 'ANGY1' upserts a DocumentReference with values:
-      | property  | value                          |
-      | id        | X26-testid-upsert-0001-0001    |
-      | subject   | 9999999999                     |
-      | status    | current                        |
-      | type      | invalid                        |
-      | category  | 734163000                      |
-      | custodian | ANGY1                          |
-      | author    | HAR1                           |
-      | url       | https://example.org/my-doc.pdf |
+      | property     | value                          |
+      | id           | X26-testid-upsert-0001-0001    |
+      | subject      | 9999999999                     |
+      | status       | current                        |
+      | type         | invalid                        |
+      | type_system  | http://snomed.info/sct         |
+      | type_display | Mental health crisis plan      |
+      | category     | 734163000                      |
+      | custodian    | ANGY1                          |
+      | author       | HAR1                           |
+      | url          | https://example.org/my-doc.pdf |
     Then the response status code is 400
     And the response is an OperationOutcome with 1 issue
     And the OperationOutcome contains the issue:

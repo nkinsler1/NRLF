@@ -195,7 +195,7 @@ def test_create_document_reference_no_body():
     }
 
 
-def test_create_document_reference_invalid_body():
+def test_update_document_reference_invalid_body():
     event = create_test_api_gateway_event(
         headers=create_headers(),
         path_parameters={"id": "Y05868-99999-99999-999999"},
@@ -245,6 +245,36 @@ def test_create_document_reference_invalid_body():
                 },
                 "diagnostics": "Request body could not be parsed (status: Field required)",
                 "expression": ["status"],
+            },
+            {
+                "severity": "error",
+                "code": "invalid",
+                "details": {
+                    "coding": [
+                        {
+                            "code": "MESSAGE_NOT_WELL_FORMED",
+                            "display": "Message not well formed",
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                        }
+                    ],
+                },
+                "diagnostics": "Request body could not be parsed (type: Field required)",
+                "expression": ["type"],
+            },
+            {
+                "severity": "error",
+                "code": "invalid",
+                "details": {
+                    "coding": [
+                        {
+                            "code": "MESSAGE_NOT_WELL_FORMED",
+                            "display": "Message not well formed",
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                        }
+                    ],
+                },
+                "diagnostics": "Request body could not be parsed (category: Field required)",
+                "expression": ["category"],
             },
             {
                 "severity": "error",
@@ -562,7 +592,6 @@ def test_update_document_reference_immutable_fields(repository):
             )
         ],
         text=None,
-        extension=None,
     )
 
     event = create_test_api_gateway_event(

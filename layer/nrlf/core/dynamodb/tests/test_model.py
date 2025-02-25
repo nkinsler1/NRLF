@@ -6,8 +6,7 @@ from freezegun import freeze_time
 from nrlf.core.constants import PointerTypes
 from nrlf.core.dynamodb.model import DocumentPointer, DynamoDBModel
 from nrlf.core.utils import create_fhir_instant
-from nrlf.producer.fhir.r4.model import DocumentReference
-from nrlf.tests.data import load_document_reference, load_document_reference_json
+from nrlf.tests.data import load_document_reference
 
 
 def test_dynamodb_model_init():
@@ -157,28 +156,6 @@ def test_document_pointer_from_document_reference_invalid():
         DocumentPointer.from_document_reference(doc_ref)
 
     assert str(error.value) == "'NoneType' object has no attribute 'coding'"
-
-
-def test_document_pointer_from_document_reference_multiple_types():
-    doc_ref_data = load_document_reference_json("Y05868-736253002-Valid")
-    doc_ref = DocumentReference.model_validate(
-        {
-            **doc_ref_data,
-            "type": {
-                "coding": [
-                    {"system": "http://snomed.info/sct", "code": "123456789"},
-                    {"system": "http://snomed.info/sct", "code": "987654321"},
-                ]
-            },
-        }
-    )
-
-    with pytest.raises(ValueError) as error:
-        DocumentPointer.from_document_reference(doc_ref)
-
-    assert (
-        str(error.value) == "DocumentReference.type.coding must have exactly one item"
-    )
 
 
 def test_document_pointer_extract_custodian_suffix_no_suffix():
