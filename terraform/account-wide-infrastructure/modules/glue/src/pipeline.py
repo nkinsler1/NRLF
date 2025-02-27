@@ -51,30 +51,30 @@ class LogPipeline:
             raise e
 
     def get_last_run(self):
-        allRuns = self.glue.get_job_runs(JobName=self.job_name)
-        lastRuntime = None
-        if allRuns["JobRuns"]:
-            for i in allRuns["JobRuns"]:
+        all_runs = self.glue.get_job_runs(JobName=self.job_name)
+        last_runtime = None
+        if all_runs["JobRuns"]:
+            for i in all_runs["JobRuns"]:
                 if i["JobRunState"] == "SUCCEEDED":
-                    lastRuntime = time.mktime(i["StartedOn"].timetuple())
+                    last_runtime = time.mktime(i["StartedOn"].timetuple())
                     break
                 else:
                     continue
 
-        return lastRuntime
+        return last_runtime
 
     def extract(self):
         """Extract JSON data from S3"""
         self.logger.info(f"Extracting data from {self.source_path} as JSON")
-        lastRuntime = self.get_last_run()
+        last_runtime = self.get_last_run()
         data = {}
         for name, schema in self.schemas.items():
-            if lastRuntime:
+            if last_runtime:
                 data[name] = (
                     self.spark.read.option("recursiveFileLookup", "true")
                     .schema(schema)
                     .json(self.source_path)
-                ).where((col("host").contains(name)) & (col("time") > lastRuntime))
+                ).where((col("host").contains(name)) & (col("time") > last_runtime))
             else:
                 data[name] = (
                     self.spark.read.option("recursiveFileLookup", "true")
