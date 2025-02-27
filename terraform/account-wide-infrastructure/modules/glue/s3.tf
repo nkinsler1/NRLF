@@ -51,6 +51,35 @@ resource "aws_s3_bucket_public_access_block" "source-data-bucket-public-access-b
   restrict_public_buckets = true
 }
 
+resource "aws_s3_bucket_lifecycle_configuration" "source-data-bucket-lifecycle" {
+  bucket = aws_s3_bucket.source-data-bucket.id
+
+
+  rule {
+    id     = "bucket-versioning-rule"
+    status = "Enabled"
+
+    transition {
+      days          = local.s3.transition_storage.infrequent_access.days
+      storage_class = local.s3.transition_storage.infrequent_access.storage_class
+    }
+    transition {
+      days          = local.s3.transition_storage.glacier.days
+      storage_class = local.s3.transition_storage.glacier.storage_class
+    }
+    expiration {
+      days = local.s3.expiration.days
+    }
+  }
+}
+
+resource "aws_s3_bucket_versioning" "source-data-bucket-versioning" {
+  bucket = aws_s3_bucket.source-data-bucket.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
 
 # S3 Bucket for Processed Data
 resource "aws_s3_bucket" "target-data-bucket" {
