@@ -1,3 +1,5 @@
+import time
+
 import boto3
 from instances import GlueContextSingleton, LoggerSingleton
 from pyspark.sql.functions import col
@@ -28,6 +30,7 @@ class LogPipeline:
             region_name="eu-west-2",
             endpoint_url="https://glue.eu-west-2.amazonaws.com",
         )
+        self.job_name = job_name
         self.name_prefix = "-".join(job_name.split("-")[:4])
 
     def run(self):
@@ -47,16 +50,37 @@ class LogPipeline:
             self.logger.error(f"ETL process failed: {e}")
             raise e
 
+    def get_last_run(self):
+        allRuns = self.glue.get_job_runs(JobName=self.job_name)
+        lastRuntime = None
+        if allRuns["JobRuns"]:
+            for i in allRuns["JobRuns"]:
+                if i["JobRunState"] == "SUCCEEDED":
+                    lastRuntime = time.mktime(i["StartedOn"].timetuple())
+                    break
+                else:
+                    continue
+
+        return lastRuntime
+
     def extract(self):
         """Extract JSON data from S3"""
         self.logger.info(f"Extracting data from {self.source_path} as JSON")
+        lastRuntime = self.get_last_run()
         data = {}
         for name, schema in self.schemas.items():
-            data[name] = (
-                self.spark.read.option("recursiveFileLookup", "true")
-                .schema(schema)
-                .json(self.source_path)
-            ).where(col("host").contains(name))
+            if lastRuntime:
+                data[name] = (
+                    self.spark.read.option("recursiveFileLookup", "true")
+                    .schema(schema)
+                    .json(self.source_path)
+                ).where((col("host").contains(name)) & (col("time") > lastRuntime))
+            else:
+                data[name] = (
+                    self.spark.read.option("recursiveFileLookup", "true")
+                    .schema(schema)
+                    .json(self.source_path)
+                ).where(col("host").contains(name))
         return data
 
     def transform(self, dataframe):
