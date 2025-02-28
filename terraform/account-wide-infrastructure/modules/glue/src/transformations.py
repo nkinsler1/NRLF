@@ -38,7 +38,8 @@ def flatten_df(df):
         [
             (field.name, field.dataType)
             for field in df.schema.fields
-            if type(field.dataType) == ArrayType or type(field.dataType) == StructType
+            if isinstance(field.dataType, ArrayType)
+            or isinstance(field.dataType, StructType)
         ]
     )
     while len(complex_fields) != 0:
