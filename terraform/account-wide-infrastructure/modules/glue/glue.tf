@@ -40,7 +40,7 @@ resource "aws_glue_crawler" "log_crawler" {
     path = "${aws_s3_bucket.target-data-bucket.id}/producer_updateDocumentReference/"
   }
   s3_target {
-    path = "${aws_s3_bucket.target-data-bucket.id}/producer_upsertDocumentReference//"
+    path = "${aws_s3_bucket.target-data-bucket.id}/producer_upsertDocumentReference/"
   }
   schema_change_policy {
     delete_behavior = "LOG"
@@ -64,10 +64,10 @@ resource "aws_glue_job" "glue_job" {
   name              = "${var.name_prefix}-glue-job"
   role_arn          = aws_iam_role.glue_service_role.arn
   description       = "Transfer logs from source to bucket"
-  glue_version      = "4.0"
+  glue_version      = "5.0"
   worker_type       = "G.1X"
   timeout           = 2880
-  max_retries       = 1
+  max_retries       = 0
   number_of_workers = 2
   command {
     name            = "glueetl"

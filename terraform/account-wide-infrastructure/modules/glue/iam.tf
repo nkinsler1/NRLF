@@ -80,6 +80,16 @@ data "aws_iam_policy_document" "glue_service" {
 
     effect = "Allow"
   }
+
+  statement {
+    actions = [
+      "iam:PassRole",
+    ]
+    effect = "Allow"
+    resources = [
+      "*"
+    ]
+  }
 }
 
 resource "aws_iam_policy" "glue_service" {

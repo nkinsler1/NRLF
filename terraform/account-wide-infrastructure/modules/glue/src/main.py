@@ -5,7 +5,7 @@ from consumer_schemas import consumerSchemaList
 from pipeline import LogPipeline
 from producer_schemas import producerSchemaList
 from pyspark.context import SparkContext
-from transformations import dtype_conversion, flatten_df
+from transformations import dtype_conversion, flatten_df, resolve_dupes
 
 # Get arguments from AWS Glue job
 args = getResolvedOptions(
@@ -27,7 +27,7 @@ etl_job = LogPipeline(
     schemas=consumerSchemaList,
     job_name=args["job_name"],
     partition_cols=partition_cols,
-    transformations=[flatten_df, dtype_conversion],
+    transformations=[flatten_df, resolve_dupes, dtype_conversion],
 )
 
 # Run the job
