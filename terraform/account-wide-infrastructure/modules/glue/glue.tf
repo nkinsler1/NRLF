@@ -42,9 +42,6 @@ resource "aws_glue_crawler" "log_crawler" {
   s3_target {
     path = "${aws_s3_bucket.target-data-bucket.id}/producer_upsertDocumentReference/"
   }
-  s3_target {
-    path = "${aws_s3_bucket.source-data-bucket.id}/2025/"
-  }
   schema_change_policy {
     delete_behavior = "LOG"
   }

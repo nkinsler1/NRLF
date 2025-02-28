@@ -52,16 +52,12 @@ class LogPipeline:
 
     def get_last_run(self):
         all_runs = self.glue.get_job_runs(JobName=self.job_name)
-        last_runtime = None
-        if all_runs["JobRuns"]:
-            for i in all_runs["JobRuns"]:
-                if i["JobRunState"] == "SUCCEEDED":
-                    last_runtime = time.mktime(i["StartedOn"].timetuple())
-                    break
-                else:
-                    continue
+        if not all_runs["JobRuns"]:
+            return None
 
-        return last_runtime
+        for run in all_runs["JobRuns"]:
+            if run["JobRunState"] == "SUCCEEDED":
+                return time.mktime(run["StartedOn"].timetuple())
 
     def extract(self):
         """Extract JSON data from S3"""
