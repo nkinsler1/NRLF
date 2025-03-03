@@ -91,7 +91,7 @@ class LogPipeline:
         self.logger.info(f"Loading data into {self.target_path} as Parquet")
         for name, dataframe in data.items():
             if not dataframe:
-                return None
+                continue
             name = name.replace("--", "_")
             dataframe.write.mode("append").partitionBy(*self.partition_cols).parquet(
                 f"{self.target_path}{name}"
