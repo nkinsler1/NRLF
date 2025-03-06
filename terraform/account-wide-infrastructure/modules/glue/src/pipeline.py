@@ -95,6 +95,8 @@ class LogPipeline:
                 dataframe.write.mode("append").partitionBy(
                     *self.partition_cols
                 ).parquet(f"{self.target_path}{name}")
+            else:
+                self.logger.info(f"Dataframe {name} is null, skipping")
 
     def trigger_crawler(self):
         self.glue.start_crawler(Name=f"{self.name_prefix}-log-crawler")
