@@ -15,7 +15,7 @@
       "use": "work"
     }
   },
-  "description": "A code to represent which the means by which the document being referenced can be accessed (via the url in the content.attachment).",
+  "description": "A code to represent the means by which the document being referenced can be accessed (via the url in the content.attachment).",
   "copyright": "Copyright 2025 NHS Digital.",
   "compose": {
     "include": [
