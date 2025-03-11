@@ -19,7 +19,7 @@ SKIP_PROD_WARNING = os.getenv("SKIP_PROD_WARNING", "false")
 def _put_pointers_from_files(
     *filenames, env: str = "dev", table_name: str | None = None
 ):
-    if env == "dev" and SKIP_PROD_WARNING != "true":
+    if env == "prod" and SKIP_PROD_WARNING != "true":
         confirmation = input(
             "\nWARNING - This command will modify the PROD environment. Continue? [y/n] "
         )
