@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # Set supersede info on a pointer
 import json
+import os
 
 import aws_session_assume
 import fire
@@ -16,14 +17,23 @@ from nrlf.producer.fhir.r4.model import (
 
 logger.setLevel("ERROR")
 
+SKIP_PROD_WARNING = os.getenv("SKIP_PROD_WARNING", "false")
+
 
 def _set_pointer_supersede_info(
     pointer_id: str,
     supersede_pointer_id: str,
-    delete_superceded: bool = False,
+    delete_superseded: bool = False,
     env: str = "dev",
     table_name: str | None = None,
 ):
+    if env == "prod" and SKIP_PROD_WARNING != "true":
+        confirmation = input(
+            "\nWARNING - This command will modify the PROD environment. Continue? [y/n] "
+        )
+        if confirmation != "y":
+            return "Exiting at user request"
+
     session = aws_session_assume.get_boto_session(env)
     dynamodb = session.resource("dynamodb")
 
@@ -53,21 +63,22 @@ def _set_pointer_supersede_info(
 
     try:
         pointer = DocumentPointer.model_validate({"_from_dynamo": True, **item})
+        doc_ref = DocumentReference.model_validate_json(pointer.document)
     except Exception as e:
         print(f"Could not validate pointer from table. Error: {e}")
         return
 
-    doc_ref = DocumentReference.model_validate_json(pointer.document)
-
     if not doc_ref.relatesTo:
         doc_ref.relatesTo = []
-    else:
-        for relatesTo in doc_ref.relatesTo:
-            if relatesTo.code == "replaces":
-                print(
-                    f"Unable to add supersede info as pointer is already superseding a pointer: {relatesTo}"
-                )
-                return
+
+    existing_supersedes = [
+        relates_to for relates_to in doc_ref.relatesTo if relates_to.code == "replaces"
+    ]
+    if existing_supersedes:
+        print(
+            f"Unable to add supersede info as pointer is already superseding a pointer: {existing_supersedes}"
+        )
+        return
 
     doc_ref.relatesTo.append(
         DocumentReferenceRelatesTo(
@@ -79,13 +90,13 @@ def _set_pointer_supersede_info(
         )
     )
 
-    print(f"Adding superseded info to {pointer_id}...")
+    print(f"Adding supersede info to {pointer_id}...")
     updated_pointer = DocumentPointer.from_document_reference(doc_ref)
     table.put_item(
         Item=updated_pointer.dict(exclude_none=True, exclude={"_from_dynamo"})
     )
 
-    if delete_superceded:
+    if delete_superseded:
         print(f"Deleting superseded {supersede_pointer_id}...")
         table.delete_item(
             Key={"pk": f"D#{supersede_pointer_id}", "sk": f"D#{supersede_pointer_id}"}

@@ -2,6 +2,7 @@
 # Put pointers from the provided files into the pointers table
 # This will overwrite the pointer if it already exists in the table
 import json
+import os
 
 import fire
 from aws_session_assume import get_boto_session
@@ -12,10 +13,19 @@ from nrlf.producer.fhir.r4.model import DocumentReference
 
 logger.setLevel("ERROR")
 
+SKIP_PROD_WARNING = os.getenv("SKIP_PROD_WARNING", "false")
+
 
 def _put_pointers_from_files(
     *filenames, env: str = "dev", table_name: str | None = None
 ):
+    if env == "dev" and SKIP_PROD_WARNING != "true":
+        confirmation = input(
+            "\nWARNING - This command will modify the PROD environment. Continue? [y/n] "
+        )
+        if confirmation != "y":
+            return "Exiting at user request"
+
     docrefs: list[DocumentReference] = []
     print("Reading docrefs from files...")
     for filename in filenames:
