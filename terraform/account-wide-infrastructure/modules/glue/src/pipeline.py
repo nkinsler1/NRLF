@@ -1,5 +1,8 @@
+import time
+
 import boto3
 from instances import GlueContextSingleton, LoggerSingleton
+from pyspark.sql.functions import col
 
 
 class LogPipeline:
@@ -8,7 +11,7 @@ class LogPipeline:
         spark_context,
         source_path,
         target_path,
-        schema,
+        schemas,
         job_name,
         partition_cols=[],
         transformations=[],
@@ -19,7 +22,7 @@ class LogPipeline:
         self.logger = LoggerSingleton().logger
         self.source_path = source_path
         self.target_path = target_path
-        self.schema = schema
+        self.schemas = schemas
         self.partition_cols = partition_cols
         self.transformations = transformations
         self.glue = boto3.client(
@@ -27,17 +30,19 @@ class LogPipeline:
             region_name="eu-west-2",
             endpoint_url="https://glue.eu-west-2.amazonaws.com",
         )
+        self.job_name = job_name
         self.name_prefix = "-".join(job_name.split("-")[:4])
 
     def run(self):
         """Runs ETL"""
         try:
             self.logger.info("ETL Process started.")
-            df = self.extract()
+            data = self.extract()
             self.logger.info(f"Data extracted from {self.source_path}.")
-            df = self.transform(df)
+            for name, df in data.items():
+                data[name] = self.transform(df)
             self.logger.info("Data transformed successfully.")
-            self.load(df)
+            self.load(data)
             self.logger.info(f"Data loaded into {self.target_path}.")
             self.logger.info("Trigger glue crawler")
             self.trigger_crawler()
@@ -45,14 +50,34 @@ class LogPipeline:
             self.logger.error(f"ETL process failed: {e}")
             raise e
 
+    def get_last_run(self):
+        all_runs = self.glue.get_job_runs(JobName=self.job_name)
+        if not all_runs["JobRuns"]:
+            return None
+
+        for run in all_runs["JobRuns"]:
+            if run["JobRunState"] == "SUCCEEDED":
+                return time.mktime(run["StartedOn"].timetuple())
+
     def extract(self):
         """Extract JSON data from S3"""
         self.logger.info(f"Extracting data from {self.source_path} as JSON")
-        return (
-            self.spark.read.option("recursiveFileLookup", "true")
-            .schema(self.schema)
-            .json(self.source_path)
-        )
+        last_runtime = self.get_last_run()
+        data = {}
+        for name, schema in self.schemas.items():
+            if last_runtime:
+                data[name] = (
+                    self.spark.read.option("recursiveFileLookup", "true")
+                    .schema(schema)
+                    .json(self.source_path)
+                ).where((col("host").contains(name)) & (col("time") > last_runtime))
+            else:
+                data[name] = (
+                    self.spark.read.option("recursiveFileLookup", "true")
+                    .schema(schema)
+                    .json(self.source_path)
+                ).where(col("host").contains(name))
+        return data
 
     def transform(self, dataframe):
         """Apply a list of transformations on the dataframe"""
@@ -61,12 +86,17 @@ class LogPipeline:
             dataframe = transformation(dataframe)
         return dataframe
 
-    def load(self, dataframe):
+    def load(self, data):
         """Load transformed data into Parquet format"""
         self.logger.info(f"Loading data into {self.target_path} as Parquet")
-        dataframe.write.mode("append").partitionBy(*self.partition_cols).parquet(
-            self.target_path
-        )
+        for name, dataframe in data.items():
+            if dataframe.na.drop().count() > 0:
+                name = name.replace("--", "_")
+                dataframe.write.mode("append").partitionBy(
+                    *self.partition_cols
+                ).parquet(f"{self.target_path}{name}")
+            else:
+                self.logger.info(f"Dataframe {name} is null, skipping")
 
     def trigger_crawler(self):
         self.glue.start_crawler(Name=f"{self.name_prefix}-log-crawler")

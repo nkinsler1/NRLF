@@ -1,0 +1,41 @@
+{
+  "resourceType": "ValueSet",
+  "id": "England-RetrievalMechanism",
+  "url": "https://fhir.nhs.uk/England/ValueSet/England-RetrievalMechanism",
+  "version": "1.0.0",
+  "name": "EnglandRetrievalMechanism",
+  "status": "draft",
+  "date": "2025-02-28",
+  "publisher": "NHS Digital",
+  "contact": {
+    "name": "NRL Team at NHS Digital",
+    "telecom": {
+      "system": "email",
+      "value": "nrls@nhs.net",
+      "use": "work"
+    }
+  },
+  "description": "A code to represent the means by which the document being referenced can be accessed (via the url in the content.attachment).",
+  "copyright": "Copyright 2025 NHS Digital.",
+  "compose": {
+    "include": [
+      {
+        "system": "https://fhir.nhs.uk/England/CodeSystem/England-RetrievalMechanismNRL",
+        "concept": [
+          {
+            "code": "Direct",
+            "display": "Direct"
+          },
+          {
+            "code": "SSP",
+            "display": "Spine Secure Proxy"
+          },
+          {
+            "code": "NDR",
+            "display": "National Document Repository"
+          }
+        ]
+      }
+    ]
+  }
+}

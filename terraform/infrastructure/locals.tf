@@ -22,7 +22,7 @@ locals {
   dynamodb_timeout_seconds = "3"
 
   is_sandbox_env = length(regexall("-sandbox-", local.stack_name)) > 0
-  is_dev_env     = var.account_name == "dev"
+  is_dev_env     = var.account_name == "dev" || var.account_name == "int"
 
   environment   = local.is_sandbox_env ? "${var.account_name}-sandbox" : var.account_name
   shared_prefix = "${local.project}--${local.environment}"
