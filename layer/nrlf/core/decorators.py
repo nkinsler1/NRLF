@@ -2,7 +2,6 @@ import functools
 import inspect
 import sys
 import warnings
-from functools import wraps
 from typing import Any, Callable, Dict, Optional, Type, Union
 
 from aws_lambda_powertools.utilities.data_classes import (
@@ -12,9 +11,16 @@ from aws_lambda_powertools.utilities.data_classes import (
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from pydantic import BaseModel
 
-from nrlf.core.authoriser import get_pointer_types
+from nrlf.core.authoriser import get_pointer_types, parse_permissions_file
 from nrlf.core.codes import SpineErrorConcept
 from nrlf.core.config import Config
+from nrlf.core.constants import (
+    NHSD_CORRELATION_ID_HEADER,
+    PERMISSION_ALLOW_ALL_POINTER_TYPES,
+    X_CORRELATION_ID_HEADER,
+    X_REQUEST_ID_HEADER,
+    PointerTypes,
+)
 from nrlf.core.dynamodb.repository import DocumentPointerRepository
 from nrlf.core.errors import OperationOutcomeError, ParseError
 from nrlf.core.logger import LogReference, logger
@@ -36,17 +42,17 @@ def error_handler(
             return wrapped_func(*args, **kwargs)
 
         except OperationOutcomeError as exc:
-            response = exc.response.dict(exclude_none=True)
+            response = exc.response.model_dump(exclude_none=True)
             logger.log(LogReference.ERROR001, error=str(exc), response=response)
             return response
 
         except ParseError as exc:
-            response = exc.response.dict(exclude_none=True)
+            response = exc.response.model_dump(exclude_none=True)
             logger.log(LogReference.ERROR002, error=str(exc), response=response)
             return response
 
         except Exception as exc:
-            response = Response.from_exception(exc).dict(exclude_none=True)
+            response = Response.from_exception(exc).model_dump(exclude_none=True)
             logger.exception(
                 "An unhandled exception occurred whilst processing the request",
                 exc_info=sys.exc_info(),
@@ -59,18 +65,95 @@ def error_handler(
     return wrapper
 
 
+def header_handler(
+    wrapped_func: Callable[..., Dict[str, Any]]
+) -> Callable[..., Dict[str, Any]]:
+    """
+    Wraps the function to set the specific headers in the request and response
+    """
+
+    def wrapper(*args, **kwargs) -> Dict[str, Any]:
+        event: APIGatewayProxyEvent = args[0]
+
+        response = wrapped_func(*args, **kwargs)
+
+        try:
+            if "headers" not in response:
+                response["headers"] = {}
+
+            echoed_headers = {
+                name: event.get_header_value(name)
+                for name in [
+                    X_REQUEST_ID_HEADER,
+                    X_CORRELATION_ID_HEADER,
+                ]
+                if event.get_header_value(name)
+            }
+            response["headers"].update(echoed_headers)
+        except Exception:
+            logger.exception(
+                "An error occurred whilst setting response headers",
+                exc_info=sys.exc_info(),
+                stacklevel=5,
+                log_reference=LogReference.ERROR003.name,
+            )
+
+        logger.log(
+            LogReference.HANDLER016,
+            status_code=getattr(response, "statusCode", ""),
+            headers=getattr(response, "headers", {}),
+        )
+
+        return response
+
+    return wrapper
+
+
+def logger_initialiser(
+    wrapper_func: Callable[..., Dict[str, Any]]
+) -> Callable[..., Dict[str, Any]]:
+    """
+    Wraps the function and initialises the request logger
+    """
+
+    def wrapper(*args, **kwargs) -> Dict[str, Any]:
+        event: APIGatewayProxyEvent = args[0]
+
+        correlation_id = event.get_header_value(NHSD_CORRELATION_ID_HEADER)
+        if correlation_id:
+            logger.set_correlation_id(correlation_id)
+        else:
+            logger.log(
+                LogReference.HANDLER017,
+                id_header=NHSD_CORRELATION_ID_HEADER,
+                headers=event.headers,
+            )
+
+        return wrapper_func(*args, **kwargs)
+
+    return wrapper
+
+
 RepositoryType = Union[Type[DocumentPointerRepository], None]
 
 
 def load_connection_metadata(headers: Dict[str, str], config: Config):
     logger.log(LogReference.HANDLER002, headers=headers)
     metadata = parse_headers(headers)
-    logger.log(LogReference.HANDLER003, metadata=metadata.dict())
+    logger.log(LogReference.HANDLER003, metadata=metadata.model_dump())
+    if PERMISSION_ALLOW_ALL_POINTER_TYPES in metadata.nrl_permissions:
+        logger.log(LogReference.HANDLER004a)
+        metadata.pointer_types = PointerTypes.list()
+        return metadata
 
-    if metadata.enable_authorization_lookup:
+    logger.log(LogReference.HANDLER004b)
+    pointer_types = parse_permissions_file(metadata)
+    if not pointer_types and not metadata.is_test_event:
         logger.log(LogReference.HANDLER004)
         pointer_types = get_pointer_types(metadata, config)
-        metadata.pointer_types = pointer_types
+
+    metadata.pointer_types = pointer_types
+    logger.log(LogReference.HANDLER004c, pointer_types=pointer_types)
 
     return metadata
 
@@ -88,6 +171,48 @@ def filter_kwargs(handler_func: RequestHandler, kwargs: Dict[str, Any]):
         filtered_kwargs_keys=function_kwargs.keys(),
     )
     return function_kwargs
+
+
+def verify_request_ids(event: APIGatewayProxyEvent):
+    caller_request_id = event.get_header_value(X_REQUEST_ID_HEADER)
+    if not caller_request_id:
+        logger.log(LogReference.HANDLER014, headers=event.headers)
+        raise OperationOutcomeError(
+            status_code="400",
+            severity="error",
+            code="invalid",
+            details=SpineErrorConcept.from_code("MISSING_OR_INVALID_HEADER"),
+            diagnostics="The X-Request-Id header is missing or invalid",
+        )
+
+    caller_correlation_id = event.get_header_value(NHSD_CORRELATION_ID_HEADER)
+    if not caller_correlation_id:
+        logger.log(LogReference.HANDLER015, headers=event.headers)
+        raise OperationOutcomeError(
+            status_code="400",
+            severity="error",
+            code="invalid",
+            details=SpineErrorConcept.from_code("MISSING_OR_INVALID_HEADER"),
+            diagnostics="The NHSD-Correlation-Id header is missing or invalid",
+        )
+
+
+def basic_handler(
+    event: APIGatewayProxyEvent,
+    context: LambdaContext,
+    func: RequestHandler,
+) -> Dict[str, str]:
+    """
+    Request handler without any parsing or authorisation checks.
+    """
+    logger.log(LogReference.HANDLER013)
+    response = func(event, context)
+    logger.log(
+        LogReference.HANDLER999,
+        status_code=response.statusCode,
+        response=response.model_dump(),
+    )
+    return response.model_dump()
 
 
 def request_handler(
@@ -123,86 +248,60 @@ def request_handler(
             )
 
             if skip_request_verification:
-                logger.log(LogReference.HANDLER013)
-                response = func(event, context)
-                logger.log(
-                    LogReference.HANDLER999,
-                    status_code=response.statusCode,
-                    response=response.dict(),
-                )
-                return response.dict()
+                return basic_handler(event, context, func, **kwargs)
 
-            kwargs["event"] = event
-            kwargs["context"] = context
-            kwargs["config"] = Config()
-            logger.log(LogReference.HANDLER001, config=kwargs["config"].dict())
+            verify_request_ids(event)
 
-            kwargs["metadata"] = load_connection_metadata(
-                event.headers, kwargs["config"]
-            )
+            config = Config()
+            logger.log(LogReference.HANDLER001, config=config.model_dump())
+            metadata = load_connection_metadata(event.headers, config)
 
-            if kwargs["metadata"].pointer_types == []:
+            if metadata.pointer_types == []:
                 logger.log(
                     LogReference.HANDLER005,
-                    ods_code=kwargs["metadata"].ods_code,
-                    pointer_types=kwargs["metadata"].pointer_types,
+                    ods_code=metadata.ods_code,
+                    pointer_types=metadata.pointer_types,
                 )
                 raise OperationOutcomeError(
                     status_code="403",
                     severity="error",
                     code="forbidden",
                     details=SpineErrorConcept.from_code("ACCESS DENIED"),
-                    diagnostics=f"Your organisation '{kwargs['metadata'].ods_code}' does not have permission to access this resource. Contact the onboarding team.",
+                    diagnostics=f"Your organisation '{metadata.ods_code}' does not have permission to access this resource. Contact the onboarding team.",
                 )
 
-            if params is not None:
-                logger.log(
-                    LogReference.HANDLER006,
-                    params=event.query_string_parameters,
-                    model=params.__name__,
-                )
-                kwargs["params"] = parse_params(params, event.query_string_parameters)
-                logger.log(
-                    LogReference.HANDLER007, parsed_params=kwargs["params"].dict()
-                )
-
-            if body is not None:
-                logger.log(
-                    LogReference.HANDLER008, body=event.body, model=body.__name__
-                )
-                kwargs["body"] = parse_body(body, event.body)
-                logger.log(LogReference.HANDLER009, parsed_body=kwargs["body"].dict())
-
-            if path is not None:
-                logger.log(
-                    LogReference.HANDLER010,
-                    path=event.path_parameters,
-                    model=path.__name__,
-                )
-                kwargs["path"] = parse_path(path, event.path_parameters)
-                logger.log(LogReference.HANDLER011, parsed_path=kwargs["path"].dict())
+            kwargs = {
+                "event": event,
+                "context": context,
+                "config": metadata,
+                "metadata": metadata,
+                "params": parse_params(params, event.query_string_parameters),
+                "body": parse_body(body, event.body),
+                "path": parse_path(path, event.path_parameters),
+            }
 
             if repository is not None:
-                kwargs["repository"] = repository(
-                    environment_prefix=kwargs["config"].PREFIX,
-                )
+                kwargs["repository"] = repository(table_name=config.TABLE_NAME)
 
             function_kwargs = filter_kwargs(func, kwargs)
 
             logger.log(LogReference.HANDLER013)
             response = func(**function_kwargs)
+
             logger.log(
                 LogReference.HANDLER999,
                 status_code=response.statusCode,
-                response=response.dict(),
+                response=response.model_dump(),
             )
-            return response.dict()
+            return response.model_dump()
 
         decorators = [
-            wraps(func),
+            functools.wraps(func),
+            error_handler,
+            header_handler,
+            logger_initialiser,
             logger.inject_lambda_context,
             event_source(data_class=APIGatewayProxyEvent),
-            error_handler,
         ]
 
         return functools.reduce(

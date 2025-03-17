@@ -1,16 +1,22 @@
 import re
-from datetime import datetime, timezone
+from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, Optional
 
-from core.codes import SpineErrorConcept
-from core.errors import OperationOutcomeError
 from nhs_number import is_valid as is_valid_nhs_number
-from pydantic import BaseModel, Field, PrivateAttr, root_validator, validator
+from pydantic import (
+    BaseModel,
+    Field,
+    PrivateAttr,
+    ValidationInfo,
+    field_validator,
+    model_validator,
+)
 
-from nrlf.core.constants import VALID_SOURCES
+from nrlf.core.constants import SYSTEM_SHORT_IDS, VALID_SOURCES
 from nrlf.core.logger import LogReference, logger
 from nrlf.core.types import DocumentReference
+from nrlf.core.utils import create_fhir_instant
 
 
 class DBPrefix(str, Enum):
@@ -18,11 +24,22 @@ class DBPrefix(str, Enum):
     Patient = "P"
     CreatedOn = "CO"
     Organisation = "O"
-    Contract = "C"
-    Version = "V"
+    Category = "C"
+    Type = "T"
+    MasterIdentifier = "MI"
 
 
-KEBAB_CASE_RE = re.compile(r"(?<!^)(?=[A-Z])")
+def get_id_for_system(system: str, attr_placement: str) -> str | None:
+    """
+    Get the id for a given system
+    """
+    if system not in SYSTEM_SHORT_IDS:
+        logger.log(
+            LogReference.DOCPOINTER006, system=system, attr_placement=attr_placement
+        )
+        raise ValueError(f"Unsupported system defined in {attr_placement}")
+
+    return SYSTEM_SHORT_IDS.get(system)
 
 
 class DynamoDBModel(BaseModel):
@@ -31,10 +48,6 @@ class DynamoDBModel(BaseModel):
     def __init__(self, **data):
         super().__init__(**data)
         self._from_dynamo = data.get("_from_dynamo", False)
-
-    @classmethod
-    def kebab(cls) -> str:
-        return KEBAB_CASE_RE.sub("-", cls.__name__).lower()
 
     @classmethod
     def public_alias(cls) -> str:
@@ -47,7 +60,12 @@ class DocumentPointer(DynamoDBModel):
     custodian: str
     custodian_suffix: Optional[str] = None
     producer_id: str
+    category_id: str
+    category: str
+    type_id: str
     type: str
+    master_identifier: Optional[str] = None
+    author: str
     source: str
     version: int
     document: str
@@ -56,38 +74,64 @@ class DocumentPointer(DynamoDBModel):
     document_id: str = Field(exclude=True)
     schemas: list = Field(default_factory=list)
 
-    def dict(self, **kwargs) -> dict:
+    def model_dump(self, **kwargs) -> dict[str, Any]:
         """
-        Override dict() to include partition and sort keys
+        Override model_dump() to include partition and sort keys
         """
-        default_dict = super().dict(**kwargs)
+        default_dict = super().model_dump(**kwargs)
         return {
             **default_dict,
             **self.indexes,
         }
+
+    def dict(self, **kwargs) -> dict[str, Any]:
+        """
+        Define dict() to do same as model_dump
+        """
+        return self.model_dump(**kwargs)
 
     @classmethod
     def from_document_reference(
         cls, resource: DocumentReference, created_on: Optional[str] = None
     ) -> "DocumentPointer":
         resource_id = getattr(resource, "id")
-        coding = getattr(resource.type, "coding")
+
+        # Get identifiers
         subject_identifier = getattr(resource.subject, "identifier")
         custodian_identifier = getattr(resource.custodian, "identifier")
+        if not resource.author or len(resource.author) != 1:
+            raise ValueError("DocumentReference.author must have exactly one item")
+        author_identifier = getattr(resource.author[0], "identifier")
 
+        # Get identifier values
         nhs_number = getattr(subject_identifier, "value")
         custodian = getattr(custodian_identifier, "value")
+        author = getattr(author_identifier, "value")
+        master_identifier = getattr(resource.masterIdentifier, "value", None)
 
-        if len(coding) > 1:
-            raise OperationOutcomeError(
-                status_code="400",
-                severity="error",
-                code="invalid",
-                details=SpineErrorConcept.from_code("INVALID_RESOURCE"),
-                diagnostics="DocumentReference.type.coding must have exactly one item",
-            ) from None
+        # Get type fields
+        type_coding = getattr(resource.type, "coding")
+        if not type_coding or len(type_coding) != 1:
+            raise ValueError("DocumentReference.type.coding must have exactly one item")
+        pointer_type = f"{type_coding[0].system}|{type_coding[0].code}"
+        type_system_id = get_id_for_system(
+            type_coding[0].system, "DocumentReference.type.coding[0].system"
+        )
+        type_id = f"{type_system_id}-{type_coding[0].code}"
 
-        pointer_type = f"{coding[0].system}|{coding[0].code}"
+        # Get category fields
+        if not resource.category or len(resource.category) != 1:
+            raise ValueError("DocumentReference.category must have exactly one item")
+        category_coding = getattr(resource.category[0], "coding")
+        if not category_coding or len(category_coding) != 1:
+            raise ValueError(
+                "DocumentReference.category.coding must have exactly one item"
+            )
+        pointer_category = f"{category_coding[0].system}|{category_coding[0].code}"
+        category_system_id = get_id_for_system(
+            category_coding[0].system, "DocumentReference.category.coding[0].system"
+        )
+        category_id = f"{category_system_id}-{category_coding[0].code}"
 
         core_model = cls(
             producer_id=None,  # type: ignore - handled by validators
@@ -95,12 +139,16 @@ class DocumentPointer(DynamoDBModel):
             id=resource_id,
             nhs_number=nhs_number,
             custodian=custodian,
+            author=author,
+            master_identifier=master_identifier,
             type=pointer_type,
+            type_id=type_id,
+            category=pointer_category,
+            category_id=category_id,
             source="NRLF",
             version=1,
-            document=resource.json(exclude_none=True),
-            created_on=created_on
-            or datetime.now(tz=timezone.utc).isoformat(timespec="milliseconds") + "Z",
+            document=resource.model_dump_json(exclude_none=True),
+            created_on=created_on or create_fhir_instant(),
         )
 
         logger.log(
@@ -111,7 +159,7 @@ class DocumentPointer(DynamoDBModel):
         )
         return core_model
 
-    @root_validator(pre=True)
+    @model_validator(mode="before")
     @classmethod
     def extract_custodian_suffix(cls, values: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -141,7 +189,7 @@ class DocumentPointer(DynamoDBModel):
 
         return values
 
-    @root_validator(pre=True)
+    @model_validator(mode="before")
     @classmethod
     def inject_producer_id(cls, values: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -171,7 +219,7 @@ class DocumentPointer(DynamoDBModel):
         )
         return values
 
-    @validator("id")
+    @field_validator("id")
     @classmethod
     def validate_id(cls, id_: str) -> str:
         """
@@ -185,16 +233,19 @@ class DocumentPointer(DynamoDBModel):
 
         return id_
 
-    @validator("producer_id")
+    @field_validator("producer_id")
     @classmethod
-    def validate_producer_id(cls, producer_id: str, values: Dict[str, Any]) -> str:
+    def validate_producer_id(
+        cls, producer_id: str, validation_info: ValidationInfo
+    ) -> str:
+        values = validation_info.data
+
         id_ = values.get("id")
         custodian = values.get("custodian_id")
         custodian_suffix = values.get("custodian_suffix")
 
         if custodian and custodian_suffix:
-            if producer_id.split(".") != (custodian, custodian_suffix):
-                # TODO: Original Error MalformedProducerId
+            if tuple(producer_id.split(".")) != (custodian, custodian_suffix):
                 raise ValueError(
                     f"Producer ID {producer_id} (extracted from '{id_}') is not correctly formed. "
                     "It is expected to be composed in the form '<custodian_id>.<custodian_suffix>'"
@@ -208,7 +259,7 @@ class DocumentPointer(DynamoDBModel):
 
         return producer_id
 
-    @validator("type")
+    @field_validator("type")
     @classmethod
     def validate_type(cls, type: str) -> str:
         """
@@ -220,7 +271,7 @@ class DocumentPointer(DynamoDBModel):
 
         return type
 
-    @validator("nhs_number")
+    @field_validator("nhs_number")
     @classmethod
     def validate_nhs_number(cls, nhs_number: str) -> str:
         """
@@ -232,7 +283,7 @@ class DocumentPointer(DynamoDBModel):
 
         return nhs_number
 
-    @validator("source")
+    @field_validator("source")
     @classmethod
     def validate_source(cls, source: str) -> str:
         """
@@ -244,7 +295,7 @@ class DocumentPointer(DynamoDBModel):
 
         return source
 
-    @validator("created_on")
+    @field_validator("created_on")
     @classmethod
     def validate_created_on(cls, created_on: str) -> str:
         """
@@ -260,7 +311,7 @@ class DocumentPointer(DynamoDBModel):
 
         return created_on
 
-    @validator("updated_on")
+    @field_validator("updated_on")
     @classmethod
     def validate_updated_on(cls, updated_on: Optional[str]) -> Optional[str]:
         """
@@ -281,108 +332,79 @@ class DocumentPointer(DynamoDBModel):
 
     @property
     def indexes(self) -> Dict[str, str]:
-        return {
+        indexes = {
             "pk": self.pk,
             "sk": self.sk,
-            "pk_1": self.pk_1,
-            "sk_1": self.sk_1,
-            "pk_2": self.pk_2,
-            "sk_2": self.sk_2,
+            "patient_key": self.patient_key,
+            "patient_sort": self.patient_sort,
         }
+
+        if self.masterid_key:
+            indexes["masterid_key"] = self.masterid_key
+
+        return indexes
 
     @property
     def pk(self) -> str:
         """
         Returns the pk (partition key) for the DocumentPointer
-        Uses the custodian, custodian suffix (if applicable) and document_id to create the pk
-
-        Examples:
-        - D#<custodian>#<custodian_suffix>#<document_id>
-        - D#<custodian>#<document_id>
         """
-        if self.custodian_suffix:
-            return "#".join(
-                [
-                    DBPrefix.DocumentPointer.value,
-                    self.custodian,
-                    self.custodian_suffix,
-                    self.document_id,
-                ]
-            )
-
-        return "#".join(
-            [DBPrefix.DocumentPointer.value, self.custodian, self.document_id]
-        )
+        return "#".join([DBPrefix.DocumentPointer.value, self.id])
 
     @property
     def sk(self) -> str:
         """
         Returns the sk (sort key) for the DocumentPointer
-        Identical to the primary key for DocumentPointer
         """
-        return self.pk
+        return "#".join([DBPrefix.DocumentPointer.value, self.id])
 
     @property
-    def pk_1(self) -> str:
+    def patient_key(self) -> str:
         """
-        Returns the pk_1 value used for the partition key in the idx_gsi_1 index
+        Returns the patient gsi pk (partition key) for the DocumentPointer
 
         Example: P#<nhs_number>
         """
-        return f"{DBPrefix.Patient.value}#{self.nhs_number}"
+        return "#".join([DBPrefix.Patient.value, self.nhs_number])
 
     @property
-    def sk_1(self) -> str:
+    def patient_sort(self) -> str:
         """
-        Returns the sk_1 value used for the sort key in the idx_gsi_1 index
+        Returns the patient gsi sk (sort key) for the DocumentPointer
 
-        Example:
-        - CO#<created_on>#<custodian>#<custodian_suffix>#<document_id>
-        - CO#<created_on>#<custodian>#<document_id>
+        Example: C#<category_id>#T#<type_id>#CO#<created_on>#D#<document_id>
         """
-        if self.custodian_suffix:
-            return "#".join(
-                [
-                    DBPrefix.CreatedOn.value,
-                    self.created_on,
-                    self.custodian,
-                    self.custodian_suffix,
-                    self.document_id,
-                ]
-            )
-
         return "#".join(
             [
+                DBPrefix.Category.value,
+                self.category_id,
+                DBPrefix.Type.value,
+                self.type_id,
                 DBPrefix.CreatedOn.value,
                 self.created_on,
-                self.custodian,
-                self.document_id,
+                DBPrefix.DocumentPointer.value,
+                self.id,
             ]
         )
 
     @property
-    def pk_2(self) -> str:
+    def masterid_key(self) -> str | None:
         """
-        Returns the pk_2 value used for the partition key in the idx_gsi_2 index
+        Returns the doc_key for the DocumentPointer
 
-        Example:
-        - O#<custodian>
-        - O#<custodian>#<custodian_suffix>
+        Example: O#<ods_code>#MI#<master_identifier>
         """
-        if self.custodian_suffix:
-            return "#".join(
-                [DBPrefix.Organisation.value, self.custodian, self.custodian_suffix]
-            )
+        if not self.master_identifier:
+            return None
 
-        return "#".join([DBPrefix.Organisation.value, self.custodian])
-
-    @property
-    def sk_2(self) -> str:
-        """
-        Returns the sk_2 value used for the sort key in the idx_gsi_2 index
-        Identical to the sort key for idx_gsi_1
-        """
-        return self.sk_1
+        return "#".join(
+            [
+                DBPrefix.Organisation.value,
+                self.custodian,
+                DBPrefix.MasterIdentifier.value,
+                self.master_identifier,
+            ]
+        )
 
     @classmethod
     def public_alias(cls) -> str:

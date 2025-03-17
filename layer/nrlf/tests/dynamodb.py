@@ -6,7 +6,7 @@ from nrlf.core.types import DynamoDBServiceResource
 
 def create_document_pointer_table(config: Config, dynamodb: DynamoDBServiceResource):
     return dynamodb.create_table(
-        TableName=config.PREFIX + "document-pointer",
+        TableName=config.TABLE_NAME,
         KeySchema=[
             {"AttributeName": "pk", "KeyType": "HASH"},
             {"AttributeName": "sk", "KeyType": "RANGE"},
@@ -14,26 +14,24 @@ def create_document_pointer_table(config: Config, dynamodb: DynamoDBServiceResou
         AttributeDefinitions=[
             {"AttributeName": "pk", "AttributeType": "S"},
             {"AttributeName": "sk", "AttributeType": "S"},
-            {"AttributeName": "pk_1", "AttributeType": "S"},
-            {"AttributeName": "sk_1", "AttributeType": "S"},
-            {"AttributeName": "pk_2", "AttributeType": "S"},
-            {"AttributeName": "sk_2", "AttributeType": "S"},
+            {"AttributeName": "patient_key", "AttributeType": "S"},
+            {"AttributeName": "patient_sort", "AttributeType": "S"},
+            {"AttributeName": "masterid_key", "AttributeType": "S"},
         ],
         ProvisionedThroughput={"ReadCapacityUnits": 5, "WriteCapacityUnits": 5},
         GlobalSecondaryIndexes=[
             {
-                "IndexName": "idx_gsi_1",
+                "IndexName": "patient_gsi",
                 "KeySchema": [
-                    {"AttributeName": "pk_1", "KeyType": "HASH"},
-                    {"AttributeName": "sk_1", "KeyType": "RANGE"},
+                    {"AttributeName": "patient_key", "KeyType": "HASH"},
+                    {"AttributeName": "patient_sort", "KeyType": "RANGE"},
                 ],
                 "Projection": {"ProjectionType": "ALL"},
             },
             {
-                "IndexName": "idx_gsi_2",
+                "IndexName": "masterid_gsi",
                 "KeySchema": [
-                    {"AttributeName": "pk_2", "KeyType": "HASH"},
-                    {"AttributeName": "sk_2", "KeyType": "RANGE"},
+                    {"AttributeName": "masterid_key", "KeyType": "HASH"},
                 ],
                 "Projection": {"ProjectionType": "ALL"},
             },
@@ -47,7 +45,7 @@ def mock_repository(func):
         dynamodb = get_dynamodb_resource()
         create_document_pointer_table(config, dynamodb)
 
-        repository = DocumentPointerRepository(environment_prefix=config.PREFIX)
+        repository = DocumentPointerRepository(table_name=config.TABLE_NAME)
 
         return func(*args, **kwargs, repository=repository)
 

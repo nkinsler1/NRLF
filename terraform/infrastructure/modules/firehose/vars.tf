@@ -34,3 +34,17 @@ variable "error_prefix" {
   type    = string
   default = "errors"
 }
+
+variable "reporting_bucket_arn" {
+  type    = string
+  default = null
+}
+
+variable "reporting_kms_arn" {
+  type    = string
+  default = null
+}
+
+variable "reporting_infra_toggle" {
+  type = bool
+}

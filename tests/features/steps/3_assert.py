@@ -26,11 +26,6 @@ def assert_response_status_code_step(context: Context, status_code: str):
     )
 
 
-# @then("the response contains the key '{key}'")
-# def assert_response_key_in_response_step(context: Context, key: str):
-#     assert key in context.response.json(), f"Key {key} not in response"
-
-
 @then("the response does not contain the key '{key}'")
 def assert_response_no_key_in_response_step(context: Context, key: str):
     assert key not in context.response.json(), f"Key {key} found in response"
@@ -47,13 +42,13 @@ def assert_bundle_step(context: Context, bundle_type: str):
         context.response.text,
     )
     assert body["type"] == bundle_type, format_error(
-        f"Unexpected type",
+        "Unexpected type",
         bundle_type,
         body["type"],
         context.response.text,
     )
 
-    context.bundle = Bundle.parse_obj(body)
+    context.bundle = Bundle.model_validate(body)
 
 
 @then("the Bundle has a total of {total}")
@@ -88,7 +83,7 @@ def assert_bundle_self(context: Context, rel_url: str):
         context.response.text,
     )
 
-    link_entry = context.bundle.link[0].dict(exclude_none=True)
+    link_entry = context.bundle.link[0].model_dump(exclude_none=True)
     assert link_entry.get("relation") == "self", format_error(
         "Link should specify a 'self' type relation",
         "self",
@@ -134,7 +129,7 @@ def assert_document_reference_matches_value(
         AssertionError: If any of the document reference values do not match the expected values.
     """
     if isinstance(doc_ref, dict):
-        doc_ref = DocumentReference.parse_obj(doc_ref)
+        doc_ref = DocumentReference.model_validate(doc_ref)
 
     assert doc_ref.id == items["id"], format_error(
         "DocumentReference ID does not match",
@@ -156,6 +151,22 @@ def assert_document_reference_matches_value(
             "DocumentReference type does not match",
             type_code,
             doc_ref.type.coding[0].code,
+            context.response.json(),
+        )
+
+    if type_system := items.get("type_system"):
+        assert doc_ref.type.coding[0].system == type_system, format_error(
+            "DocumentReference type does not match",
+            type_system,
+            doc_ref.type.coding[0].system,
+            context.response.json(),
+        )
+
+    if type_display := items.get("type_display"):
+        assert doc_ref.type.coding[0].display == type_display, format_error(
+            "DocumentReference type does not match",
+            type_display,
+            doc_ref.type.coding[0].display,
             context.response.json(),
         )
 
@@ -207,6 +218,14 @@ def assert_document_reference_matches_value(
             context.response.json(),
         )
 
+    if identifier := items.get("identifier"):
+        assert doc_ref.identifier[0].value == identifier, format_error(
+            "DocumentReference Identifier does not match",
+            identifier,
+            doc_ref.identifier[0].value,
+            context.response.json(),
+        )
+
 
 @then("the Bundle contains an DocumentReference with values")
 def assert_bundle_contains_documentreference_values_step(context: Context):
@@ -243,7 +262,7 @@ def assert_response_operation_outcome_step(context: Context, num_issues: str):
     assert body["resourceType"] == "OperationOutcome"
     assert len(body["issue"]) == int(num_issues)
 
-    context.operation_outcome = OperationOutcome.parse_obj(body)
+    context.operation_outcome = OperationOutcome.model_validate(body)
 
 
 @then("the OperationOutcome contains the issue")
@@ -257,7 +276,7 @@ def assert_response_operation_outcome_issue(context: Context):
         raise ValueError("Invalid JSON provided")
 
     for issue in context.operation_outcome.issue:
-        if issue.dict(exclude_none=True) == content:
+        if issue.model_dump(exclude_none=True) == content:
             return
 
     raise ValueError(
@@ -329,16 +348,15 @@ def assert_header_starts_with(context: Context, header_name: str, starts_with: s
 def assert_resource_in_location_header_exists_with_values(context: Context):
     location = context.response.headers.get("Location")
 
-    assert location.startswith(
-        "/nrl-producer-api/FHIR/R4/DocumentReference/"
-    ), format_error(
+    assert location.startswith("/producer/FHIR/R4/DocumentReference/"), format_error(
         "Unexpected Location header",
-        "/nrl-producer-api/FHIR/R4/DocumentReference/",
+        "/producer/FHIR/R4/DocumentReference/",
         location,
         context.response.text,
     )
 
     resource_id = location.split("/")[-1]
+    resource_id.replace("|", ".")  # NRL-766 define and verify custodian suffix formats
     resource = context.repository.get_by_id(resource_id)
     assert resource is not None, format_error(
         "Resource does not exist",
@@ -354,5 +372,36 @@ def assert_resource_in_location_header_exists_with_values(context: Context):
     items["id"] = resource_id
 
     assert_document_reference_matches_value(
-        context, DocumentReference.parse_raw(resource.document), items
+        context, DocumentReference.model_validate_json(resource.document), items
+    )
+
+
+@then("the Document Reference '{doc_ref_id}' exists with values")
+def assert_resource_exists_with_values(context: Context, doc_ref_id: str):
+    resource = context.repository.get_by_id(doc_ref_id)
+    assert resource is not None, format_error(
+        "Resource does not exist",
+        doc_ref_id,
+        None,
+        context.response.text,
+    )
+
+    if not context.table:
+        raise ValueError("No DocumentReference table provided")
+
+    items = {row["property"]: row["value"] for row in context.table}
+
+    assert_document_reference_matches_value(
+        context, DocumentReference.model_validate_json(resource.document), items
+    )
+
+
+@then("the resource with id '{doc_ref_id}' does not exist")
+def assert_resource_absent(context: Context, doc_ref_id: str):
+    resource = context.repository.get_by_id(doc_ref_id)
+    assert resource is None, format_error(
+        "Resource that should be absent is found in database by id",
+        None,
+        doc_ref_id,
+        DocumentReference.model_validate_json(resource.document),
     )

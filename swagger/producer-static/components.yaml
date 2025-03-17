@@ -18,6 +18,11 @@ components:
       in: query
       schema:
         $ref: "#/components/schemas/RequestQueryType"
+    category:
+      name: type
+      in: query
+      schema:
+        $ref: "#/components/schemas/RequestQueryCategory"
     nextPageToken:
       name: next-page-token
       in: query
@@ -49,7 +54,7 @@ components:
 
         Mirrored back in a response header.
       in: header
-      required: false
+      required: true
       schema:
         $ref: "#/components/schemas/RequestHeaderRequestId"
     correlationId:
@@ -117,7 +122,7 @@ components:
                 format:
                   system: https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode
                   code: "urn:nhs-ic:unstructured"
-                  display: Unstructured document
+                  display: Unstructured Document
             context:
               practiceSetting:
                 coding:
@@ -181,12 +186,16 @@ components:
           $ref: "#/components/schemas/RequestQuerySubject"
         type:
           $ref: "#/components/schemas/RequestQueryType"
+        category:
+          $ref: "#/components/schemas/RequestQueryCategory"
         next-page-token:
           $ref: "#/components/schemas/NextPageToken"
     RequestQuerySubject:
       type: string
       pattern: ^https\:\/\/fhir\.nhs\.uk\/Id\/nhs-number\|(\d+)$
     RequestQueryType:
+      type: string
+    RequestQueryCategory:
       type: string
     NextPageToken:
       type: string
@@ -214,4 +223,4 @@ components:
         pattern: "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
         example: 60E0B220-8136-4CA5-AE46-1D97EF59D068
         description: |
-          The X-Request-ID from the request header, if supplied, mirrored back.
+          The X-Request-ID from the request header mirrored back.

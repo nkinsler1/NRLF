@@ -10,6 +10,7 @@ from nrlf.tests.events import (
     create_headers,
     create_mock_context,
     create_test_api_gateway_event,
+    default_response_headers,
 )
 
 
@@ -28,10 +29,14 @@ def test_read_document_reference_happy_path(repository: DocumentPointerRepositor
     result = handler(event, create_mock_context())
     body = result.pop("body")
 
-    assert result == {"statusCode": "200", "headers": {}, "isBase64Encoded": False}
+    assert result == {
+        "statusCode": "200",
+        "headers": default_response_headers(),
+        "isBase64Encoded": False,
+    }
 
     parsed_body = json.loads(body)
-    assert parsed_body == doc_ref.dict(exclude_none=True)
+    assert parsed_body == doc_ref.model_dump(exclude_none=True)
 
 
 @mock_aws
@@ -44,7 +49,11 @@ def test_read_document_reference_not_found(repository: DocumentPointerRepository
     result = handler(event, create_mock_context())
     body = result.pop("body")
 
-    assert result == {"statusCode": "404", "headers": {}, "isBase64Encoded": False}
+    assert result == {
+        "statusCode": "404",
+        "headers": default_response_headers(),
+        "isBase64Encoded": False,
+    }
 
     parsed_body = json.loads(body)
     assert parsed_body == {
@@ -74,7 +83,11 @@ def test_read_document_reference_missing_id():
     result = handler(event, create_mock_context())
     body = result.pop("body")
 
-    assert result == {"statusCode": "400", "headers": {}, "isBase64Encoded": False}
+    assert result == {
+        "statusCode": "400",
+        "headers": default_response_headers(),
+        "isBase64Encoded": False,
+    }
 
     parsed_body = json.loads(body)
     assert parsed_body == {
@@ -92,7 +105,7 @@ def test_read_document_reference_missing_id():
                         }
                     ]
                 },
-                "diagnostics": "Invalid path parameter (id: field required)",
+                "diagnostics": "Invalid path parameter (id: Field required)",
                 "expression": ["id"],
             }
         ],
@@ -101,14 +114,18 @@ def test_read_document_reference_missing_id():
 
 def test_read_document_reference_incorrect_ods_code():
     event = create_test_api_gateway_event(
-        headers=create_headers(ods_code="X26"),
+        headers=create_headers(ods_code="RQI"),
         path_parameters={"id": "Y05868-99999-99999-999999"},
     )
 
     result = handler(event, create_mock_context())
     body = result.pop("body")
 
-    assert result == {"statusCode": "403", "headers": {}, "isBase64Encoded": False}
+    assert result == {
+        "statusCode": "403",
+        "headers": default_response_headers(),
+        "isBase64Encoded": False,
+    }
 
     parsed_body = json.loads(body)
     assert parsed_body == {
@@ -147,7 +164,11 @@ def test_read_document_reference_invalid_json(repository: DocumentPointerReposit
     result = handler(event, create_mock_context())
     body = result.pop("body")
 
-    assert result == {"statusCode": "500", "headers": {}, "isBase64Encoded": False}
+    assert result == {
+        "statusCode": "500",
+        "headers": default_response_headers(),
+        "isBase64Encoded": False,
+    }
 
     parsed_body = json.loads(body)
     assert parsed_body == {

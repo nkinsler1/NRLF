@@ -15,6 +15,9 @@ class LogReference(Enum):
     HANDLER002 = _Reference("DEBUG", "Attempting to parse request headers")
     HANDLER003 = _Reference("INFO", "Parsed metadata from request headers")
     HANDLER004 = _Reference("INFO", "Authorisation lookup enabled")
+    HANDLER004a = _Reference("INFO", "Authorisation lookup skipped for sync request")
+    HANDLER004b = _Reference("INFO", "Parsing embedded permissions file from S3")
+    HANDLER004c = _Reference("INFO", "Parsed embedded permissions file from S3")
     HANDLER005 = _Reference("WARN", "Rejecting request due to missing pointer types")
     HANDLER006 = _Reference("DEBUG", "Attempting to parse request parameters")
     HANDLER007 = _Reference("INFO", "Parsed request parameters")
@@ -24,6 +27,16 @@ class LogReference(Enum):
     HANDLER011 = _Reference("INFO", "Parsed request path parameters")
     HANDLER012 = _Reference("DEBUG", "Filtered request handler function arguments")
     HANDLER013 = _Reference("INFO", "Calling lambda-specific request handler")
+    HANDLER014 = _Reference(
+        "WARN", "Rejecting request due to missing X-Request-Id header"
+    )
+    HANDLER015 = _Reference(
+        "WARN", "Rejecting request due to missing NHSD-Correlation-Id header"
+    )
+    HANDLER016 = _Reference("INFO", "Set response headers")
+    HANDLER017 = _Reference("WARN", "Correlation ID not found in request headers")
+    HANDLER018 = _Reference("INFO", "Checking for duplicate keys in request body")
+    HANDLER019 = _Reference("ERROR", "Duplicate keys found in the request body")
     HANDLER999 = _Reference("INFO", "Request handler returned successfully")
 
     # Error Logs
@@ -36,6 +49,9 @@ class LogReference(Enum):
     ERROR002 = _Reference(
         "WARN", "An ParseError occurred whilst processing the request"
     )
+    ERROR003 = _Reference(
+        "WARN", "An unhandler exception occurred whilst handling response headers"
+    )
 
     # S3 Permissions Lookup Logs
     S3PERMISSIONS001 = _Reference("INFO", "Retrieving pointer types from S3 bucket")
@@ -43,6 +59,10 @@ class LogReference(Enum):
     S3PERMISSIONS003 = _Reference("WARN", "No permissions file found in S3")
     S3PERMISSIONS004 = _Reference(
         "EXCEPTION", "An error occurred whilst retrieving pointer types from S3"
+    )
+    S3PERMISSIONS005 = _Reference(
+        "EXCEPTION",
+        "An error occurred whilst pasrsing embedded permissions files from S3",
     )
 
     # Parse Logs
@@ -117,6 +137,9 @@ class LogReference(Enum):
     DOCPOINTER005 = _Reference(
         "INFO", "Constructed DocumentPointer from DocumentReference resource"
     )
+    DOCPOINTER006 = _Reference(
+        "EXCEPTION", "Unsupported system defined for document reference"
+    )
 
     # Consumer - CountDocumentReference
     CONCOUNT000 = _Reference(
@@ -154,6 +177,9 @@ class LogReference(Enum):
     CONSEARCH002 = _Reference(
         "INFO", "Invalid document type provided in the query parameters"
     )
+    CONSEARCH002b = _Reference(
+        "INFO", "Invalid document category provided in the query parameters"
+    )
     CONSEARCH003 = _Reference("DEBUG", "Performing search by NHS number")
     CONSEARCH004 = _Reference(
         "DEBUG", "Parsed DocumentReference and added to search results"
@@ -175,6 +201,9 @@ class LogReference(Enum):
     CONPOSTSEARCH002 = _Reference(
         "INFO", "Invalid document type provided in the request body"
     )
+    CONPOSTSEARCH002b = _Reference(
+        "INFO", "Invalid document category provided in the request body"
+    )
     CONPOSTSEARCH003 = _Reference("DEBUG", "Performing search by NHS number")
     CONPOSTSEARCH004 = _Reference(
         "DEBUG", "Parsed DocumentReference and added to search results"
@@ -183,7 +212,7 @@ class LogReference(Enum):
         "EXCEPTION", "The DocumentReference resource could not be parsed"
     )
     CONPOSTSEARCH999 = _Reference(
-        "INFO", "Successfully completed consumer searchDocumentReference"
+        "INFO", "Successfully completed consumer searchPostDocumentReference"
     )
 
     # Producer - CreateDocumentReference
@@ -200,7 +229,7 @@ class LogReference(Enum):
     )
     PROCREATE005 = _Reference(
         "WARN", "Organisation is not allowed to create pointer type"
-    )  #
+    )
     PROCREATE006 = _Reference("DEBUG", "Performing relatesTo validation on resource")
     PROCREATE007a = _Reference(
         "WARN", "RelatesTo validation failed - no target identifier value"
@@ -231,41 +260,59 @@ class LogReference(Enum):
     PROUPSERT000 = _Reference(
         "INFO", "Starting to process producer upsertDocumentReference"
     )
-    PROUPSERT001 = _Reference("DEBUG", "Validating DocumentReference resource")
-    PROUPSERT002 = _Reference("WARN", "DocumentReference resource failed validation")
+    PROUPSERT001 = _Reference(
+        "DEBUG", "Validating DocumentReference resource for upsert"
+    )
+    PROUPSERT002 = _Reference(
+        "WARN", "DocumentReference resource failed validation for upsert"
+    )
     PROUPSERT003 = _Reference(
-        "WARN", "ODS code in headers does not match ODS code in resource ID"
+        "WARN", "ODS code in headers does not match ODS code in resource ID for upsert"
     )
     PROUPSERT004 = _Reference(
-        "WARN", "ODS code in headers does not match ODWS code in resource custodian"
+        "WARN",
+        "ODS code in headers does not match ODWS code in resource custodian for upsert",
     )
     PROUPSERT005 = _Reference(
-        "WARN", "Organisation is not allowed to upsert pointer type"
+        "WARN", "Organisation is not allowed to upsert pointer type for upsert"
     )  #
-    PROUPSERT006 = _Reference("DEBUG", "Performing relatesTo validation on resource")
+    PROUPSERT005a = _Reference(
+        "WARN",
+        "Organisation is not allowed to upsert pointer type with incorrect category code",
+    )  #
+    PROUPSERT006 = _Reference(
+        "DEBUG", "Performing relatesTo validation on resource for upsert"
+    )
+    PROUPSERT006a = _Reference(
+        "DEBUG", "Skipping relatesTo validation on resource for sync upsert request"
+    )
     PROUPSERT007a = _Reference(
-        "WARN", "RelatesTo validation failed - no target identifier value"
+        "WARN", "RelatesTo validation failed - no target identifier value for upsert"
     )
     PROUPSERT007b = _Reference(
-        "WARN", "RelatesTo validation failed - invalid producer for target identifier"
+        "WARN",
+        "RelatesTo validation failed - invalid producer for target identifier for upsert",
     )
     PROUPSERT007c = _Reference(
-        "WARN", "RelatesTo validation failed - no pointer exists with target identifier"
+        "WARN",
+        "RelatesTo validation failed - no pointer exists with target identifier for upsert",
     )
     PROUPSERT007d = _Reference(
-        "WARN", "RelatesTo validation failed - relating pointer NHS number mismatch"
+        "WARN",
+        "RelatesTo validation failed - relating pointer NHS number mismatch for upsert",
     )
     PROUPSERT007e = _Reference(
-        "WARN", "RelatesTo validation failed - relating pointer document type mismatch"
+        "WARN",
+        "RelatesTo validation failed - relating pointer document type mismatch for upsert",
     )
     PROUPSERT008 = _Reference("INFO", "Selecting document as target to be superseded")
     PROUPSERT009 = _Reference("INFO", "Upserting new document reference")
-    PROUPSERT010 = _Reference("INFO", "Superseding document reference")
+    PROUPSERT010 = _Reference("INFO", "Superseding document reference for upsert")
     PROUPSERT011 = _Reference(
-        "INFO", "Preserved .date field when creating new document reference"
+        "INFO", "Preserved .date field when creating new document reference for upsert"
     )
     PROUPSERT999 = _Reference(
-        "INFO", "Successfully completed producer createDocumentReference"
+        "INFO", "Successfully completed producer upsertDocumentReference"
     )
 
     # Producer - DeleteDocumentReference
@@ -307,12 +354,15 @@ class LogReference(Enum):
     PROSEARCH002 = _Reference(
         "INFO", "Invalid document type provided in the query parameters"
     )
+    PROSEARCH002b = _Reference(
+        "INFO", "Invalid document category provided in the query parameters"
+    )
     PROSEARCH003 = _Reference("DEBUG", "Performing search by custodian")
     PROSEARCH004 = _Reference(
         "DEBUG", "Parsed DocumentReference and added to search results"
     )
     PROSEARCH005 = _Reference(
-        "EXCEPTION", "The DocumentReference esource could not be parsed"
+        "EXCEPTION", "The DocumentReference resource could not be parsed"
     )
     PROSEARCH999 = _Reference(
         "INFO", "Successfully completed producer searchDocumentReference"
@@ -327,6 +377,9 @@ class LogReference(Enum):
     )
     PROPOSTSEARCH002 = _Reference(
         "INFO", "Invalid document type provided in the request body"
+    )
+    PROPOSTSEARCH002b = _Reference(
+        "INFO", "Invalid document category provided in the request body"
     )
     PROPOSTSEARCH003 = _Reference("DEBUG", "Performing search by custodian")
     PROPOSTSEARCH004 = _Reference(

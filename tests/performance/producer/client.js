@@ -19,17 +19,26 @@ function getBaseURL() {
 function getHeaders(odsCode = ODS_CODE) {
   return {
     "Content-Type": "application/fhir+json",
+    "X-Request-Id": "K6PerformanceTest",
+    "NHSD-Correlation-Id": "K6PerformanceTest",
     "NHSD-Connection-Metadata": JSON.stringify({
       "nrl.ods-code": odsCode,
       "nrl.pointer-types": POINTER_TYPES.map(
         (type) => `http://snomed.info/sct|${type}`
       ),
+      "nrl.app-id": "K6PerformanceTest",
     }),
     "NHSD-Client-RP-Details": JSON.stringify({
       "developer.app.name": "K6PerformanceTest",
       "developer.app.id": "K6PerformanceTest",
     }),
   };
+}
+function checkResponse(res) {
+  const is_success = check(res, { "status is 200": (r) => r.status === 200 });
+  if (!is_success) {
+    console.warn(res.json());
+  }
 }
 
 export function createDocumentReference() {
@@ -57,7 +66,7 @@ export function readDocumentReference() {
 
   const res = http.get(`${getBaseURL()}/${id}`, { headers: getHeaders() });
 
-  check(res, { "status is 200": (r) => r.status === 200 });
+  checkResponse(res);
 }
 
 export function updateDocumentReference() {
@@ -70,7 +79,7 @@ export function updateDocumentReference() {
     headers: getHeaders(),
   });
 
-  check(res, { "status is 200": (r) => r.status === 200 });
+  checkResponse(res);
 }
 
 export function deleteDocumentReference() {
@@ -80,7 +89,7 @@ export function deleteDocumentReference() {
     headers: getHeaders(),
   });
 
-  check(res, { "delete status is 200": (r) => r.status === 200 });
+  checkResponse(res);
 }
 
 export function upsertDocumentReference() {

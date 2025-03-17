@@ -9,13 +9,14 @@ from api.producer.updateDocumentReference.update_document_reference import (
     handler,
 )
 from nrlf.core.dynamodb.repository import DocumentPointer, DocumentPointerRepository
-from nrlf.producer.fhir.r4.model import DocumentReference
+from nrlf.producer.fhir.r4.model import CodeableConcept, Coding, DocumentReference
 from nrlf.tests.data import load_document_reference
 from nrlf.tests.dynamodb import mock_repository
 from nrlf.tests.events import (
     create_headers,
     create_mock_context,
     create_test_api_gateway_event,
+    default_response_headers,
 )
 
 
@@ -30,21 +31,27 @@ def test_update_document_reference_happy_path(repository: DocumentPointerReposit
     existing_doc_pointer = repository.get_by_id("Y05868-99999-99999-999999")
     assert existing_doc_pointer is not None
 
-    existing_doc_ref = DocumentReference.parse_raw(existing_doc_pointer.document)
+    existing_doc_ref = DocumentReference.model_validate_json(
+        existing_doc_pointer.document
+    )
     assert existing_doc_ref.docStatus == "final"
 
     doc_ref.docStatus = "entered-in-error"
     event = create_test_api_gateway_event(
         headers=create_headers(),
         path_parameters={"id": "Y05868-99999-99999-999999"},
-        body=doc_ref.json(),
+        body=doc_ref.model_dump_json(),
     )
 
     result = handler(event, create_mock_context())
 
     body = result.pop("body")
 
-    assert result == {"statusCode": "200", "headers": {}, "isBase64Encoded": False}
+    assert result == {
+        "statusCode": "200",
+        "headers": default_response_headers(),
+        "isBase64Encoded": False,
+    }
     parsed_body = json.loads(body)
 
     assert parsed_body == {
@@ -70,7 +77,9 @@ def test_update_document_reference_happy_path(repository: DocumentPointerReposit
     updated_doc_pointer = repository.get_by_id("Y05868-99999-99999-999999")
     assert updated_doc_pointer is not None
 
-    updated_doc_ref = DocumentReference.parse_raw(updated_doc_pointer.document)
+    updated_doc_ref = DocumentReference.model_validate_json(
+        updated_doc_pointer.document
+    )
     assert updated_doc_ref.docStatus == "entered-in-error"
 
     assert updated_doc_ref.meta.lastUpdated == "2024-03-21T12:34:56.789Z"
@@ -91,21 +100,27 @@ def test_update_document_reference_happy_path_with_ssp(
     existing_doc_pointer = repository.get_by_id("Y05868-99999-99999-999999")
     assert existing_doc_pointer is not None
 
-    existing_doc_ref = DocumentReference.parse_raw(existing_doc_pointer.document)
+    existing_doc_ref = DocumentReference.model_validate_json(
+        existing_doc_pointer.document
+    )
     assert existing_doc_ref.docStatus == "final"
 
     doc_ref.docStatus = "entered-in-error"
     event = create_test_api_gateway_event(
         headers=create_headers(),
         path_parameters={"id": "Y05868-99999-99999-999999"},
-        body=doc_ref.json(),
+        body=doc_ref.model_dump_json(),
     )
 
     result = handler(event, create_mock_context())
 
     body = result.pop("body")
 
-    assert result == {"statusCode": "200", "headers": {}, "isBase64Encoded": False}
+    assert result == {
+        "statusCode": "200",
+        "headers": default_response_headers(),
+        "isBase64Encoded": False,
+    }
     parsed_body = json.loads(body)
 
     assert parsed_body == {
@@ -131,7 +146,9 @@ def test_update_document_reference_happy_path_with_ssp(
     updated_doc_pointer = repository.get_by_id("Y05868-99999-99999-999999")
     assert updated_doc_pointer is not None
 
-    updated_doc_ref = DocumentReference.parse_raw(updated_doc_pointer.document)
+    updated_doc_ref = DocumentReference.model_validate_json(
+        updated_doc_pointer.document
+    )
     assert updated_doc_ref.docStatus == "entered-in-error"
 
     assert updated_doc_ref.meta.lastUpdated == "2024-03-21T12:34:56.789Z"
@@ -150,7 +167,11 @@ def test_create_document_reference_no_body():
 
     body = result.pop("body")
 
-    assert result == {"statusCode": "400", "headers": {}, "isBase64Encoded": False}
+    assert result == {
+        "statusCode": "400",
+        "headers": default_response_headers(),
+        "isBase64Encoded": False,
+    }
     parsed_body = json.loads(body)
 
     assert parsed_body == {
@@ -174,7 +195,7 @@ def test_create_document_reference_no_body():
     }
 
 
-def test_create_document_reference_invalid_body():
+def test_update_document_reference_invalid_body():
     event = create_test_api_gateway_event(
         headers=create_headers(),
         path_parameters={"id": "Y05868-99999-99999-999999"},
@@ -185,7 +206,11 @@ def test_create_document_reference_invalid_body():
 
     body = result.pop("body")
 
-    assert result == {"statusCode": "400", "headers": {}, "isBase64Encoded": False}
+    assert result == {
+        "statusCode": "400",
+        "headers": default_response_headers(),
+        "isBase64Encoded": False,
+    }
     parsed_body = json.loads(body)
 
     assert parsed_body == {
@@ -203,7 +228,7 @@ def test_create_document_reference_invalid_body():
                         }
                     ]
                 },
-                "diagnostics": "Request body could not be parsed (resourceType: field required)",
+                "diagnostics": "Request body could not be parsed (resourceType: Field required)",
                 "expression": ["resourceType"],
             },
             {
@@ -218,8 +243,53 @@ def test_create_document_reference_invalid_body():
                         }
                     ]
                 },
-                "diagnostics": "Request body could not be parsed (status: field required)",
+                "diagnostics": "Request body could not be parsed (status: Field required)",
                 "expression": ["status"],
+            },
+            {
+                "severity": "error",
+                "code": "invalid",
+                "details": {
+                    "coding": [
+                        {
+                            "code": "MESSAGE_NOT_WELL_FORMED",
+                            "display": "Message not well formed",
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                        }
+                    ],
+                },
+                "diagnostics": "Request body could not be parsed (type: Field required)",
+                "expression": ["type"],
+            },
+            {
+                "severity": "error",
+                "code": "invalid",
+                "details": {
+                    "coding": [
+                        {
+                            "code": "MESSAGE_NOT_WELL_FORMED",
+                            "display": "Message not well formed",
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                        }
+                    ],
+                },
+                "diagnostics": "Request body could not be parsed (category: Field required)",
+                "expression": ["category"],
+            },
+            {
+                "severity": "error",
+                "code": "invalid",
+                "details": {
+                    "coding": [
+                        {
+                            "code": "MESSAGE_NOT_WELL_FORMED",
+                            "display": "Message not well formed",
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                        }
+                    ],
+                },
+                "diagnostics": "Request body could not be parsed (author: Field required)",
+                "expression": ["author"],
             },
             {
                 "severity": "error",
@@ -233,8 +303,64 @@ def test_create_document_reference_invalid_body():
                         }
                     ]
                 },
-                "diagnostics": "Request body could not be parsed (content: field required)",
+                "diagnostics": "Request body could not be parsed (content: Field required)",
                 "expression": ["content"],
+            },
+            {
+                "severity": "error",
+                "code": "invalid",
+                "details": {
+                    "coding": [
+                        {
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                            "code": "MESSAGE_NOT_WELL_FORMED",
+                            "display": "Message not well formed",
+                        }
+                    ]
+                },
+                "diagnostics": "Request body could not be parsed (context: Field required)",
+                "expression": ["context"],
+            },
+        ],
+    }
+
+
+def test_update_document_reference_with_no_practiceSetting():
+    doc_ref = load_document_reference("Y05868-736253002-Valid")
+    doc_ref.context.practiceSetting = None
+
+    event = create_test_api_gateway_event(
+        headers=create_headers(),
+        body=doc_ref.model_dump_json(exclude_none=True),
+    )
+
+    result = handler(event, create_mock_context())
+    body = result.pop("body")
+
+    assert result == {
+        "statusCode": "400",
+        "headers": default_response_headers(),
+        "isBase64Encoded": False,
+    }
+
+    parsed_body = json.loads(body)
+    assert parsed_body == {
+        "resourceType": "OperationOutcome",
+        "issue": [
+            {
+                "severity": "error",
+                "code": "invalid",
+                "details": {
+                    "coding": [
+                        {
+                            "code": "MESSAGE_NOT_WELL_FORMED",
+                            "display": "Message not well formed",
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                        }
+                    ],
+                },
+                "diagnostics": "Request body could not be parsed (context.practiceSetting: Field required)",
+                "expression": ["context.practiceSetting"],
             },
         ],
     }
@@ -245,14 +371,18 @@ def test_update_document_reference_no_id_in_path():
     event = create_test_api_gateway_event(
         headers=create_headers(),
         path_parameters={},
-        body=doc_ref.json(exclude_none=True),
+        body=doc_ref.model_dump_json(exclude_none=True),
     )
 
     result = handler(event, create_mock_context())
 
     body = result.pop("body")
 
-    assert result == {"statusCode": "400", "headers": {}, "isBase64Encoded": False}
+    assert result == {
+        "statusCode": "400",
+        "headers": default_response_headers(),
+        "isBase64Encoded": False,
+    }
     parsed_body = json.loads(body)
 
     assert parsed_body == {
@@ -270,7 +400,7 @@ def test_update_document_reference_no_id_in_path():
                         }
                     ]
                 },
-                "diagnostics": "Invalid path parameter (id: field required)",
+                "diagnostics": "Invalid path parameter (id: Field required)",
                 "expression": ["id"],
             }
         ],
@@ -282,14 +412,18 @@ def test_update_document_reference_id_mismatch():
     event = create_test_api_gateway_event(
         headers=create_headers(),
         path_parameters={"id": "IDoNotMatch"},
-        body=doc_ref.json(exclude_none=True),
+        body=doc_ref.model_dump_json(exclude_none=True),
     )
 
     result = handler(event, create_mock_context())
 
     body = result.pop("body")
 
-    assert result == {"statusCode": "400", "headers": {}, "isBase64Encoded": False}
+    assert result == {
+        "statusCode": "400",
+        "headers": default_response_headers(),
+        "isBase64Encoded": False,
+    }
     parsed_body = json.loads(body)
 
     assert parsed_body == {
@@ -320,14 +454,18 @@ def test_update_document_reference_invalid_resource():
     event = create_test_api_gateway_event(
         headers=create_headers(),
         path_parameters={"id": "Y05868-99999-99999-999999"},
-        body=doc_ref.json(exclude_none=True),
+        body=doc_ref.model_dump_json(exclude_none=True),
     )
 
     result = handler(event, create_mock_context())
 
     body = result.pop("body")
 
-    assert result == {"statusCode": "400", "headers": {}, "isBase64Encoded": False}
+    assert result == {
+        "statusCode": "400",
+        "headers": default_response_headers(),
+        "isBase64Encoded": False,
+    }
     parsed_body = json.loads(body)
 
     assert parsed_body == {
@@ -355,16 +493,20 @@ def test_update_document_reference_invalid_resource():
 def test_update_document_reference_invalid_producer_id():
     doc_ref = load_document_reference("Y05868-736253002-Valid")
     event = create_test_api_gateway_event(
-        headers=create_headers(ods_code="X26"),
+        headers=create_headers(ods_code="RQI"),
         path_parameters={"id": "Y05868-99999-99999-999999"},
-        body=doc_ref.json(exclude_none=True),
+        body=doc_ref.model_dump_json(exclude_none=True),
     )
 
     result = handler(event, create_mock_context())
 
     body = result.pop("body")
 
-    assert result == {"statusCode": "403", "headers": {}, "isBase64Encoded": False}
+    assert result == {
+        "statusCode": "403",
+        "headers": default_response_headers(),
+        "isBase64Encoded": False,
+    }
     parsed_body = json.loads(body)
 
     assert parsed_body == {
@@ -395,14 +537,18 @@ def test_update_document_reference_no_existing_pointer(repository):
     event = create_test_api_gateway_event(
         headers=create_headers(),
         path_parameters={"id": "Y05868-99999-99999-999999"},
-        body=doc_ref.json(exclude_none=True),
+        body=doc_ref.model_dump_json(exclude_none=True),
     )
 
     result = handler(event, create_mock_context())
 
     body = result.pop("body")
 
-    assert result == {"statusCode": "404", "headers": {}, "isBase64Encoded": False}
+    assert result == {
+        "statusCode": "404",
+        "headers": default_response_headers(),
+        "isBase64Encoded": False,
+    }
     parsed_body = json.loads(body)
 
     assert parsed_body == {
@@ -433,18 +579,36 @@ def test_update_document_reference_immutable_fields(repository):
     doc_pointer = DocumentPointer.from_document_reference(doc_ref)
     repository.create(doc_pointer)
 
-    doc_ref.status = "draft"
+    doc_ref.type = CodeableConcept(
+        id=None,
+        coding=[
+            Coding(
+                id=None,
+                system="http://snomed.info/sct",
+                version=None,
+                code="861421000000109",
+                display="End of life care coordination summary",
+                userSelected=None,
+            )
+        ],
+        text=None,
+    )
+
     event = create_test_api_gateway_event(
         headers=create_headers(),
         path_parameters={"id": "Y05868-99999-99999-999999"},
-        body=doc_ref.json(exclude_none=True),
+        body=doc_ref.model_dump_json(exclude_none=True),
     )
 
     result = handler(event, create_mock_context())
 
     body = result.pop("body")
 
-    assert result == {"statusCode": "400", "headers": {}, "isBase64Encoded": False}
+    assert result == {
+        "statusCode": "400",
+        "headers": default_response_headers(),
+        "isBase64Encoded": False,
+    }
     parsed_body = json.loads(body)
 
     assert parsed_body == {
@@ -462,7 +626,55 @@ def test_update_document_reference_immutable_fields(repository):
                         }
                     ]
                 },
-                "diagnostics": "The field 'status' is immutable and cannot be updated",
+                "diagnostics": "The field 'type' is immutable and cannot be updated",
+                "expression": ["type"],
+            }
+        ],
+    }
+
+
+@mock_aws
+@mock_repository
+def test_update_document_reference_cannot_change_status_to_not_current(repository):
+    doc_ref = load_document_reference("Y05868-736253002-Valid")
+    doc_pointer = DocumentPointer.from_document_reference(doc_ref)
+    repository.create(doc_pointer)
+
+    doc_ref.status = "somethingElse"
+
+    event = create_test_api_gateway_event(
+        headers=create_headers(),
+        path_parameters={"id": "Y05868-99999-99999-999999"},
+        body=doc_ref.model_dump_json(exclude_none=True),
+    )
+
+    result = handler(event, create_mock_context())
+
+    body = result.pop("body")
+
+    assert result == {
+        "statusCode": "400",
+        "headers": default_response_headers(),
+        "isBase64Encoded": False,
+    }
+    parsed_body = json.loads(body)
+
+    assert parsed_body == {
+        "resourceType": "OperationOutcome",
+        "issue": [
+            {
+                "severity": "error",
+                "code": "invalid",
+                "details": {
+                    "coding": [
+                        {
+                            "code": "MESSAGE_NOT_WELL_FORMED",
+                            "display": "Message not well formed",
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                        }
+                    ]
+                },
+                "diagnostics": "Request body could not be parsed (status: String should match pattern '^current$')",
                 "expression": ["status"],
             }
         ],
@@ -481,14 +693,18 @@ def test_update_document_reference_with_no_context_related_for_ssp_url(repositor
     event = create_test_api_gateway_event(
         headers=create_headers(),
         path_parameters={"id": "Y05868-99999-99999-999999"},
-        body=doc_ref.json(exclude_none=True),
+        body=doc_ref.model_dump_json(exclude_none=True),
     )
 
     result = handler(event, create_mock_context())
 
     body = result.pop("body")
 
-    assert result == {"statusCode": "400", "headers": {}, "isBase64Encoded": False}
+    assert result == {
+        "statusCode": "400",
+        "headers": default_response_headers(),
+        "isBase64Encoded": False,
+    }
     parsed_body = json.loads(body)
 
     assert parsed_body == {
@@ -532,7 +748,7 @@ def test_create_document_reference_with_no_asid_in_for_ssp_url(
     event = create_test_api_gateway_event(
         headers=create_headers(),
         path_parameters={"id": "Y05868-99999-99999-999999"},
-        body=doc_ref.json(exclude_none=True),
+        body=doc_ref.model_dump_json(exclude_none=True),
     )
 
     result = handler(event, create_mock_context())
@@ -540,7 +756,7 @@ def test_create_document_reference_with_no_asid_in_for_ssp_url(
 
     assert result == {
         "statusCode": "400",
-        "headers": {},
+        "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
 
@@ -587,7 +803,7 @@ def test_create_document_reference_with_invalid_asid_for_ssp_url(
     event = create_test_api_gateway_event(
         headers=create_headers(),
         path_parameters={"id": "Y05868-99999-99999-999999"},
-        body=doc_ref.json(exclude_none=True),
+        body=doc_ref.model_dump_json(exclude_none=True),
     )
 
     result = handler(event, create_mock_context())
@@ -595,7 +811,7 @@ def test_create_document_reference_with_invalid_asid_for_ssp_url(
 
     assert result == {
         "statusCode": "400",
-        "headers": {},
+        "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
 
@@ -636,21 +852,27 @@ def test_update_document_reference_with_meta_lastupdated_ignored(
     existing_doc_pointer = repository.get_by_id("Y05868-99999-99999-999999")
     assert existing_doc_pointer is not None
 
-    existing_doc_ref = DocumentReference.parse_raw(existing_doc_pointer.document)
+    existing_doc_ref = DocumentReference.model_validate_json(
+        existing_doc_pointer.document
+    )
     assert existing_doc_ref.docStatus == "final"
 
     doc_ref.docStatus = "entered-in-error"
     event = create_test_api_gateway_event(
         headers=create_headers(),
         path_parameters={"id": "Y05868-99999-99999-999999"},
-        body=doc_ref.json(),
+        body=doc_ref.model_dump_json(),
     )
 
     result = handler(event, create_mock_context())
 
     body = result.pop("body")
 
-    assert result == {"statusCode": "200", "headers": {}, "isBase64Encoded": False}
+    assert result == {
+        "statusCode": "200",
+        "headers": default_response_headers(),
+        "isBase64Encoded": False,
+    }
     parsed_body = json.loads(body)
     assert parsed_body == {
         "resourceType": "OperationOutcome",
@@ -675,7 +897,9 @@ def test_update_document_reference_with_meta_lastupdated_ignored(
     updated_doc_pointer = repository.get_by_id("Y05868-99999-99999-999999")
     assert updated_doc_pointer is not None
 
-    updated_doc_ref = DocumentReference.parse_raw(updated_doc_pointer.document)
+    updated_doc_ref = DocumentReference.model_validate_json(
+        updated_doc_pointer.document
+    )
     assert updated_doc_ref.docStatus == "entered-in-error"
 
     assert updated_doc_ref.meta.lastUpdated == "2024-03-21T12:34:56.789Z"
@@ -696,7 +920,9 @@ def test_update_document_reference_with_invalid_date_ignored(
     existing_doc_pointer = repository.get_by_id("Y05868-99999-99999-999999")
     assert existing_doc_pointer is not None
 
-    existing_doc_ref = DocumentReference.parse_raw(existing_doc_pointer.document)
+    existing_doc_ref = DocumentReference.model_validate_json(
+        existing_doc_pointer.document
+    )
     assert existing_doc_ref.docStatus == "final"
 
     doc_ref.date = "2024-05-04T11:11:10.111Z"
@@ -705,14 +931,18 @@ def test_update_document_reference_with_invalid_date_ignored(
     event = create_test_api_gateway_event(
         headers=create_headers(),
         path_parameters={"id": "Y05868-99999-99999-999999"},
-        body=doc_ref.json(),
+        body=doc_ref.model_dump_json(),
     )
 
     result = handler(event, create_mock_context())
 
     body = result.pop("body")
 
-    assert result == {"statusCode": "200", "headers": {}, "isBase64Encoded": False}
+    assert result == {
+        "statusCode": "200",
+        "headers": default_response_headers(),
+        "isBase64Encoded": False,
+    }
     parsed_body = json.loads(body)
     assert parsed_body == {
         "resourceType": "OperationOutcome",
@@ -737,7 +967,9 @@ def test_update_document_reference_with_invalid_date_ignored(
     updated_doc_pointer = repository.get_by_id("Y05868-99999-99999-999999")
     assert updated_doc_pointer is not None
 
-    updated_doc_ref = DocumentReference.parse_raw(updated_doc_pointer.document)
+    updated_doc_ref = DocumentReference.model_validate_json(
+        updated_doc_pointer.document
+    )
     assert updated_doc_ref.docStatus == "entered-in-error"
     assert updated_doc_ref.date == "2024-03-20T00:00:01.000Z"
 
@@ -752,18 +984,20 @@ def test_update_document_reference_existing_invalid_json(
     doc_pointer.document = "invalid json"
     repository.create(doc_pointer)
 
-    doc_ref.status = "draft"
-
     event = create_test_api_gateway_event(
         headers=create_headers(),
         path_parameters={"id": "Y05868-99999-99999-999999"},
-        body=doc_ref.json(exclude_none=True),
+        body=doc_ref.model_dump_json(exclude_none=True),
     )
 
     result = handler(event, create_mock_context())
     body = result.pop("body")
 
-    assert result == {"statusCode": "500", "headers": {}, "isBase64Encoded": False}
+    assert result == {
+        "statusCode": "500",
+        "headers": default_response_headers(),
+        "isBase64Encoded": False,
+    }
 
     parsed_body = json.loads(body)
     assert parsed_body == {
@@ -801,8 +1035,8 @@ def test__set_update_time_fields(doc_ref_name: str):
 
     response = _set_update_time_fields(test_time, test_doc_ref)
 
-    assert response.dict(exclude_none=True) == {
-        **test_doc_ref.dict(exclude_none=True),
+    assert response.model_dump(exclude_none=True) == {
+        **test_doc_ref.model_dump(exclude_none=True),
         "meta": {
             "lastUpdated": test_time,
         },

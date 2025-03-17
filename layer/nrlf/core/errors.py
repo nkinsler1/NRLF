@@ -1,11 +1,47 @@
 from typing import List, Optional
 
 from pydantic import ValidationError
+from pydantic_core import ErrorDetails
 
+from nrlf.core.constants import CONTENT_FORMAT_CODE_URL, CONTENT_STABILITY_SYSTEM_URL
 from nrlf.core.response import Response
 from nrlf.core.types import CodeableConcept
 from nrlf.producer.fhir.r4 import model as producer_model
 from nrlf.producer.fhir.r4.model import OperationOutcome, OperationOutcomeIssue
+
+
+def format_error_location(loc: List) -> str:
+    formatted_loc = ""
+    for each in loc:
+        if isinstance(each, int):
+            formatted_loc = f"{formatted_loc}[{each}]"
+        else:
+            formatted_loc = f"{formatted_loc}.{each}" if formatted_loc else str(each)
+    return formatted_loc
+
+
+def append_value_set_url(loc_string: str) -> str:
+    if loc_string.endswith(("url", "system")):
+        return ""
+
+    if "content" in loc_string:
+        if "extension" in loc_string:
+            return f". See ValueSet: {CONTENT_STABILITY_SYSTEM_URL}"
+        if "format" in loc_string:
+            return f". See ValueSet: {CONTENT_FORMAT_CODE_URL}"
+
+    return ""
+
+
+def diag_for_error(error: ErrorDetails) -> str:
+    loc_string = format_error_location(error["loc"])
+    msg = f"{loc_string or 'root'}: {error['msg']}"
+    msg += append_value_set_url(loc_string)
+    return msg
+
+
+def expression_for_error(error: ErrorDetails) -> Optional[str]:
+    return format_error_location(error["loc"]) or "root"
 
 
 class OperationOutcomeError(Exception):
@@ -19,6 +55,7 @@ class OperationOutcomeError(Exception):
         code: str,
         details: CodeableConcept,
         diagnostics: Optional[str] = None,
+        expression: Optional[list[str]] = None,
         status_code: str = "400",
     ):
         self.operation_outcome = OperationOutcome(
@@ -29,6 +66,7 @@ class OperationOutcomeError(Exception):
                     code=code,
                     details=details,  # type: ignore
                     diagnostics=diagnostics,
+                    expression=expression,
                 )
             ],
         )
@@ -38,8 +76,11 @@ class OperationOutcomeError(Exception):
     def response(self) -> Response:
         return Response(
             statusCode=self.status_code,
-            body=self.operation_outcome.json(exclude_none=True, indent=2),
+            body=self.operation_outcome.model_dump_json(exclude_none=True, indent=2),
         )
+
+    def __str__(self):
+        return f"OperationOutcomeError: {self.operation_outcome}"
 
 
 class ParseError(Exception):
@@ -57,8 +98,8 @@ class ParseError(Exception):
                 severity="error",
                 code="invalid",
                 details=details,  # type: ignore
-                diagnostics=f"{msg} ({error['loc'][0]}: {error['msg']})",
-                expression=[str(error["loc"][0])],  # type: ignore
+                diagnostics=f"{msg} ({diag_for_error(error)})",
+                expression=[expression_for_error(error)],  # type: ignore
             )
             for error in exc.errors()
         ]
@@ -72,5 +113,5 @@ class ParseError(Exception):
             body=producer_model.OperationOutcome(
                 resourceType="OperationOutcome",
                 issue=self.issues,
-            ).json(exclude_none=True, indent=2),
+            ).model_dump_json(exclude_none=True, indent=2),
         )

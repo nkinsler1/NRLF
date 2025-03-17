@@ -28,13 +28,18 @@ info:
     There is a growing list of health and social care organisations authorised to share records using NRL, and presently
     the pointers are classified into the following types:
 
-    * [Mental Health Crisis Plan](http://snomed.info/sct/736253002)
+    * [Mental health crisis plan](http://snomed.info/sct/736253002)
     * [Royal College of Physicians NEWS2 (National Early Warning Score 2) chart](http://snomed.info/sct/1363501000000100)
     * [ReSPECT (Recommended Summary Plan for Emergency Care and Treatment) form](http://snomed.info/sct/1382601000000107)
     * [Contingency plan](http://snomed.info/sct/325691000000100)
     * [End of life care plan](http://snomed.info/sct/736373009)
     * [End of Life Care Coordination Summary](http://snomed.info/sct/861421000000109)
-    * [Emergency Health Care Plans](http://snomed.info/sct/887701000000100)
+    * [Emergency health care plan](http://snomed.info/sct/887701000000100)
+    * [Lloyd George record folder](http://snomed.info/sct/16521000000101)
+    * [Advance care plan](http://snomed.info/sct/736366004)
+    * [Treatment escalation plan](http://snomed.info/sct/735324008)
+    * [Summary record]("http://snomed.info/sct|824321000000109")
+    * [Personalised Care and Support Plan]("http://snomed.info/sct|2181441000000107")
 
     You can also retrieve booking and referral pointers however you can not currently do this by directly integrating with
     the National Record Locator, you must instead onboard to the [Booking and Referral - FHIR API](https://digital.nhs.uk/developer/api-catalogue/booking-and-referral-fhir)
@@ -329,7 +334,7 @@ paths:
             {
               "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
               "code": "urn:nhs-ic:unstructured"
-              "display": "Unstructured document"
+              "display": "Unstructured Document"
             }
           ]
           ```
@@ -344,9 +349,18 @@ paths:
             }
           ]
           ```
-        * `context` MUST include a `related` entry containing the ASID if the document is to be accessed via SSP, e.g.
+        * `context` MUST include a  `practiceSetting` and `related` entry containing the ASID if the document is to be accessed via SSP, e.g.
           ```
           "context": {
+            "practiceSetting": {
+              "coding": [
+                {
+                  "system": "http://snomed.info/sct",
+                   "code": "788002001"
+                   "display": "Adult mental health service"
+                }
+              ]
+            },
             "related": [
               {
                 "identifier": {
@@ -391,6 +405,7 @@ paths:
       parameters:
         - $ref: "#/components/parameters/subject"
         - $ref: "#/components/parameters/type"
+        - $ref: "#/components/parameters/category"
         - $ref: "#/components/parameters/nextPageToken"
         - $ref: "#/components/parameters/odsCode"
         - $ref: "#/components/parameters/odsCodeExtension"
@@ -463,9 +478,6 @@ paths:
                             code: urn:ihe:pcc:handp:2008
                             display: History and Physical Specification
                       context:
-                        encounter:
-                          - identifier:
-                              value: Encounter/3495456481
                         event:
                           - coding:
                               - system: http://snomed.info/sct
@@ -477,12 +489,17 @@ paths:
                         facilityType:
                           coding:
                             - system: http://snomed.info/sct
-                              code: "273580000"
-                              display: London hospital pain chart assessment
+                              code: "82242000"
+                              display: Children's hospital
+                        practiceSetting:
+                          coding:
+                            - system: http://snomed.info/sct
+                              code: "788002001"
+                              display: Adult mental health service
                         related:
                           - identifier:
-                              system: https://fhir.nhs.uk/Id/ods-organization-code
-                              value: ROYAL COLLEGE OF PHYSICIANS OF LONDON
+                              system: https://fhir.nhs.uk/Id/nhsSpineASID
+                              value: "200000000610"
                   - resource:
                       resourceType: DocumentReference
                       id: Y05868-1234567891
@@ -542,29 +559,28 @@ paths:
                             code: urn:ihe:pcc:cm:2008
                             display: Care Management
                       context:
-                        encounter:
-                          - identifier:
-                              value: Encounter/3495456481
                         event:
                           - coding:
                               - system: http://snomed.info/sct
-                                code: "713058002"
-                                display: End of life care planning
+                                code: "445627002"
+                                display: Assessment using adult early warning scoring system
                         period:
-                          start: "2022-12-21T09:00:41+11:00"
-                          end: "2022-12-21T10:45:41+11:00"
+                          start: "2022-12-20T09:00:41+11:00"
+                          end: "2022-12-20T09:45:41+11:00"
                         facilityType:
                           coding:
                             - system: http://snomed.info/sct
-                              code: "73770003"
-                              display: Hospital-based outpatient emergency care center
-                        sourcePatientInfo:
-                          identifier:
-                            value: Patient/3495456481
+                              code: "82242000"
+                              display: Children's hospital
+                        practiceSetting:
+                          coding:
+                            - system: http://snomed.info/sct
+                              code: "788002001"
+                              display: Adult mental health service
                         related:
                           - identifier:
-                              system: https://fhir.nhs.uk/Id/ods-organization-code
-                              value: TRAFFORD GENERAL HOSPITAL
+                              system: https://fhir.nhs.uk/Id/nhsSpineASID
+                              value: "200000000610"
           headers:
             X-Correlation-Id:
               $ref: "#/components/headers/CorrelationId"
@@ -746,9 +762,6 @@ paths:
                             code: urn:ihe:pcc:handp:2008
                             display: History and Physical Specification
                       context:
-                        encounter:
-                          - identifier:
-                              value: Encounter/3495456481
                         event:
                           - coding:
                               - system: http://snomed.info/sct
@@ -760,12 +773,17 @@ paths:
                         facilityType:
                           coding:
                             - system: http://snomed.info/sct
-                              code: "273580000"
-                              display: London hospital pain chart assessment
+                              code: "82242000"
+                              display: Children's hospital
+                        practiceSetting:
+                          coding:
+                            - system: http://snomed.info/sct
+                              code: "788002001"
+                              display: Adult mental health service
                         related:
                           - identifier:
-                              system: https://fhir.nhs.uk/Id/ods-organization-code
-                              value: ROYAL COLLEGE OF PHYSICIANS OF LONDON
+                              system: https://fhir.nhs.uk/Id/nhsSpineASID
+                              value: "200000000610"
                   - resource:
                       resourceType: DocumentReference
                       id: Y05868-1234567891
@@ -825,29 +843,28 @@ paths:
                             code: urn:ihe:pcc:cm:2008
                             display: Care Management
                       context:
-                        encounter:
-                          - identifier:
-                              value: Encounter/3495456481
                         event:
                           - coding:
                               - system: http://snomed.info/sct
-                                code: "713058002"
-                                display: End of life care planning
+                                code: "445627002"
+                                display: Assessment using adult early warning scoring system
                         period:
-                          start: "2022-12-21T09:00:41+11:00"
-                          end: "2022-12-21T10:45:41+11:00"
+                          start: "2022-12-20T09:00:41+11:00"
+                          end: "2022-12-20T09:45:41+11:00"
                         facilityType:
                           coding:
                             - system: http://snomed.info/sct
-                              code: "73770003"
-                              display: Hospital-based outpatient emergency care center
-                        sourcePatientInfo:
-                          identifier:
-                            value: Patient/3495456481
+                              code: "82242000"
+                              display: Children's hospital
+                        practiceSetting:
+                          coding:
+                            - system: http://snomed.info/sct
+                              code: "788002001"
+                              display: Adult mental health service
                         related:
                           - identifier:
-                              system: https://fhir.nhs.uk/Id/ods-organization-code
-                              value: TRAFFORD GENERAL HOSPITAL
+                              system: https://fhir.nhs.uk/Id/nhsSpineASID
+                              value: "200000000610"
           headers:
             X-Correlation-Id:
               $ref: "#/components/headers/CorrelationId"
@@ -941,26 +958,28 @@ paths:
                       code: urn:ihe:pcc:handp:2008
                       display: History and Physical Specification
                 context:
-                  encounter:
-                    - identifier:
-                        value: Encounter/4409815415
                   event:
                     - coding:
                         - system: http://snomed.info/sct
-                          code: "702779007"
-                          display: Emergency health care plan agreed
+                          code: "445627002"
+                          display: Assessment using adult early warning scoring system
                   period:
                     start: "2022-12-20T09:00:41+11:00"
                     end: "2022-12-20T09:45:41+11:00"
                   facilityType:
                     coding:
                       - system: http://snomed.info/sct
-                        code: "453121000124107"
-                        display: Emergency department healthcare professional
+                        code: "82242000"
+                        display: Children's hospital
+                  practiceSetting:
+                    coding:
+                      - system: http://snomed.info/sct
+                        code: "788002001"
+                        display: Adult mental health service
                   related:
                     - identifier:
-                        system: https://fhir.nhs.uk/Id/ods-organization-code
-                        value: EMERGENCY DEPT PRIMARY CARE STREAMING
+                        system: https://fhir.nhs.uk/Id/nhsSpineASID
+                        value: "200000000610"
           headers:
             X-Correlation-Id:
               $ref: "#/components/headers/CorrelationId"
@@ -1196,21 +1215,30 @@ components:
                 format:
                   system: https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode
                   code: "urn:nhs-ic:unstructured"
-                  display: Unstructured document
+                  display: Unstructured Document
             context:
+              event:
+                - coding:
+                    - system: http://snomed.info/sct
+                      code: "445627002"
+                      display: Assessment using adult early warning scoring system
+              period:
+                start: "2022-12-20T09:00:41+11:00"
+                end: "2022-12-20T09:45:41+11:00"
+              facilityType:
+                coding:
+                  - system: http://snomed.info/sct
+                    code: "82242000"
+                    display: Children's hospital
               practiceSetting:
                 coding:
                   - system: http://snomed.info/sct
                     code: "788002001"
                     display: Adult mental health service
-              sourcePatientInfo:
-                identifier:
-                  system: https://fhir.nhs.uk/Id/nhs-number
-                  value: "6700028191"
               related:
                 - identifier:
-                  system: https://fhir.nhs.uk/Id/nhsSpineASID
-                  value: 012345678910
+                    system: https://fhir.nhs.uk/Id/nhsSpineASID
+                    value: "200000000610"
       required: true
   schemas:
     OperationOutcome:
@@ -1319,19 +1347,19 @@ components:
             description: Other identifiers associated with the document, including version independent identifiers.
         status:
           type: string
-          pattern: "[^\\s]+(\\s[^\\s]+)*"
+          pattern: "^current$"
           description: The status of this document reference.
         docStatus:
           type: string
-          pattern: "[^\\s]+(\\s[^\\s]+)*"
+          enum: ["entered-in-error", "amended", "preliminary", "final"]
           description: The status of the underlying document.
         type:
-          $ref: "#/components/schemas/CodeableConcept"
+          $ref: "#/components/schemas/NRLCodeableConcept"
           description: Specifies the particular kind of document referenced  (e.g. History and Physical, Discharge Summary, Progress Note). This usually equates to the purpose of making the document referenced.
         category:
           type: array
           items:
-            $ref: "#/components/schemas/CodeableConcept"
+            $ref: "#/components/schemas/NRLCodeableConcept"
             description: A categorization for the type of document referenced &ndash; helps for indexing and searching. This may be implied by or derived from the code specified in the DocumentReference.type.
         subject:
           $ref: "#/components/schemas/Reference"
@@ -1358,7 +1386,7 @@ components:
             description: Relationships that this document has with other document references that already exist.
         description:
           type: string
-          pattern: "[ \\r\\n\\t\\S]+"
+          pattern: "[\\S]+[ \\r\\n\\t\\S]*"
           description: Human&ndash;readable description of the source document.
         securityLabel:
           type: array
@@ -1378,6 +1406,10 @@ components:
         - resourceType
         - status
         - content
+        - author
+        - context
+        - type
+        - category
     Bundle:
       type: object
       properties:
@@ -1577,7 +1609,7 @@ components:
           $ref: "#/components/schemas/CodeableConcept"
           description: The kind of facility where the patient was seen.
         practiceSetting:
-          $ref: "#/components/schemas/CodeableConcept"
+          $ref: "#/components/schemas/NRLCodeableConcept"
           description: This property may convey specifics about the practice setting where the content was created, often reflecting the clinical specialty.
         sourcePatientInfo:
           $ref: "#/components/schemas/Reference"
@@ -1587,6 +1619,8 @@ components:
           items:
             $ref: "#/components/schemas/Reference"
             description: Related identifiers or resources associated with the DocumentReference.
+      required:
+        - practiceSetting
     DocumentReferenceContent:
       type: object
       properties:
@@ -1598,10 +1632,19 @@ components:
           $ref: "#/components/schemas/Attachment"
           description: The document or URL of the document along with critical metadata to prove content has integrity.
         format:
-          $ref: "#/components/schemas/Coding"
+          $ref: "#/components/schemas/NRLFormatCode"
           description: An identifier of the document encoding, structure, and template that the document conforms to beyond the base format indicated in the mimeType.
+        extension:
+          type: array
+          items:
+            $ref: "#/components/schemas/ContentStabilityExtension"
+            description: Additional extension for content stability.
+          minItems: 1
+          maxItems: 1
       required:
         - attachment
+        - format
+        - extension
     DocumentReferenceRelatesTo:
       type: object
       properties:
@@ -1652,12 +1695,15 @@ components:
           description: The calculated hash of the data using SHA&ndash;1. Represented using base64.
         title:
           type: string
-          pattern: "[ \\r\\n\\t\\S]+"
+          pattern: "[\\S]+[ \\r\\n\\t\\S]*"
           description: A label or set of text to display in place of the data.
         creation:
           type: string
           pattern: ([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1])(T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00)))?)?)?
           description: The date that the attachment was first created.
+      required:
+        - contentType
+        - url
     CodeableConcept:
       type: object
       properties:
@@ -1672,8 +1718,29 @@ components:
             description: A reference to a code defined by a terminology system.
         text:
           type: string
-          pattern: "[ \\r\\n\\t\\S]+"
+          pattern: "[\\S]+[ \\r\\n\\t\\S]*"
           description: A human language representation of the concept as seen/selected/uttered by the user who entered the data and/or which represents the intended meaning of the user.
+    NRLCodeableConcept:
+      type: object
+      properties:
+        id:
+          type: string
+          pattern: "[A-Za-z0-9\\-\\.]{1,64}"
+          description: Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces.
+        coding:
+          type: array
+          items:
+            $ref: "#/components/schemas/NRLCoding"
+            description: A reference to a code defined by a terminology system.
+          minItems: 1
+          maxItems: 1
+        text:
+          type: string
+          pattern: "[\\S]+[ \\r\\n\\t\\S]*"
+          description: A human language representation of the concept as seen/selected/uttered by the user who entered the data and/or which represents the intended meaning of the user.
+      required:
+        - coding
+
     Coding:
       type: object
       properties:
@@ -1683,11 +1750,11 @@ components:
           description: Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces.
         system:
           type: string
-          pattern: \S*
+          pattern: \S+
           description: The identification of the code system that defines the meaning of the symbol in the code.
         version:
           type: string
-          pattern: "[ \\r\\n\\t\\S]+"
+          pattern: "[\\S]+[ \\r\\n\\t\\S]*"
           description: The version of the code system which was used when choosing this code. Note that a well&ndash;maintained code system does not need the version reported, because the meaning of codes is consistent across versions. However this cannot consistently be assured, and when the meaning is not guaranteed to be consistent, the version SHOULD be exchanged.
         code:
           type: string
@@ -1695,11 +1762,123 @@ components:
           description: A symbol in syntax defined by the system. The symbol may be a predefined code or an expression in a syntax defined by the coding system (e.g. post&ndash;coordination).
         display:
           type: string
-          pattern: "[ \\r\\n\\t\\S]+"
+          pattern: "[\\S]+[ \\r\\n\\t\\S]*"
           description: A representation of the meaning of the code in the system, following the rules of the system.
         userSelected:
           type: boolean
           description: Indicates that this coding was chosen by a user directly &ndash; e.g. off a pick list of available items (codes or displays).
+    NRLCoding:
+      type: object
+      properties:
+        id:
+          type: string
+          pattern: "[A-Za-z0-9\\-\\.]{1,64}"
+          description: Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces.
+        system:
+          type: string
+          pattern: \S+
+          description: The identification of the code system that defines the meaning of the symbol in the code.
+        version:
+          type: string
+          pattern: "[\\S]+[ \\r\\n\\t\\S]*"
+          description: The version of the code system which was used when choosing this code. Note that a well&ndash;maintained code system does not need the version reported, because the meaning of codes is consistent across versions. However this cannot consistently be assured, and when the meaning is not guaranteed to be consistent, the version SHOULD be exchanged.
+        code:
+          type: string
+          pattern: "[^\\s]+(\\s[^\\s]+)*"
+          description: A symbol in syntax defined by the system. The symbol may be a predefined code or an expression in a syntax defined by the coding system (e.g. post&ndash;coordination).
+        display:
+          type: string
+          pattern: "[\\S]+[ \\r\\n\\t\\S]*"
+          description: A representation of the meaning of the code in the system, following the rules of the system.
+        userSelected:
+          type: boolean
+          description: Indicates that this coding was chosen by a user directly &ndash; e.g. off a pick list of available items (codes or displays).
+      required:
+        - system
+        - code
+        - display
+    Extension:
+      type: object
+      properties:
+        valueCodeableConcept:
+          $ref: "#/components/schemas/CodeableConcept"
+          description: A name which details the functional use for this link &ndash; see [http://www.iana.org/assignments/link&ndash;relations/link&ndash;relations.xhtml#link&ndash;relations&ndash;1](http://www.iana.org/assignments/link&ndash;relations/link&ndash;relations.xhtml#link&ndash;relations&ndash;1).
+        url:
+          type: string
+          pattern: \S*
+          description: The reference details for the link.
+    ContentStabilityExtension:
+      allOf:
+        - $ref: "#/components/schemas/Extension"
+        - type: object
+          properties:
+            url:
+              type: string
+              enum:
+                - "https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability"
+            valueCodeableConcept:
+              $ref: "#/components/schemas/ContentStabilityExtensionValueCodeableConcept"
+          required:
+            - url
+            - valueCodeableConcept
+    ContentStabilityExtensionValueCodeableConcept:
+      allOf:
+        - $ref: "#/components/schemas/CodeableConcept"
+        - type: object
+          properties:
+            coding:
+              type: array
+              items:
+                $ref: "#/components/schemas/ContentStabilityExtensionCoding"
+              minItems: 1
+              maxItems: 1
+          required:
+            - coding
+    ContentStabilityExtensionCoding:
+      allOf:
+        - $ref: "#/components/schemas/Coding"
+        - type: object
+          properties:
+            system:
+              type: string
+              enum:
+                - "https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability"
+            code:
+              type: string
+              enum: ["static", "dynamic"]
+            display:
+              type: string
+              enum: ["Static", "Dynamic"]
+          required:
+            - system
+            - code
+            - display
+    NRLFormatCode:
+      allOf:
+        - $ref: "#/components/schemas/Coding"
+        - type: object
+          properties:
+            system:
+              type: string
+              enum:
+                - "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode"
+              description: The system URL for the NRLF Format Code.
+            code:
+              type: string
+              enum:
+                - "urn:nhs-ic:record-contact"
+                - "urn:nhs-ic:unstructured"
+              description: The code representing the format of the document.
+            display:
+              type: string
+              enum:
+                - "Contact details (HTTP Unsecured)"
+                - "Unstructured Document"
+              description: The display text for the code.
+          required:
+            - system
+            - code
+            - display
     Identifier:
       type: object
       properties:
@@ -1716,11 +1895,11 @@ components:
           description: A coded type for the identifier that can be used to determine which identifier to use for a specific purpose.
         system:
           type: string
-          pattern: \S*
+          pattern: "[\\S]+[ \\r\\n\\t\\S]*"
           description: Establishes the namespace for the value &ndash; that is, a URL that describes a set values that are unique.
         value:
           type: string
-          pattern: "[ \\r\\n\\t\\S]+"
+          pattern: "[\\S]+[ \\r\\n\\t\\S]*"
           description: The portion of the identifier typically relevant to the user and which is unique within the context of the system.
         period:
           $ref: "#/components/schemas/Period"
@@ -1759,11 +1938,11 @@ components:
           description: How the value should be understood and represented &ndash; whether the actual value is greater or less than the stated value due to measurement issues; e.g. if the comparator is "<" , then the real value is < stated value.
         unit:
           type: string
-          pattern: "[ \\r\\n\\t\\S]+"
+          pattern: "[\\S]+[ \\r\\n\\t\\S]*"
           description: A human&ndash;readable form of the unit.
         system:
           type: string
-          pattern: \S*
+          pattern: "[\\S]+[ \\r\\n\\t\\S]*"
           description: The identification of the system that provides the coded form of the unit.
         code:
           type: string
@@ -1778,11 +1957,11 @@ components:
           description: Unique id for the element within a resource (for internal references). This may be any string value that does not contain spaces.
         reference:
           type: string
-          pattern: "[ \\r\\n\\t\\S]+"
+          pattern: "[\\S]+[ \\r\\n\\t\\S]*"
           description: A reference to a location at which the other resource is found. The reference may be a relative reference, in which case it is relative to the service base URL, or an absolute URL that resolves to the location where the resource is found. The reference may be version specific or not. If the reference is not to a FHIR RESTful server, then it should be assumed to be version specific. Internal fragment references (start with '#') refer to contained resources.
         type:
           type: string
-          pattern: \S*
+          pattern: "[\\S]+[ \\r\\n\\t\\S]*"
           description: |-
             The expected type of the target of the reference. If both Reference.type and Reference.reference are populated and Reference.reference is a FHIR URL, both SHALL be consistent.
             The type is the Canonical URL of Resource Definition that is the type this reference refers to. References are URLs that are relative to http://hl7.org/fhir/StructureDefinition/ e.g. "Patient" is a reference to http://hl7.org/fhir/StructureDefinition/Patient. Absolute URLs are only allowed for logical models (and can only be used in references in logical models, not resources).
@@ -1791,7 +1970,7 @@ components:
           description: An identifier for the target resource. This is used when there is no way to reference the other resource directly, either because the entity it represents is not available through a FHIR server, or because there is no way for the author of the resource to convert a known identifier to an actual location. There is no requirement that a Reference.identifier point to something that is actually exposed as a FHIR instance, but it SHALL point to a business concept that would be expected to be exposed as a FHIR instance, and that instance would need to be of a FHIR resource type allowed by the reference.
         display:
           type: string
-          pattern: "[ \\r\\n\\t\\S]+"
+          pattern: "[\\S]+[ \\r\\n\\t\\S]*"
           description: Plain text narrative that identifies the resource in addition to the resource reference.
     Signature:
       type: object
@@ -1849,13 +2028,13 @@ components:
           description: When the resource last changed &ndash; e.g. when the version changed.
         source:
           type: string
-          pattern: \S*
+          pattern: "[\\S]+[ \\r\\n\\t\\S]*"
           description: A uri that identifies the source system of the resource. This provides a minimal amount of [Provenance](provenance.html#) information that can be used to track or differentiate the source of information in the resource. The source may identify another FHIR server, document, message, database, etc.
         profile:
           type: array
           items:
             type: string
-            pattern: \S*
+            pattern: "[\\S]+[ \\r\\n\\t\\S]*"
             description: A list of profiles (references to [StructureDefinition](structuredefinition.html#) resources) that this resource claims to conform to. The URL is a reference to [StructureDefinition.url](structuredefinition&ndash;definitions.html#StructureDefinition.url).
         security:
           type: array
@@ -1908,6 +2087,8 @@ components:
           $ref: "#/components/schemas/RequestQuerySubject"
         type:
           $ref: "#/components/schemas/RequestQueryType"
+        category:
+          $ref: "#/components/schemas/RequestQueryCategory"
         next-page-token:
           $ref: "#/components/schemas/NextPageToken"
     RequestQuerySubject:
@@ -1917,6 +2098,9 @@ components:
     RequestQueryType:
       type: string
       example: "http://snomed.info/sct|736253002"
+    RequestQueryCategory:
+      type: string
+      example: "http://snomed.info/sct|103693007"
     NextPageToken:
       type: string
     RequestHeaderOdsCode:
@@ -1973,10 +2157,10 @@ components:
           summary: None
           value: ""
         SNOMED_CODES_MENTAL_HEALTH_CRISIS_PLAN:
-          summary: Mental Health Crisis Plan
+          summary: Mental health crisis plan
           value: http://snomed.info/sct|736253002
         SNOMED_CODES_EMERGENCY_HEALTH_CARE_PLAN:
-          summary: Emergency Healthcare Plan
+          summary: Emergency health care plan
           value: http://snomed.info/sct|887701000000100
         SNOMED_CODES_END_OF_LIFE_CARE_COORDINATION_SUMMARY:
           summary: End of Life Care Coordination Summary
@@ -1985,7 +2169,7 @@ components:
           summary: ReSPECT form
           value: http://snomed.info/sct|1382601000000107
         SNOMED_CODES_NEWS2_CHART:
-          summary: Royal College of Physicians NEWS2
+          summary: Royal College of Physicians NEWS2 chart
           value: http://snomed.info/sct|1363501000000100
         SNOMED_CODES_CONTINGENCY_PLAN:
           summary: Contingency plan
@@ -1993,6 +2177,48 @@ components:
         SNOMED_CODES_END_OF_LIFE_CARE_PLAN:
           summary: End of life care plan
           value: http://snomed.info/sct|736373009
+        SNOMED_CODES_LLOYD_GEORGE_RECORD_FOLDER:
+          summary: Lloyd George record folder
+          value: http://snomed.info/sct|16521000000101
+        SNOMED_CODES_ADVANCE_CARE_PLAN:
+          summary: Advance care plan
+          value: http://snomed.info/sct|736366004
+        SNOMED_CODES_TREATMENT_ESCALATION_PLAN:
+          summary: Treatment escalation plan
+          value: http://snomed.info/sct|735324008
+        SNOMED_CODES_SUMMARY_RECORD:
+          summary: Summary record
+          value: http://snomed.info/sct|824321000000109
+        SNOME_CODES_PERSONALISED_CARE_AND_SUPPORT_PLAN:
+          summary: Personalised Care and Support Plan
+          value: http://snomed.info/sct|2181441000000107
+        invalid:
+          summary: Unknown
+          value: http://snomed.info/sct|410970009
+    category:
+      name: category
+      in: query
+      schema:
+        $ref: "#/components/schemas/RequestQueryCategory"
+      examples:
+        none:
+          summary: None
+          value: ""
+        SNOMED_CODES_CARE_PLAN:
+          summary: Care plan
+          value: http://snomed.info/sct|734163000
+        SNOMED_CODES_OBSERVATIONS:
+          summary: Observations
+          value: http://snomed.info/sct|1102421000000108
+        SNOMED_CODES_CLINICAL_NOTE:
+          summary: Clinical note
+          value: http://snomed.info/sct|823651000000106
+        SNOMED_CODES_DIAGNOSTIC_STUDIES_REPORT:
+          summary: Diagnostic studies report
+          value: http://snomed.info/sct|721981007
+        SNOMED_CODES_DIAGNOSTIC_PROCEDURE:
+          summary: Diagnostic procedure
+          value: http://snomed.info/sct|103693007
         invalid:
           summary: Unknown
           value: http://snomed.info/sct|410970009
@@ -2034,7 +2260,7 @@ components:
 
         Mirrored back in a response header.
       in: header
-      required: false
+      required: true
       schema:
         $ref: "#/components/schemas/RequestHeaderRequestId"
     correlationId:
@@ -2087,4 +2313,4 @@ components:
         pattern: "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
         example: 60E0B220-8136-4CA5-AE46-1D97EF59D068
         description: |
-          The X-Request-ID from the request header, if supplied, mirrored back.
+          The X-Request-ID from the request header mirrored back.

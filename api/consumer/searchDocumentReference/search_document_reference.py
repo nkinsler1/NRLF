@@ -9,7 +9,7 @@ from nrlf.core.errors import OperationOutcomeError
 from nrlf.core.logger import LogReference, logger
 from nrlf.core.model import ConnectionMetadata, ConsumerRequestParams
 from nrlf.core.response import Response, SpineErrorResponse
-from nrlf.core.validators import validate_type_system
+from nrlf.core.validators import validate_category, validate_type
 
 
 @request_handler(params=ConsumerRequestParams)
@@ -46,28 +46,42 @@ def handler(
     base_url = f"https://{config.ENVIRONMENT}.api.service.nhs.uk/"
     self_link = f"{base_url}record-locator/consumer/FHIR/R4/DocumentReference?subject:identifier=https://fhir.nhs.uk/Id/nhs-number|{params.nhs_number}"
 
-    if not validate_type_system(params.type, metadata.pointer_types):
+    if not validate_type(params.type, metadata.pointer_types):
         logger.log(
             LogReference.CONSEARCH002,
             type=params.type,
             pointer_types=metadata.pointer_types,
         )
         return SpineErrorResponse.INVALID_CODE_SYSTEM(
-            diagnostics="Invalid query parameter (The provided type system does not match the allowed types for this organisation)",
+            diagnostics="Invalid query parameter (The provided type does not match the allowed types for this organisation)",
             expression="type",
         )
 
+    categories = params.category.root.split(",") if params.category else []
+    if not validate_category(categories):
+        logger.log(
+            LogReference.CONSEARCH002b,
+            category=params.category,
+        )  # TODO - Should update error message once permissioning by category is implemented
+        return SpineErrorResponse.INVALID_CODE_SYSTEM(
+            diagnostics="Invalid query parameter (The provided category is not valid)",
+            expression="category",
+        )
+
     custodian_id = (
-        params.custodian_identifier.__root__.split("|", maxsplit=1)[1]
+        params.custodian_identifier.root.split("|", maxsplit=1)[1]
         if params.custodian_identifier
         else None
     )
     if custodian_id:
         self_link += f"&custodian:identifier=https://fhir.nhs.uk/Id/ods-organization-code|{custodian_id}"
 
-    pointer_types = [params.type.__root__] if params.type else metadata.pointer_types
+    pointer_types = [params.type.root] if params.type else metadata.pointer_types
     if params.type:
-        self_link += f"&type={params.type.__root__}"
+        self_link += f"&type={params.type.root}"
+
+    if params.category:
+        self_link += f"&category={params.category.root}"
 
     bundle = {
         "resourceType": "Bundle",
@@ -88,12 +102,13 @@ def handler(
         nhs_number=params.nhs_number,
         custodian=custodian_id,
         pointer_types=pointer_types,
+        categories=categories,
     ):
         try:
-            document_reference = DocumentReference.parse_raw(result.document)
+            document_reference = DocumentReference.model_validate_json(result.document)
             bundle["total"] += 1
             bundle["entry"].append(
-                {"resource": document_reference.dict(exclude_none=True)}
+                {"resource": document_reference.model_dump(exclude_none=True)}
             )
             logger.log(
                 LogReference.CONSEARCH004,
@@ -113,7 +128,7 @@ def handler(
                 diagnostics="An error occurred whilst parsing the document reference search results",
             ) from exc
 
-    response = Response.from_resource(Bundle.parse_obj(bundle))
+    response = Response.from_resource(Bundle.model_validate(bundle))
     logger.log(LogReference.CONSEARCH999)
 
     return response

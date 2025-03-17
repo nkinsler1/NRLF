@@ -1,7 +1,7 @@
 from typing import Union
 
 from nhs_number import is_valid as is_valid_nhs_number
-from pydantic import BaseModel, Extra, Field, StrictStr
+from pydantic import BaseModel, Field, StrictStr
 
 import nrlf.consumer.fhir.r4.model as consumer_model
 import nrlf.producer.fhir.r4.model as producer_model
@@ -13,24 +13,20 @@ class _NhsNumberMixin:
         if self.subject_identifier is None:
             return None
 
-        nhs_number = self.subject_identifier.__root__.split("|", 1)[1]
+        nhs_number = self.subject_identifier.root.split("|", 1)[1]
 
         if not is_valid_nhs_number(nhs_number):
             return None
-            # raise ValueError(f"Not a valid NHS Number: {nhs_number}")
 
         return nhs_number
 
 
 class ProducerRequestParams(producer_model.RequestParams, _NhsNumberMixin):
-    pass
+    model_config = {"extra": "forbid"}
 
 
 class ConsumerRequestParams(consumer_model.RequestParams, _NhsNumberMixin):
-    class Config:
-        extra = Extra.forbid
-
-    pass
+    model_config = {"extra": "forbid"}
 
 
 class CountRequestParams(consumer_model.CountRequestParams, _NhsNumberMixin):
@@ -59,9 +55,8 @@ class ConnectionMetadata(BaseModel):
     ods_code: str = Field(alias="nrl.ods-code")
     ods_code_extension: str | None = Field(alias="nrl.ods-code-extension", default=None)
     nrl_permissions: list[str] = Field(alias="nrl.permissions", default_factory=list)
-    enable_authorization_lookup: bool = Field(
-        alias="nrl.enable-authorization-lookup", default=False
-    )
+    nrl_app_id: str = Field(alias="nrl.app-id")
+    is_test_event: bool = Field(alias="nrl.test-event", default=False)
     client_rp_details: ClientRpDetails
 
     @property

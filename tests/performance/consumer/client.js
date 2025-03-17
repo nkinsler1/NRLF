@@ -1,6 +1,38 @@
-import { NHS_NUMBERS, POINTER_IDS, POINTER_TYPES } from "../constants.js";
+import {
+  NHS_NUMBERS,
+  POINTER_IDS,
+  POINTER_TYPES,
+  ODS_CODE,
+  CATEGORIES,
+} from "../constants.js";
 import http from "k6/http";
 import { check } from "k6";
+
+function getHeaders(odsCode = ODS_CODE) {
+  return {
+    "Content-Type": "application/fhir+json",
+    "X-Request-Id": "K6PerformanceTest",
+    "NHSD-Correlation-Id": "K6PerformanceTest",
+    "NHSD-Connection-Metadata": JSON.stringify({
+      "nrl.ods-code": odsCode,
+      "nrl.pointer-types": POINTER_TYPES.map(
+        (type) => `http://snomed.info/sct|${type}`
+      ),
+      "nrl.app-id": "K6PerformanceTest",
+    }),
+    "NHSD-Client-RP-Details": JSON.stringify({
+      "developer.app.name": "K6PerformanceTest",
+      "developer.app.id": "K6PerformanceTest",
+    }),
+  };
+}
+
+function checkResponse(res) {
+  const is_success = check(res, { "status is 200": (r) => r.status === 200 });
+  if (!is_success) {
+    console.warn(res.json());
+  }
+}
 
 export function countDocumentReference() {
   const choice = Math.floor(Math.random() * NHS_NUMBERS.length);
@@ -12,29 +44,10 @@ export function countDocumentReference() {
   const res = http.get(
     `https://${__ENV.HOST}/consumer/DocumentReference/_count?subject:identifier=${identifier}`,
     {
-      headers: {
-        "Content-Type": "application/fhir+json",
-        "NHSD-Connection-Metadata": JSON.stringify({
-          "nrl.ods-code": "Y05868",
-          "nrl.pointer-types": [
-            "http://snomed.info/sct|736253002",
-            "http://snomed.info/sct|1363501000000100",
-            "http://snomed.info/sct|1382601000000107",
-            "http://snomed.info/sct|325691000000100",
-            "http://snomed.info/sct|736373009",
-            "http://snomed.info/sct|861421000000109",
-            "http://snomed.info/sct|887701000000100",
-          ],
-        }),
-        "NHSD-Client-RP-Details": JSON.stringify({
-          "developer.app.name": "K6PerformanceTest",
-          "developer.app.id": "K6PerformanceTest",
-        }),
-      },
+      headers: getHeaders(),
     }
   );
-
-  check(res, { "status is 200": (r) => r.status === 200 });
+  checkResponse(res);
 }
 
 export function readDocumentReference() {
@@ -44,29 +57,11 @@ export function readDocumentReference() {
   const res = http.get(
     `https://${__ENV.HOST}/consumer/DocumentReference/${id}`,
     {
-      headers: {
-        "Content-Type": "application/fhir+json",
-        "NHSD-Connection-Metadata": JSON.stringify({
-          "nrl.ods-code": "Y05868",
-          "nrl.pointer-types": [
-            "http://snomed.info/sct|736253002",
-            "http://snomed.info/sct|1363501000000100",
-            "http://snomed.info/sct|1382601000000107",
-            "http://snomed.info/sct|325691000000100",
-            "http://snomed.info/sct|736373009",
-            "http://snomed.info/sct|861421000000109",
-            "http://snomed.info/sct|887701000000100",
-          ],
-        }),
-        "NHSD-Client-RP-Details": JSON.stringify({
-          "developer.app.name": "K6PerformanceTest",
-          "developer.app.id": "K6PerformanceTest",
-        }),
-      },
+      headers: getHeaders(),
     }
   );
 
-  check(res, { "status is 200": (r) => r.status === 200 });
+  checkResponse(res);
 }
 
 export function searchDocumentReference() {
@@ -82,33 +77,31 @@ export function searchDocumentReference() {
   const res = http.get(
     `https://${__ENV.HOST}/consumer/DocumentReference?subject:identifier=${identifier}&type=${type}`,
     {
-      headers: {
-        "Content-Type": "application/fhir+json",
-        "NHSD-Connection-Metadata": JSON.stringify({
-          "nrl.ods-code": "Y05868",
-          "nrl.pointer-types": [
-            "http://snomed.info/sct|736253002",
-            "http://snomed.info/sct|1363501000000100",
-            "http://snomed.info/sct|1382601000000107",
-            "http://snomed.info/sct|325691000000100",
-            "http://snomed.info/sct|736373009",
-            "http://snomed.info/sct|861421000000109",
-            "http://snomed.info/sct|887701000000100",
-          ],
-        }),
-        "NHSD-Client-RP-Details": JSON.stringify({
-          "developer.app.name": "K6PerformanceTest",
-          "developer.app.id": "K6PerformanceTest",
-        }),
-      },
+      headers: getHeaders(),
     }
   );
+  checkResponse(res);
+}
 
-  if (res.status !== 200) {
-    console.log(res.json());
-  }
+export function searchDocumentReferenceByCategory() {
+  const nhsNumber = NHS_NUMBERS[Math.floor(Math.random() * NHS_NUMBERS.length)];
+  const randomCategory =
+    CATEGORIES[Math.floor(Math.random() * CATEGORIES.length)];
 
-  check(res, { "status is 200": (r) => r.status === 200 });
+  const identifier = encodeURIComponent(
+    `https://fhir.nhs.uk/Id/nhs-number|${nhsNumber}`
+  );
+  const category = encodeURIComponent(
+    `http://snomed.info/sct|${randomCategory}`
+  );
+
+  const res = http.get(
+    `https://${__ENV.HOST}/consumer/DocumentReference?subject:identifier=${identifier}&category=${category}`,
+    {
+      headers: getHeaders(),
+    }
+  );
+  checkResponse(res);
 }
 
 export function searchPostDocumentReference() {
@@ -125,27 +118,27 @@ export function searchPostDocumentReference() {
     `https://${__ENV.HOST}/consumer/DocumentReference/_search`,
     body,
     {
-      headers: {
-        "Content-Type": "application/fhir+json",
-        "NHSD-Connection-Metadata": JSON.stringify({
-          "nrl.ods-code": "Y05868",
-          "nrl.pointer-types": [
-            "http://snomed.info/sct|736253002",
-            "http://snomed.info/sct|1363501000000100",
-            "http://snomed.info/sct|1382601000000107",
-            "http://snomed.info/sct|325691000000100",
-            "http://snomed.info/sct|736373009",
-            "http://snomed.info/sct|861421000000109",
-            "http://snomed.info/sct|887701000000100",
-          ],
-        }),
-        "NHSD-Client-RP-Details": JSON.stringify({
-          "developer.app.name": "K6PerformanceTest",
-          "developer.app.id": "K6PerformanceTest",
-        }),
-      },
+      headers: getHeaders(),
     }
   );
+  checkResponse(res);
+}
 
-  check(res, { "status is 200": (r) => r.status === 200 });
+export function searchPostDocumentReferenceByCategory() {
+  const nhsNumber = NHS_NUMBERS[Math.floor(Math.random() * NHS_NUMBERS.length)];
+  const category = CATEGORIES[Math.floor(Math.random() * CATEGORIES.length)];
+
+  const body = JSON.stringify({
+    "subject:identifier": `https://fhir.nhs.uk/Id/nhs-number|${nhsNumber}`,
+    category: `http://snomed.info/sct|${category}`,
+  });
+
+  const res = http.post(
+    `https://${__ENV.HOST}/consumer/DocumentReference/_search`,
+    body,
+    {
+      headers: getHeaders(),
+    }
+  );
+  checkResponse(res);
 }

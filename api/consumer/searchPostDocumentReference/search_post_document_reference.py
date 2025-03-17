@@ -9,7 +9,7 @@ from nrlf.core.errors import OperationOutcomeError
 from nrlf.core.logger import LogReference, logger
 from nrlf.core.model import ConnectionMetadata, ConsumerRequestParams
 from nrlf.core.response import Response, SpineErrorResponse
-from nrlf.core.validators import validate_type_system
+from nrlf.core.validators import validate_category, validate_type
 
 
 @request_handler(body=ConsumerRequestParams)
@@ -50,28 +50,42 @@ def handler(
     base_url = f"https://{config.ENVIRONMENT}.api.service.nhs.uk/"
     self_link = f"{base_url}record-locator/consumer/FHIR/R4/DocumentReference?subject:identifier=https://fhir.nhs.uk/Id/nhs-number|{body.nhs_number}"
 
-    if not validate_type_system(body.type, metadata.pointer_types):
+    if not validate_type(body.type, metadata.pointer_types):
         logger.log(
             LogReference.CONPOSTSEARCH002,
             type=body.type,
             pointer_types=metadata.pointer_types,
         )
         return SpineErrorResponse.INVALID_CODE_SYSTEM(
-            diagnostics="Invalid type (The provided type system does not match the allowed types for this organisation)",
+            diagnostics="The provided type does not match the allowed types for this organisation",
             expression="type",
         )
 
+    categories = body.category.root.split(",") if body.category else []
+    if not validate_category(categories):
+        logger.log(
+            LogReference.CONPOSTSEARCH002b,
+            category=body.category,
+        )  # TODO - Should update error message once permissioning by category is implemented
+        return SpineErrorResponse.INVALID_CODE_SYSTEM(
+            diagnostics="The provided category is not valid",
+            expression="category",
+        )
+
     custodian_id = (
-        body.custodian_identifier.__root__.split("|", maxsplit=1)[1]
+        body.custodian_identifier.root.split("|", maxsplit=1)[1]
         if body.custodian_identifier
         else None
     )
     if custodian_id:
         self_link += f"&custodian:identifier=https://fhir.nhs.uk/Id/ods-organization-code|{custodian_id}"
 
-    pointer_types = [body.type.__root__] if body.type else metadata.pointer_types
+    pointer_types = [body.type.root] if body.type else metadata.pointer_types
     if body.type:
-        self_link += f"&type={body.type.__root__}"
+        self_link += f"&type={body.type.root}"
+
+    if body.category:
+        self_link += f"&category={body.category.root}"
 
     bundle = {
         "resourceType": "Bundle",
@@ -89,13 +103,16 @@ def handler(
     )
 
     for result in repository.search(
-        nhs_number=body.nhs_number, custodian=custodian_id, pointer_types=pointer_types
+        nhs_number=body.nhs_number,
+        custodian=custodian_id,
+        pointer_types=pointer_types,
+        categories=categories,
     ):
         try:
-            document_reference = DocumentReference.parse_raw(result.document)
+            document_reference = DocumentReference.model_validate_json(result.document)
             bundle["total"] += 1
             bundle["entry"].append(
-                {"resource": document_reference.dict(exclude_none=True)}
+                {"resource": document_reference.model_dump(exclude_none=True)}
             )
             logger.log(
                 LogReference.CONPOSTSEARCH004,
@@ -115,7 +132,7 @@ def handler(
                 diagnostics="An error occurred whilst parsing the document reference search results",
             ) from exc
 
-    response = Response.from_resource(Bundle.parse_obj(bundle))
+    response = Response.from_resource(Bundle.model_validate(bundle))
     logger.log(LogReference.CONPOSTSEARCH999)
 
     return response

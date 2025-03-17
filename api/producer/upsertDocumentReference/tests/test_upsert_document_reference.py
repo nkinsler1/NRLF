@@ -1,4 +1,5 @@
 import json
+from unittest.mock import patch
 
 from freezegun import freeze_time
 from moto import mock_aws
@@ -21,13 +22,14 @@ from nrlf.tests.events import (
     create_headers,
     create_mock_context,
     create_test_api_gateway_event,
+    default_response_headers,
 )
 
 
 @mock_aws
 @mock_repository
 @freeze_time("2024-03-21T12:34:56.789")
-def test_create_document_reference_happy_path(repository: DocumentPointerRepository):
+def test_upsert_document_reference_happy_path(repository: DocumentPointerRepository):
     doc_ref_data = load_document_reference_data("Y05868-736253002-Valid")
 
     event = create_test_api_gateway_event(
@@ -41,7 +43,8 @@ def test_create_document_reference_happy_path(repository: DocumentPointerReposit
     assert result == {
         "statusCode": "201",
         "headers": {
-            "Location": "/nrl-producer-api/FHIR/R4/DocumentReference/Y05868-99999-99999-999999"
+            "Location": "/producer/FHIR/R4/DocumentReference/Y05868-99999-99999-999999",
+            **default_response_headers(),
         },
         "isBase64Encoded": False,
     }
@@ -84,7 +87,7 @@ def test_create_document_reference_happy_path(repository: DocumentPointerReposit
 @mock_aws
 @mock_repository
 @freeze_time("2024-03-21T12:34:56.789")
-def test_create_document_reference_happy_path_with_ssp(
+def test_upsert_document_reference_happy_path_with_ssp(
     repository: DocumentPointerRepository,
 ):
     doc_ref_data = load_document_reference_data(
@@ -102,7 +105,8 @@ def test_create_document_reference_happy_path_with_ssp(
     assert result == {
         "statusCode": "201",
         "headers": {
-            "Location": "/nrl-producer-api/FHIR/R4/DocumentReference/Y05868-99999-99999-999999"
+            "Location": "/producer/FHIR/R4/DocumentReference/Y05868-99999-99999-999999",
+            **default_response_headers(),
         },
         "isBase64Encoded": False,
     }
@@ -142,7 +146,100 @@ def test_create_document_reference_happy_path_with_ssp(
     }
 
 
-def test_create_document_reference_no_body():
+@mock_aws
+@mock_repository
+def test_upsert_document_reference_cannot_set_status_to_not_current(repository):
+    doc_ref = load_document_reference("Y05868-736253002-Valid")
+    doc_pointer = DocumentPointer.from_document_reference(doc_ref)
+    repository.create(doc_pointer)
+
+    doc_ref.status = "somethingElse"
+
+    event = create_test_api_gateway_event(
+        headers=create_headers(),
+        path_parameters={"id": "Y05868-99999-99999-999999"},
+        body=doc_ref.model_dump_json(exclude_none=True),
+    )
+
+    result = handler(event, create_mock_context())
+
+    body = result.pop("body")
+
+    assert result == {
+        "statusCode": "400",
+        "headers": default_response_headers(),
+        "isBase64Encoded": False,
+    }
+    parsed_body = json.loads(body)
+
+    assert parsed_body == {
+        "resourceType": "OperationOutcome",
+        "issue": [
+            {
+                "severity": "error",
+                "code": "invalid",
+                "details": {
+                    "coding": [
+                        {
+                            "code": "MESSAGE_NOT_WELL_FORMED",
+                            "display": "Message not well formed",
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                        }
+                    ]
+                },
+                "diagnostics": "Request body could not be parsed (status: String should match pattern '^current$')",
+                "expression": ["status"],
+            }
+        ],
+    }
+
+
+def test_upsert_document_reference_invalid_category_type():
+    doc_ref = load_document_reference("Y05868-736253002-Valid")
+
+    assert doc_ref.category and doc_ref.category[0].coding
+    doc_ref.category[0].coding[0].code = "1102421000000108"
+    doc_ref.category[0].coding[0].display = "Observations"
+
+    event = create_test_api_gateway_event(
+        headers=create_headers(),
+        body=doc_ref.model_dump_json(exclude_none=True),
+    )
+
+    result = handler(event, create_mock_context())
+    body = result.pop("body")
+
+    assert result == {
+        "statusCode": "400",
+        "headers": default_response_headers(),
+        "isBase64Encoded": False,
+    }
+
+    parsed_body = json.loads(body)
+
+    assert parsed_body == {
+        "resourceType": "OperationOutcome",
+        "issue": [
+            {
+                "severity": "error",
+                "code": "value",
+                "details": {
+                    "coding": [
+                        {
+                            "code": "INVALID_RESOURCE",
+                            "display": "Invalid validation of resource",
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                        }
+                    ]
+                },
+                "diagnostics": "The Category code of the provided document 'http://snomed.info/sct|1102421000000108' must match the allowed category for pointer type 'http://snomed.info/sct|736253002' with a category value of 'http://snomed.info/sct|734163000'",
+                "expression": ["category.coding[0].code"],
+            }
+        ],
+    }
+
+
+def test_upsert_document_reference_no_body():
     event = create_test_api_gateway_event(
         headers=create_headers(),
     )
@@ -152,7 +249,7 @@ def test_create_document_reference_no_body():
 
     assert result == {
         "statusCode": "400",
-        "headers": {},
+        "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
 
@@ -178,7 +275,7 @@ def test_create_document_reference_no_body():
     }
 
 
-def test_create_document_reference_invalid_body():
+def test_upsert_document_reference_invalid_body():
     event = create_test_api_gateway_event(
         headers=create_headers(),
         body="{}",
@@ -189,7 +286,7 @@ def test_create_document_reference_invalid_body():
 
     assert result == {
         "statusCode": "400",
-        "headers": {},
+        "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
 
@@ -209,7 +306,7 @@ def test_create_document_reference_invalid_body():
                         }
                     ],
                 },
-                "diagnostics": "Request body could not be parsed (resourceType: field required)",
+                "diagnostics": "Request body could not be parsed (resourceType: Field required)",
                 "expression": ["resourceType"],
             },
             {
@@ -224,7 +321,7 @@ def test_create_document_reference_invalid_body():
                         }
                     ],
                 },
-                "diagnostics": "Request body could not be parsed (status: field required)",
+                "diagnostics": "Request body could not be parsed (status: Field required)",
                 "expression": ["status"],
             },
             {
@@ -239,20 +336,80 @@ def test_create_document_reference_invalid_body():
                         }
                     ],
                 },
-                "diagnostics": "Request body could not be parsed (content: field required)",
+                "diagnostics": "Request body could not be parsed (type: Field required)",
+                "expression": ["type"],
+            },
+            {
+                "severity": "error",
+                "code": "invalid",
+                "details": {
+                    "coding": [
+                        {
+                            "code": "MESSAGE_NOT_WELL_FORMED",
+                            "display": "Message not well formed",
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                        }
+                    ],
+                },
+                "diagnostics": "Request body could not be parsed (category: Field required)",
+                "expression": ["category"],
+            },
+            {
+                "severity": "error",
+                "code": "invalid",
+                "details": {
+                    "coding": [
+                        {
+                            "code": "MESSAGE_NOT_WELL_FORMED",
+                            "display": "Message not well formed",
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                        }
+                    ],
+                },
+                "diagnostics": "Request body could not be parsed (author: Field required)",
+                "expression": ["author"],
+            },
+            {
+                "severity": "error",
+                "code": "invalid",
+                "details": {
+                    "coding": [
+                        {
+                            "code": "MESSAGE_NOT_WELL_FORMED",
+                            "display": "Message not well formed",
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                        }
+                    ],
+                },
+                "diagnostics": "Request body could not be parsed (content: Field required)",
                 "expression": ["content"],
+            },
+            {
+                "severity": "error",
+                "code": "invalid",
+                "details": {
+                    "coding": [
+                        {
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                            "code": "MESSAGE_NOT_WELL_FORMED",
+                            "display": "Message not well formed",
+                        }
+                    ]
+                },
+                "diagnostics": "Request body could not be parsed (context: Field required)",
+                "expression": ["context"],
             },
         ],
     }
 
 
-def test_create_document_reference_invalid_resource():
+def test_upsert_document_reference_invalid_resource():
     doc_ref = load_document_reference("Y05868-736253002-Valid")
     doc_ref.custodian = None
 
     event = create_test_api_gateway_event(
         headers=create_headers(),
-        body=doc_ref.json(exclude_none=True),
+        body=doc_ref.model_dump_json(exclude_none=True),
     )
 
     result = handler(event, create_mock_context())
@@ -260,7 +417,7 @@ def test_create_document_reference_invalid_resource():
 
     assert result == {
         "statusCode": "400",
-        "headers": {},
+        "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
 
@@ -287,13 +444,13 @@ def test_create_document_reference_invalid_resource():
     }
 
 
-def test_create_document_reference_invalid_producer_id():
+def test_upsert_document_reference_with_no_practiceSetting():
     doc_ref = load_document_reference("Y05868-736253002-Valid")
-    doc_ref.id = "X26-99999-99999-999999"
+    doc_ref.context.practiceSetting = None
 
     event = create_test_api_gateway_event(
         headers=create_headers(),
-        body=doc_ref.json(exclude_none=True),
+        body=doc_ref.model_dump_json(exclude_none=True),
     )
 
     result = handler(event, create_mock_context())
@@ -301,7 +458,89 @@ def test_create_document_reference_invalid_producer_id():
 
     assert result == {
         "statusCode": "400",
-        "headers": {},
+        "headers": default_response_headers(),
+        "isBase64Encoded": False,
+    }
+
+    parsed_body = json.loads(body)
+    assert parsed_body == {
+        "resourceType": "OperationOutcome",
+        "issue": [
+            {
+                "severity": "error",
+                "code": "invalid",
+                "details": {
+                    "coding": [
+                        {
+                            "code": "MESSAGE_NOT_WELL_FORMED",
+                            "display": "Message not well formed",
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                        }
+                    ],
+                },
+                "diagnostics": "Request body could not be parsed (context.practiceSetting: Field required)",
+                "expression": ["context.practiceSetting"],
+            },
+        ],
+    }
+
+
+def test_upsert_document_reference_with_invalid_docStatus():
+    doc_ref = load_document_reference("Y05868-736253002-Valid")
+    doc_ref.docStatus = "invalid"
+
+    event = create_test_api_gateway_event(
+        headers=create_headers(),
+        body=doc_ref.model_dump_json(exclude_none=True),
+    )
+
+    result = handler(event, create_mock_context())
+    body = result.pop("body")
+
+    assert result == {
+        "statusCode": "400",
+        "headers": default_response_headers(),
+        "isBase64Encoded": False,
+    }
+
+    parsed_body = json.loads(body)
+    assert parsed_body == {
+        "resourceType": "OperationOutcome",
+        "issue": [
+            {
+                "severity": "error",
+                "code": "invalid",
+                "details": {
+                    "coding": [
+                        {
+                            "code": "MESSAGE_NOT_WELL_FORMED",
+                            "display": "Message not well formed",
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                        }
+                    ],
+                },
+                "diagnostics": "Request body could not be parsed (docStatus: Input should be 'entered-in-error', 'amended', 'preliminary' or 'final')",
+                "expression": ["docStatus"],
+            },
+        ],
+    }
+
+
+def test_upsert_document_reference_invalid_producer_id():
+    doc_ref = load_document_reference("Y05868-736253002-Valid")
+    doc_ref.id = "X26-99999-99999-999999"
+
+    event = create_test_api_gateway_event(
+        headers=create_headers(),
+        body=doc_ref.model_dump_json(exclude_none=True),
+    )
+
+    result = handler(event, create_mock_context())
+    body = result.pop("body")
+
+    assert result == {
+        "statusCode": "400",
+        "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
 
@@ -328,13 +567,13 @@ def test_create_document_reference_invalid_producer_id():
     }
 
 
-def test_create_document_reference_with_no_custodian():
+def test_upsert_document_reference_with_no_custodian():
     doc_ref = load_document_reference("Y05868-736253002-Valid")
     doc_ref.custodian = None
 
     event = create_test_api_gateway_event(
         headers=create_headers(),
-        body=doc_ref.json(exclude_none=True),
+        body=doc_ref.model_dump_json(exclude_none=True),
     )
 
     result = handler(event, create_mock_context())
@@ -342,7 +581,7 @@ def test_create_document_reference_with_no_custodian():
 
     assert result == {
         "statusCode": "400",
-        "headers": {},
+        "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
 
@@ -369,7 +608,7 @@ def test_create_document_reference_with_no_custodian():
     }
 
 
-def test_create_document_reference_invalid_custodian_id():
+def test_upsert_document_reference_invalid_custodian_id():
     doc_ref = load_document_reference("Y05868-736253002-Valid")
 
     assert doc_ref.custodian and doc_ref.custodian.identifier
@@ -377,7 +616,7 @@ def test_create_document_reference_invalid_custodian_id():
 
     event = create_test_api_gateway_event(
         headers=create_headers(),
-        body=doc_ref.json(exclude_none=True),
+        body=doc_ref.model_dump_json(exclude_none=True),
     )
 
     result = handler(event, create_mock_context())
@@ -385,7 +624,7 @@ def test_create_document_reference_invalid_custodian_id():
 
     assert result == {
         "statusCode": "400",
-        "headers": {},
+        "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
 
@@ -413,7 +652,7 @@ def test_create_document_reference_invalid_custodian_id():
     }
 
 
-def test_create_document_reference_invalid_pointer_type():
+def test_upsert_document_reference_invalid_pointer_type():
     doc_ref = load_document_reference("Y05868-736253002-Valid")
 
     assert doc_ref.type and doc_ref.type.coding
@@ -421,15 +660,64 @@ def test_create_document_reference_invalid_pointer_type():
 
     event = create_test_api_gateway_event(
         headers=create_headers(),
-        body=doc_ref.json(exclude_none=True),
+        body=doc_ref.model_dump_json(exclude_none=True),
     )
 
     result = handler(event, create_mock_context())
     body = result.pop("body")
 
     assert result == {
+        "statusCode": "400",
+        "headers": default_response_headers(),
+        "isBase64Encoded": False,
+    }
+
+    parsed_body = json.loads(body)
+
+    assert parsed_body == {
+        "resourceType": "OperationOutcome",
+        "issue": [
+            {
+                "severity": "error",
+                "code": "value",
+                "details": {
+                    "coding": [
+                        {
+                            "code": "INVALID_RESOURCE",
+                            "display": "Invalid validation of resource",
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                        }
+                    ]
+                },
+                "diagnostics": "Invalid type code: invalid Type must be a member of the England-NRLRecordType value set (https://fhir.nhs.uk/England/CodeSystem/England-NRLRecordType)",
+                "expression": ["type.coding[0].code"],
+            },
+        ],
+    }
+
+
+@mock_aws
+@mock_repository
+@patch("nrlf.core.decorators.parse_permissions_file")
+def test_upsert_document_reference_pointer_type_not_allowed(
+    parse_permissions_mock, repository: DocumentPointerRepository
+):
+    doc_ref = load_document_reference("Y05868-736253002-Valid")
+
+    assert doc_ref.type and doc_ref.type.coding
+
+    event = create_test_api_gateway_event(
+        headers=create_headers(),
+        body=doc_ref.model_dump_json(exclude_none=True),
+    )
+
+    parse_permissions_mock.return_value = ["invalid"]
+    result = handler(event, create_mock_context())
+    body = result.pop("body")
+
+    assert result == {
         "statusCode": "403",
-        "headers": {},
+        "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
 
@@ -457,7 +745,7 @@ def test_create_document_reference_invalid_pointer_type():
     }
 
 
-def test_create_document_reference_no_relatesto_target():
+def test_upsert_document_reference_no_relatesto_target():
     doc_ref = load_document_reference("Y05868-736253002-Valid")
     doc_ref.relatesTo = [
         DocumentReferenceRelatesTo(
@@ -467,7 +755,7 @@ def test_create_document_reference_no_relatesto_target():
 
     event = create_test_api_gateway_event(
         headers=create_headers(),
-        body=doc_ref.json(exclude_none=True),
+        body=doc_ref.model_dump_json(exclude_none=True),
     )
 
     result = handler(event, create_mock_context())
@@ -475,7 +763,7 @@ def test_create_document_reference_no_relatesto_target():
 
     assert result == {
         "statusCode": "400",
-        "headers": {},
+        "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
 
@@ -503,7 +791,7 @@ def test_create_document_reference_no_relatesto_target():
     }
 
 
-def test_create_document_reference_invalid_relatesto_target_producer_id():
+def test_upsert_document_reference_invalid_relatesto_target_producer_id():
     doc_ref = load_document_reference("Y05868-736253002-Valid")
     doc_ref.relatesTo = [
         DocumentReferenceRelatesTo(
@@ -516,7 +804,7 @@ def test_create_document_reference_invalid_relatesto_target_producer_id():
 
     event = create_test_api_gateway_event(
         headers=create_headers(),
-        body=doc_ref.json(exclude_none=True),
+        body=doc_ref.model_dump_json(exclude_none=True),
     )
 
     result = handler(event, create_mock_context())
@@ -524,7 +812,7 @@ def test_create_document_reference_invalid_relatesto_target_producer_id():
 
     assert result == {
         "statusCode": "400",
-        "headers": {},
+        "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
 
@@ -554,7 +842,7 @@ def test_create_document_reference_invalid_relatesto_target_producer_id():
 
 @mock_aws
 @mock_repository
-def test_create_document_reference_invalid_relatesto_not_exists(repository):
+def test_upsert_document_reference_invalid_relatesto_not_exists(repository):
     doc_ref = load_document_reference("Y05868-736253002-Valid")
     doc_ref.relatesTo = [
         DocumentReferenceRelatesTo(
@@ -568,7 +856,7 @@ def test_create_document_reference_invalid_relatesto_not_exists(repository):
 
     event = create_test_api_gateway_event(
         headers=create_headers(),
-        body=doc_ref.json(exclude_none=True),
+        body=doc_ref.model_dump_json(exclude_none=True),
     )
 
     result = handler(event, create_mock_context())
@@ -576,7 +864,7 @@ def test_create_document_reference_invalid_relatesto_not_exists(repository):
 
     assert result == {
         "statusCode": "400",
-        "headers": {},
+        "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
 
@@ -606,7 +894,7 @@ def test_create_document_reference_invalid_relatesto_not_exists(repository):
 
 @mock_aws
 @mock_repository
-def test_create_document_reference_invalid_relatesto_not_exists_still_creates_with_ignore_perm(
+def test_upsert_document_reference_invalid_relatesto_not_exists_still_creates_with_ignore_perm(
     repository,
 ):
     doc_ref = load_document_reference("Y05868-736253002-Valid")
@@ -624,7 +912,7 @@ def test_create_document_reference_invalid_relatesto_not_exists_still_creates_wi
         headers=create_headers(
             nrl_permissions=[PERMISSION_SUPERSEDE_IGNORE_DELETE_FAIL]
         ),
-        body=doc_ref.json(exclude_none=True),
+        body=doc_ref.model_dump_json(exclude_none=True),
     )
 
     result = handler(event, create_mock_context())
@@ -633,7 +921,8 @@ def test_create_document_reference_invalid_relatesto_not_exists_still_creates_wi
     assert result == {
         "statusCode": "201",
         "headers": {
-            "Location": "/nrl-producer-api/FHIR/R4/DocumentReference/Y05868-99999-99999-999999"
+            "Location": "/producer/FHIR/R4/DocumentReference/Y05868-99999-99999-999999",
+            **default_response_headers(),
         },
         "isBase64Encoded": False,
     }
@@ -663,7 +952,7 @@ def test_create_document_reference_invalid_relatesto_not_exists_still_creates_wi
 
 @mock_aws
 @mock_repository
-def test_create_document_reference_invalid_relatesto_nhs_number(
+def test_upsert_document_reference_invalid_relatesto_nhs_number(
     repository: DocumentPointerRepository,
 ):
     doc_ref = load_document_reference("Y05868-736253002-Valid")
@@ -686,7 +975,7 @@ def test_create_document_reference_invalid_relatesto_nhs_number(
 
     event = create_test_api_gateway_event(
         headers=create_headers(),
-        body=doc_ref.json(exclude_none=True),
+        body=doc_ref.model_dump_json(exclude_none=True),
     )
 
     result = handler(event, create_mock_context())
@@ -694,7 +983,7 @@ def test_create_document_reference_invalid_relatesto_nhs_number(
 
     assert result == {
         "statusCode": "400",
-        "headers": {},
+        "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
 
@@ -724,7 +1013,7 @@ def test_create_document_reference_invalid_relatesto_nhs_number(
 
 @mock_aws
 @mock_repository
-def test_create_document_reference_invalid_relatesto_type(
+def test_upsert_document_reference_invalid_relatesto_type(
     repository: DocumentPointerRepository,
 ):
     doc_ref = load_document_reference("Y05868-736253002-Valid")
@@ -736,6 +1025,7 @@ def test_create_document_reference_invalid_relatesto_type(
 
     assert doc_ref.type and doc_ref.type.coding
     doc_ref.type.coding[0].code = "861421000000109"
+    doc_ref.type.coding[0].display = "End of life care coordination summary"
     doc_ref.relatesTo = [
         DocumentReferenceRelatesTo(
             code="transforms",
@@ -747,12 +1037,9 @@ def test_create_document_reference_invalid_relatesto_type(
 
     event = create_test_api_gateway_event(
         headers=create_headers(
-            pointer_types=[
-                "http://snomed.info/sct|861421000000109",
-                "http://snomed.info/sct|736253002",
-            ]
+            app_id="12356",
         ),
-        body=doc_ref.json(exclude_none=True),
+        body=doc_ref.model_dump_json(exclude_none=True),
     )
 
     result = handler(event, create_mock_context())
@@ -760,7 +1047,7 @@ def test_create_document_reference_invalid_relatesto_type(
 
     assert result == {
         "statusCode": "400",
-        "headers": {},
+        "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
 
@@ -790,7 +1077,7 @@ def test_create_document_reference_invalid_relatesto_type(
 
 @mock_aws
 @mock_repository
-def test_create_document_reference_with_no_context_related_for_ssp_url(
+def test_upsert_document_reference_with_no_context_related_for_ssp_url(
     repository: DocumentPointerRepository,
 ):
     doc_ref = load_document_reference("Y05868-736253002-Valid-with-ssp-content")
@@ -798,13 +1085,8 @@ def test_create_document_reference_with_no_context_related_for_ssp_url(
     del doc_ref.context.related
 
     event = create_test_api_gateway_event(
-        headers=create_headers(
-            pointer_types=[
-                "http://snomed.info/sct|861421000000109",
-                "http://snomed.info/sct|736253002",
-            ]
-        ),
-        body=doc_ref.json(exclude_none=True),
+        headers=create_headers(),
+        body=doc_ref.model_dump_json(exclude_none=True),
     )
 
     result = handler(event, create_mock_context())
@@ -812,7 +1094,7 @@ def test_create_document_reference_with_no_context_related_for_ssp_url(
 
     assert result == {
         "statusCode": "400",
-        "headers": {},
+        "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
 
@@ -842,7 +1124,7 @@ def test_create_document_reference_with_no_context_related_for_ssp_url(
 
 @mock_aws
 @mock_repository
-def test_create_document_reference_with_no_asid_in_for_ssp_url(
+def test_upsert_document_reference_with_no_asid_in_for_ssp_url(
     repository: DocumentPointerRepository,
 ):
     doc_ref = load_document_reference("Y05868-736253002-Valid-with-ssp-content")
@@ -857,13 +1139,8 @@ def test_create_document_reference_with_no_asid_in_for_ssp_url(
     ]
 
     event = create_test_api_gateway_event(
-        headers=create_headers(
-            pointer_types=[
-                "http://snomed.info/sct|861421000000109",
-                "http://snomed.info/sct|736253002",
-            ]
-        ),
-        body=doc_ref.json(exclude_none=True),
+        headers=create_headers(),
+        body=doc_ref.model_dump_json(exclude_none=True),
     )
 
     result = handler(event, create_mock_context())
@@ -871,7 +1148,7 @@ def test_create_document_reference_with_no_asid_in_for_ssp_url(
 
     assert result == {
         "statusCode": "400",
-        "headers": {},
+        "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
 
@@ -901,7 +1178,7 @@ def test_create_document_reference_with_no_asid_in_for_ssp_url(
 
 @mock_aws
 @mock_repository
-def test_create_document_reference_with_invalid_asid_for_ssp_url(
+def test_upsert_document_reference_with_invalid_asid_for_ssp_url(
     repository: DocumentPointerRepository,
 ):
     doc_ref = load_document_reference("Y05868-736253002-Valid-with-ssp-content")
@@ -916,13 +1193,8 @@ def test_create_document_reference_with_invalid_asid_for_ssp_url(
     ]
 
     event = create_test_api_gateway_event(
-        headers=create_headers(
-            pointer_types=[
-                "http://snomed.info/sct|861421000000109",
-                "http://snomed.info/sct|736253002",
-            ]
-        ),
-        body=doc_ref.json(exclude_none=True),
+        headers=create_headers(),
+        body=doc_ref.model_dump_json(exclude_none=True),
     )
 
     result = handler(event, create_mock_context())
@@ -930,7 +1202,7 @@ def test_create_document_reference_with_invalid_asid_for_ssp_url(
 
     assert result == {
         "statusCode": "400",
-        "headers": {},
+        "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
 
@@ -960,7 +1232,7 @@ def test_create_document_reference_with_invalid_asid_for_ssp_url(
 
 @mock_aws
 @mock_repository
-def test_create_document_reference_supersede_deletes_old_pointers_replace(
+def test_upsert_document_reference_supersede_deletes_old_pointers_replace(
     repository: DocumentPointerRepository,
 ):
     doc_ref = load_document_reference("Y05868-736253002-Valid")
@@ -979,13 +1251,8 @@ def test_create_document_reference_supersede_deletes_old_pointers_replace(
     ]
 
     event = create_test_api_gateway_event(
-        headers=create_headers(
-            pointer_types=[
-                "http://snomed.info/sct|861421000000109",
-                "http://snomed.info/sct|736253002",
-            ]
-        ),
-        body=doc_ref.json(exclude_none=True),
+        headers=create_headers(),
+        body=doc_ref.model_dump_json(exclude_none=True),
     )
 
     result = handler(event, create_mock_context())
@@ -994,7 +1261,8 @@ def test_create_document_reference_supersede_deletes_old_pointers_replace(
     assert result == {
         "statusCode": "201",
         "headers": {
-            "Location": "/nrl-producer-api/FHIR/R4/DocumentReference/Y05868-99999-99999-111111"
+            "Location": "/producer/FHIR/R4/DocumentReference/Y05868-99999-99999-111111",
+            **default_response_headers(),
         },
         "isBase64Encoded": False,
     }
@@ -1027,7 +1295,122 @@ def test_create_document_reference_supersede_deletes_old_pointers_replace(
 
 @mock_aws
 @mock_repository
-def test_create_document_reference_create_relatesto_not_replaces(
+def test_upsert_document_reference_supersede_succeeds_with_toggle(
+    repository: DocumentPointerRepository,
+):
+    doc_ref = load_document_reference("Y05868-736253002-Valid")
+
+    # Add reference to a non-existing pointer
+    doc_ref.relatesTo = [
+        DocumentReferenceRelatesTo(
+            code="replaces",
+            target=Reference(
+                reference=None, identifier=Identifier(value="Y05868-99999-99999-000000")
+            ),
+        )
+    ]
+
+    event = create_test_api_gateway_event(
+        headers=create_headers(nrl_permissions=["supersede-ignore-delete-fail"]),
+        body=doc_ref.model_dump_json(exclude_none=True),
+    )
+
+    result = handler(event, create_mock_context())
+    body = result.pop("body")
+
+    assert result == {
+        "statusCode": "201",
+        "headers": {
+            "Location": "/producer/FHIR/R4/DocumentReference/Y05868-99999-99999-999999",
+            **default_response_headers(),
+        },
+        "isBase64Encoded": False,
+    }
+
+    parsed_body = json.loads(body)
+
+    assert parsed_body == {
+        "resourceType": "OperationOutcome",
+        "issue": [
+            {
+                "severity": "information",
+                "code": "informational",
+                "details": {
+                    "coding": [
+                        {
+                            "code": "RESOURCE_SUPERSEDED",
+                            "display": "Resource created and resource(s) deleted",
+                            "system": "https://fhir.nhs.uk/ValueSet/NRL-ResponseCode",
+                        }
+                    ]
+                },
+                "diagnostics": "The document has been superseded by a new version",
+            }
+        ],
+    }
+
+    non_existent_pointer = repository.get_by_id("Y05868-99999-99999-000000")
+    assert non_existent_pointer is None
+
+
+@mock_aws
+@mock_repository
+def test_upsert_document_reference_supersede_fails_without_toggle(
+    repository: DocumentPointerRepository,
+):
+    doc_ref = load_document_reference("Y05868-736253002-Valid")
+
+    # Add reference to a non-existing pointer
+    doc_ref.relatesTo = [
+        DocumentReferenceRelatesTo(
+            code="replaces",
+            target=Reference(
+                reference=None, identifier=Identifier(value="Y05868-99999-99999-000000")
+            ),
+        )
+    ]
+
+    event = create_test_api_gateway_event(
+        headers=create_headers(),
+        body=doc_ref.model_dump_json(exclude_none=True),
+    )
+
+    result = handler(event, create_mock_context())
+    body = result.pop("body")
+
+    assert result == {
+        "statusCode": "400",
+        "headers": default_response_headers(),
+        "isBase64Encoded": False,
+    }
+
+    parsed_body = json.loads(body)
+
+    assert parsed_body == {
+        "resourceType": "OperationOutcome",
+        "issue": [
+            {
+                "severity": "error",
+                "code": "invalid",
+                "details": {
+                    "coding": [
+                        {
+                            "code": "BAD_REQUEST",
+                            "display": "Bad request",
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                        }
+                    ]
+                },
+                "diagnostics": "The relatesTo target document does not exist",
+                "expression": ["relatesTo[0].target.identifier.value"],
+            }
+        ],
+    }
+
+
+@mock_aws
+@mock_repository
+def test_upsert_document_reference_create_relatesto_not_replaces(
     repository: DocumentPointerRepository,
 ):
     doc_ref = load_document_reference("Y05868-736253002-Valid")
@@ -1046,13 +1429,8 @@ def test_create_document_reference_create_relatesto_not_replaces(
     ]
 
     event = create_test_api_gateway_event(
-        headers=create_headers(
-            pointer_types=[
-                "http://snomed.info/sct|861421000000109",
-                "http://snomed.info/sct|736253002",
-            ]
-        ),
-        body=doc_ref.json(exclude_none=True),
+        headers=create_headers(),
+        body=doc_ref.model_dump_json(exclude_none=True),
     )
 
     result = handler(event, create_mock_context())
@@ -1061,7 +1439,8 @@ def test_create_document_reference_create_relatesto_not_replaces(
     assert result == {
         "statusCode": "201",
         "headers": {
-            "Location": "/nrl-producer-api/FHIR/R4/DocumentReference/Y05868-99999-99999-111111"
+            "Location": "/producer/FHIR/R4/DocumentReference/Y05868-99999-99999-111111",
+            **default_response_headers(),
         },
         "isBase64Encoded": False,
     }
@@ -1095,7 +1474,7 @@ def test_create_document_reference_create_relatesto_not_replaces(
 @mock_aws
 @mock_repository
 @freeze_time("2024-03-21T12:34:56.789")
-def test_create_document_reference_with_date_ignored(
+def test_upsert_document_reference_with_date_ignored(
     repository: DocumentPointerRepository,
 ):
     doc_ref_data = load_document_reference_data("Y05868-736253002-Valid-with-date")
@@ -1111,7 +1490,8 @@ def test_create_document_reference_with_date_ignored(
     assert result == {
         "statusCode": "201",
         "headers": {
-            "Location": "/nrl-producer-api/FHIR/R4/DocumentReference/Y05868-99999-99999-999999"
+            "Location": "/producer/FHIR/R4/DocumentReference/Y05868-99999-99999-999999",
+            **default_response_headers(),
         },
         "isBase64Encoded": False,
     }
@@ -1154,7 +1534,7 @@ def test_create_document_reference_with_date_ignored(
 @mock_aws
 @mock_repository
 @freeze_time("2024-03-21T12:34:56.789")
-def test_create_document_reference_with_date_and_meta_lastupdated_ignored(
+def test_upsert_document_reference_with_date_and_meta_lastupdated_ignored(
     repository: DocumentPointerRepository,
 ):
     doc_ref_data = load_document_reference_data(
@@ -1172,7 +1552,8 @@ def test_create_document_reference_with_date_and_meta_lastupdated_ignored(
     assert result == {
         "statusCode": "201",
         "headers": {
-            "Location": "/nrl-producer-api/FHIR/R4/DocumentReference/Y05868-99999-99999-999999"
+            "Location": "/producer/FHIR/R4/DocumentReference/Y05868-99999-99999-999999",
+            **default_response_headers(),
         },
         "isBase64Encoded": False,
     }
@@ -1215,7 +1596,7 @@ def test_create_document_reference_with_date_and_meta_lastupdated_ignored(
 @mock_aws
 @mock_repository
 @freeze_time("2024-03-21T12:34:56.789")
-def test_create_document_reference_with_date_overidden(
+def test_upsert_document_reference_with_date_overidden(
     repository: DocumentPointerRepository,
 ):
     doc_ref_data = load_document_reference_data("Y05868-736253002-Valid-with-date")
@@ -1231,7 +1612,8 @@ def test_create_document_reference_with_date_overidden(
     assert result == {
         "statusCode": "201",
         "headers": {
-            "Location": "/nrl-producer-api/FHIR/R4/DocumentReference/Y05868-99999-99999-999999"
+            "Location": "/producer/FHIR/R4/DocumentReference/Y05868-99999-99999-999999",
+            **default_response_headers(),
         },
         "isBase64Encoded": False,
     }
@@ -1287,8 +1669,8 @@ def test__set_create_time_fields(doc_ref_name: str):
 
     response = _set_upsert_time_fields(test_time, test_doc_ref, test_perms)
 
-    assert response.dict(exclude_none=True) == {
-        **test_doc_ref.dict(exclude_none=True),
+    assert response.model_dump(exclude_none=True) == {
+        **test_doc_ref.model_dump(exclude_none=True),
         "meta": {
             "lastUpdated": "2024-03-24T12:34:56.789Z",
         },
@@ -1311,8 +1693,8 @@ def test__set_create_time_fields_when_doc_has_date_and_perms(doc_ref_name: str):
 
     response = _set_upsert_time_fields(test_time, test_doc_ref, test_perms)
 
-    assert response.dict(exclude_none=True) == {
-        **test_doc_ref.dict(exclude_none=True),
+    assert response.model_dump(exclude_none=True) == {
+        **test_doc_ref.model_dump(exclude_none=True),
         "meta": {
             "lastUpdated": test_time,
         },
@@ -1328,8 +1710,8 @@ def test__set_create_time_fields_when_no_date_but_perms():
 
     response = _set_upsert_time_fields(test_time, test_doc_ref, test_perms)
 
-    assert response.dict(exclude_none=True) == {
-        **test_doc_ref.dict(exclude_none=True),
+    assert response.model_dump(exclude_none=True) == {
+        **test_doc_ref.model_dump(exclude_none=True),
         "meta": {
             "lastUpdated": test_time,
         },

@@ -7,7 +7,17 @@ resource "aws_secretsmanager_secret" "prod_smoke_test_apigee_app" {
   description = "APIGEE App used to run Smoke Tests against the PROD environment"
 }
 
+resource "aws_secretsmanager_secret" "prod_smoke_test_parameters" {
+  name        = "${local.project}--prod--smoke-test-parameters"
+  description = "Parameters used to run Smoke Tests against the prod environment"
+}
+
 resource "aws_secretsmanager_secret" "prod_splunk_configuration" {
   name        = "${local.project}--prod--splunk-configuration"
   description = "Splunk configuration for the aws_recordlocator_prod index"
+}
+
+resource "aws_secretsmanager_secret" "prod_environment_configuration" {
+  name        = "${local.project}--prod--env-config"
+  description = "The environment configuration for the Prod environment"
 }

@@ -21,6 +21,7 @@ variable "public_sandbox_domain" {
   type        = string
   description = "The public domain for the sandbox environment (optional)"
   nullable    = true
+  default     = null
 }
 
 variable "consumer_api_path" {
@@ -36,4 +37,14 @@ variable "producer_api_path" {
 variable "deletion_protection" {
   type    = bool
   default = false
+}
+
+variable "use_shared_resources" {
+  type    = bool
+  default = false
+}
+
+variable "log_retention_period" {
+  default = 90
+  type    = number
 }

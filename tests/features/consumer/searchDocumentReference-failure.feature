@@ -23,7 +23,7 @@ Feature: Consumer - searchDocumentReference - Failure Scenarios
             "display": "Invalid parameter"
           }]
         },
-        "diagnostics": "Invalid query parameter (extra: extra fields not permitted)",
+        "diagnostics": "Invalid query parameter (extra: Extra inputs are not permitted)",
         "expression": ["extra"]
       }
       """
@@ -49,7 +49,7 @@ Feature: Consumer - searchDocumentReference - Failure Scenarios
             "display": "Invalid parameter"
           }]
         },
-        "diagnostics": "Invalid query parameter (subject:identifier: field required)",
+        "diagnostics": "Invalid query parameter (subject:identifier: Field required)",
         "expression": ["subject:identifier"]
       }
       """
@@ -77,7 +77,35 @@ Feature: Consumer - searchDocumentReference - Failure Scenarios
             "display": "Invalid code system"
           }]
         },
-        "diagnostics": "Invalid query parameter (The provided type system does not match the allowed types for this organisation)",
+        "diagnostics": "Invalid query parameter (The provided type does not match the allowed types for this organisation)",
+        "expression": ["type"]
+      }
+      """
+
+  Scenario: Search rejects request with type they are not allowed to use
+    Given the application 'DataShare' (ID 'z00z-y11y-x22x') is registered to access the API
+    And the organisation 'RX898' is authorised to access pointer types:
+      | system                 | value     |
+      | http://snomed.info/sct | 736253002 |
+    When consumer 'RX898' searches for DocumentReferences with parameters:
+      | parameter | value                                   |
+      | subject   | 9278693472                              |
+      | type      | http://snomed.info/sct\|887701000000100 |
+    Then the response status code is 400
+    And the response is an OperationOutcome with 1 issue
+    And the OperationOutcome contains the issue:
+      """
+      {
+        "severity": "error",
+        "code": "code-invalid",
+        "details": {
+          "coding": [{
+            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+            "code": "INVALID_CODE_SYSTEM",
+            "display": "Invalid code system"
+          }]
+        },
+        "diagnostics": "Invalid query parameter (The provided type does not match the allowed types for this organisation)",
         "expression": ["type"]
       }
       """
@@ -134,25 +162,46 @@ Feature: Consumer - searchDocumentReference - Failure Scenarios
       }
       """
 
-  Scenario: Search ignores pointer type header if S3 lookup is enabled
+  Scenario: Search gives 403 if no permission
     Given the application 'DataShare' (ID 'z00z-y11y-x22x') is registered to access the API
-    And the application is configured to lookup permissions from S3
-    And the organisation 'RX898' is authorised to access pointer types:
-      | system                 | value     |
-      | http://snomed.info/sct | 736253002 |
     And a DocumentReference resource exists with values:
       | property    | value                             |
       | id          | 8FW23-1114567890-SearchDocRefTest |
       | subject     | 9278693472                        |
       | status      | current                           |
       | type        | 736253002                         |
+      | category    | 734163000                         |
       | contentType | application/pdf                   |
       | url         | https://example.org/my-doc.pdf    |
       | custodian   | 8FW23                             |
-    When consumer 'RX898' searches for DocumentReferences with parameters:
+      | author      | 8FW23                             |
+    When consumer 'Z26' searches for DocumentReferences with parameters:
       | parameter | value      |
       | subject   | 9278693472 |
       | type      | 736253002  |
+    Then the response status code is 403
+    And the response is an OperationOutcome with 1 issue
+    And the OperationOutcome contains the issue:
+      """
+      {
+        "severity": "error",
+        "code": "forbidden",
+        "details": {
+          "coding": [{
+            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+            "code": "ACCESS DENIED",
+            "display": "Access has been denied to process this request"
+          }]
+        },
+        "diagnostics": "Your organisation 'Z26' does not have permission to access this resource. Contact the onboarding team."
+      }
+      """
+
+  Scenario: Search rejects request if the organisation has no registered pointer types
+    Given the application 'DataShare' (ID 'z00z-y11y-x22x') is registered to access the API
+    When consumer 'RX898' searches for DocumentReferences with parameters:
+      | parameter | value      |
+      | subject   | 9278693472 |
     Then the response status code is 403
     And the response is an OperationOutcome with 1 issue
     And the OperationOutcome contains the issue:
@@ -171,26 +220,58 @@ Feature: Consumer - searchDocumentReference - Failure Scenarios
       }
       """
 
-  Scenario: Search rejects request if the organisation has no registered pointer types in S3
+  Scenario: Search rejects request with invalid category system
     Given the application 'DataShare' (ID 'z00z-y11y-x22x') is registered to access the API
-    And the application is configured to lookup permissions from S3
+    And the organisation 'RX898' is authorised to access pointer types:
+      | system                 | value     |
+      | http://snomed.info/sct | 736253002 |
     When consumer 'RX898' searches for DocumentReferences with parameters:
-      | parameter | value      |
-      | subject   | 9278693472 |
-    Then the response status code is 403
+      | parameter | value                                |
+      | subject   | 9278693472                           |
+      | category  | http://incorrect.info/sct\|736253002 |
+    Then the response status code is 400
     And the response is an OperationOutcome with 1 issue
     And the OperationOutcome contains the issue:
       """
       {
         "severity": "error",
-        "code": "forbidden",
+        "code": "code-invalid",
         "details": {
           "coding": [{
             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-            "code": "ACCESS DENIED",
-            "display": "Access has been denied to process this request"
+            "code": "INVALID_CODE_SYSTEM",
+            "display": "Invalid code system"
           }]
         },
-        "diagnostics": "Your organisation 'RX898' does not have permission to access this resource. Contact the onboarding team."
+        "diagnostics": "Invalid query parameter (The provided category is not valid)",
+        "expression": ["category"]
+      }
+      """
+
+  Scenario: Search rejects request with multiple categories and one invalid category
+    Given the application 'DataShare' (ID 'z00z-y11y-x22x') is registered to access the API
+    And the organisation 'RX898' is authorised to access pointer types:
+      | system                 | value     |
+      | http://snomed.info/sct | 736253002 |
+    When consumer 'RX898' searches for DocumentReferences with parameters:
+      | parameter | value                                                             |
+      | subject   | 9278693472                                                        |
+      | category  | http://snomed.info/sct\|734163000,http://snomed.info/sct\|invalid |
+    Then the response status code is 400
+    And the response is an OperationOutcome with 1 issue
+    And the OperationOutcome contains the issue:
+      """
+      {
+        "severity": "error",
+        "code": "code-invalid",
+        "details": {
+          "coding": [{
+            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+            "code": "INVALID_CODE_SYSTEM",
+            "display": "Invalid code system"
+          }]
+        },
+        "diagnostics": "Invalid query parameter (The provided category is not valid)",
+        "expression": ["category"]
       }
       """

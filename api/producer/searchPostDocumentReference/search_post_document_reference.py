@@ -6,7 +6,7 @@ from nrlf.core.errors import OperationOutcomeError
 from nrlf.core.logger import LogReference, logger
 from nrlf.core.model import ConnectionMetadata, ProducerRequestParams
 from nrlf.core.response import Response, SpineErrorResponse
-from nrlf.core.validators import validate_type_system
+from nrlf.core.validators import validate_category, validate_type
 from nrlf.producer.fhir.r4.model import Bundle, DocumentReference
 
 
@@ -42,18 +42,29 @@ def handler(
             expression="subject:identifier",
         )
 
-    if not validate_type_system(body.type, metadata.pointer_types):
+    if not validate_type(body.type, metadata.pointer_types):
         logger.log(
             LogReference.PROPOSTSEARCH002,
             type=body.type,
             pointer_types=metadata.pointer_types,
         )
         return SpineErrorResponse.INVALID_CODE_SYSTEM(
-            diagnostics="The provided type system does not match the allowed types for this organisation",
+            diagnostics="The provided type does not match the allowed types for this organisation",
             expression="type",
         )
 
-    pointer_types = [body.type.__root__] if body.type else metadata.pointer_types
+    categories = body.category.root.split(",") if body.category else []
+    if not validate_category(categories):
+        logger.log(
+            LogReference.PROPOSTSEARCH002b,
+            category=body.category,
+        )  # TODO - Should update error message once permissioning by category is implemented
+        return SpineErrorResponse.INVALID_CODE_SYSTEM(
+            diagnostics="The provided category is not valid",
+            expression="category",
+        )
+
+    pointer_types = [body.type.root] if body.type else metadata.pointer_types
     bundle = {"resourceType": "Bundle", "type": "searchset", "total": 0, "entry": []}
 
     logger.log(
@@ -62,19 +73,21 @@ def handler(
         custodian_suffix=metadata.ods_code_extension,
         nhs_number=body.nhs_number,
         pointer_types=pointer_types,
+        categories=categories,
     )
 
-    for result in repository.search_by_custodian(
+    for result in repository.search(
         custodian=metadata.ods_code,
         custodian_suffix=metadata.ods_code_extension,
         nhs_number=body.nhs_number,
         pointer_types=pointer_types,
+        categories=categories,
     ):
         try:
-            document_reference = DocumentReference.parse_raw(result.document)
+            document_reference = DocumentReference.model_validate_json(result.document)
             bundle["total"] += 1
             bundle["entry"].append(
-                {"resource": document_reference.dict(exclude_none=True)}
+                {"resource": document_reference.model_dump(exclude_none=True)}
             )
             logger.log(
                 LogReference.PROPOSTSEARCH004,
@@ -95,4 +108,4 @@ def handler(
             )
 
     logger.log(LogReference.PROPOSTSEARCH999)
-    return Response.from_resource(Bundle.parse_obj(bundle))
+    return Response.from_resource(Bundle.model_validate(bundle))

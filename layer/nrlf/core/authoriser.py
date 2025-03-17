@@ -1,5 +1,6 @@
 import json
 import sys
+from os import path
 
 from botocore.exceptions import ClientError
 
@@ -14,7 +15,7 @@ def get_pointer_types(
 ) -> list[str]:
     ods_code = ".".join(connection_metadata.ods_code)
 
-    app_id = connection_metadata.client_rp_details.developer_app_id
+    app_id = connection_metadata.nrl_app_id
     ods_code = connection_metadata.ods_code
     ods_code_extension = connection_metadata.ods_code_extension
 
@@ -53,3 +54,36 @@ def get_pointer_types(
             error=str(exc),
         )
         raise exc
+
+
+def parse_permissions_file(
+    connection_metadata: ConnectionMetadata,
+) -> list[str]:
+    ods_code = ".".join(connection_metadata.ods_code)
+
+    app_id = connection_metadata.nrl_app_id
+    ods_code = connection_metadata.ods_code
+    ods_code_extension = connection_metadata.ods_code_extension
+
+    if ods_code_extension:
+        key = f"{app_id}/{ods_code}.{ods_code_extension}.json"
+    else:
+        key = f"{app_id}/{ods_code}.json"
+
+    file_path = f"/opt/python/nrlf_permissions/{key}"
+
+    if connection_metadata.is_test_event:
+        file_path = path.abspath(f"layer/test_permissions/{key}")
+
+    pointer_types = []
+    try:
+        with open(file_path) as file:
+            pointer_types = json.load(file)
+    except Exception as exc:
+        logger.log(
+            LogReference.S3PERMISSIONS005,
+            exc_info=sys.exc_info(),
+            stacklevel=5,
+            error=str(exc),
+        )
+    return pointer_types

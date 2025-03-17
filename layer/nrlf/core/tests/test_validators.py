@@ -2,11 +2,18 @@ from unittest.mock import Mock
 
 import pytest
 
+from nrlf.core.constants import (
+    CATEGORY_ATTRIBUTES,
+    ODS_SYSTEM,
+    TYPE_ATTRIBUTES,
+    TYPE_CATEGORIES,
+    PointerTypes,
+)
 from nrlf.core.errors import ParseError
 from nrlf.core.validators import (
     DocumentReferenceValidator,
     ValidationResult,
-    validate_type_system,
+    validate_type,
 )
 from nrlf.producer.fhir.r4.model import (
     DocumentReference,
@@ -16,34 +23,43 @@ from nrlf.producer.fhir.r4.model import (
 from nrlf.tests.data import load_document_reference_json
 
 
-def test_validate_type_system_valid():
-    type_ = RequestQueryType(__root__="http://snomed.info/sct|736253002")
+def test_validate_type_valid():
+    type_ = RequestQueryType(root=PointerTypes.MENTAL_HEALTH_PLAN.value)
     pointer_types = [
-        "http://snomed.info/sct|736253002",
-        "http://snomed.info/sct|736373009",
+        PointerTypes.MENTAL_HEALTH_PLAN.value,
+        PointerTypes.EOL_CARE_PLAN.value,
     ]
-    assert validate_type_system(type_, pointer_types) is True
+    assert validate_type(type_, pointer_types) is True
 
 
-def test_validate_type_system_invalid():
-    type_ = RequestQueryType(__root__="http://snomed.info/invalid|736373009")
+def test_validate_type_invalid_system():
+    type_ = RequestQueryType(root="http://snomed.info/invalid|736373009")
     pointer_types = [
-        "http://snomed.info/sct|736373009",
-        "http://snomed.info/sct|736373009",
+        PointerTypes.EOL_CARE_PLAN.value,
+        PointerTypes.EOL_CARE_PLAN.value,
     ]
-    assert validate_type_system(type_, pointer_types) is False
+    assert validate_type(type_, pointer_types) is False
 
 
-def test_validate_type_system_empty():
+def test_validate_type_invalid_code():
+    type_ = RequestQueryType(root=PointerTypes.MRA_UPPER_LIMB_ARTERY.value)
+    pointer_types = [
+        PointerTypes.MENTAL_HEALTH_PLAN.value,
+        PointerTypes.EOL_CARE_PLAN.value,
+    ]
+    assert validate_type(type_, pointer_types) is False
+
+
+def test_validate_type_empty():
     type_ = None
-    pointer_types = []
-    assert validate_type_system(type_, pointer_types) is True
+    pointer_types: list[str] = []
+    assert validate_type(type_, pointer_types) is True
 
 
 def test_validation_result_reset():
     validation_result = ValidationResult(
-        resource=DocumentReference.construct(id="example_resource"),
-        issues=[OperationOutcomeIssue.construct()],
+        resource=DocumentReference.model_construct(id="example_resource"),
+        issues=[OperationOutcomeIssue.model_construct()],
     )
 
     assert validation_result.resource.id == "example_resource"
@@ -55,7 +71,7 @@ def test_validation_result_reset():
 
 def test_validation_result_add_error():
     validation_result = ValidationResult(
-        resource=DocumentReference.construct(), issues=[]
+        resource=DocumentReference.model_construct(), issues=[]
     )
 
     issue_code = "issue_code"
@@ -66,7 +82,7 @@ def test_validation_result_add_error():
     validation_result.add_error(issue_code, error_code, diagnostics, field)
 
     assert len(validation_result.issues) == 1
-    assert validation_result.issues[0].dict(exclude_none=True) == {
+    assert validation_result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
         "code": "issue_code",
         "details": {
@@ -85,7 +101,7 @@ def test_validation_result_add_error():
 
 def test_validation_result_add_error_no_error_code():
     validation_result = ValidationResult(
-        resource=DocumentReference.construct(), issues=[]
+        resource=DocumentReference.model_construct(), issues=[]
     )
 
     issue_code = "issue_code"
@@ -97,7 +113,7 @@ def test_validation_result_add_error_no_error_code():
     )
 
     assert len(validation_result.issues) == 1
-    assert validation_result.issues[0].dict(exclude_none=True) == {
+    assert validation_result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
         "code": "issue_code",
         "diagnostics": "diagnostics",
@@ -107,24 +123,24 @@ def test_validation_result_add_error_no_error_code():
 
 def test_validation_result_is_valid():
     validation_result = ValidationResult(
-        resource=DocumentReference.construct(), issues=[]
+        resource=DocumentReference.model_construct(), issues=[]
     )
 
     assert validation_result.is_valid is True
 
     validation_result.issues = [
-        OperationOutcomeIssue.construct(severity="information"),
+        OperationOutcomeIssue.model_construct(severity="information"),
     ]
 
     assert validation_result.is_valid is True
 
     validation_result.issues = [
-        OperationOutcomeIssue.construct(severity="error"),
+        OperationOutcomeIssue.model_construct(severity="error"),
     ]
     assert validation_result.is_valid is False
 
     validation_result.issues = [
-        OperationOutcomeIssue.construct(severity="fatal"),
+        OperationOutcomeIssue.model_construct(severity="fatal"),
     ]
     assert validation_result.is_valid is False
 
@@ -161,7 +177,7 @@ def test_document_reference_validator_parse_invalid():
     exc = error.value
 
     assert len(exc.issues) == 2
-    assert exc.issues[0].dict(exclude_none=True) == {
+    assert exc.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
         "code": "invalid",
         "details": {
@@ -173,10 +189,10 @@ def test_document_reference_validator_parse_invalid():
                 }
             ]
         },
-        "diagnostics": "Failed to parse DocumentReference resource (id: str type expected)",
+        "diagnostics": "Failed to parse DocumentReference resource (id: Input should be a valid string)",
         "expression": ["id"],
     }
-    assert exc.issues[1].dict(exclude_none=True) == {
+    assert exc.issues[1].model_dump(exclude_none=True) == {
         "severity": "error",
         "code": "invalid",
         "details": {
@@ -188,7 +204,7 @@ def test_document_reference_validator_parse_invalid():
                 }
             ]
         },
-        "diagnostics": "Failed to parse DocumentReference resource (type: value is not a valid dict)",
+        "diagnostics": "Failed to parse DocumentReference resource (type: Input should be a valid dictionary or instance of NRLCodeableConcept)",
         "expression": ["type"],
     }
 
@@ -209,17 +225,15 @@ def test_validate_document_reference_missing_fields():
     document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
 
     del document_ref_data["id"]
-    del document_ref_data["type"]
     del document_ref_data["custodian"]
     del document_ref_data["subject"]
-    del document_ref_data["category"]
 
     result = validator.validate(document_ref_data)
 
     assert result.is_valid is False
     assert result.resource.id is None
-    assert len(result.issues) == 5
-    assert result.issues[0].dict(exclude_none=True) == {
+    assert len(result.issues) == 3
+    assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
         "code": "required",
         "details": {
@@ -239,9 +253,7 @@ def test_validate_document_reference_missing_fields():
     assert diagnostics == [
         "The required field 'custodian' is missing",
         "The required field 'id' is missing",
-        "The required field 'type' is missing",
         "The required field 'subject' is missing",
-        "The required field 'category' is missing",
     ]
 
 
@@ -269,12 +281,12 @@ def test_validate_document_reference_extra_fields():
 
     document_ref_data["extra_field"] = "extra_value"
 
-    result = validator.validate(document_ref_data)
+    with pytest.raises(ParseError) as error:
+        validator.validate(document_ref_data)
 
-    assert result.is_valid is False
-    assert result.resource.id == "Y05868-99999-99999-999999"
-    assert len(result.issues) == 1
-    assert result.issues[0].dict(exclude_none=True) == {
+    exc = error.value
+    assert len(exc.issues) == 1
+    assert exc.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
         "code": "invalid",
         "details": {
@@ -286,7 +298,36 @@ def test_validate_document_reference_extra_fields():
                 }
             ]
         },
-        "diagnostics": "The resource contains extra fields",
+        "diagnostics": "Failed to parse DocumentReference resource (extra_field: Extra inputs are not permitted)",
+        "expression": ["extra_field"],
+    }
+
+
+def test_validate_document_reference_extra_fields_content():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["content"][0]["extra_field"] = "extra_value"
+
+    with pytest.raises(ParseError) as error:
+        validator.validate(document_ref_data)
+
+    exc = error.value
+    assert len(exc.issues) == 1
+    assert exc.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "invalid",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Failed to parse DocumentReference resource (content[0].extra_field: Extra inputs are not permitted)",
+        "expression": ["content[0].extra_field"],
     }
 
 
@@ -301,7 +342,7 @@ def test_validate_identifiers_no_custodian_identifier():
     assert result.is_valid is False
     assert result.resource.id == "Y05868-99999-99999-999999"
     assert len(result.issues) == 1
-    assert result.issues[0].dict(exclude_none=True) == {
+    assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
         "code": "required",
         "details": {
@@ -329,7 +370,7 @@ def test_validate_identifiers_no_subject_identifier():
     assert result.is_valid is False
     assert result.resource.id == "Y05868-99999-99999-999999"
     assert len(result.issues) == 1
-    assert result.issues[0].dict(exclude_none=True) == {
+    assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
         "code": "required",
         "details": {
@@ -343,34 +384,6 @@ def test_validate_identifiers_no_subject_identifier():
         },
         "diagnostics": "Subject must have an identifier",
         "expression": ["subject.identifier"],
-    }
-
-
-def test_validate_category_no_category():
-    validator = DocumentReferenceValidator()
-    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
-
-    del document_ref_data["category"]
-
-    result = validator.validate(document_ref_data)
-
-    assert result.is_valid is False
-    assert result.resource.id == "Y05868-99999-99999-999999"
-    assert len(result.issues) == 1
-    assert result.issues[0].dict(exclude_none=True) == {
-        "severity": "error",
-        "code": "required",
-        "details": {
-            "coding": [
-                {
-                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
-                }
-            ]
-        },
-        "diagnostics": "The required field 'category' is missing",
-        "expression": ["category"],
     }
 
 
@@ -395,7 +408,7 @@ def test_validate_category_too_many_category():
     assert result.is_valid is False
     assert result.resource.id == "Y05868-99999-99999-999999"
     assert len(result.issues) == 1
-    assert result.issues[0].dict(exclude_none=True) == {
+    assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
         "code": "invalid",
         "details": {
@@ -412,7 +425,16 @@ def test_validate_category_too_many_category():
     }
 
 
-def test_validate_category_coding_display_mismatch_care_plan():
+@pytest.mark.parametrize(
+    "category_code, category_display",
+    [
+        (category_str.split("|")[1], display_dict["display"])
+        for category_str, display_dict in CATEGORY_ATTRIBUTES.items()
+    ],
+)
+def test_validate_category_coding_display_mismatch(
+    category_code: str, category_display: str
+):
     validator = DocumentReferenceValidator()
     document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
 
@@ -420,18 +442,42 @@ def test_validate_category_coding_display_mismatch_care_plan():
         "coding": [
             {
                 "system": "http://snomed.info/sct",
-                "code": "734163000",
+                "code": category_code,
                 "display": "some random display name",
             }
         ]
     }
+
+    # Find the type string that matches the type code to avoid that error
+    category_str = f"http://snomed.info/sct|{category_code}"
+    matching_type_str = next(
+        (
+            type_str
+            for type_str in TYPE_CATEGORIES
+            if TYPE_CATEGORIES[type_str] == category_str
+        ),
+        None,
+    )
+    if matching_type_str:
+        type_parts = matching_type_str.split("|")
+        type_system = type_parts[0]
+        type_code = type_parts[1]
+        document_ref_data["type"] = {
+            "coding": [
+                {
+                    "system": type_system,
+                    "code": type_code,
+                    "display": TYPE_ATTRIBUTES[matching_type_str]["display"],
+                }
+            ]
+        }
 
     result = validator.validate(document_ref_data)
 
     assert result.is_valid is False
     assert result.resource.id == "Y05868-99999-99999-999999"
     assert len(result.issues) == 1
-    assert result.issues[0].dict(exclude_none=True) == {
+    assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
         "code": "value",
         "details": {
@@ -443,94 +489,12 @@ def test_validate_category_coding_display_mismatch_care_plan():
                 }
             ]
         },
-        "diagnostics": "category code '734163000' must have a display value of 'Care plan'",
-        "expression": ["category[0].coding[0].display"],
-    }
-
-
-def test_validate_category_coding_display_mismatch_observations():
-    validator = DocumentReferenceValidator()
-    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
-
-    document_ref_data["category"][0] = {
-        "coding": [
-            {
-                "system": "http://snomed.info/sct",
-                "code": "1102421000000108",
-                "display": "some random display name",
-            }
-        ]
-    }
-
-    result = validator.validate(document_ref_data)
-
-    assert result.is_valid is False
-    assert result.resource.id == "Y05868-99999-99999-999999"
-    assert len(result.issues) == 1
-    assert result.issues[0].dict(exclude_none=True) == {
-        "severity": "error",
-        "code": "value",
-        "details": {
-            "coding": [
-                {
-                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
-                }
-            ]
-        },
-        "diagnostics": "category code '1102421000000108' must have a display value of 'Observations'",
+        "diagnostics": f"category code '{category_code}' must have a display value of '{category_display}'",
         "expression": ["category[0].coding[0].display"],
     }
 
 
 def test_validate_category_coding_invalid_code():
-    validator = DocumentReferenceValidator()
-    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
-
-    document_ref_data["category"][0] = {
-        "coding": [
-            {
-                "system": "http://snomed.info/sct",
-                "code": "734163000",
-                "display": "Care plan",
-            },
-            {
-                "system": "http://snomed.info/sct",
-                "code": "734163000",
-                "display": "Care plan",
-            },
-            {
-                "system": "http://snomed.info/sct",
-                "code": "734163000",
-                "display": "Care plan",
-            },
-        ]
-    }
-
-    result = validator.validate(document_ref_data)
-
-    assert result.is_valid is False
-    assert result.resource.id == "Y05868-99999-99999-999999"
-    assert len(result.issues) == 1
-    assert result.issues[0].dict(exclude_none=True) == {
-        "severity": "error",
-        "code": "invalid",
-        "details": {
-            "coding": [
-                {
-                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
-                }
-            ]
-        },
-        "diagnostics": "Invalid category coding length: 3 Category Coding must only contain a single value",
-        "expression": ["category[0].coding"],
-    }
-
-
-def test_validate_category_coding_multiple_codings():
     validator = DocumentReferenceValidator()
     document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
 
@@ -545,7 +509,7 @@ def test_validate_category_coding_multiple_codings():
     assert result.is_valid is False
     assert result.resource.id == "Y05868-99999-99999-999999"
     assert len(result.issues) == 1
-    assert result.issues[0].dict(exclude_none=True) == {
+    assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
         "code": "value",
         "details": {
@@ -581,7 +545,7 @@ def test_validate_category_coding_invalid_system():
     assert result.is_valid is False
     assert result.resource.id == "Y05868-99999-99999-999999"
     assert len(result.issues) == 1
-    assert result.issues[0].dict(exclude_none=True) == {
+    assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
         "code": "value",
         "details": {
@@ -598,6 +562,273 @@ def test_validate_category_coding_invalid_system():
     }
 
 
+def test_validate_type_coding_invalid_code():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["type"] = {
+        "coding": [
+            {
+                "system": "http://snomed.info/sct",
+                "code": "1234",
+                "display": "Mental health crisis plan",
+            }
+        ]
+    }
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert result.resource.id == "Y05868-99999-99999-999999"
+    assert len(result.issues) == 1
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Invalid type code: 1234 Type must be a member of the England-NRLRecordType value set (https://fhir.nhs.uk/England/CodeSystem/England-NRLRecordType)",
+        "expression": ["type.coding[0].code"],
+    }
+
+
+def test_validate_type_coding_invalid_system():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["type"] = {
+        "coding": [
+            {
+                "system": "http://snoooooomed/sctfffffg",
+                "code": "736253002",
+                "display": "Mental health crisis plan",
+            }
+        ]
+    }
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert result.resource.id == "Y05868-99999-99999-999999"
+    assert len(result.issues) == 1
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Invalid type system: http://snoooooomed/sctfffffg Type system must be either 'http://snomed.info/sct' or 'https://nicip.nhs.uk'",
+        "expression": ["type.coding[0].system"],
+    }
+
+
+@pytest.mark.parametrize(
+    "type_str, display",
+    [
+        (type_str, display_dict["display"])
+        for type_str, display_dict in TYPE_ATTRIBUTES.items()
+    ],
+)
+def test_validate_type_coding_display_mismatch(type_str: str, display: str):
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+    type_parts = type_str.split("|")
+    type_system = type_parts[0]
+    type_code = type_parts[1]
+
+    document_ref_data["type"] = {
+        "coding": [
+            {
+                "system": type_system,
+                "code": type_code,
+                "display": "some random display name",
+            }
+        ]
+    }
+
+    # Find the category string that matches the category code to avoid that error
+    category_str = TYPE_CATEGORIES[type_str]
+    category_parts = category_str.split("|")
+    category_system = category_parts[0]
+    category_code = category_parts[1]
+    document_ref_data["category"][0] = {
+        "coding": [
+            {
+                "system": category_system,
+                "code": category_code,
+                "display": CATEGORY_ATTRIBUTES[category_str]["display"],
+            }
+        ]
+    }
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert result.resource.id == "Y05868-99999-99999-999999"
+    assert len(result.issues) == 1
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": f"type code '{type_code}' must have a display value of '{display}'",
+        "expression": ["type.coding[0].display"],
+    }
+
+
+def test_validate_author_too_many_authors():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["author"].append(
+        {
+            "identifier": {
+                "system": ODS_SYSTEM,
+                "value": "someODSCode",
+            }
+        }
+    )
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert result.resource.id == "Y05868-99999-99999-999999"
+    assert len(result.issues) == 1
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "invalid",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Invalid author length: 2 Author must only contain a single value",
+        "expression": ["author"],
+    }
+
+
+def test_validate_author_system_invalid():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["author"][0] = {
+        "identifier": {
+            "system": "some system",
+            "value": "someODSCode",
+        }
+    }
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert result.resource.id == "Y05868-99999-99999-999999"
+    assert len(result.issues) == 1
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "invalid",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_IDENTIFIER_SYSTEM",
+                    "display": "Invalid identifier system",
+                }
+            ]
+        },
+        "diagnostics": f"Invalid author system: 'some system' Author system must be 'https://fhir.nhs.uk/Id/ods-organization-code'",
+        "expression": ["author[0].identifier.system"],
+    }
+
+
+def test_validate_author_value_invalid():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["author"][0] = {
+        "identifier": {
+            "system": ODS_SYSTEM,
+            "value": "!!!!!!12sd",
+        }
+    }
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert result.resource.id == "Y05868-99999-99999-999999"
+    assert len(result.issues) == 1
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": f"Invalid author value: '!!!!!!12sd' Author value must be alphanumeric",
+        "expression": ["author[0].identifier.value"],
+    }
+
+
+def test_validate_author_value_too_long():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["author"][0] = {
+        "identifier": {
+            "system": ODS_SYSTEM,
+            "value": "d1111111111111111111111111111111111111111111111",
+        }
+    }
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert result.resource.id == "Y05868-99999-99999-999999"
+    assert len(result.issues) == 1
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": f"Invalid author value: 'd1111111111111111111111111111111111111111111111' Author value must be less than 13 characters",
+        "expression": ["author[0].identifier.value"],
+    }
+
+
 def test_validate_identifiers_invalid_systems():
     validator = DocumentReferenceValidator()
     document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
@@ -610,7 +841,7 @@ def test_validate_identifiers_invalid_systems():
     assert result.is_valid is False
     assert result.resource.id == "Y05868-99999-99999-999999"
     assert len(result.issues) == 2
-    assert result.issues[0].dict(exclude_none=True) == {
+    assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
         "code": "invalid",
         "details": {
@@ -625,7 +856,7 @@ def test_validate_identifiers_invalid_systems():
         "diagnostics": "Provided custodian identifier system is not the ODS system (expected: 'https://fhir.nhs.uk/Id/ods-organization-code')",
         "expression": ["custodian.identifier.system"],
     }
-    assert result.issues[1].dict(exclude_none=True) == {
+    assert result.issues[1].model_dump(exclude_none=True) == {
         "severity": "error",
         "code": "invalid",
         "details": {
@@ -683,7 +914,7 @@ def test_validate_relates_to_invalid_code():
 
     assert result.is_valid is False
     assert len(result.issues) == 1
-    assert result.issues[0].dict(exclude_none=True) == {
+    assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
         "code": "value",
         "details": {
@@ -710,7 +941,7 @@ def test_validate_relates_to_no_target_identifier():
 
     assert result.is_valid is False
     assert len(result.issues) == 1
-    assert result.issues[0].dict(exclude_none=True) == {
+    assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
         "code": "required",
         "details": {
@@ -768,7 +999,7 @@ def test_validate_ssp_content_without_any_context_related():
 
     assert result.is_valid is False
     assert len(result.issues) == 1
-    assert result.issues[0].dict(exclude_none=True) == {
+    assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
         "code": "required",
         "details": {
@@ -802,7 +1033,7 @@ def test_validate_asid_with_no_ssp_content():
 
     assert result.is_valid is False
     assert len(result.issues) == 1
-    assert result.issues[0].dict(exclude_none=True) == {
+    assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
         "code": "value",
         "details": {
@@ -838,7 +1069,7 @@ def test_validate_ssp_content_without_asid_in_context_related():
 
     assert result.is_valid is False
     assert len(result.issues) == 1
-    assert result.issues[0].dict(exclude_none=True) == {
+    assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
         "code": "required",
         "details": {
@@ -869,7 +1100,7 @@ def test_validate_ssp_content_with_invalid_asid_value():
 
     assert result.is_valid is False
     assert len(result.issues) == 1
-    assert result.issues[0].dict(exclude_none=True) == {
+    assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
         "code": "value",
         "details": {
@@ -921,7 +1152,7 @@ def test_validate_ssp_content_with_invalid_asid_value_and_multiple_related():
 
     assert result.is_valid is False
     assert len(result.issues) == 1
-    assert result.issues[0].dict(exclude_none=True) == {
+    assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
         "code": "value",
         "details": {
@@ -960,7 +1191,7 @@ def test_validate_ssp_content_with_multiple_asids():
 
     assert result.is_valid is False
     assert len(result.issues) == 1
-    assert result.issues[0].dict(exclude_none=True) == {
+    assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
         "code": "invalid",
         "details": {
@@ -974,4 +1205,311 @@ def test_validate_ssp_content_with_multiple_asids():
         },
         "diagnostics": "Multiple ASID identifiers provided. Only a single valid ASID identifier can be provided in the context.related.",
         "expression": ["context.related"],
+    }
+
+
+def test_validate_content_format_invalid_code_for_unstructured_document():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["content"][0]["format"] = {
+        "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
+        "code": "urn:nhs-ic:record-contact",
+        "display": "Contact details (HTTP Unsecured)",
+    }
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert result.resource.id == "Y05868-99999-99999-999999"
+    assert len(result.issues) == 1
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Invalid content format code: urn:nhs-ic:record-contact format code must be 'urn:nhs-ic:unstructured' for Unstructured Document attachments.",
+        "expression": ["content[0].format.code"],
+    }
+
+
+def test_validate_content_format_invalid_code_for_contact_details():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["content"][0]["attachment"]["contentType"] = "text/html"
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert result.resource.id == "Y05868-99999-99999-999999"
+    assert len(result.issues) == 1
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Invalid content format code: urn:nhs-ic:unstructured format code must be 'urn:nhs-ic:record-contact' for Contact details attachments.",
+        "expression": ["content[0].format.code"],
+    }
+
+
+def test_validate_practiceSetting_coding_invalid_system():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["context"]["practiceSetting"] = {
+        "coding": [
+            {
+                "system": "http://snoooooomed/sctfffffg",
+                "code": "788002001",
+                "display": "Adult mental health service",
+            }
+        ]
+    }
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert len(result.issues) == 1
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Invalid practice setting system: http://snoooooomed/sctfffffg Practice Setting system must be 'http://snomed.info/sct'",
+        "expression": ["context.practiceSetting.coding[0].system"],
+    }
+
+
+def test_validate_practiceSetting_coding_invalid_code():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["context"]["practiceSetting"] = {
+        "coding": [
+            {
+                "system": "http://snomed.info/sct",
+                "code": "123",
+                "display": "Adult mental health service",
+            }
+        ]
+    }
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert len(result.issues) == 1
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Invalid practice setting code: 123 Practice Setting coding must be a member of value set https://fhir.nhs.uk/England/ValueSet/England-PracticeSetting",
+        "expression": ["context.practiceSetting.coding[0].code"],
+    }
+
+
+def test_validate_practiceSetting_coding_mismatch_code_and_display():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["context"]["practiceSetting"] = {
+        "coding": [
+            {
+                "system": "http://snomed.info/sct",
+                "code": "788002001",
+                "display": "Nephrology service",
+            }
+        ]
+    }
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert len(result.issues) == 1
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Invalid practice setting coding: display Nephrology service does not match the expected display for 788002001 Practice Setting coding is bound to value set https://fhir.nhs.uk/England/ValueSet/England-PracticeSetting",
+        "expression": ["context.practiceSetting.coding[0]"],
+    }
+
+
+def test_validate_content_extension_invalid_code_and_display_mismatch():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["content"][0]["extension"][0] = {
+        "url": "https://fhir.nhs.uk/England/StructureDefinition/Extension-England-ContentStability",
+        "valueCodeableConcept": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability",
+                    "code": "static",
+                    "display": "Dynamic",
+                }
+            ]
+        },
+    }
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert result.resource.id == "Y05868-99999-99999-999999"
+    assert len(result.issues) == 1
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Invalid content extension display: Dynamic Extension display must be the same as code either 'Static' or 'Dynamic'",
+        "expression": [
+            "content[0].extension[0].valueCodeableConcept.coding[0].display"
+        ],
+    }
+
+
+def test_validate_content_invalid_content_type():
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+
+    document_ref_data["content"][0]["attachment"]["contentType"] = "invalid/type"
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert len(result.issues) == 1
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": "Invalid contentType: invalid/type. Must be 'application/pdf' or 'text/html'",
+        "expression": ["content[0].attachment.contentType"],
+    }
+
+
+@pytest.mark.parametrize(
+    "format_code, format_display",
+    [
+        ("urn:nhs-ic:record-contact", "Contact details (HTTP Unsecured)"),
+        ("urn:nhs-ic:unstructured", "Unstructured Document"),
+    ],
+)
+def test_validate_nrl_format_code_valid_match(format_code, format_display):
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+    if format_code == "urn:nhs-ic:record-contact":
+        document_ref_data["content"][0]["attachment"]["contentType"] = "text/html"
+
+    document_ref_data["content"][0]["format"] = {
+        "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
+        "code": format_code,
+        "display": format_display,
+    }
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is True
+
+
+@pytest.mark.parametrize(
+    "format_code, format_display, expected_display",
+    [
+        (
+            "urn:nhs-ic:unstructured",
+            "Contact details (HTTP Unsecured)",
+            "Unstructured Document",
+        ),
+        (
+            "urn:nhs-ic:record-contact",
+            "Unstructured Document",
+            "Contact details (HTTP Unsecured)",
+        ),
+    ],
+)
+def test_validate_nrl_format_code_display_mismatch(
+    format_code, format_display, expected_display
+):
+    validator = DocumentReferenceValidator()
+    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
+    if format_code == "urn:nhs-ic:record-contact":
+        document_ref_data["content"][0]["attachment"]["contentType"] = "text/html"
+
+    document_ref_data["content"][0]["format"] = {
+        "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
+        "code": format_code,
+        "display": format_display,
+    }
+
+    result = validator.validate(document_ref_data)
+
+    assert result.is_valid is False
+    assert len(result.issues) == 1
+    assert result.issues[0].model_dump(exclude_none=True) == {
+        "severity": "error",
+        "code": "value",
+        "details": {
+            "coding": [
+                {
+                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                    "code": "INVALID_RESOURCE",
+                    "display": "Invalid validation of resource",
+                }
+            ]
+        },
+        "diagnostics": f"Invalid display for format code '{format_code}'. Expected '{expected_display}'",
+        "expression": ["content[0].format.display"],
     }

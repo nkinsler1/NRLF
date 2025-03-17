@@ -16,16 +16,17 @@ class Response(BaseModel):
 
     statusCode: str
     body: str
-    headers: dict = Field(default_factory=dict)
+    headers: dict[str, str] = Field(default_factory=dict[str, str])
     isBase64Encoded: bool = Field(default=False)
 
     @classmethod
-    def from_resource(
-        cls, resource: BaseModel, statusCode: str = "200", **kwargs
-    ) -> "Response":
+    def from_resource(cls, resource: BaseModel, **kwargs) -> "Response":
+        status_code = kwargs.pop("statusCode", "200")
         return cls(
-            statusCode=statusCode,
-            body=resource.json(indent=2, exclude_none=True, exclude_defaults=True),
+            statusCode=status_code,
+            body=resource.model_dump_json(
+                indent=2, exclude_none=True, exclude_defaults=True
+            ),
             **kwargs,
         )
 
@@ -35,7 +36,7 @@ class Response(BaseModel):
             body=producer_model.OperationOutcome(
                 resourceType="OperationOutcome",
                 issue=issues,  # type: ignore
-            ).json(exclude_none=True, indent=2),
+            ).model_dump_json(exclude_none=True, indent=2),
             **kwargs,
         )
 
@@ -53,7 +54,7 @@ class Response(BaseModel):
                         details=SpineErrorConcept.from_code("INTERNAL_SERVER_ERROR"),
                     )
                 ],
-            ).json(exclude_none=True, indent=2),
+            ).model_dump_json(exclude_none=True, indent=2),
         )
 
 
@@ -162,7 +163,7 @@ class SpineErrorResponse(Response):
                     details=SpineErrorConcept.from_code("INVALID_IDENTIFIER_VALUE"),
                     diagnostics=diagnostics,
                     expression=(
-                        [producer_model.ExpressionItem(__root__=expression)]
+                        [producer_model.ExpressionItem(root=expression)]
                         if expression
                         else None
                     ),
@@ -183,7 +184,7 @@ class SpineErrorResponse(Response):
                     details=SpineErrorConcept.from_code("INVALID_NHS_NUMBER"),
                     diagnostics=diagnostics,
                     expression=(
-                        [producer_model.ExpressionItem(__root__=expression)]
+                        [producer_model.ExpressionItem(root=expression)]
                         if expression
                         else None
                     ),
@@ -204,7 +205,7 @@ class SpineErrorResponse(Response):
                     details=SpineErrorConcept.from_code("INVALID_CODE_SYSTEM"),
                     diagnostics=diagnostics,
                     expression=(
-                        [producer_model.ExpressionItem(__root__=expression)]
+                        [producer_model.ExpressionItem(root=expression)]
                         if expression
                         else None
                     ),
@@ -225,7 +226,7 @@ class SpineErrorResponse(Response):
                     details=SpineErrorConcept.from_code("BAD_REQUEST"),
                     diagnostics=diagnostics,
                     expression=(
-                        [producer_model.ExpressionItem(__root__=expression)]
+                        [producer_model.ExpressionItem(root=expression)]
                         if expression
                         else None
                     ),
@@ -246,7 +247,7 @@ class SpineErrorResponse(Response):
                     details=SpineErrorConcept.from_code("AUTHOR_CREDENTIALS_ERROR"),
                     diagnostics=diagnostics,
                     expression=(
-                        [producer_model.ExpressionItem(__root__=expression)]
+                        [producer_model.ExpressionItem(root=expression)]
                         if expression
                         else None
                     ),
