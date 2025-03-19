@@ -52,6 +52,7 @@ def _create_core_model(resource: DocumentReference, metadata: ConnectionMetadata
         document_reference=resource,
         nrl_permissions=metadata.nrl_permissions,
     )
+
     return DocumentPointer.from_document_reference(
         document_reference, created_on=creation_time
     )
