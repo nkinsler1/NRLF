@@ -10,6 +10,7 @@ from api.producer.createDocumentReference.create_document_reference import (
     _set_create_time_fields,
     handler,
 )
+from nrlf.core.constants import SNOMED_SYSTEM_URL
 from nrlf.core.dynamodb.repository import DocumentPointer, DocumentPointerRepository
 from nrlf.producer.fhir.r4.model import (
     DocumentReferenceRelatesTo,
@@ -166,7 +167,7 @@ def test_create_document_reference_without_related_value_exception(
         "practiceSetting": {
             "coding": [
                 {
-                    "system": "http://snomed.info/sct",
+                    "system": SNOMED_SYSTEM_URL,
                     "code": "788002001",
                     "display": "Adult mental health service",
                 }
