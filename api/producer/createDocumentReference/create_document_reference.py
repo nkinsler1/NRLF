@@ -1,7 +1,5 @@
 from uuid import uuid4
 
-from core.errors import OperationOutcomeError
-
 from nrlf.core.codes import SpineErrorConcept
 from nrlf.core.constants import (
     PERMISSION_AUDIT_DATES_FROM_PAYLOAD,
@@ -54,20 +52,9 @@ def _create_core_model(resource: DocumentReference, metadata: ConnectionMetadata
         document_reference=resource,
         nrl_permissions=metadata.nrl_permissions,
     )
-    try:
-        core_model = DocumentPointer.from_document_reference(
-            document_reference, created_on=creation_time
-        )
-    except OperationOutcomeError as exc:
-        return SpineErrorResponse.BAD_REQUEST(
-            diagnostics=exc.diagnostics,
-            expression="DocumentReference.type.coding",
-        )
-    except Exception as exc:
-        return SpineErrorResponse.BAD_REQUEST(
-            diagnostics=f"Parsing of Document Pointer has raised exception with message: '{str(exc)}'.",
-            expression="DocumentReference",
-        )
+    return DocumentPointer.from_document_reference(
+        document_reference, created_on=creation_time
+    )
 
 
 def _check_permissions(
