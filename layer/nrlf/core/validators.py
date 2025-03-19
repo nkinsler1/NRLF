@@ -272,7 +272,7 @@ class DocumentReferenceValidator:
             return
 
         idx, asid_reference = asid_references[0]
-        asid_value = getattr(asid_reference.identifier, "value", "")
+        asid_value = getattr(asid_reference.identifier, "value") or ""
         if not match(r"^\d{12}$", asid_value):
             self.result.add_error(
                 issue_code="value",

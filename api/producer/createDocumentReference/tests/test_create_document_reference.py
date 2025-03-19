@@ -10,6 +10,7 @@ from api.producer.createDocumentReference.create_document_reference import (
     _set_create_time_fields,
     handler,
 )
+from nrlf.core.constants import SNOMED_SYSTEM_URL
 from nrlf.core.dynamodb.repository import DocumentPointer, DocumentPointerRepository
 from nrlf.producer.fhir.r4.model import (
     DocumentReferenceRelatesTo,
@@ -151,6 +152,71 @@ def test_create_document_reference_happy_path_with_ssp(
         },
         "date": "2024-03-21T12:34:56.789Z",
         "id": "Y05868-00000000-0000-0000-0000-000000000001",
+    }
+
+
+@mock_aws
+@mock_repository
+@freeze_time("2024-03-21T12:34:56.789")
+@freeze_uuid("00000000-0000-0000-0000-000000000001")
+def test_create_document_reference_without_related_value_exception(
+    repository: DocumentPointerRepository,
+):
+    doc_ref = load_document_reference("Y05868-736253002-Valid-with-ssp-content")
+    doc_ref.context = {
+        "practiceSetting": {
+            "coding": [
+                {
+                    "system": SNOMED_SYSTEM_URL,
+                    "code": "788002001",
+                    "display": "Adult mental health service",
+                }
+            ]
+        },
+        "sourcePatientInfo": {
+            "identifier": {
+                "system": "https://fhir.nhs.uk/Id/nhs-number",
+                "value": "6700028191",
+            }
+        },
+        "related": [{"identifier": {"system": "https://fhir.nhs.uk/Id/nhsSpineASID"}}],
+    }
+
+    event = create_test_api_gateway_event(
+        headers=create_headers(),
+        body=doc_ref.model_dump_json(exclude_none=True),
+    )
+
+    result = handler(event, create_mock_context())
+    body = result.pop("body")
+
+    assert result == {
+        "statusCode": "400",
+        "headers": default_response_headers(),
+        "isBase64Encoded": False,
+    }
+
+    parsed_body = json.loads(body)
+
+    assert parsed_body == {
+        "resourceType": "OperationOutcome",
+        "issue": [
+            {
+                "severity": "error",
+                "code": "value",
+                "details": {
+                    "coding": [
+                        {
+                            "code": "INVALID_IDENTIFIER_VALUE",
+                            "display": "Invalid identifier value",
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                        }
+                    ]
+                },
+                "diagnostics": "Invalid ASID value ''. A single ASID consisting of 12 digits can be provided in the context.related field.",
+                "expression": ["context.related[0].identifier.value"],
+            }
+        ],
     }
 
 
