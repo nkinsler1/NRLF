@@ -18,14 +18,14 @@ on:
 
 jobs:
   build:
-    name: Build - develop
-    runs-on: [self-hosted, ci]
+    name: Build - ${{ github.ref }}
+    runs-on: codebuild-nhsd-nrlf--ci-build-project-${{ github.run_id }}-${{ github.run_attempt }}
 
     steps:
-      - name: Git clone - develop
+      - name: Git clone - ${{ github.ref }}
         uses: actions/checkout@v4
         with:
-          ref: develop
+          ref: ${{ github.ref }}
 
       - name: Setup asdf cache
         uses: actions/cache@v4
