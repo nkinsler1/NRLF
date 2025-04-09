@@ -22,3 +22,9 @@ variable "vpc_cidr_block" {
   type        = string
   default     = "10.0.0.0/16"
 }
+
+variable "github_pat_secret_name" {
+  description = "The name of the secret in Secrets Manager that contains a GitHub Personal Access Token for CI builds"
+  type        = string
+  default     = "nhsd-nrlf--codebuild-github-pat"
+}
