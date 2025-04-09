@@ -1,4 +1,4 @@
-data "aws_iam_policy_document" "assume_role" {
+data "aws_iam_policy_document" "codebuild_assume_role" {
   statement {
     effect = "Allow"
 
@@ -12,12 +12,18 @@ data "aws_iam_policy_document" "assume_role" {
       "sts:AssumeRoleWithWebIdentity",
       "sts:TagSession"
     ]
+
+    condition {
+      test     = "StringEquals"
+      variable = "aws:SourceAccount"
+      values   = ["${data.aws_caller_identity.current.account_id}"]
+    }
   }
 }
 
 resource "aws_iam_role" "codebuild_service_role" {
   name               = "${local.project}-codebuild-service-role"
-  assume_role_policy = data.aws_iam_policy_document.assume_role.json
+  assume_role_policy = data.aws_iam_policy_document.codebuild_assume_role.json
 }
 
 data "aws_iam_policy_document" "codebuild_policy" {
