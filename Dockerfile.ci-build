@@ -1,0 +1,29 @@
+FROM ubuntu:22.04
+
+RUN apt update && \
+    DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt install -y \
+      ca-certificates curl gnupg lsb-release \
+      build-essential make libssl-dev zlib1g-dev libbz2-dev libreadline-dev \
+      libsqlite3-dev llvm libncursesw5-dev tk-dev libxml2-dev \
+      libxmlsec1-dev libffi-dev libicu70 liblzma-dev \
+      python3 git curl wget \
+      zip xz-utils tar unzip && \
+    apt clean && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /root
+RUN git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.15.0 && \
+    echo ". $HOME/.asdf/asdf.sh" >> ~/.bashrc && \
+    echo ". $HOME/.asdf/completions/asdf.bash" >> ~/.bashrc && \
+    echo "export ASDF_DIR=$HOME/.asdf" >> ~/.bashrc && \
+    echo "export PATH=\$ASDF_DIR/bin:\$PATH" >> ~/.bashrc && \
+    echo "export PATH=\$ASDF_DIR/shims:\$PATH" >> ~/.bashrc
+
+ADD .tool-versions .
+RUN for plugin in $(cat .tool-versions | cut -d' ' -f1); do \
+        ./.asdf/bin/asdf plugin add $plugin; \
+    done && \
+    ./.asdf/bin/asdf install && \
+    ln -s $(pwd)/.asdf/shims/* /usr/local/bin/.
+
+CMD [ "/bin/bash" ]

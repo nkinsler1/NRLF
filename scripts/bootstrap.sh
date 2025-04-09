@@ -60,6 +60,7 @@ function _bootstrap() {
       aws secretsmanager create-secret --name "${DEV_ACCOUNT_ID_LOCATION}"
       aws secretsmanager create-secret --name "${TEST_ACCOUNT_ID_LOCATION}"
       aws secretsmanager create-secret --name "${PROD_ACCOUNT_ID_LOCATION}"
+      aws secretsmanager create-secret --name "${PROFILE_PREFIX}--codebuild-github-pat"
     ;;
     #----------------
     "delete-mgmt")
@@ -81,6 +82,7 @@ function _bootstrap() {
       aws secretsmanager delete-secret --secret-id "${DEV_ACCOUNT_ID_LOCATION}"
       aws secretsmanager delete-secret --secret-id "${TEST_ACCOUNT_ID_LOCATION}"
       aws secretsmanager delete-secret --secret-id "${PROD_ACCOUNT_ID_LOCATION}"
+      aws secretsmanager delete-secret --secret-id "${PROFILE_PREFIX}--codebuild-github-pat"
     ;;
     #----------------
     "create-non-mgmt")
