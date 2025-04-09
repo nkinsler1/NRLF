@@ -8,6 +8,7 @@ TERRAFORM_ROLE_NAME="terraform"
 MGMT_ACCOUNT_ID_LOCATION="${PROFILE_PREFIX}--mgmt--mgmt-account-id"
 PROD_ACCOUNT_ID_LOCATION="${PROFILE_PREFIX}--mgmt--prod-account-id"
 TEST_ACCOUNT_ID_LOCATION="${PROFILE_PREFIX}--mgmt--test-account-id"
+TEST_BACKUP_ACCOUNT_ID_LOCATION="${PROFILE_PREFIX}--mgmt--test-backup-account-id"
 DEV_ACCOUNT_ID_LOCATION="${PROFILE_PREFIX}--mgmt--dev-account-id"
 
 
@@ -59,6 +60,7 @@ function _bootstrap() {
       aws secretsmanager create-secret --name "${MGMT_ACCOUNT_ID_LOCATION}"
       aws secretsmanager create-secret --name "${DEV_ACCOUNT_ID_LOCATION}"
       aws secretsmanager create-secret --name "${TEST_ACCOUNT_ID_LOCATION}"
+      aws secretsmanager create-secret --name "${TEST_BACKUP_ACCOUNT_ID_LOCATION}"
       aws secretsmanager create-secret --name "${PROD_ACCOUNT_ID_LOCATION}"
       aws secretsmanager create-secret --name "${PROFILE_PREFIX}--codebuild-github-pat"
     ;;
@@ -81,6 +83,7 @@ function _bootstrap() {
       aws secretsmanager delete-secret --secret-id "${MGMT_ACCOUNT_ID_LOCATION}"
       aws secretsmanager delete-secret --secret-id "${DEV_ACCOUNT_ID_LOCATION}"
       aws secretsmanager delete-secret --secret-id "${TEST_ACCOUNT_ID_LOCATION}"
+      aws secretsmanager delete-secret --secret-id "${TEST_BACKUP_ACCOUNT_ID_LOCATION}"
       aws secretsmanager delete-secret --secret-id "${PROD_ACCOUNT_ID_LOCATION}"
       aws secretsmanager delete-secret --secret-id "${PROFILE_PREFIX}--codebuild-github-pat"
     ;;
