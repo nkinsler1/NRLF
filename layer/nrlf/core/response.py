@@ -117,6 +117,20 @@ class NRLResponse(Response):
             statusCode="200",
         )
 
+    @classmethod
+    def RESOURCE_DOES_NOT_EXIST_DELETE(cls):
+        return cls.from_issues(
+            issues=[
+                producer_model.OperationOutcomeIssue(
+                    severity="information",
+                    code="informational",
+                    details=NRLResponseConcept.from_code("RESOURCE_DELETED"),
+                    diagnostics="The requested DocumentReference could not be found",
+                )
+            ],
+            statusCode="200",
+        )
+
 
 class SpineErrorResponse(Response):
     @classmethod
