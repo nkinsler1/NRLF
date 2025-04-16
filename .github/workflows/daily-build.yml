@@ -19,7 +19,7 @@ on:
 jobs:
   build:
     name: Build - ${{ github.ref }}
-    runs-on: codebuild-nhsd-nrlf--ci-build-project-${{ github.run_id }}-${{ github.run_attempt }}
+    runs-on: codebuild-nhsd-nrlf-ci-build-project-${{ github.run_id }}-${{ github.run_attempt }}
 
     steps:
       - name: Git clone - ${{ github.ref }}
