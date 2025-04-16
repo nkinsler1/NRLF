@@ -78,8 +78,7 @@ build-ci-image: ## Build the CI image
 	@echo "Building the CI image"
 	docker build \
 		-t nhsd-nrlf-ci-build:latest \
-		-f Dockerfile.ci-build \
-		.
+		-f Dockerfile.ci-build
 
 ecr-login: ## Login to NRLF ECR repo
 	@echo "Logging into ECR"
