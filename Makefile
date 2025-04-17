@@ -88,7 +88,7 @@ ecr-login: ## Login to NRLF ECR repo
 		| docker login --username AWS --password-stdin \
 			$(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com
 
-publish-ci-image: build-ci-image ecr-login ## Publish the CI image
+publish-ci-image: ## Publish the CI image
 	@echo "Publishing the CI image"
 	$(eval AWS_REGION := $(shell aws configure get region))
 	$(eval AWS_ACCOUNT_ID := $(shell aws sts get-caller-identity | jq -r .Account))
