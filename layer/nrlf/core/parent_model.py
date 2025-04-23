@@ -1,6 +1,6 @@
 from typing import Annotated, List, Optional
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class ParentCoding(BaseModel):
@@ -81,6 +81,60 @@ class ParentExtension(BaseModel):
 
 
 class Parent(BaseModel):
+    @model_validator(mode="before")
+    @classmethod
+    def validate_empty_fields(cls, values):
+        """
+        Iteratively check every field in the model for emptiness.
+        If a field is empty, add it to the error list with its full location.
+        """
+        stack = [(None, values)]
+        empty_fields = []
+
+        while stack:
+            path, current_value = stack.pop()
+
+            if isinstance(current_value, dict):
+                for key, value in current_value.items():
+                    full_path = f"{path}.{key}" if path else key
+                    if (
+                        value is None
+                        or value == ""
+                        or (isinstance(value, list) and not value)
+                    ):
+                        empty_fields.append(full_path)
+                    else:
+                        stack.append((full_path, value))
+
+            elif isinstance(current_value, list):
+                for index, item in enumerate(current_value):
+                    full_path = f"{path}[{index}]" if path else f"[{index}]"
+                    if (
+                        item is None
+                        or item == ""
+                        or (isinstance(item, dict) and not item)
+                    ):
+                        empty_fields.append(full_path)
+                    else:
+                        stack.append((full_path, item))
+
+            elif isinstance(current_value, BaseModel):
+                nested_values = current_value.model_dump(exclude_none=True)
+                for nested_field, nested_value in nested_values.items():
+                    full_path = f"{path}.{nested_field}" if path else nested_field
+                    stack.append((full_path, nested_value))
+
+            else:
+                if current_value is None or current_value == "":
+                    empty_fields.append(path)
+
+        if empty_fields:
+            raise ValueError(
+                f"The following fields are empty: {', '.join(empty_fields)}"
+            )
+
+        return values
+
     model_config = ConfigDict(regex_engine="python-re", extra="forbid")
     extension: Annotated[
         Optional[List[ParentExtension]],

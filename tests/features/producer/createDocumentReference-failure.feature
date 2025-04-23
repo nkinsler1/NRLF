@@ -1014,3 +1014,35 @@ Feature: Producer - createDocumentReference - Failure Scenarios
         ]
       }
       """
+
+  Scenario: Reject DocumentReference with empty non-mandatory field (author)
+    Given the application 'DataShare' (ID 'z00z-y11y-x22x') is registered to access the API
+    And the organisation 'TSTCUS' is authorised to access pointer types:
+      | system                 | value     |
+      | http://snomed.info/sct | 736253002 |
+    When producer 'TSTCUS' requests creation of a DocumentReference with default test values except 'author' is:
+      """
+      "author": []
+      """
+    Then the response status code is 400
+    And the response is an OperationOutcome with 1 issue
+    And the OperationOutcome contains the issue:
+      """
+      {
+        "severity": "error",
+        "code": "invalid",
+        "details": {
+            "coding": [
+            {
+                "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                "code": "MESSAGE_NOT_WELL_FORMED",
+                "display": "Message not well formed"
+            }
+            ]
+        },
+        "diagnostics": "Request body could not be parsed (author: Field is an empty list)",
+        "expression": [
+            "author"
+        ]
+      }
+      """
