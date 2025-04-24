@@ -744,9 +744,9 @@ Feature: Producer - createDocumentReference - Failure Scenarios
             }
             ]
         },
-        "diagnostics": "Request body could not be parsed (content: List should have at least 1 item after validation, not 0)",
+        "diagnostics": "Request body could not be parsed (root: Value error, The following fields are empty: content)",
         "expression": [
-            "content"
+            "root"
         ]
       }
       """
@@ -802,9 +802,9 @@ Feature: Producer - createDocumentReference - Failure Scenarios
             }
             ]
         },
-        "diagnostics": "Request body could not be parsed (content[0].attachment.contentType: String should match pattern '[^\\s]+(\\s[^\\s]+)*')",
+        "diagnostics": "Request body could not be parsed (root: Value error, The following fields are empty: content[0].attachment.contentType)",
         "expression": [
-            "content[0].attachment.contentType"
+          "root"
         ]
       }
       """
@@ -1008,9 +1008,9 @@ Feature: Producer - createDocumentReference - Failure Scenarios
             }
             ]
         },
-        "diagnostics": "Request body could not be parsed (context.practiceSetting.coding[0].display: String should match pattern '[\\S]+[ \\r\\n\\t\\S]*')",
+        "diagnostics": "Request body could not be parsed (root: Value error, The following fields are empty: context.practiceSetting.coding[0].display)",
         "expression": [
-            "context.practiceSetting.coding[0].display"
+          "root"
         ]
       }
       """

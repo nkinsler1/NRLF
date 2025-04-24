@@ -87,9 +87,9 @@ Feature: Producer - updateDocumentReference - Failure Scenarios
             }
             ]
         },
-        "diagnostics": "Request body could not be parsed (content: List should have at least 1 item after validation, not 0)",
+        "diagnostics": "Request body could not be parsed (root: Value error, The following fields are empty: content)",
         "expression": [
-            "content"
+            "root"
         ]
       }
       """
