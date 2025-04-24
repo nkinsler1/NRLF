@@ -1040,9 +1040,7 @@ Feature: Producer - createDocumentReference - Failure Scenarios
             }
             ]
         },
-        "diagnostics": "Request body could not be parsed (author: Field is an empty list)",
-        "expression": [
-            "author"
-        ]
+        "diagnostics": "Request body could not be parsed (root: Value error, The following fields are empty: author)",
+        "expression": ["root"]
       }
       """

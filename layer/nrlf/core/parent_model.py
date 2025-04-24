@@ -88,6 +88,29 @@ class Parent(BaseModel):
         Iteratively check every field in the model for emptiness.
         If a field is empty, add it to the error list with its full location.
         """
+        allowed_classes = [
+            "DocumentReference",
+            "Meta",
+            "Narrative",
+            "Identifier",
+            "NRLCodeableConcept",
+            "NRLCoding",
+            "Reference",
+            "DocumentReferenceRelatesTo",
+            "CodeableConcept",
+            "Coding",
+            "DocumentReferenceContent",
+            "Attachment",
+            "NRLFormatCode",
+            "ContentStabilityExtension",
+            "ContentStabilityExtensionValueCodeableConcept",
+            "ContentStabilityExtensionCoding",
+            "DocumentReferenceContext",
+            "Period",
+        ]
+        if cls.__name__ not in allowed_classes:
+            return values
+
         stack = [(None, values)]
         empty_fields = []
 

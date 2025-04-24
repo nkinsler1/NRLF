@@ -387,7 +387,7 @@ def test_create_document_reference_invalid_body():
 def test_create_document_reference_empty_fields_in_body():
     doc_ref = load_document_reference("Y05868-736253002-Valid")
     doc_ref.author = []
-    doc_ref.context = {"practiceSetting": {}, "sourcePatientInfo": None}
+    doc_ref.custodian = {"identifier": {}, "reference": None}
     doc_ref.category = [{"coding": [{"system": "", "code": None}]}]
     doc_ref.text = ""
 
@@ -421,7 +421,7 @@ def test_create_document_reference_empty_fields_in_body():
                         }
                     ],
                 },
-                "diagnostics": "Request body could not be parsed (root: Value error, The following fields are empty: text, author, context.sourcePatientInfo, category[0].coding[0].system, category[0].coding[0].code)",
+                "diagnostics": "Request body could not be parsed (root: Value error, The following fields are empty: text, author, custodian.reference, category[0].coding[0].system, category[0].coding[0].code)",
                 "expression": ["root"],
             }
         ],
@@ -825,9 +825,7 @@ def test_create_document_reference_cannot_set_status_to_not_current(repository):
 def test_create_document_reference_no_relatesto_target():
     doc_ref = load_document_reference("Y05868-736253002-Valid")
     doc_ref.relatesTo = [
-        DocumentReferenceRelatesTo(
-            code="transforms", target=Reference(reference=None, identifier=None)
-        )
+        DocumentReferenceRelatesTo(code="transforms", target=Reference())
     ]
 
     event = create_test_api_gateway_event(
@@ -873,9 +871,7 @@ def test_create_document_reference_invalid_relatesto_target_producer_id():
     doc_ref.relatesTo = [
         DocumentReferenceRelatesTo(
             code="transforms",
-            target=Reference(
-                reference=None, identifier=Identifier(value="X26-99999-99999-999999")
-            ),
+            target=Reference(identifier=Identifier(value="X26-99999-99999-999999")),
         )
     ]
 
@@ -925,7 +921,6 @@ def test_create_document_reference_invalid_relatesto_not_exists(repository):
         DocumentReferenceRelatesTo(
             code="transforms",
             target=Reference(
-                reference=None,
                 identifier=Identifier(value="Y05868-123456-123456-123456"),
             ),
         )
@@ -986,9 +981,7 @@ def test_create_document_reference_invalid_relatesto_nhs_number(
     doc_ref.relatesTo = [
         DocumentReferenceRelatesTo(
             code="transforms",
-            target=Reference(
-                reference=None, identifier=Identifier(value="Y05868-99999-99999-999999")
-            ),
+            target=Reference(identifier=Identifier(value="Y05868-99999-99999-999999")),
         )
     ]
 
@@ -1048,9 +1041,7 @@ def test_create_document_reference_invalid_relatesto_type(
     doc_ref.relatesTo = [
         DocumentReferenceRelatesTo(
             code="transforms",
-            target=Reference(
-                reference=None, identifier=Identifier(value="Y05868-99999-99999-999999")
-            ),
+            target=Reference(identifier=Identifier(value="Y05868-99999-99999-999999")),
         )
     ]
 
@@ -1264,9 +1255,7 @@ def test_create_document_reference_supersede_deletes_old_pointers_replace(
     doc_ref.relatesTo = [
         DocumentReferenceRelatesTo(
             code="replaces",
-            target=Reference(
-                reference=None, identifier=Identifier(value="Y05868-99999-99999-999999")
-            ),
+            target=Reference(identifier=Identifier(value="Y05868-99999-99999-999999")),
         )
     ]
 
@@ -1325,9 +1314,7 @@ def test_create_document_reference_supersede_succeeds_with_toggle(
     doc_ref.relatesTo = [
         DocumentReferenceRelatesTo(
             code="replaces",
-            target=Reference(
-                reference=None, identifier=Identifier(value="Y05868-99999-99999-000000")
-            ),
+            target=Reference(identifier=Identifier(value="Y05868-99999-99999-000000")),
         )
     ]
 
@@ -1385,9 +1372,7 @@ def test_create_document_reference_supersede_fails_without_toggle(
     doc_ref.relatesTo = [
         DocumentReferenceRelatesTo(
             code="replaces",
-            target=Reference(
-                reference=None, identifier=Identifier(value="Y05868-99999-99999-000000")
-            ),
+            target=Reference(identifier=Identifier(value="Y05868-99999-99999-000000")),
         )
     ]
 
@@ -1444,9 +1429,7 @@ def test_create_document_reference_create_relatesto_not_replaces(
     doc_ref.relatesTo = [
         DocumentReferenceRelatesTo(
             code="transforms",
-            target=Reference(
-                reference=None, identifier=Identifier(value="Y05868-99999-99999-999999")
-            ),
+            target=Reference(identifier=Identifier(value="Y05868-99999-99999-999999")),
         )
     ]
 

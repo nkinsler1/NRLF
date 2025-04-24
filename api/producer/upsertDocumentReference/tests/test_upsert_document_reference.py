@@ -748,9 +748,7 @@ def test_upsert_document_reference_pointer_type_not_allowed(
 def test_upsert_document_reference_no_relatesto_target():
     doc_ref = load_document_reference("Y05868-736253002-Valid")
     doc_ref.relatesTo = [
-        DocumentReferenceRelatesTo(
-            code="transforms", target=Reference(reference=None, identifier=None)
-        )
+        DocumentReferenceRelatesTo(code="transforms", target=Reference())
     ]
 
     event = create_test_api_gateway_event(
@@ -796,9 +794,7 @@ def test_upsert_document_reference_invalid_relatesto_target_producer_id():
     doc_ref.relatesTo = [
         DocumentReferenceRelatesTo(
             code="transforms",
-            target=Reference(
-                reference=None, identifier=Identifier(value="X26-99999-99999-999999")
-            ),
+            target=Reference(identifier=Identifier(value="X26-99999-99999-999999")),
         )
     ]
 
@@ -848,7 +844,6 @@ def test_upsert_document_reference_invalid_relatesto_not_exists(repository):
         DocumentReferenceRelatesTo(
             code="transforms",
             target=Reference(
-                reference=None,
                 identifier=Identifier(value="Y05868-99999-99999-999999"),
             ),
         )
@@ -902,7 +897,6 @@ def test_upsert_document_reference_invalid_relatesto_not_exists_still_creates_wi
         DocumentReferenceRelatesTo(
             code="transforms",
             target=Reference(
-                reference=None,
                 identifier=Identifier(value="Y05868-99999-99999-999999"),
             ),
         )
@@ -967,9 +961,7 @@ def test_upsert_document_reference_invalid_relatesto_nhs_number(
     doc_ref.relatesTo = [
         DocumentReferenceRelatesTo(
             code="transforms",
-            target=Reference(
-                reference=None, identifier=Identifier(value="Y05868-99999-99999-999999")
-            ),
+            target=Reference(identifier=Identifier(value="Y05868-99999-99999-999999")),
         )
     ]
 
@@ -1029,9 +1021,7 @@ def test_upsert_document_reference_invalid_relatesto_type(
     doc_ref.relatesTo = [
         DocumentReferenceRelatesTo(
             code="transforms",
-            target=Reference(
-                reference=None, identifier=Identifier(value="Y05868-99999-99999-999999")
-            ),
+            target=Reference(identifier=Identifier(value="Y05868-99999-99999-999999")),
         )
     ]
 
@@ -1244,9 +1234,7 @@ def test_upsert_document_reference_supersede_deletes_old_pointers_replace(
     doc_ref.relatesTo = [
         DocumentReferenceRelatesTo(
             code="replaces",
-            target=Reference(
-                reference=None, identifier=Identifier(value="Y05868-99999-99999-999999")
-            ),
+            target=Reference(identifier=Identifier(value="Y05868-99999-99999-999999")),
         )
     ]
 
@@ -1304,9 +1292,7 @@ def test_upsert_document_reference_supersede_succeeds_with_toggle(
     doc_ref.relatesTo = [
         DocumentReferenceRelatesTo(
             code="replaces",
-            target=Reference(
-                reference=None, identifier=Identifier(value="Y05868-99999-99999-000000")
-            ),
+            target=Reference(identifier=Identifier(value="Y05868-99999-99999-000000")),
         )
     ]
 
@@ -1364,9 +1350,7 @@ def test_upsert_document_reference_supersede_fails_without_toggle(
     doc_ref.relatesTo = [
         DocumentReferenceRelatesTo(
             code="replaces",
-            target=Reference(
-                reference=None, identifier=Identifier(value="Y05868-99999-99999-000000")
-            ),
+            target=Reference(identifier=Identifier(value="Y05868-99999-99999-000000")),
         )
     ]
 
@@ -1422,9 +1406,7 @@ def test_upsert_document_reference_create_relatesto_not_replaces(
     doc_ref.relatesTo = [
         DocumentReferenceRelatesTo(
             code="transforms",
-            target=Reference(
-                reference=None, identifier=Identifier(value="Y05868-99999-99999-999999")
-            ),
+            target=Reference(identifier=Identifier(value="Y05868-99999-99999-999999")),
         )
     ]
 
