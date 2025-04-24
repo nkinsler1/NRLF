@@ -7,7 +7,7 @@ RUN apt update && \
       build-essential make libssl-dev zlib1g-dev libbz2-dev libreadline-dev \
       libsqlite3-dev llvm libncursesw5-dev tk-dev libxml2-dev \
       libxmlsec1-dev libffi-dev libicu70 liblzma-dev \
-      python3 git curl wget sudo \
+      python3 git curl wget \
       zip xz-utils tar unzip && \
     apt clean && \
     rm -rf /var/lib/apt/lists/*
