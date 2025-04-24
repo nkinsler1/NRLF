@@ -158,9 +158,9 @@ Feature: Producer - updateDocumentReference - Failure Scenarios
             }
             ]
         },
-        "diagnostics": "Request body could not be parsed (content[0].attachment.contentType: String should match pattern '[^\\s]+(\\s[^\\s]+)*')",
+        "diagnostics": "Request body could not be parsed (root: Value error, The following fields are empty: content[0].attachment.contentType)",
         "expression": [
-            "content[0].attachment.contentType"
+          "root"
         ]
       }
       """
