@@ -18,35 +18,19 @@ on:
 
 jobs:
   build:
-    name: Build - develop
-    runs-on: [self-hosted, ci]
+    name: Build - ${{ github.ref }}
+    runs-on: codebuild-nhsd-nrlf-ci-build-project-${{ github.run_id }}-${{ github.run_attempt }}
 
     steps:
-      - name: Git clone - develop
+      - name: Git clone - ${{ github.ref }}
         uses: actions/checkout@v4
         with:
-          ref: develop
+          ref: ${{ github.ref }}
 
-      - name: Setup asdf cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.asdf
-          key: ${{ runner.os }}-asdf-${{ hashFiles('**/.tool-versions') }}
-          restore-keys: |
-            ${{ runner.os }}-asdf-
-
-      - name: Install asdf
-        uses: asdf-vm/actions/install@v3.0.2
-        with:
-          asdf_branch: v0.13.1
-
-      - name: Install zip
-        run: sudo apt-get install zip
-
-      - name: Setup Python environment
+      - name: Setup environment
         run: |
+          echo "${HOME}/.asdf/bin" >> $GITHUB_PATH
           poetry install --no-root
-          source $(poetry env info --path)/bin/activate
 
       - name: Run Linting
         run: make lint
@@ -55,7 +39,13 @@ jobs:
         run: make test
 
       - name: Build Project
-        run: make build
+        run: |
+          echo "PATH: ${PATH}"
+          echo "HOME: ${HOME}"
+          echo "python: $(which python)"
+          echo "asdf: $(which asdf)"
+          echo "/usr/local/bin: $(ls -la /usr/local/bin)"
+          make build
 
       - name: Configure Management Credentials
         uses: aws-actions/configure-aws-credentials@v4
