@@ -24,8 +24,8 @@ def test_validate_content_missing_attachment():
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "BAD_REQUEST",
+                    "display": "Bad request",
                 }
             ]
         },
@@ -52,8 +52,8 @@ def test_validate_content_missing_content_type():
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "BAD_REQUEST",
+                    "display": "Bad request",
                 }
             ]
         },
@@ -80,8 +80,8 @@ def test_validate_content_missing_format():
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "BAD_REQUEST",
+                    "display": "Bad request",
                 }
             ]
         },
@@ -111,8 +111,8 @@ def test_validate_content_multiple_content_stability_extensions():
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "BAD_REQUEST",
+                    "display": "Bad request",
                 }
             ]
         },
@@ -141,8 +141,8 @@ def test_validate_content_invalid_content_stability_code():
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "BAD_REQUEST",
+                    "display": "Bad request",
                 }
             ]
         },
@@ -171,8 +171,8 @@ def test_validate_content_invalid_content_stability_display():
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "BAD_REQUEST",
+                    "display": "Bad request",
                 }
             ]
         },
@@ -203,8 +203,8 @@ def test_validate_content_invalid_content_stability_system():
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "BAD_REQUEST",
+                    "display": "Bad request",
                 }
             ]
         },
@@ -232,8 +232,8 @@ def test_validate_content_invalid_content_stability_url():
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "BAD_REQUEST",
+                    "display": "Bad request",
                 }
             ]
         },
@@ -263,8 +263,8 @@ def test_validate_content_empty_content_stability_coding():
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "BAD_REQUEST",
+                    "display": "Bad request",
                 }
             ]
         },
@@ -294,8 +294,8 @@ def test_validate_content_missing_content_stability_coding():
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "BAD_REQUEST",
+                    "display": "Bad request",
                 }
             ]
         },
@@ -340,8 +340,8 @@ def test_validate_multiple_codings():
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "BAD_REQUEST",
+                    "display": "Bad request",
                 }
             ]
         },
@@ -368,8 +368,8 @@ def test_validate_missing_coding():
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "BAD_REQUEST",
+                    "display": "Bad request",
                 }
             ]
         },
@@ -404,8 +404,8 @@ def test_validate_empty_strings():
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "BAD_REQUEST",
+                    "display": "Bad request",
                 }
             ]
         },
@@ -440,8 +440,8 @@ def test_validate_whitespace_strings():
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "BAD_REQUEST",
+                    "display": "Bad request",
                 }
             ]
         },
@@ -470,8 +470,8 @@ def test_validate_no_coding_where_mandatory():
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "BAD_REQUEST",
+                    "display": "Bad request",
                 }
             ]
         },
@@ -518,8 +518,8 @@ def test_validate_missing_system_from_coding_where_mandatory():
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "BAD_REQUEST",
+                    "display": "Bad request",
                 }
             ]
         },
@@ -553,8 +553,8 @@ def test_validate_missing_code_from_coding_where_mandatory():
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "BAD_REQUEST",
+                    "display": "Bad request",
                 }
             ]
         },
@@ -588,8 +588,8 @@ def test_validate_missing_display_from_coding_where_mandatory():
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "BAD_REQUEST",
+                    "display": "Bad request",
                 }
             ]
         },

@@ -114,7 +114,7 @@ class DocumentReferenceValidator:
             )
             raise ParseError.from_validation_error(
                 exc,
-                details=SpineErrorConcept.from_code("INVALID_RESOURCE"),
+                details=SpineErrorConcept.from_code("BAD_REQUEST"),
                 msg="Failed to parse DocumentReference resource",
             ) from None
 
@@ -164,8 +164,8 @@ class DocumentReferenceValidator:
         for field in REQUIRED_CREATE_FIELDS:
             if not getattr(model, field, None):
                 self.result.add_error(
-                    issue_code="required",
-                    error_code="INVALID_RESOURCE",
+                    issue_code="business-rule",
+                    error_code="UNPROCESSABLE_ENTITY",
                     diagnostics=f"The required field '{field}' is missing",
                     field=field,
                 )
@@ -179,8 +179,8 @@ class DocumentReferenceValidator:
 
         if not (custodian_identifier := getattr(model.custodian, "identifier", None)):
             self.result.add_error(
-                issue_code="required",
-                error_code="INVALID_RESOURCE",
+                issue_code="business-rule",
+                error_code="UNPROCESSABLE_ENTITY",
                 diagnostics="Custodian must have an identifier",
                 field="custodian.identifier",
             )
@@ -188,8 +188,8 @@ class DocumentReferenceValidator:
 
         if not (subject_identifier := getattr(model.subject, "identifier", None)):
             self.result.add_error(
-                issue_code="required",
-                error_code="INVALID_RESOURCE",
+                issue_code="business-rule",
+                error_code="UNPROCESSABLE_ENTITY",
                 diagnostics="Subject must have an identifier",
                 field="subject.identifier",
             )
@@ -200,16 +200,16 @@ class DocumentReferenceValidator:
             != "https://fhir.nhs.uk/Id/ods-organization-code"
         ):
             self.result.add_error(
-                issue_code="invalid",
-                error_code="INVALID_IDENTIFIER_SYSTEM",
+                issue_code="business-rule",
+                error_code="UNPROCESSABLE_ENTITY",
                 diagnostics="Provided custodian identifier system is not the ODS system (expected: 'https://fhir.nhs.uk/Id/ods-organization-code')",
                 field="custodian.identifier.system",
             )
 
         if subject_identifier.system != "https://fhir.nhs.uk/Id/nhs-number":
             self.result.add_error(
-                issue_code="invalid",
-                error_code="INVALID_IDENTIFIER_SYSTEM",
+                issue_code="business-rule",
+                error_code="UNPROCESSABLE_ENTITY",
                 diagnostics=(
                     "Provided subject identifier system is not the NHS number system "
                     "(expected 'https://fhir.nhs.uk/Id/nhs-number')"
@@ -239,8 +239,8 @@ class DocumentReferenceValidator:
                 "summarizes",
             ]:
                 self.result.add_error(
-                    issue_code="value",
-                    error_code="INVALID_CODE_VALUE",
+                    issue_code="business-rule",
+                    error_code="UNPROCESSABLE_ENTITY",
                     diagnostics=f"Invalid relatesTo code: {relates_to.code}",
                     field=f"relatesTo[{index}].code",
                 )
@@ -250,8 +250,8 @@ class DocumentReferenceValidator:
                 relates_to.target.identifier and relates_to.target.identifier.value
             ):
                 self.result.add_error(
-                    issue_code="required",
-                    error_code="INVALID_IDENTIFIER_VALUE",
+                    issue_code="business-rule",
+                    error_code="UNPROCESSABLE_ENTITY",
                     diagnostics="relatesTo code 'replaces' must have a target identifier",
                     field=f"relatesTo[{index}].target.identifier.value",
                 )
@@ -264,8 +264,8 @@ class DocumentReferenceValidator:
 
         if len(asid_references) > 1:
             self.result.add_error(
-                issue_code="invalid",
-                error_code="INVALID_RESOURCE",
+                issue_code="business-rule",
+                error_code="UNPROCESSABLE_ENTITY",
                 diagnostics="Multiple ASID identifiers provided. Only a single valid ASID identifier can be provided in the context.related.",
                 field="context.related",
             )
@@ -275,8 +275,8 @@ class DocumentReferenceValidator:
         asid_value = getattr(asid_reference.identifier, "value") or ""
         if not match(r"^\d{12}$", asid_value):
             self.result.add_error(
-                issue_code="value",
-                error_code="INVALID_IDENTIFIER_VALUE",
+                issue_code="business-rule",
+                error_code="UNPROCESSABLE_ENTITY",
                 diagnostics=f"Invalid ASID value '{asid_value}'. A single ASID consisting of 12 digits can be provided in the context.related field.",
                 field=f"context.related[{idx}].identifier.value",
             )
@@ -317,8 +317,8 @@ class DocumentReferenceValidator:
 
         if ssp_content and not does_related_exist:
             self.result.add_error(
-                issue_code="required",
-                error_code="INVALID_RESOURCE",
+                issue_code="business-rule",
+                error_code="UNPROCESSABLE_ENTITY",
                 diagnostics="Missing context.related. It must be provided and contain a single valid ASID identifier when content contains an SSP URL",
                 field="context.related",
             )
@@ -326,8 +326,8 @@ class DocumentReferenceValidator:
 
         if ssp_content and does_related_exist and not does_asid_exist:
             self.result.add_error(
-                issue_code="required",
-                error_code="INVALID_RESOURCE",
+                issue_code="business-rule",
+                error_code="UNPROCESSABLE_ENTITY",
                 diagnostics="Missing ASID identifier. context.related must contain a single valid ASID identifier when content contains an SSP URL",
                 field="context.related",
             )
@@ -341,8 +341,8 @@ class DocumentReferenceValidator:
 
         if len(model.type.coding) > 1:
             self.result.add_error(
-                issue_code="invalid",
-                error_code="INVALID_RESOURCE",
+                issue_code="business-rule",
+                error_code="UNPROCESSABLE_ENTITY",
                 diagnostics=f"Invalid type coding length: {len(model.type.coding)} Type Coding must only contain a single value",
                 field="type.coding",
             )
@@ -351,8 +351,8 @@ class DocumentReferenceValidator:
         coding = model.type.coding[0]
         if coding.system not in ["http://snomed.info/sct", "https://nicip.nhs.uk"]:
             self.result.add_error(
-                issue_code="value",
-                error_code="INVALID_RESOURCE",
+                issue_code="business-rule",
+                error_code="UNPROCESSABLE_ENTITY",
                 diagnostics=f"Invalid type system: {coding.system} Type system must be either 'http://snomed.info/sct' or 'https://nicip.nhs.uk'",
                 field="type.coding[0].system",
             )
@@ -361,8 +361,8 @@ class DocumentReferenceValidator:
         type_id = f"{coding.system}|{coding.code}"
         if type_id not in TYPE_ATTRIBUTES.keys():
             self.result.add_error(
-                issue_code="value",
-                error_code="INVALID_RESOURCE",
+                issue_code="business-rule",
+                error_code="UNPROCESSABLE_ENTITY",
                 diagnostics=f"Invalid type code: {coding.code} Type must be a member of the England-NRLRecordType value set (https://fhir.nhs.uk/England/CodeSystem/England-NRLRecordType)",
                 field="type.coding[0].code",
             )
@@ -371,8 +371,8 @@ class DocumentReferenceValidator:
         type_attributes = TYPE_ATTRIBUTES.get(type_id, {})
         if coding.display != type_attributes.get("display"):
             self.result.add_error(
-                issue_code="value",
-                error_code="INVALID_RESOURCE",
+                issue_code="business-rule",
+                error_code="UNPROCESSABLE_ENTITY",
                 diagnostics=f"type code '{coding.code}' must have a display value of '{type_attributes.get('display')}'",
                 field="type.coding[0].display",
             )
@@ -385,8 +385,8 @@ class DocumentReferenceValidator:
 
         if len(model.category) > 1:
             self.result.add_error(
-                issue_code="invalid",
-                error_code="INVALID_RESOURCE",
+                issue_code="business-rule",
+                error_code="UNPROCESSABLE_ENTITY",
                 diagnostics=f"Invalid category length: {len(model.category)} Category must only contain a single value",
                 field=f"category",
             )
@@ -396,8 +396,8 @@ class DocumentReferenceValidator:
 
         if len(model.category[0].coding) > 1:
             self.result.add_error(
-                issue_code="invalid",
-                error_code="INVALID_RESOURCE",
+                issue_code="business-rule",
+                error_code="UNPROCESSABLE_ENTITY",
                 diagnostics=f"Invalid category coding length: {len(model.category[0].coding)} Category Coding must only contain a single value",
                 field=f"category[0].coding",
             )
@@ -406,8 +406,8 @@ class DocumentReferenceValidator:
         coding = model.category[0].coding[0]
         if coding.system != "http://snomed.info/sct":
             self.result.add_error(
-                issue_code="value",
-                error_code="INVALID_RESOURCE",
+                issue_code="business-rule",
+                error_code="UNPROCESSABLE_ENTITY",
                 diagnostics=f"Invalid category system: {coding.system} Category system must be 'http://snomed.info/sct'",
                 field="category[0].coding[0].system",
             )
@@ -416,8 +416,8 @@ class DocumentReferenceValidator:
         category_id = f"{coding.system}|{coding.code}"
         if category_id not in CATEGORY_ATTRIBUTES.keys():
             self.result.add_error(
-                issue_code="value",
-                error_code="INVALID_RESOURCE",
+                issue_code="business-rule",
+                error_code="UNPROCESSABLE_ENTITY",
                 diagnostics=f"Invalid category code: {coding.code} Category must be a member of the England-NRLRecordCategory value set (https://fhir.nhs.uk/England/CodeSystem/England-NRLRecordCategory)",
                 field="category[0].coding[0].code",
             )
@@ -426,8 +426,8 @@ class DocumentReferenceValidator:
         category_attributes = CATEGORY_ATTRIBUTES.get(category_id, {})
         if coding.display != category_attributes.get("display"):
             self.result.add_error(
-                issue_code="value",
-                error_code="INVALID_RESOURCE",
+                issue_code="business-rule",
+                error_code="UNPROCESSABLE_ENTITY",
                 diagnostics=f"category code '{coding.code}' must have a display value of '{category_attributes.get('display')}'",
                 field="category[0].coding[0].display",
             )
@@ -449,8 +449,8 @@ class DocumentReferenceValidator:
         type_category = TYPE_CATEGORIES.get(type_id)
         if type_category != category_id:
             self.result.add_error(
-                issue_code="value",
-                error_code="INVALID_RESOURCE",
+                issue_code="business-rule",
+                error_code="UNPROCESSABLE_ENTITY",
                 diagnostics=f"The Category code of the provided document '{category_id}' must match the allowed category for pointer type '{type_id}' with a category value of '{type_category}'",
                 field="category.coding[0].code",
             )
@@ -468,8 +468,8 @@ class DocumentReferenceValidator:
                 and content.format.code != "urn:nhs-ic:record-contact"
             ):
                 self.result.add_error(
-                    issue_code="value",
-                    error_code="INVALID_RESOURCE",
+                    issue_code="business-rule",
+                    error_code="UNPROCESSABLE_ENTITY",
                     diagnostics=f"Invalid content format code: {content.format.code} format code must be 'urn:nhs-ic:record-contact' for Contact details attachments.",
                     field=f"content[{i}].format.code",
                 )
@@ -478,8 +478,8 @@ class DocumentReferenceValidator:
                 and content.format.code != "urn:nhs-ic:unstructured"
             ):
                 self.result.add_error(
-                    issue_code="value",
-                    error_code="INVALID_RESOURCE",
+                    issue_code="business-rule",
+                    error_code="UNPROCESSABLE_ENTITY",
                     diagnostics=f"Invalid content format code: {content.format.code} format code must be 'urn:nhs-ic:unstructured' for Unstructured Document attachments.",
                     field=f"content[{i}].format.code",
                 )
@@ -495,8 +495,8 @@ class DocumentReferenceValidator:
             coding = content.extension[0].valueCodeableConcept.coding[0]
             if coding.code != coding.display.lower():
                 self.result.add_error(
-                    issue_code="value",
-                    error_code="INVALID_RESOURCE",
+                    issue_code="business-rule",
+                    error_code="UNPROCESSABLE_ENTITY",
                     diagnostics=f"Invalid content extension display: {coding.display} Extension display must be the same as code either 'Static' or 'Dynamic'",
                     field=f"content[{i}].extension[0].valueCodeableConcept.coding[0].display",
                 )
@@ -510,8 +510,8 @@ class DocumentReferenceValidator:
 
         if len(model.author) > 1:
             self.result.add_error(
-                issue_code="invalid",
-                error_code="INVALID_RESOURCE",
+                issue_code="business-rule",
+                error_code="UNPROCESSABLE_ENTITY",
                 diagnostics=f"Invalid author length: {len(model.author)} Author must only contain a single value",
                 field="author",
             )
@@ -522,8 +522,8 @@ class DocumentReferenceValidator:
 
         if identifier.system != ODS_SYSTEM:
             self.result.add_error(
-                issue_code="invalid",
-                error_code="INVALID_IDENTIFIER_SYSTEM",
+                issue_code="business-rule",
+                error_code="UNPROCESSABLE_ENTITY",
                 diagnostics=f"Invalid author system: '{identifier.system}' Author system must be '{ODS_SYSTEM}'",
                 field="author[0].identifier.system",
             )
@@ -531,8 +531,8 @@ class DocumentReferenceValidator:
 
         if not identifier.value.isalnum():
             self.result.add_error(
-                issue_code="value",
-                error_code="INVALID_RESOURCE",
+                issue_code="business-rule",
+                error_code="UNPROCESSABLE_ENTITY",
                 diagnostics=f"Invalid author value: '{identifier.value}' Author value must be alphanumeric",
                 field="author[0].identifier.value",
             )
@@ -540,8 +540,8 @@ class DocumentReferenceValidator:
 
         if len(identifier.value) > 12:
             self.result.add_error(
-                issue_code="value",
-                error_code="INVALID_RESOURCE",
+                issue_code="business-rule",
+                error_code="UNPROCESSABLE_ENTITY",
                 diagnostics=f"Invalid author value: '{identifier.value}' Author value must be less than 13 characters",
                 field="author[0].identifier.value",
             )
@@ -558,8 +558,8 @@ class DocumentReferenceValidator:
             )
         ):
             self.result.add_error(
-                issue_code="value",
-                error_code="INVALID_RESOURCE",
+                issue_code="business-rule",
+                error_code="UNPROCESSABLE_ENTITY",
                 diagnostics="Invalid practice setting: must contain a Coding",
                 field="context.practiceSetting.coding",
             )
@@ -567,8 +567,8 @@ class DocumentReferenceValidator:
 
         if len(practice_setting_coding) != 1:
             self.result.add_error(
-                issue_code="value",
-                error_code="INVALID_RESOURCE",
+                issue_code="business-rule",
+                error_code="UNPROCESSABLE_ENTITY",
                 diagnostics=f"Invalid practice setting coding length: {len(model.context.practiceSetting.coding)} Practice Setting Coding must only contain a single value",
                 field="context.practiceSetting.coding",
             )
@@ -580,8 +580,8 @@ class DocumentReferenceValidator:
             )
         ) != SNOMED_SYSTEM_URL:
             self.result.add_error(
-                issue_code="value",
-                error_code="INVALID_RESOURCE",
+                issue_code="business-rule",
+                error_code="UNPROCESSABLE_ENTITY",
                 diagnostics=f"Invalid practice setting system: {practice_setting_system} Practice Setting system must be '{SNOMED_SYSTEM_URL}'",
                 field="context.practiceSetting.coding[0].system",
             )
@@ -591,8 +591,8 @@ class DocumentReferenceValidator:
             practice_setting_value := getattr(practice_setting_coding[0], "code", None)
         ) not in SNOMED_PRACTICE_SETTINGS:
             self.result.add_error(
-                issue_code="value",
-                error_code="INVALID_RESOURCE",
+                issue_code="business-rule",
+                error_code="UNPROCESSABLE_ENTITY",
                 diagnostics=f"Invalid practice setting code: {practice_setting_value} Practice Setting coding must be a member of value set {PRACTICE_SETTING_VALUE_SET_URL}",
                 field="context.practiceSetting.coding[0].code",
             )
@@ -604,8 +604,8 @@ class DocumentReferenceValidator:
             )
         ) != SNOMED_PRACTICE_SETTINGS.get(practice_setting_value):
             self.result.add_error(
-                issue_code="value",
-                error_code="INVALID_RESOURCE",
+                issue_code="business-rule",
+                error_code="UNPROCESSABLE_ENTITY",
                 diagnostics=f"Invalid practice setting coding: display {practice_setting_display} does not match the expected display for {practice_setting_value} Practice Setting coding is bound to value set {PRACTICE_SETTING_VALUE_SET_URL}",
                 field="context.practiceSetting.coding[0]",
             )
@@ -625,8 +625,8 @@ class DocumentReferenceValidator:
         for i, content in enumerate(model.content):
             if content.attachment.contentType not in ["application/pdf", "text/html"]:
                 self.result.add_error(
-                    issue_code="value",
-                    error_code="INVALID_RESOURCE",
+                    issue_code="business-rule",
+                    error_code="UNPROCESSABLE_ENTITY",
                     diagnostics=f"Invalid contentType: {content.attachment.contentType}. Must be 'application/pdf' or 'text/html'",
                     field=f"content[{i}].attachment.contentType",
                 )
@@ -637,8 +637,8 @@ class DocumentReferenceValidator:
             expected_display = format_code_display_map.get(format_code)
             if expected_display and format_display != expected_display:
                 self.result.add_error(
-                    issue_code="value",
-                    error_code="INVALID_RESOURCE",
+                    issue_code="business-rule",
+                    error_code="UNPROCESSABLE_ENTITY",
                     diagnostics=f"Invalid display for format code '{format_code}'. Expected '{expected_display}'",
                     field=f"content[{i}].format.display",
                 )

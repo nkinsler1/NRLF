@@ -191,7 +191,7 @@ def test_create_document_reference_without_related_value_exception(
     body = result.pop("body")
 
     assert result == {
-        "statusCode": "400",
+        "statusCode": "422",
         "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
@@ -203,12 +203,12 @@ def test_create_document_reference_without_related_value_exception(
         "issue": [
             {
                 "severity": "error",
-                "code": "value",
+                "code": "business-rule",
                 "details": {
                     "coding": [
                         {
-                            "code": "INVALID_IDENTIFIER_VALUE",
-                            "display": "Invalid identifier value",
+                            "code": "UNPROCESSABLE_ENTITY",
+                            "display": "Unprocessable Entity",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
                     ]
@@ -397,7 +397,7 @@ def test_create_document_reference_invalid_resource():
     body = result.pop("body")
 
     assert result == {
-        "statusCode": "400",
+        "statusCode": "422",
         "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
@@ -408,12 +408,12 @@ def test_create_document_reference_invalid_resource():
         "issue": [
             {
                 "severity": "error",
-                "code": "required",
+                "code": "business-rule",
                 "details": {
                     "coding": [
                         {
-                            "code": "INVALID_RESOURCE",
-                            "display": "Invalid validation of resource",
+                            "code": "UNPROCESSABLE_ENTITY",
+                            "display": "Unprocessable Entity",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
                     ],
@@ -438,7 +438,7 @@ def test_create_document_reference_with_no_custodian():
     body = result.pop("body")
 
     assert result == {
-        "statusCode": "400",
+        "statusCode": "422",
         "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
@@ -449,12 +449,12 @@ def test_create_document_reference_with_no_custodian():
         "issue": [
             {
                 "severity": "error",
-                "code": "required",
+                "code": "business-rule",
                 "details": {
                     "coding": [
                         {
-                            "code": "INVALID_RESOURCE",
-                            "display": "Invalid validation of resource",
+                            "code": "UNPROCESSABLE_ENTITY",
+                            "display": "Unprocessable Entity",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
                     ],
@@ -563,7 +563,7 @@ def test_create_document_reference_invalid_custodian_id():
     body = result.pop("body")
 
     assert result == {
-        "statusCode": "400",
+        "statusCode": "422",
         "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
@@ -575,12 +575,12 @@ def test_create_document_reference_invalid_custodian_id():
         "issue": [
             {
                 "severity": "error",
-                "code": "invalid",
+                "code": "business-rule",
                 "details": {
                     "coding": [
                         {
-                            "code": "BAD_REQUEST",
-                            "display": "Bad request",
+                            "code": "UNPROCESSABLE_ENTITY",
+                            "display": "Unprocessable Entity",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
                     ]
@@ -607,7 +607,7 @@ def test_create_document_reference_invalid_pointer_type():
     body = result.pop("body")
 
     assert result == {
-        "statusCode": "400",
+        "statusCode": "422",
         "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
@@ -619,12 +619,12 @@ def test_create_document_reference_invalid_pointer_type():
         "issue": [
             {
                 "severity": "error",
-                "code": "value",
+                "code": "business-rule",
                 "details": {
                     "coding": [
                         {
-                            "code": "INVALID_RESOURCE",
-                            "display": "Invalid validation of resource",
+                            "code": "UNPROCESSABLE_ENTITY",
+                            "display": "Unprocessable Entity",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
                     ]
@@ -701,7 +701,7 @@ def test_create_document_reference_invalid_category_type():
     body = result.pop("body")
 
     assert result == {
-        "statusCode": "400",
+        "statusCode": "422",
         "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
@@ -713,12 +713,12 @@ def test_create_document_reference_invalid_category_type():
         "issue": [
             {
                 "severity": "error",
-                "code": "value",
+                "code": "business-rule",
                 "details": {
                     "coding": [
                         {
-                            "code": "INVALID_RESOURCE",
-                            "display": "Invalid validation of resource",
+                            "code": "UNPROCESSABLE_ENTITY",
+                            "display": "Unprocessable Entity",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
                     ]
@@ -795,7 +795,7 @@ def test_create_document_reference_no_relatesto_target():
     body = result.pop("body")
 
     assert result == {
-        "statusCode": "400",
+        "statusCode": "422",
         "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
@@ -807,12 +807,12 @@ def test_create_document_reference_no_relatesto_target():
         "issue": [
             {
                 "severity": "error",
-                "code": "invalid",
+                "code": "business-rule",
                 "details": {
                     "coding": [
                         {
-                            "code": "BAD_REQUEST",
-                            "display": "Bad request",
+                            "code": "UNPROCESSABLE_ENTITY",
+                            "display": "Unprocessable Entity",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
                     ]
@@ -844,7 +844,7 @@ def test_create_document_reference_invalid_relatesto_target_producer_id():
     body = result.pop("body")
 
     assert result == {
-        "statusCode": "400",
+        "statusCode": "422",
         "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
@@ -856,12 +856,12 @@ def test_create_document_reference_invalid_relatesto_target_producer_id():
         "issue": [
             {
                 "severity": "error",
-                "code": "invalid",
+                "code": "business-rule",
                 "details": {
                     "coding": [
                         {
-                            "code": "BAD_REQUEST",
-                            "display": "Bad request",
+                            "code": "UNPROCESSABLE_ENTITY",
+                            "display": "Unprocessable Entity",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
                     ]
@@ -896,7 +896,7 @@ def test_create_document_reference_invalid_relatesto_not_exists(repository):
     body = result.pop("body")
 
     assert result == {
-        "statusCode": "400",
+        "statusCode": "422",
         "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
@@ -908,12 +908,12 @@ def test_create_document_reference_invalid_relatesto_not_exists(repository):
         "issue": [
             {
                 "severity": "error",
-                "code": "invalid",
+                "code": "business-rule",
                 "details": {
                     "coding": [
                         {
-                            "code": "BAD_REQUEST",
-                            "display": "Bad request",
+                            "code": "UNPROCESSABLE_ENTITY",
+                            "display": "Unprocessable Entity",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
                     ]
@@ -957,7 +957,7 @@ def test_create_document_reference_invalid_relatesto_nhs_number(
     body = result.pop("body")
 
     assert result == {
-        "statusCode": "400",
+        "statusCode": "422",
         "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
@@ -969,12 +969,12 @@ def test_create_document_reference_invalid_relatesto_nhs_number(
         "issue": [
             {
                 "severity": "error",
-                "code": "invalid",
+                "code": "business-rule",
                 "details": {
                     "coding": [
                         {
-                            "code": "BAD_REQUEST",
-                            "display": "Bad request",
+                            "code": "UNPROCESSABLE_ENTITY",
+                            "display": "Unprocessable Entity",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
                     ]
@@ -1021,7 +1021,7 @@ def test_create_document_reference_invalid_relatesto_type(
     body = result.pop("body")
 
     assert result == {
-        "statusCode": "400",
+        "statusCode": "422",
         "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
@@ -1033,12 +1033,12 @@ def test_create_document_reference_invalid_relatesto_type(
         "issue": [
             {
                 "severity": "error",
-                "code": "invalid",
+                "code": "business-rule",
                 "details": {
                     "coding": [
                         {
-                            "code": "BAD_REQUEST",
-                            "display": "Bad request",
+                            "code": "UNPROCESSABLE_ENTITY",
+                            "display": "Unprocessable Entity",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
                     ]
@@ -1068,7 +1068,7 @@ def test_create_document_reference_with_no_context_related_for_ssp_url(
     body = result.pop("body")
 
     assert result == {
-        "statusCode": "400",
+        "statusCode": "422",
         "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
@@ -1080,12 +1080,12 @@ def test_create_document_reference_with_no_context_related_for_ssp_url(
         "issue": [
             {
                 "severity": "error",
-                "code": "required",
+                "code": "business-rule",
                 "details": {
                     "coding": [
                         {
-                            "code": "INVALID_RESOURCE",
-                            "display": "Invalid validation of resource",
+                            "code": "UNPROCESSABLE_ENTITY",
+                            "display": "Unprocessable Entity",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
                     ]
@@ -1122,7 +1122,7 @@ def test_create_document_reference_with_no_asid_in_for_ssp_url(
     body = result.pop("body")
 
     assert result == {
-        "statusCode": "400",
+        "statusCode": "422",
         "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
@@ -1134,12 +1134,12 @@ def test_create_document_reference_with_no_asid_in_for_ssp_url(
         "issue": [
             {
                 "severity": "error",
-                "code": "required",
+                "code": "business-rule",
                 "details": {
                     "coding": [
                         {
-                            "code": "INVALID_RESOURCE",
-                            "display": "Invalid validation of resource",
+                            "code": "UNPROCESSABLE_ENTITY",
+                            "display": "Unprocessable Entity",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
                     ]
@@ -1176,7 +1176,7 @@ def test_create_document_reference_with_invalid_asid_for_ssp_url(
     body = result.pop("body")
 
     assert result == {
-        "statusCode": "400",
+        "statusCode": "422",
         "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
@@ -1188,12 +1188,12 @@ def test_create_document_reference_with_invalid_asid_for_ssp_url(
         "issue": [
             {
                 "severity": "error",
-                "code": "value",
+                "code": "business-rule",
                 "details": {
                     "coding": [
                         {
-                            "code": "INVALID_IDENTIFIER_VALUE",
-                            "display": "Invalid identifier value",
+                            "code": "UNPROCESSABLE_ENTITY",
+                            "display": "Unprocessable Entity",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
                     ]
@@ -1356,7 +1356,7 @@ def test_create_document_reference_supersede_fails_without_toggle(
     body = result.pop("body")
 
     assert result == {
-        "statusCode": "400",
+        "statusCode": "422",
         "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
@@ -1368,12 +1368,12 @@ def test_create_document_reference_supersede_fails_without_toggle(
         "issue": [
             {
                 "severity": "error",
-                "code": "invalid",
+                "code": "business-rule",
                 "details": {
                     "coding": [
                         {
-                            "code": "BAD_REQUEST",
-                            "display": "Bad request",
+                            "code": "UNPROCESSABLE_ENTITY",
+                            "display": "Unprocessable Entity",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
                     ]

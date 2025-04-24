@@ -45,7 +45,6 @@ class SpineErrorConcept(_CodeableConcept):
     _SYSTEM = "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1"
     _TEXT_MAP = {
         "ACCESS DENIED": "Access has been denied to process this request",
-        "INVALID_RESOURCE": "Invalid validation of resource",
         "NO_RECORD_FOUND": "No record found",
         "INVALID_NHS_NUMBER": "Invalid NHS number",
         "INVALID_CODE_SYSTEM": "Invalid code system",
@@ -56,7 +55,5 @@ class SpineErrorConcept(_CodeableConcept):
         "INVALID_PARAMETER": "Invalid parameter",
         "MESSAGE_NOT_WELL_FORMED": "Message not well formed",
         "MISSING_OR_INVALID_HEADER": "There is a required header missing or invalid",
-        "INVALID_IDENTIFIER_SYSTEM": "Invalid identifier system",
-        "INVALID_CODE_VALUE": "Invalid code value",
-        "INVALID_IDENTIFIER_VALUE": "Invalid identifier value",
+        "UNPROCESSABLE_ENTITY": "Unprocessable Entity",
     }
