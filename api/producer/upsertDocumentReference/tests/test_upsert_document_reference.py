@@ -776,14 +776,14 @@ def test_upsert_document_reference_no_relatesto_target():
                 "details": {
                     "coding": [
                         {
-                            "code": "BAD_REQUEST",
-                            "display": "Bad request",
+                            "code": "MESSAGE_NOT_WELL_FORMED",
+                            "display": "Message not well formed",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
-                    ]
+                    ],
                 },
-                "diagnostics": "No identifier value provided for relatesTo target",
-                "expression": ["relatesTo[0].target.identifier.value"],
+                "diagnostics": "Request body could not be parsed (root: Value error, The following fields are empty: relatesTo[0].target)",
+                "expression": ["root"],
             }
         ],
     }

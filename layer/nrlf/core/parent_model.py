@@ -90,7 +90,6 @@ class Parent(BaseModel):
         """
         allowed_classes = [
             "DocumentReference",
-            "Meta",
             "Narrative",
             "Identifier",
             "NRLCodeableConcept",
@@ -108,7 +107,7 @@ class Parent(BaseModel):
             "DocumentReferenceContext",
             "Period",
         ]
-        if cls.__name__ not in allowed_classes:
+        if cls.__name__ not in allowed_classes or not values:
             return values
 
         stack = [(None, values)]
@@ -128,6 +127,8 @@ class Parent(BaseModel):
                         empty_fields.append(full_path)
                     else:
                         stack.append((full_path, value))
+                if not current_value:
+                    empty_fields.append(path)
 
             elif isinstance(current_value, list):
                 for index, item in enumerate(current_value):
@@ -141,7 +142,7 @@ class Parent(BaseModel):
                     else:
                         stack.append((full_path, item))
 
-            elif isinstance(current_value, BaseModel):
+            elif isinstance(current_value, Parent):
                 nested_values = current_value.model_dump(exclude_none=True)
                 for nested_field, nested_value in nested_values.items():
                     full_path = f"{path}.{nested_field}" if path else nested_field

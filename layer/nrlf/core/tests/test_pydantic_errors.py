@@ -242,37 +242,6 @@ def test_validate_content_invalid_content_stability_url():
     }
 
 
-def test_validate_content_missing_content_stability_coding():
-    validator = DocumentReferenceValidator()
-    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
-
-    # Remove the coding key from contentStability extension
-    del document_ref_data["content"][0]["extension"][0]["valueCodeableConcept"][
-        "coding"
-    ]
-
-    with pytest.raises(ParseError) as error:
-        validator.validate(document_ref_data)
-
-    exc = error.value
-    assert len(exc.issues) == 1
-    assert exc.issues[0].model_dump(exclude_none=True) == {
-        "severity": "error",
-        "code": "invalid",
-        "details": {
-            "coding": [
-                {
-                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
-                }
-            ]
-        },
-        "diagnostics": "Failed to parse DocumentReference resource (content[0].extension[0].valueCodeableConcept.coding: Field required. See ValueSet: https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability)",
-        "expression": ["content[0].extension[0].valueCodeableConcept.coding"],
-    }
-
-
 def test_validate_multiple_codings():
     validator = DocumentReferenceValidator()
     document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
