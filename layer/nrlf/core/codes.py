@@ -55,5 +55,6 @@ class SpineErrorConcept(_CodeableConcept):
         "INVALID_PARAMETER": "Invalid parameter",
         "MESSAGE_NOT_WELL_FORMED": "Message not well formed",
         "MISSING_OR_INVALID_HEADER": "There is a required header missing or invalid",
+        "INVALID_IDENTIFIER_VALUE": "Invalid identifier value",
         "UNPROCESSABLE_ENTITY": "Unprocessable Entity",
     }

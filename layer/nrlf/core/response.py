@@ -150,6 +150,29 @@ class SpineErrorResponse(Response):
         )
 
     @classmethod
+    def INVALID_IDENTIFIER_VALUE(
+        cls,
+        diagnostics: str = "Invalid identifier value",
+        expression: str | None = None,
+    ):
+        return cls.from_issues(
+            issues=[
+                producer_model.OperationOutcomeIssue(
+                    severity="error",
+                    code="invalid",
+                    details=SpineErrorConcept.from_code("INVALID_IDENTIFIER_VALUE"),
+                    diagnostics=diagnostics,
+                    expression=(
+                        [producer_model.ExpressionItem(root=expression)]
+                        if expression
+                        else None
+                    ),
+                )
+            ],
+            statusCode="400",
+        )
+
+    @classmethod
     def INVALID_NHS_NUMBER(
         cls, diagnostics: str = "Invalid NHS number", expression: str | None = None
     ) -> "Response":

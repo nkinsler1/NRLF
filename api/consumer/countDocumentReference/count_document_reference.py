@@ -29,7 +29,7 @@ def handler(
         logger.log(
             LogReference.CONCOUNT001, subject_identifier=params.subject_identifier
         )
-        return SpineErrorResponse.UNPROCESSABLE_ENTITY(
+        return SpineErrorResponse.INVALID_IDENTIFIER_VALUE(
             diagnostics="Invalid NHS number provided in the query parameters",
             expression="subject:identifier",
         )

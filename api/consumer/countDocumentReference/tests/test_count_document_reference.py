@@ -100,7 +100,7 @@ def test_count_document_reference_invalid_nhs_number():
     body = result.pop("body")
 
     assert result == {
-        "statusCode": "422",
+        "statusCode": "400",
         "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
@@ -111,13 +111,13 @@ def test_count_document_reference_invalid_nhs_number():
         "issue": [
             {
                 "severity": "error",
-                "code": "business-rule",
+                "code": "invalid",
                 "details": {
                     "coding": [
                         {
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                            "code": "UNPROCESSABLE_ENTITY",
-                            "display": "Unprocessable Entity",
+                            "code": "INVALID_IDENTIFIER_VALUE",
+                            "display": "Invalid identifier value",
                         }
                     ]
                 },
