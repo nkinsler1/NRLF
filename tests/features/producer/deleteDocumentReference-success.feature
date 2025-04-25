@@ -48,19 +48,19 @@ Feature: Producer - deleteDocumentReference - Success Scenarios
       | system                 | value     |
       | http://snomed.info/sct | 736253002 |
     When producer 'DK94' requests to delete DocumentReference with id 'DK94-000-NoPointerHere'
-    Then the response status code is 404
+    Then the response status code is 200
     And the response is an OperationOutcome with 1 issue
     And the OperationOutcome contains the issue:
       """
       {
-        "severity": "error",
-        "code": "not-found",
+        "severity": "information",
+        "code": "informational",
         "details": {
           "coding": [
             {
-              "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-              "code": "NO_RECORD_FOUND",
-              "display": "No record found"
+              "system": "https://fhir.nhs.uk/ValueSet/NRL-ResponseCode",
+              "code": "RESOURCE_DELETED",
+              "display": "Resource deleted"
             }
           ]
         },
