@@ -43,6 +43,28 @@ Once you're happy with your planned changes, you can apply them with:
 terraform apply
 ```
 
+### Build and publish the container image for CI build
+
+Once all the mgmt infra has been deployed, you need to build and publish the CI image to the ECR repo.
+
+To do this, first build the image as follows:
+
+```
+make build-ci-image
+```
+
+and then login to ECR:
+
+```
+make ecr-login
+```
+
+and push the image:
+
+```
+make publish-ci-image
+```
+
 ## Deploy account wide resources
 
 To deploy the account wide resources, first login to the AWS mgmt account on the CLI.

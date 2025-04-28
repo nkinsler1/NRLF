@@ -74,6 +74,28 @@ build-api-packages: ./api/consumer/* ./api/producer/*
 		./scripts/build-lambda-package.sh $${api} $(DIST_PATH); \
 	done
 
+build-ci-image: ## Build the CI image
+	@echo "Building the CI image"
+	docker build \
+		-t nhsd-nrlf-ci-build:latest \
+		-f Dockerfile.ci-build
+
+ecr-login: ## Login to NRLF ECR repo
+	@echo "Logging into ECR"
+	$(eval AWS_REGION := $(shell aws configure get region))
+	$(eval AWS_ACCOUNT_ID := $(shell aws sts get-caller-identity | jq -r .Account))
+	@aws ecr get-login-password --region "$(AWS_REGION)" \
+		| docker login --username AWS --password-stdin \
+			$(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com
+
+publish-ci-image: ## Publish the CI image
+	@echo "Publishing the CI image"
+	$(eval AWS_REGION := $(shell aws configure get region))
+	$(eval AWS_ACCOUNT_ID := $(shell aws sts get-caller-identity | jq -r .Account))
+	@docker tag nhsd-nrlf-ci-build:latest \
+		$(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/nhsd-nrlf-ci-build:latest
+	@docker push $(AWS_ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/nhsd-nrlf-ci-build:latest
+
 test: check-warn ## Run the unit tests
 	@echo "Running unit tests"
 	pytest --ignore=tests/smoke $(TEST_ARGS)

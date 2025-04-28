@@ -40,9 +40,7 @@ def handler(
 
     if not (core_model := repository.get_by_id(pointer_id)):
         logger.log(LogReference.PRODELETE002, pointer_id=pointer_id)
-        return SpineErrorResponse.NO_RECORD_FOUND(
-            diagnostics="The requested DocumentReference could not be found",
-        )
+        return NRLResponse.RESOURCE_DOES_NOT_EXIST_DELETE()
 
     repository.delete(core_model)
 
