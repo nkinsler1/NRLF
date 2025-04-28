@@ -50,7 +50,7 @@ class LogPipeline:
             raise e
 
     def get_last_run(self):
-        self.logger.info(f"Retrieving last successful runtime.")
+        self.logger.info("Retrieving last successful runtime.")
         all_runs = self.glue.get_job_runs(JobName=self.job_name)
         if not all_runs["JobRuns"]:
             return None
@@ -75,7 +75,7 @@ class LogPipeline:
                     connection_options={"paths": [self.source_path], "recurse": True},
                     format="json",
                 ).filter(
-                    f=lambda x: (x["host"].endswith(name))
+                    f=lambda x, n=name: (x["host"].endswith(n))
                     and (x["time"] > last_runtime)
                 )
 
@@ -84,7 +84,7 @@ class LogPipeline:
                     connection_type="s3",
                     connection_options={"paths": [self.source_path], "recurse": True},
                     format="json",
-                ).filter(f=lambda x: x["host"].endswith(name))
+                ).filter(f=lambda x, n=name: x["host"].endswith(n))
 
         return data
 
