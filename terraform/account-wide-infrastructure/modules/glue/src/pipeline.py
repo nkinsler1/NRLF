@@ -65,12 +65,12 @@ class LogPipeline:
         """Extract JSON data from S3"""
         last_runtime = self.get_last_run()
         data = {}
-        data_source = self.glueContext.getSource("s3", paths=[self.source_path])
+        data_source = self.glue_context.getSource("s3", paths=[self.source_path])
         data_source.setFormat("json")
         self.logger.info(f"Extracting data from {self.source_path} as JSON")
         for name in self.host_prefixes:
             if last_runtime:
-                data[name] = self.glueContext.create_dynamic_frame.from_options(
+                data[name] = self.glue_context.create_dynamic_frame.from_options(
                     connection_type="s3",
                     connection_options={"paths": [self.source_path], "recurse": True},
                     format="json",
@@ -80,7 +80,7 @@ class LogPipeline:
                 )
 
             else:
-                data[name] = self.glueContext.create_dynamic_frame.from_options(
+                data[name] = self.glue_context.create_dynamic_frame.from_options(
                     connection_type="s3",
                     connection_options={"paths": [self.source_path], "recurse": True},
                     format="json",
