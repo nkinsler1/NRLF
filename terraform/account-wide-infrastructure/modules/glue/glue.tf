@@ -68,7 +68,7 @@ resource "aws_glue_job" "glue_job" {
   worker_type       = "G.1X"
   timeout           = 2880
   max_retries       = 0
-  number_of_workers = 2
+  number_of_workers = 4
   command {
     name            = "glueetl"
     python_version  = var.python_version

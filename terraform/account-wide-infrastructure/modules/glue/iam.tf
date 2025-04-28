@@ -83,6 +83,16 @@ data "aws_iam_policy_document" "glue_service" {
 
   statement {
     actions = [
+      "cloudwatch:*",
+    ]
+    resources = [
+      "*"
+    ]
+    effect = "Allow"
+  }
+
+  statement {
+    actions = [
       "iam:PassRole",
     ]
     effect = "Allow"
