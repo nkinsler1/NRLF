@@ -9,6 +9,7 @@ from pyspark.sql.functions import (
     to_timestamp,
     when,
 )
+from pyspark.sql.types import NullType
 
 
 def resolve_dupes(df):
@@ -49,4 +50,15 @@ def dtype_conversion(df):
         .withColumn("time", from_unixtime(col("time")).cast("timestamp"))
         .withColumn("date", to_date(col("time")))
     )
-    return df.drop("event_timestamp_cleaned")
+
+    df = df.drop("event_timestamp_cleaned")
+
+    select_exprs = []
+    for column_name in df.columns:
+        column_type = df.schema[column_name].dataType
+        if isinstance(column_type, NullType):
+            select_exprs.append(col(column_name).cast("string").alias(column_name))
+        else:
+            select_exprs.append(col(column_name))
+
+    return df.select(*select_exprs)
