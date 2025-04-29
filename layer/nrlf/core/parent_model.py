@@ -88,8 +88,40 @@ class Parent(BaseModel):
         Iteratively check every field in the model for emptiness.
         If a field is empty, add it to the error list with its full location.
         """
-        allowed_classes = [
+        allowed_classes = cls.get_allowed_classes()
+        if cls.__name__ not in allowed_classes or not values:
+            return values
+
+        stack = [(None, values)]
+        empty_fields = []
+
+        while stack:
+            path, current_value = stack.pop()
+
+            if isinstance(current_value, dict):
+                cls.handle_dict(current_value, path, stack, empty_fields)
+            elif isinstance(current_value, list):
+                cls.handle_list(current_value, path, stack, empty_fields)
+            elif isinstance(current_value, Parent):
+                cls.handle_nested_model(current_value, path, stack)
+            else:
+                cls.handle_scalar(current_value, path, empty_fields)
+
+        if empty_fields:
+            raise ValueError(
+                f"The following fields are empty: {', '.join(empty_fields)}"
+            )
+
+        return values
+
+    @staticmethod
+    def get_allowed_classes():
+        """
+        Return the list of allowed classes for validation.
+        """
+        return [
             "DocumentReference",
+            "Meta",
             "Narrative",
             "Identifier",
             "NRLCodeableConcept",
@@ -107,57 +139,50 @@ class Parent(BaseModel):
             "DocumentReferenceContext",
             "Period",
         ]
-        if cls.__name__ not in allowed_classes or not values:
-            return values
 
-        stack = [(None, values)]
-        empty_fields = []
-
-        while stack:
-            path, current_value = stack.pop()
-
-            if isinstance(current_value, dict):
-                for key, value in current_value.items():
-                    full_path = f"{path}.{key}" if path else key
-                    if (
-                        value is None
-                        or value == ""
-                        or (isinstance(value, list) and not value)
-                    ):
-                        empty_fields.append(full_path)
-                    else:
-                        stack.append((full_path, value))
-                if not current_value:
-                    empty_fields.append(path)
-
-            elif isinstance(current_value, list):
-                for index, item in enumerate(current_value):
-                    full_path = f"{path}[{index}]" if path else f"[{index}]"
-                    if (
-                        item is None
-                        or item == ""
-                        or (isinstance(item, dict) and not item)
-                    ):
-                        empty_fields.append(full_path)
-                    else:
-                        stack.append((full_path, item))
-
-            elif isinstance(current_value, Parent):
-                nested_values = current_value.model_dump(exclude_none=True)
-                for nested_field, nested_value in nested_values.items():
-                    full_path = f"{path}.{nested_field}" if path else nested_field
-                    stack.append((full_path, nested_value))
-
+    @staticmethod
+    def handle_dict(current_value, path, stack, empty_fields):
+        """
+        Handle validation for dictionary fields.
+        """
+        for key, value in current_value.items():
+            full_path = f"{path}.{key}" if path else key
+            if value is None or value == "" or (isinstance(value, list) and not value):
+                empty_fields.append(full_path)
             else:
-                if current_value is None or current_value == "":
-                    empty_fields.append(path)
+                stack.append((full_path, value))
+        if not current_value:
+            empty_fields.append(path)
 
-        if empty_fields:
-            raise ValueError(
-                f"The following fields are empty: {', '.join(empty_fields)}"
-            )
+    @staticmethod
+    def handle_list(current_value, path, stack, empty_fields):
+        """
+        Handle validation for list fields.
+        """
+        for index, item in enumerate(current_value):
+            full_path = f"{path}[{index}]" if path else f"[{index}]"
+            if item is None or item == "" or (isinstance(item, dict) and not item):
+                empty_fields.append(full_path)
+            else:
+                stack.append((full_path, item))
 
-        return values
+    @staticmethod
+    def handle_nested_model(current_value, path, stack):
+        """
+        Handle validation for nested Pydantic models.
+        """
+        nested_values = current_value.model_dump(exclude_none=True)
+        for nested_field, nested_value in nested_values.items():
+            full_path = f"{path}.{nested_field}" if path else nested_field
+            stack.append((full_path, nested_value))
+
+    @staticmethod
+    def handle_scalar(current_value, path, empty_fields):
+        """
+        Handle validation for scalar fields.
+        """
+        if current_value is None or current_value == "":
+            empty_fields.append(path)
 
     model_config = ConfigDict(regex_engine="python-re", extra="forbid")
     extension: Annotated[
