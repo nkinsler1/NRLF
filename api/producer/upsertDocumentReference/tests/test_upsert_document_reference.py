@@ -782,8 +782,8 @@ def test_upsert_document_reference_no_relatesto_target():
                         }
                     ],
                 },
-                "diagnostics": "Request body could not be parsed (root: Value error, The following fields are empty: relatesTo[0].target)",
-                "expression": ["root"],
+                "diagnostics": "Request body could not be parsed (DocumentReference: Value error, The following fields are empty: relatesTo[0].target)",
+                "expression": ["DocumentReference"],
             }
         ],
     }

@@ -87,9 +87,9 @@ Feature: Producer - updateDocumentReference - Failure Scenarios
             }
             ]
         },
-        "diagnostics": "Request body could not be parsed (root: Value error, The following fields are empty: content)",
+        "diagnostics": "Request body could not be parsed (DocumentReference: Value error, The following fields are empty: content)",
         "expression": [
-            "root"
+            "DocumentReference"
         ]
       }
       """
@@ -158,9 +158,9 @@ Feature: Producer - updateDocumentReference - Failure Scenarios
             }
             ]
         },
-        "diagnostics": "Request body could not be parsed (root: Value error, The following fields are empty: content[0].attachment.contentType)",
+        "diagnostics": "Request body could not be parsed (DocumentReference: Value error, The following fields are empty: content[0].attachment.contentType)",
         "expression": [
-          "root"
+          "DocumentReference"
         ]
       }
       """

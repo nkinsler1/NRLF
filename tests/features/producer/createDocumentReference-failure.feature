@@ -744,9 +744,9 @@ Feature: Producer - createDocumentReference - Failure Scenarios
             }
             ]
         },
-        "diagnostics": "Request body could not be parsed (root: Value error, The following fields are empty: content)",
+        "diagnostics": "Request body could not be parsed (DocumentReference: Value error, The following fields are empty: content)",
         "expression": [
-            "root"
+            "DocumentReference"
         ]
       }
       """
@@ -802,9 +802,9 @@ Feature: Producer - createDocumentReference - Failure Scenarios
             }
             ]
         },
-        "diagnostics": "Request body could not be parsed (root: Value error, The following fields are empty: content[0].attachment.contentType)",
+        "diagnostics": "Request body could not be parsed (DocumentReference: Value error, The following fields are empty: content[0].attachment.contentType)",
         "expression": [
-          "root"
+          "DocumentReference"
         ]
       }
       """
@@ -1008,9 +1008,9 @@ Feature: Producer - createDocumentReference - Failure Scenarios
             }
             ]
         },
-        "diagnostics": "Request body could not be parsed (root: Value error, The following fields are empty: context.practiceSetting.coding[0].display)",
+        "diagnostics": "Request body could not be parsed (DocumentReference: Value error, The following fields are empty: context.practiceSetting.coding[0].display)",
         "expression": [
-          "root"
+          "DocumentReference"
         ]
       }
       """
@@ -1040,7 +1040,7 @@ Feature: Producer - createDocumentReference - Failure Scenarios
             }
             ]
         },
-        "diagnostics": "Request body could not be parsed (root: Value error, The following fields are empty: author)",
-        "expression": ["root"]
+        "diagnostics": "Request body could not be parsed (DocumentReference: Value error, The following fields are empty: author)",
+        "expression": ["DocumentReference"]
       }
       """

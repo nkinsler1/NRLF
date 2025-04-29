@@ -35,13 +35,13 @@ def append_value_set_url(loc_string: str) -> str:
 
 def diag_for_error(error: ErrorDetails) -> str:
     loc_string = format_error_location(error["loc"])
-    msg = f"{loc_string or 'root'}: {error['msg']}"
+    msg = f"{loc_string or 'DocumentReference'}: {error['msg']}"
     msg += append_value_set_url(loc_string)
     return msg
 
 
 def expression_for_error(error: ErrorDetails) -> Optional[str]:
-    return format_error_location(error["loc"]) or "root"
+    return format_error_location(error["loc"]) or "DocumentReference"
 
 
 class OperationOutcomeError(Exception):

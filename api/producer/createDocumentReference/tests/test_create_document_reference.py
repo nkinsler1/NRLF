@@ -421,8 +421,8 @@ def test_create_document_reference_empty_fields_in_body():
                         }
                     ],
                 },
-                "diagnostics": "Request body could not be parsed (root: Value error, The following fields are empty: text, author, custodian.reference, custodian.identifier, category[0].coding[0].system, category[0].coding[0].code)",
-                "expression": ["root"],
+                "diagnostics": "Request body could not be parsed (DocumentReference: Value error, The following fields are empty: text, author, custodian.reference, custodian.identifier, category[0].coding[0].system, category[0].coding[0].code)",
+                "expression": ["DocumentReference"],
             }
         ],
     }
@@ -859,8 +859,8 @@ def test_create_document_reference_no_relatesto_target():
                         }
                     ],
                 },
-                "diagnostics": "Request body could not be parsed (root: Value error, The following fields are empty: relatesTo[0].target)",
-                "expression": ["root"],
+                "diagnostics": "Request body could not be parsed (DocumentReference: Value error, The following fields are empty: relatesTo[0].target)",
+                "expression": ["DocumentReference"],
             }
         ],
     }
