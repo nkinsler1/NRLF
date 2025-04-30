@@ -88,8 +88,7 @@ class Parent(BaseModel):
         Iteratively check every field in the model for emptiness.
         If a field is empty, add it to the error list with its full location.
         """
-        allowed_classes = cls.get_allowed_classes()
-        if cls.__name__ not in allowed_classes or not values:
+        if cls.__name__ != "DocumentReference" or not values:
             return values
 
         stack = [(None, values)]
@@ -113,32 +112,6 @@ class Parent(BaseModel):
             )
 
         return values
-
-    @staticmethod
-    def get_allowed_classes():
-        """
-        Return the list of allowed classes for validation.
-        """
-        return [
-            "DocumentReference",
-            "Meta",
-            "Narrative",
-            "Identifier",
-            "NRLCodeableConcept",
-            "NRLCoding",
-            "Reference",
-            "DocumentReferenceRelatesTo",
-            "CodeableConcept",
-            "Coding",
-            "DocumentReferenceContent",
-            "Attachment",
-            "NRLFormatCode",
-            "ContentStabilityExtension",
-            "ContentStabilityExtensionValueCodeableConcept",
-            "ContentStabilityExtensionCoding",
-            "DocumentReferenceContext",
-            "Period",
-        ]
 
     @staticmethod
     def handle_dict(current_value, path, stack, empty_fields):
