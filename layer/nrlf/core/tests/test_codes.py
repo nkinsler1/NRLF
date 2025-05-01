@@ -66,6 +66,7 @@ def test_nrl_response_concept_from_code(code, expected_text):
         ("BAD_REQUEST", "Bad request"),
         ("AUTHOR_CREDENTIALS_ERROR", "Author credentials error"),
         ("DUPLICATE_REJECTED", "Create would lead to creation of a duplicate resource"),
+        ("UNPROCESSABLE_ENTITY", "Unprocessable Entity"),
     ],
 )
 def test_spine_error_concept_from_code(code, expected_text):

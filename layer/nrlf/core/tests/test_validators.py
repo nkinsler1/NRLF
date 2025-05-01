@@ -184,8 +184,8 @@ def test_document_reference_validator_parse_invalid():
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "BAD_REQUEST",
+                    "display": "Bad request",
                 }
             ]
         },
@@ -199,8 +199,8 @@ def test_document_reference_validator_parse_invalid():
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "BAD_REQUEST",
+                    "display": "Bad request",
                 }
             ]
         },
@@ -235,13 +235,13 @@ def test_validate_document_reference_missing_fields():
     assert len(result.issues) == 3
     assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
-        "code": "required",
+        "code": "business-rule",
         "details": {
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "UNPROCESSABLE_ENTITY",
+                    "display": "Unprocessable Entity",
                 }
             ]
         },
@@ -293,8 +293,8 @@ def test_validate_document_reference_extra_fields():
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "BAD_REQUEST",
+                    "display": "Bad request",
                 }
             ]
         },
@@ -321,8 +321,8 @@ def test_validate_document_reference_extra_fields_content():
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "BAD_REQUEST",
+                    "display": "Bad request",
                 }
             ]
         },
@@ -344,13 +344,13 @@ def test_validate_identifiers_no_custodian_identifier():
     assert len(result.issues) == 1
     assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
-        "code": "required",
+        "code": "business-rule",
         "details": {
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "UNPROCESSABLE_ENTITY",
+                    "display": "Unprocessable Entity",
                 }
             ]
         },
@@ -372,13 +372,13 @@ def test_validate_identifiers_no_subject_identifier():
     assert len(result.issues) == 1
     assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
-        "code": "required",
+        "code": "business-rule",
         "details": {
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "UNPROCESSABLE_ENTITY",
+                    "display": "Unprocessable Entity",
                 }
             ]
         },
@@ -410,13 +410,13 @@ def test_validate_category_too_many_category():
     assert len(result.issues) == 1
     assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
-        "code": "invalid",
+        "code": "business-rule",
         "details": {
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "UNPROCESSABLE_ENTITY",
+                    "display": "Unprocessable Entity",
                 }
             ]
         },
@@ -479,13 +479,13 @@ def test_validate_category_coding_display_mismatch(
     assert len(result.issues) == 1
     assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
-        "code": "value",
+        "code": "business-rule",
         "details": {
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "UNPROCESSABLE_ENTITY",
+                    "display": "Unprocessable Entity",
                 }
             ]
         },
@@ -511,13 +511,13 @@ def test_validate_category_coding_invalid_code():
     assert len(result.issues) == 1
     assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
-        "code": "value",
+        "code": "business-rule",
         "details": {
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "UNPROCESSABLE_ENTITY",
+                    "display": "Unprocessable Entity",
                 }
             ]
         },
@@ -547,13 +547,13 @@ def test_validate_category_coding_invalid_system():
     assert len(result.issues) == 1
     assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
-        "code": "value",
+        "code": "business-rule",
         "details": {
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "UNPROCESSABLE_ENTITY",
+                    "display": "Unprocessable Entity",
                 }
             ]
         },
@@ -583,13 +583,13 @@ def test_validate_type_coding_invalid_code():
     assert len(result.issues) == 1
     assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
-        "code": "value",
+        "code": "business-rule",
         "details": {
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "UNPROCESSABLE_ENTITY",
+                    "display": "Unprocessable Entity",
                 }
             ]
         },
@@ -619,13 +619,13 @@ def test_validate_type_coding_invalid_system():
     assert len(result.issues) == 1
     assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
-        "code": "value",
+        "code": "business-rule",
         "details": {
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "UNPROCESSABLE_ENTITY",
+                    "display": "Unprocessable Entity",
                 }
             ]
         },
@@ -680,13 +680,13 @@ def test_validate_type_coding_display_mismatch(type_str: str, display: str):
     assert len(result.issues) == 1
     assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
-        "code": "value",
+        "code": "business-rule",
         "details": {
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "UNPROCESSABLE_ENTITY",
+                    "display": "Unprocessable Entity",
                 }
             ]
         },
@@ -715,13 +715,13 @@ def test_validate_author_too_many_authors():
     assert len(result.issues) == 1
     assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
-        "code": "invalid",
+        "code": "business-rule",
         "details": {
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "UNPROCESSABLE_ENTITY",
+                    "display": "Unprocessable Entity",
                 }
             ]
         },
@@ -748,13 +748,13 @@ def test_validate_author_system_invalid():
     assert len(result.issues) == 1
     assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
-        "code": "invalid",
+        "code": "business-rule",
         "details": {
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_IDENTIFIER_SYSTEM",
-                    "display": "Invalid identifier system",
+                    "code": "UNPROCESSABLE_ENTITY",
+                    "display": "Unprocessable Entity",
                 }
             ]
         },
@@ -781,13 +781,13 @@ def test_validate_author_value_invalid():
     assert len(result.issues) == 1
     assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
-        "code": "value",
+        "code": "business-rule",
         "details": {
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "UNPROCESSABLE_ENTITY",
+                    "display": "Unprocessable Entity",
                 }
             ]
         },
@@ -814,13 +814,13 @@ def test_validate_author_value_too_long():
     assert len(result.issues) == 1
     assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
-        "code": "value",
+        "code": "business-rule",
         "details": {
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "UNPROCESSABLE_ENTITY",
+                    "display": "Unprocessable Entity",
                 }
             ]
         },
@@ -843,13 +843,13 @@ def test_validate_identifiers_invalid_systems():
     assert len(result.issues) == 2
     assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
-        "code": "invalid",
+        "code": "business-rule",
         "details": {
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_IDENTIFIER_SYSTEM",
-                    "display": "Invalid identifier system",
+                    "code": "UNPROCESSABLE_ENTITY",
+                    "display": "Unprocessable Entity",
                 }
             ]
         },
@@ -858,13 +858,13 @@ def test_validate_identifiers_invalid_systems():
     }
     assert result.issues[1].model_dump(exclude_none=True) == {
         "severity": "error",
-        "code": "invalid",
+        "code": "business-rule",
         "details": {
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_IDENTIFIER_SYSTEM",
-                    "display": "Invalid identifier system",
+                    "code": "UNPROCESSABLE_ENTITY",
+                    "display": "Unprocessable Entity",
                 }
             ]
         },
@@ -916,13 +916,13 @@ def test_validate_relates_to_invalid_code():
     assert len(result.issues) == 1
     assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
-        "code": "value",
+        "code": "business-rule",
         "details": {
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_CODE_VALUE",
-                    "display": "Invalid code value",
+                    "code": "UNPROCESSABLE_ENTITY",
+                    "display": "Unprocessable Entity",
                 }
             ]
         },
@@ -943,13 +943,13 @@ def test_validate_relates_to_no_target_identifier():
     assert len(result.issues) == 1
     assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
-        "code": "required",
+        "code": "business-rule",
         "details": {
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_IDENTIFIER_VALUE",
-                    "display": "Invalid identifier value",
+                    "code": "UNPROCESSABLE_ENTITY",
+                    "display": "Unprocessable Entity",
                 }
             ]
         },
@@ -1001,13 +1001,13 @@ def test_validate_ssp_content_without_any_context_related():
     assert len(result.issues) == 1
     assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
-        "code": "required",
+        "code": "business-rule",
         "details": {
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "UNPROCESSABLE_ENTITY",
+                    "display": "Unprocessable Entity",
                 }
             ]
         },
@@ -1035,13 +1035,13 @@ def test_validate_asid_with_no_ssp_content():
     assert len(result.issues) == 1
     assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
-        "code": "value",
+        "code": "business-rule",
         "details": {
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_IDENTIFIER_VALUE",
-                    "display": "Invalid identifier value",
+                    "code": "UNPROCESSABLE_ENTITY",
+                    "display": "Unprocessable Entity",
                 }
             ]
         },
@@ -1071,13 +1071,13 @@ def test_validate_ssp_content_without_asid_in_context_related():
     assert len(result.issues) == 1
     assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
-        "code": "required",
+        "code": "business-rule",
         "details": {
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "UNPROCESSABLE_ENTITY",
+                    "display": "Unprocessable Entity",
                 }
             ]
         },
@@ -1102,13 +1102,13 @@ def test_validate_ssp_content_with_invalid_asid_value():
     assert len(result.issues) == 1
     assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
-        "code": "value",
+        "code": "business-rule",
         "details": {
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_IDENTIFIER_VALUE",
-                    "display": "Invalid identifier value",
+                    "code": "UNPROCESSABLE_ENTITY",
+                    "display": "Unprocessable Entity",
                 }
             ]
         },
@@ -1154,13 +1154,13 @@ def test_validate_ssp_content_with_invalid_asid_value_and_multiple_related():
     assert len(result.issues) == 1
     assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
-        "code": "value",
+        "code": "business-rule",
         "details": {
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_IDENTIFIER_VALUE",
-                    "display": "Invalid identifier value",
+                    "code": "UNPROCESSABLE_ENTITY",
+                    "display": "Unprocessable Entity",
                 }
             ]
         },
@@ -1193,13 +1193,13 @@ def test_validate_ssp_content_with_multiple_asids():
     assert len(result.issues) == 1
     assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
-        "code": "invalid",
+        "code": "business-rule",
         "details": {
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "UNPROCESSABLE_ENTITY",
+                    "display": "Unprocessable Entity",
                 }
             ]
         },
@@ -1225,13 +1225,13 @@ def test_validate_content_format_invalid_code_for_unstructured_document():
     assert len(result.issues) == 1
     assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
-        "code": "value",
+        "code": "business-rule",
         "details": {
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "UNPROCESSABLE_ENTITY",
+                    "display": "Unprocessable Entity",
                 }
             ]
         },
@@ -1253,13 +1253,13 @@ def test_validate_content_format_invalid_code_for_contact_details():
     assert len(result.issues) == 1
     assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
-        "code": "value",
+        "code": "business-rule",
         "details": {
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "UNPROCESSABLE_ENTITY",
+                    "display": "Unprocessable Entity",
                 }
             ]
         },
@@ -1288,13 +1288,13 @@ def test_validate_practiceSetting_coding_invalid_system():
     assert len(result.issues) == 1
     assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
-        "code": "value",
+        "code": "business-rule",
         "details": {
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "UNPROCESSABLE_ENTITY",
+                    "display": "Unprocessable Entity",
                 }
             ]
         },
@@ -1323,13 +1323,13 @@ def test_validate_practiceSetting_coding_invalid_code():
     assert len(result.issues) == 1
     assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
-        "code": "value",
+        "code": "business-rule",
         "details": {
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "UNPROCESSABLE_ENTITY",
+                    "display": "Unprocessable Entity",
                 }
             ]
         },
@@ -1358,13 +1358,13 @@ def test_validate_practiceSetting_coding_mismatch_code_and_display():
     assert len(result.issues) == 1
     assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
-        "code": "value",
+        "code": "business-rule",
         "details": {
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "UNPROCESSABLE_ENTITY",
+                    "display": "Unprocessable Entity",
                 }
             ]
         },
@@ -1397,13 +1397,13 @@ def test_validate_content_extension_invalid_code_and_display_mismatch():
     assert len(result.issues) == 1
     assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
-        "code": "value",
+        "code": "business-rule",
         "details": {
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "UNPROCESSABLE_ENTITY",
+                    "display": "Unprocessable Entity",
                 }
             ]
         },
@@ -1426,13 +1426,13 @@ def test_validate_content_invalid_content_type():
     assert len(result.issues) == 1
     assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
-        "code": "value",
+        "code": "business-rule",
         "details": {
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "UNPROCESSABLE_ENTITY",
+                    "display": "Unprocessable Entity",
                 }
             ]
         },
@@ -1500,13 +1500,13 @@ def test_validate_nrl_format_code_display_mismatch(
     assert len(result.issues) == 1
     assert result.issues[0].model_dump(exclude_none=True) == {
         "severity": "error",
-        "code": "value",
+        "code": "business-rule",
         "details": {
             "coding": [
                 {
                     "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "INVALID_RESOURCE",
-                    "display": "Invalid validation of resource",
+                    "code": "UNPROCESSABLE_ENTITY",
+                    "display": "Unprocessable Entity",
                 }
             ]
         },
