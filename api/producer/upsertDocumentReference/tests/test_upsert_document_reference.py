@@ -772,7 +772,7 @@ def test_upsert_document_reference_no_relatesto_target():
         "issue": [
             {
                 "severity": "error",
-                "code": "business-rule",
+                "code": "invalid",
                 "details": {
                     "coding": [
                         {
