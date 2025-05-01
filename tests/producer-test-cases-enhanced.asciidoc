@@ -9,7 +9,7 @@ While some implementations may not use some interactions, we do require producer
 | Step | Detailed instructions | Evidence required | Expected outcome
 
 | 1 | Authenticate as a valid organisation with a valid access token |  |  |
-| 2 | Construct a new DocumentReference for the request body. +
+| 2 | Construct a new DocumentReference for the request body.
 * Use test patient with NHS number 9876543210
 * Type should reflect whichever type you plan on using in live, as agreed in IAG.
 * All mandatory fields must be populated, and any other fields you plan to use in your live implementation should be populated as you intend to use them.
