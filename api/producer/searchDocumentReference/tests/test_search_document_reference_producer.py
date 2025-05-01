@@ -460,10 +460,13 @@ def test_search_document_reference_filters_by_pointer_types(
 def test_search_document_reference_invalid_json(repository: DocumentPointerRepository):
     doc_ref = load_document_reference("Y05868-736253002-Valid")
     doc_pointer = DocumentPointer.from_document_reference(doc_ref)
-    doc_pointer.document = "invalid json"
-
     repository.create(doc_pointer)
 
+    doc_pointer_invalid = DocumentPointer.from_document_reference(doc_ref)
+    doc_pointer_invalid.id = "Y05868-11111-99999-999992"
+    doc_pointer_invalid.document = "invalid json"
+
+    repository.create(doc_pointer_invalid)
     event = create_test_api_gateway_event(
         headers=create_headers(),
         query_string_parameters={
@@ -475,13 +478,14 @@ def test_search_document_reference_invalid_json(repository: DocumentPointerRepos
     body = result.pop("body")
 
     assert result == {
-        "statusCode": "500",
+        "statusCode": "200",
         "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
 
     parsed_body = json.loads(body)
-    assert parsed_body == {
+
+    expected_operation_outcome = {
         "resourceType": "OperationOutcome",
         "issue": [
             {
@@ -498,5 +502,15 @@ def test_search_document_reference_invalid_json(repository: DocumentPointerRepos
                 },
                 "diagnostics": "An error occurred whilst parsing the document reference search results",
             }
+        ],
+    }
+
+    assert parsed_body == {
+        "resourceType": "Bundle",
+        "type": "searchset",
+        "total": 2,
+        "entry": [
+            {"resource": doc_ref.model_dump(exclude_none=True)},
+            {"resource": expected_operation_outcome},
         ],
     }
