@@ -39,19 +39,25 @@ def rename_cols(df):
 
 
 def dtype_conversion(df):
-    df = (
-        df.withColumn(
-            "event_timestamp_cleaned", regexp_replace(col("event_timestamp"), ",", ".")
+    try:
+        df = (
+            df.withColumn(
+                "event_timestamp_cleaned",
+                regexp_replace(col("event_timestamp"), ",", "."),
+            )
+            .withColumn(
+                "event_timestamp",
+                to_timestamp(
+                    col("event_timestamp_cleaned"), "yyyy-MM-dd HH:mm:ss.SSSZ"
+                ),
+            )
+            .withColumn("time", from_unixtime(col("time")).cast("timestamp"))
+            .withColumn("date", to_date(col("time")))
         )
-        .withColumn(
-            "event_timestamp",
-            to_timestamp(col("event_timestamp_cleaned"), "yyyy-MM-dd HH:mm:ss.SSSZ"),
-        )
-        .withColumn("time", from_unixtime(col("time")).cast("timestamp"))
-        .withColumn("date", to_date(col("time")))
-    )
 
-    df = df.drop("event_timestamp_cleaned")
+        df = df.drop("event_timestamp_cleaned")
+    except:
+        ...
 
     select_exprs = []
     for column_name in df.columns:
