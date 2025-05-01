@@ -117,6 +117,20 @@ class NRLResponse(Response):
             statusCode="200",
         )
 
+    @classmethod
+    def RESOURCE_DOES_NOT_EXIST_DELETE(cls):
+        return cls.from_issues(
+            issues=[
+                producer_model.OperationOutcomeIssue(
+                    severity="information",
+                    code="informational",
+                    details=NRLResponseConcept.from_code("RESOURCE_DELETED"),
+                    diagnostics="The requested DocumentReference could not be found",
+                )
+            ],
+            statusCode="200",
+        )
+
 
 class SpineErrorResponse(Response):
     @classmethod
@@ -233,6 +247,27 @@ class SpineErrorResponse(Response):
                 )
             ],
             statusCode="400",
+        )
+
+    @classmethod
+    def UNPROCESSABLE_ENTITY(
+        cls, diagnostics: str = "Unprocessable Entity", expression: str | None = None
+    ) -> "Response":
+        return cls.from_issues(
+            issues=[
+                producer_model.OperationOutcomeIssue(
+                    severity="error",
+                    code="business-rule",
+                    details=SpineErrorConcept.from_code("UNPROCESSABLE_ENTITY"),
+                    diagnostics=diagnostics,
+                    expression=(
+                        [producer_model.ExpressionItem(root=expression)]
+                        if expression
+                        else None
+                    ),
+                )
+            ],
+            statusCode="422",
         )
 
     @classmethod

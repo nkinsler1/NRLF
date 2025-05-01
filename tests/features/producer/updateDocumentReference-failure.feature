@@ -213,19 +213,19 @@ Feature: Producer - updateDocumentReference - Failure Scenarios
         ]
       }
       """
-    Then the response status code is 400
+    Then the response status code is 422
     And the response is an OperationOutcome with 1 issue
     And the OperationOutcome contains the issue:
       """
       {
         "severity": "error",
-        "code": "value",
+        "code": "business-rule",
         "details": {
             "coding": [
             {
                 "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                "code": "INVALID_RESOURCE",
-                "display": "Invalid validation of resource"
+                "code": "UNPROCESSABLE_ENTITY",
+                "display": "Unprocessable Entity"
             }
             ]
         },
@@ -284,19 +284,19 @@ Feature: Producer - updateDocumentReference - Failure Scenarios
         ]
       }
       """
-    Then the response status code is 400
+    Then the response status code is 422
     And the response is an OperationOutcome with 1 issue
     And the OperationOutcome contains the issue:
       """
       {
         "severity": "error",
-        "code": "value",
+        "code": "business-rule",
         "details": {
             "coding": [
             {
                 "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                "code": "INVALID_RESOURCE",
-                "display": "Invalid validation of resource"
+                "code": "UNPROCESSABLE_ENTITY",
+                "display": "Unprocessable Entity"
             }
             ]
         },
