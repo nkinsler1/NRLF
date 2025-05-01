@@ -837,7 +837,7 @@ def test_create_document_reference_no_relatesto_target():
     body = result.pop("body")
 
     assert result == {
-        "statusCode": "422",
+        "statusCode": "400",
         "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
@@ -853,8 +853,8 @@ def test_create_document_reference_no_relatesto_target():
                 "details": {
                     "coding": [
                         {
-                            "code": "UNPROCESSABLE_ENTITY",
-                            "display": "Unprocessable Entity",
+                            "code": "MESSAGE_NOT_WELL_FORMED",
+                            "display": "Message not well formed",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
                     ],
