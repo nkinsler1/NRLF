@@ -131,7 +131,7 @@ def handler(
                         severity="error",
                         code="exception",
                         details=SpineErrorConcept.from_code("INTERNAL_SERVER_ERROR"),
-                        diagnostics=f"An error occurred whilst parsing the document reference search results",
+                        diagnostics="An error occurred whilst parsing the document reference search results",
                     )
                 ],
             )
