@@ -744,9 +744,9 @@ Feature: Producer - createDocumentReference - Failure Scenarios
             }
             ]
         },
-        "diagnostics": "Request body could not be parsed (content: List should have at least 1 item after validation, not 0)",
+        "diagnostics": "Request body could not be parsed (DocumentReference: Value error, The following fields are empty: content)",
         "expression": [
-            "content"
+            "DocumentReference"
         ]
       }
       """
@@ -802,9 +802,9 @@ Feature: Producer - createDocumentReference - Failure Scenarios
             }
             ]
         },
-        "diagnostics": "Request body could not be parsed (content[0].attachment.contentType: String should match pattern '[^\\s]+(\\s[^\\s]+)*')",
+        "diagnostics": "Request body could not be parsed (DocumentReference: Value error, The following fields are empty: content[0].attachment.contentType)",
         "expression": [
-            "content[0].attachment.contentType"
+          "DocumentReference"
         ]
       }
       """
@@ -1008,9 +1008,39 @@ Feature: Producer - createDocumentReference - Failure Scenarios
             }
             ]
         },
-        "diagnostics": "Request body could not be parsed (context.practiceSetting.coding[0].display: String should match pattern '[\\S]+[ \\r\\n\\t\\S]*')",
+        "diagnostics": "Request body could not be parsed (DocumentReference: Value error, The following fields are empty: context.practiceSetting.coding[0].display)",
         "expression": [
-            "context.practiceSetting.coding[0].display"
+          "DocumentReference"
         ]
+      }
+      """
+
+  Scenario: Reject DocumentReference with empty non-mandatory field (author)
+    Given the application 'DataShare' (ID 'z00z-y11y-x22x') is registered to access the API
+    And the organisation 'TSTCUS' is authorised to access pointer types:
+      | system                 | value     |
+      | http://snomed.info/sct | 736253002 |
+    When producer 'TSTCUS' requests creation of a DocumentReference with default test values except 'author' is:
+      """
+      "author": []
+      """
+    Then the response status code is 400
+    And the response is an OperationOutcome with 1 issue
+    And the OperationOutcome contains the issue:
+      """
+      {
+        "severity": "error",
+        "code": "invalid",
+        "details": {
+            "coding": [
+            {
+                "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                "code": "MESSAGE_NOT_WELL_FORMED",
+                "display": "Message not well formed"
+            }
+            ]
+        },
+        "diagnostics": "Request body could not be parsed (DocumentReference: Value error, The following fields are empty: author)",
+        "expression": ["DocumentReference"]
       }
       """

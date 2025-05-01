@@ -242,68 +242,6 @@ def test_validate_content_invalid_content_stability_url():
     }
 
 
-def test_validate_content_empty_content_stability_coding():
-    validator = DocumentReferenceValidator()
-    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
-
-    # Set an empty coding list for contentStability extension
-    document_ref_data["content"][0]["extension"][0]["valueCodeableConcept"][
-        "coding"
-    ] = []
-
-    with pytest.raises(ParseError) as error:
-        validator.validate(document_ref_data)
-
-    exc = error.value
-    assert len(exc.issues) == 1
-    assert exc.issues[0].model_dump(exclude_none=True) == {
-        "severity": "error",
-        "code": "invalid",
-        "details": {
-            "coding": [
-                {
-                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "BAD_REQUEST",
-                    "display": "Bad request",
-                }
-            ]
-        },
-        "diagnostics": "Failed to parse DocumentReference resource (content[0].extension[0].valueCodeableConcept.coding: List should have at least 1 item after validation, not 0. See ValueSet: https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability)",
-        "expression": ["content[0].extension[0].valueCodeableConcept.coding"],
-    }
-
-
-def test_validate_content_missing_content_stability_coding():
-    validator = DocumentReferenceValidator()
-    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
-
-    # Remove the coding key from contentStability extension
-    del document_ref_data["content"][0]["extension"][0]["valueCodeableConcept"][
-        "coding"
-    ]
-
-    with pytest.raises(ParseError) as error:
-        validator.validate(document_ref_data)
-
-    exc = error.value
-    assert len(exc.issues) == 1
-    assert exc.issues[0].model_dump(exclude_none=True) == {
-        "severity": "error",
-        "code": "invalid",
-        "details": {
-            "coding": [
-                {
-                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "BAD_REQUEST",
-                    "display": "Bad request",
-                }
-            ]
-        },
-        "diagnostics": "Failed to parse DocumentReference resource (content[0].extension[0].valueCodeableConcept.coding: Field required. See ValueSet: https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability)",
-        "expression": ["content[0].extension[0].valueCodeableConcept.coding"],
-    }
-
-
 def test_validate_multiple_codings():
     validator = DocumentReferenceValidator()
     document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
@@ -347,70 +285,6 @@ def test_validate_multiple_codings():
         },
         "diagnostics": "Failed to parse DocumentReference resource (category[0].coding: List should have at most 1 item after validation, not 3)",
         "expression": ["category[0].coding"],
-    }
-
-
-def test_validate_missing_coding():
-    validator = DocumentReferenceValidator()
-    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
-
-    document_ref_data["category"][0] = {"coding": []}
-
-    with pytest.raises(ParseError) as error:
-        validator.validate(document_ref_data)
-
-    exc = error.value
-    assert len(exc.issues) == 1
-    assert exc.issues[0].model_dump(exclude_none=True) == {
-        "severity": "error",
-        "code": "invalid",
-        "details": {
-            "coding": [
-                {
-                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "BAD_REQUEST",
-                    "display": "Bad request",
-                }
-            ]
-        },
-        "diagnostics": "Failed to parse DocumentReference resource (category[0].coding: List should have at least 1 item after validation, not 0)",
-        "expression": ["category[0].coding"],
-    }
-
-
-def test_validate_empty_strings():
-    validator = DocumentReferenceValidator()
-    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
-
-    document_ref_data["category"][0] = {
-        "coding": [
-            {
-                "system": SNOMED_SYSTEM_URL,
-                "code": "734163000",
-                "display": "",
-            }
-        ]
-    }
-
-    with pytest.raises(ParseError) as error:
-        validator.validate(document_ref_data)
-
-    exc = error.value
-    assert len(exc.issues) == 1
-    assert exc.issues[0].model_dump(exclude_none=True) == {
-        "severity": "error",
-        "code": "invalid",
-        "details": {
-            "coding": [
-                {
-                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "BAD_REQUEST",
-                    "display": "Bad request",
-                }
-            ]
-        },
-        "diagnostics": "Failed to parse DocumentReference resource (category[0].coding[0].display: String should match pattern '[\\S]+[ \\r\\n\\t\\S]*')",
-        "expression": ["category[0].coding[0].display"],
     }
 
 

@@ -331,62 +331,6 @@ def test_validate_document_reference_extra_fields_content():
     }
 
 
-def test_validate_identifiers_no_custodian_identifier():
-    validator = DocumentReferenceValidator()
-    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
-
-    del document_ref_data["custodian"]["identifier"]
-
-    result = validator.validate(document_ref_data)
-
-    assert result.is_valid is False
-    assert result.resource.id == "Y05868-99999-99999-999999"
-    assert len(result.issues) == 1
-    assert result.issues[0].model_dump(exclude_none=True) == {
-        "severity": "error",
-        "code": "business-rule",
-        "details": {
-            "coding": [
-                {
-                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "UNPROCESSABLE_ENTITY",
-                    "display": "Unprocessable Entity",
-                }
-            ]
-        },
-        "diagnostics": "Custodian must have an identifier",
-        "expression": ["custodian.identifier"],
-    }
-
-
-def test_validate_identifiers_no_subject_identifier():
-    validator = DocumentReferenceValidator()
-    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
-
-    del document_ref_data["subject"]["identifier"]
-
-    result = validator.validate(document_ref_data)
-
-    assert result.is_valid is False
-    assert result.resource.id == "Y05868-99999-99999-999999"
-    assert len(result.issues) == 1
-    assert result.issues[0].model_dump(exclude_none=True) == {
-        "severity": "error",
-        "code": "business-rule",
-        "details": {
-            "coding": [
-                {
-                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "UNPROCESSABLE_ENTITY",
-                    "display": "Unprocessable Entity",
-                }
-            ]
-        },
-        "diagnostics": "Subject must have an identifier",
-        "expression": ["subject.identifier"],
-    }
-
-
 def test_validate_category_too_many_category():
     validator = DocumentReferenceValidator()
     document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
@@ -928,33 +872,6 @@ def test_validate_relates_to_invalid_code():
         },
         "diagnostics": "Invalid relatesTo code: invalid",
         "expression": ["relatesTo[0].code"],
-    }
-
-
-def test_validate_relates_to_no_target_identifier():
-    validator = DocumentReferenceValidator()
-    document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
-
-    document_ref_data["relatesTo"] = [{"code": "replaces", "target": {}}]
-
-    result = validator.validate(document_ref_data)
-
-    assert result.is_valid is False
-    assert len(result.issues) == 1
-    assert result.issues[0].model_dump(exclude_none=True) == {
-        "severity": "error",
-        "code": "business-rule",
-        "details": {
-            "coding": [
-                {
-                    "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
-                    "code": "UNPROCESSABLE_ENTITY",
-                    "display": "Unprocessable Entity",
-                }
-            ]
-        },
-        "diagnostics": "relatesTo code 'replaces' must have a target identifier",
-        "expression": ["relatesTo[0].target.identifier.value"],
     }
 
 

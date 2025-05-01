@@ -384,6 +384,50 @@ def test_create_document_reference_invalid_body():
     }
 
 
+def test_create_document_reference_empty_fields_in_body():
+    doc_ref = load_document_reference("Y05868-736253002-Valid")
+    doc_ref.author = []
+    doc_ref.custodian = {"identifier": {}, "reference": None}
+    doc_ref.category = [{"coding": [{"system": "", "code": None}]}]
+    doc_ref.text = ""
+
+    event = create_test_api_gateway_event(
+        headers=create_headers(),
+        body=doc_ref.model_dump_json(exclude_none=True),
+    )
+    result = handler(event, create_mock_context())
+    body = result.pop("body")
+
+    assert result == {
+        "statusCode": "400",
+        "headers": default_response_headers(),
+        "isBase64Encoded": False,
+    }
+
+    parsed_body = json.loads(body)
+
+    assert parsed_body == {
+        "resourceType": "OperationOutcome",
+        "issue": [
+            {
+                "severity": "error",
+                "code": "invalid",
+                "details": {
+                    "coding": [
+                        {
+                            "code": "MESSAGE_NOT_WELL_FORMED",
+                            "display": "Message not well formed",
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                        }
+                    ],
+                },
+                "diagnostics": "Request body could not be parsed (DocumentReference: Value error, The following fields are empty: text, author, custodian.reference, custodian.identifier, category[0].coding[0].system, category[0].coding[0].code)",
+                "expression": ["DocumentReference"],
+            }
+        ],
+    }
+
+
 def test_create_document_reference_invalid_resource():
     doc_ref = load_document_reference("Y05868-736253002-Valid")
     doc_ref.custodian = None
@@ -781,9 +825,7 @@ def test_create_document_reference_cannot_set_status_to_not_current(repository):
 def test_create_document_reference_no_relatesto_target():
     doc_ref = load_document_reference("Y05868-736253002-Valid")
     doc_ref.relatesTo = [
-        DocumentReferenceRelatesTo(
-            code="transforms", target=Reference(reference=None, identifier=None)
-        )
+        DocumentReferenceRelatesTo(code="transforms", target=Reference())
     ]
 
     event = create_test_api_gateway_event(
@@ -795,7 +837,7 @@ def test_create_document_reference_no_relatesto_target():
     body = result.pop("body")
 
     assert result == {
-        "statusCode": "422",
+        "statusCode": "400",
         "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
@@ -807,18 +849,18 @@ def test_create_document_reference_no_relatesto_target():
         "issue": [
             {
                 "severity": "error",
-                "code": "business-rule",
+                "code": "invalid",
                 "details": {
                     "coding": [
                         {
-                            "code": "UNPROCESSABLE_ENTITY",
-                            "display": "Unprocessable Entity",
+                            "code": "MESSAGE_NOT_WELL_FORMED",
+                            "display": "Message not well formed",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
-                    ]
+                    ],
                 },
-                "diagnostics": "No identifier value provided for relatesTo target",
-                "expression": ["relatesTo[0].target.identifier.value"],
+                "diagnostics": "Request body could not be parsed (DocumentReference: Value error, The following fields are empty: relatesTo[0].target)",
+                "expression": ["DocumentReference"],
             }
         ],
     }
@@ -829,9 +871,7 @@ def test_create_document_reference_invalid_relatesto_target_producer_id():
     doc_ref.relatesTo = [
         DocumentReferenceRelatesTo(
             code="transforms",
-            target=Reference(
-                reference=None, identifier=Identifier(value="X26-99999-99999-999999")
-            ),
+            target=Reference(identifier=Identifier(value="X26-99999-99999-999999")),
         )
     ]
 
@@ -881,7 +921,6 @@ def test_create_document_reference_invalid_relatesto_not_exists(repository):
         DocumentReferenceRelatesTo(
             code="transforms",
             target=Reference(
-                reference=None,
                 identifier=Identifier(value="Y05868-123456-123456-123456"),
             ),
         )
@@ -942,9 +981,7 @@ def test_create_document_reference_invalid_relatesto_nhs_number(
     doc_ref.relatesTo = [
         DocumentReferenceRelatesTo(
             code="transforms",
-            target=Reference(
-                reference=None, identifier=Identifier(value="Y05868-99999-99999-999999")
-            ),
+            target=Reference(identifier=Identifier(value="Y05868-99999-99999-999999")),
         )
     ]
 
@@ -1004,9 +1041,7 @@ def test_create_document_reference_invalid_relatesto_type(
     doc_ref.relatesTo = [
         DocumentReferenceRelatesTo(
             code="transforms",
-            target=Reference(
-                reference=None, identifier=Identifier(value="Y05868-99999-99999-999999")
-            ),
+            target=Reference(identifier=Identifier(value="Y05868-99999-99999-999999")),
         )
     ]
 
@@ -1220,9 +1255,7 @@ def test_create_document_reference_supersede_deletes_old_pointers_replace(
     doc_ref.relatesTo = [
         DocumentReferenceRelatesTo(
             code="replaces",
-            target=Reference(
-                reference=None, identifier=Identifier(value="Y05868-99999-99999-999999")
-            ),
+            target=Reference(identifier=Identifier(value="Y05868-99999-99999-999999")),
         )
     ]
 
@@ -1281,9 +1314,7 @@ def test_create_document_reference_supersede_succeeds_with_toggle(
     doc_ref.relatesTo = [
         DocumentReferenceRelatesTo(
             code="replaces",
-            target=Reference(
-                reference=None, identifier=Identifier(value="Y05868-99999-99999-000000")
-            ),
+            target=Reference(identifier=Identifier(value="Y05868-99999-99999-000000")),
         )
     ]
 
@@ -1341,9 +1372,7 @@ def test_create_document_reference_supersede_fails_without_toggle(
     doc_ref.relatesTo = [
         DocumentReferenceRelatesTo(
             code="replaces",
-            target=Reference(
-                reference=None, identifier=Identifier(value="Y05868-99999-99999-000000")
-            ),
+            target=Reference(identifier=Identifier(value="Y05868-99999-99999-000000")),
         )
     ]
 
@@ -1400,9 +1429,7 @@ def test_create_document_reference_create_relatesto_not_replaces(
     doc_ref.relatesTo = [
         DocumentReferenceRelatesTo(
             code="transforms",
-            target=Reference(
-                reference=None, identifier=Identifier(value="Y05868-99999-99999-999999")
-            ),
+            target=Reference(identifier=Identifier(value="Y05868-99999-99999-999999")),
         )
     ]
 

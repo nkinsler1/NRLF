@@ -265,9 +265,9 @@ Feature: Producer - upsertDocumentReference - Failure Scenarios
             }
             ]
         },
-        "diagnostics": "Request body could not be parsed (content: List should have at least 1 item after validation, not 0)",
+        "diagnostics": "Request body could not be parsed (DocumentReference: Value error, The following fields are empty: content)",
         "expression": [
-            "content"
+            "DocumentReference"
         ]
       }
       """
@@ -323,9 +323,9 @@ Feature: Producer - upsertDocumentReference - Failure Scenarios
             }
             ]
         },
-        "diagnostics": "Request body could not be parsed (content[0].attachment.contentType: String should match pattern '[^\\s]+(\\s[^\\s]+)*')",
+        "diagnostics": "Request body could not be parsed (DocumentReference: Value error, The following fields are empty: content[0].attachment.contentType)",
         "expression": [
-            "content[0].attachment.contentType"
+          "DocumentReference"
         ]
       }
       """
