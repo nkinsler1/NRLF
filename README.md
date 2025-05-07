@@ -36,8 +36,8 @@ For an easy way to make sure your local system matches the requirements needed y
 - [poetry](https://python-poetry.org/docs/) (this repository uses poetry ^1.5.1)
 - [pyenv](https://github.com/pyenv/pyenv) (this repository uses python ^3.9.15)
 - jq
-- terraform (this repository uses terraform ^1.3.4)
-- [tfenv](https://github.com/tfutils/tfenv) (this repository uses terraform 1.3.4)
+- terraform
+- [tfenv](https://github.com/tfutils/tfenv)
 - coreutils
 
 Swagger generation requirements.
