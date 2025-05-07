@@ -250,6 +250,27 @@ class SpineErrorResponse(Response):
         )
 
     @classmethod
+    def UNPROCESSABLE_ENTITY(
+        cls, diagnostics: str = "Unprocessable Entity", expression: str | None = None
+    ) -> "Response":
+        return cls.from_issues(
+            issues=[
+                producer_model.OperationOutcomeIssue(
+                    severity="error",
+                    code="business-rule",
+                    details=SpineErrorConcept.from_code("UNPROCESSABLE_ENTITY"),
+                    diagnostics=diagnostics,
+                    expression=(
+                        [producer_model.ExpressionItem(root=expression)]
+                        if expression
+                        else None
+                    ),
+                )
+            ],
+            statusCode="422",
+        )
+
+    @classmethod
     def AUTHOR_CREDENTIALS_ERROR(
         cls, diagnostics: str, expression: str | None = None
     ) -> "Response":

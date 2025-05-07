@@ -43,6 +43,30 @@ Once you're happy with your planned changes, you can apply them with:
 terraform apply
 ```
 
+### If you get "Error: creating CodeBuild Webhook"
+
+If you see this erro:
+
+```
+│ Error: creating CodeBuild Webhook (nhsd-nrlf-ci-build-project): operation error CodeBuild: CreateWebhook, https response error StatusCode: 400, RequestID: , ResourceNotFoundException: Access token not found in CodeBuild project for server type github
+│
+│   with aws_codebuild_webhook.github_workflow,
+│   on codebuild.tf line 113, in resource "aws_codebuild_webhook" "github_workflow":
+│  113: resource "aws_codebuild_webhook" "github_workflow" {
+```
+
+You will need to add the Github PAT credential for codebuild to connect to Github. To fix this:
+
+1. Go to the AWS console and find the Codebuild service
+2. Select the created nhsd-nrlf-ci-build-project project
+3. Press the "Edit" button (in the top-bar)
+4. Where it says "You have not connected to Github", press the "Manage account credentials" link
+5. At the "Manage default source credential" page, choose "Personal Access Token" type, "Secrets Manager" service, and "Existing Secret" secret.
+6. In the "Connection" drop-down, choose the "nhsd-nrlf--codebuild-github-pat" secret
+7. Press the "Save" button
+
+If that has worked, you should see: "Your account is successfully connected through Secrets Manager secret"
+
 ### Build and publish the container image for CI build
 
 Once all the mgmt infra has been deployed, you need to build and publish the CI image to the ECR repo.

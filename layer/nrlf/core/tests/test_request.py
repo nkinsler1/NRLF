@@ -245,8 +245,8 @@ def test_parse_body_invalid_docref_json():
                         }
                     ],
                 },
-                "diagnostics": "Request body could not be parsed (root: Invalid JSON: control character (\\u0000-\\u001F) found while parsing a string at line 72 column 0)",
-                "expression": ["root"],
+                "diagnostics": "Request body could not be parsed (DocumentReference: Invalid JSON: control character (\\u0000-\\u001F) found while parsing a string at line 72 column 0)",
+                "expression": ["DocumentReference"],
             }
         ],
     }
@@ -403,8 +403,8 @@ def test_parse_body_not_json():
                         }
                     ]
                 },
-                "diagnostics": "Request body could not be parsed (root: Invalid JSON: expected value at line 1 column 1)",
-                "expression": ["root"],
+                "diagnostics": "Request body could not be parsed (DocumentReference: Invalid JSON: expected value at line 1 column 1)",
+                "expression": ["DocumentReference"],
             }
         ],
     }
