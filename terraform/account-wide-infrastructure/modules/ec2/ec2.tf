@@ -95,3 +95,39 @@ module "autoscaling" {
   user_data              = filebase64("./userdata.txt")
   update_default_version = true
 }
+
+############################
+# Add rule to db managed group
+############################
+# module "upgrade_db_sg" {
+#   source  = "registry.terraform.io/terraform-aws-modules/security-group/aws"
+#   version = "4.13.1"
+
+#   create_sg         = false
+#   security_group_id = data.aws_security_group.db_sg.id
+#   ingress_with_source_security_group_id = [
+#     {
+#       description              = "Allow incoming connections from Power BI Gateway"
+#       rule                     = "postgresql-tcp"
+#       source_security_group_id = module.security-group-outbound.security_group_id
+#     },
+#   ]
+# }
+
+############################
+# Key pair for RDP access
+############################
+resource "tls_private_key" "instance_key_pair" {
+  algorithm = "RSA"
+}
+
+resource "aws_key_pair" "ec2_key_pair" {
+  key_name   = "PowerBI-GateWay-Key"
+  public_key = tls_private_key.instance_key_pair.public_key_openssh
+}
+
+# Saving Key Pair for ssh login for Client if needed
+resource "local_file" "ssh_key" {
+  filename = "${aws_key_pair.ec2_key_pair.key_name}.pem"
+  content  = tls_private_key.instance_key_pair.private_key_pem
+}
