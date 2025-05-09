@@ -30,22 +30,6 @@ jobs:
         with:
           ref: ${{ inputs.branch_name }}
 
-      - name: Setup asdf cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.asdf
-          key: ${{ runner.os }}-asdf-${{ hashFiles('**/.tool-versions') }}
-          restore-keys: |
-            ${{ runner.os }}-asdf-
-
-      - name: Install asdf
-        uses: asdf-vm/actions/install@v3.0.2
-        with:
-          asdf_branch: v0.13.1
-
-      - name: Install zip
-        run: sudo apt-get install zip
-
       - name: Setup Python environment
         run: |
           poetry install --no-root
@@ -99,19 +83,6 @@ jobs:
         with:
           ref: ${{ inputs.branch_name }}
 
-      - name: Setup asdf cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.asdf
-          key: ${{ runner.os }}-asdf-${{ hashFiles('**/.tool-versions') }}
-          restore-keys: |
-            ${{ runner.os }}-asdf-
-
-      - name: Install asdf
-        uses: asdf-vm/actions/install@v3.0.2
-        with:
-          asdf_branch: v0.13.1
-
       - name: Configure Management Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -129,9 +100,6 @@ jobs:
         with:
           name: build-artifacts
           path: dist
-
-      - name: Install zip
-        run: sudo apt-get install zip
 
       - name: Setup Python environment
         run: |
@@ -179,19 +147,6 @@ jobs:
         with:
           ref: ${{ inputs.branch_name }}
 
-      - name: Setup asdf cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.asdf
-          key: ${{ runner.os }}-asdf-${{ hashFiles('**/.tool-versions') }}
-          restore-keys: |
-            ${{ runner.os }}-asdf-
-
-      - name: Install asdf
-        uses: asdf-vm/actions/install@v3.0.2
-        with:
-          asdf_branch: v0.13.1
-
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
@@ -219,9 +174,6 @@ jobs:
         run: |
           account=$(echo '${{ inputs.environment }}' | cut -d '-' -f1)
           make truststore-pull-server ENV=${account}
-
-      - name: Install zip
-        run: sudo apt-get install zip
 
       - name: Setup Python environment
         run: |
@@ -261,28 +213,12 @@ jobs:
         with:
           ref: ${{ inputs.branch_name }}
 
-      - name: Setup asdf cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.asdf
-          key: ${{ runner.os }}-asdf-${{ hashFiles('**/.tool-versions') }}
-          restore-keys: |
-            ${{ runner.os }}-asdf-
-
-      - name: Install asdf
-        uses: asdf-vm/actions/install@v3.0.2
-        with:
-          asdf_branch: v0.13.1
-
       - name: Configure Management Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets.MGMT_ROLE_ARN }}
           role-session-name: github-actions-ci-${{ inputs.environment }}-${{ github.run_id}}
-
-      - name: Install zip
-        run: sudo apt-get install zip
 
       - name: Setup Python environment
         run: |
@@ -306,28 +242,12 @@ jobs:
         with:
           ref: ${{ inputs.branch_name }}
 
-      - name: Setup asdf cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.asdf
-          key: ${{ runner.os }}-asdf-${{ hashFiles('**/.tool-versions') }}
-          restore-keys: |
-            ${{ runner.os }}-asdf-
-
-      - name: Install asdf
-        uses: asdf-vm/actions/install@v3.0.2
-        with:
-          asdf_branch: v0.13.1
-
       - name: Configure Management Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets.MGMT_ROLE_ARN }}
           role-session-name: github-actions-ci-${{ inputs.environment }}-${{ github.run_id}}
-
-      - name: Install zip
-        run: sudo apt-get install zip
 
       - name: Setup Python environment
         run: |
@@ -351,28 +271,12 @@ jobs:
         with:
           ref: ${{ inputs.branch_name }}
 
-      - name: Setup asdf cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.asdf
-          key: ${{ runner.os }}-asdf-${{ hashFiles('**/.tool-versions') }}
-          restore-keys: |
-            ${{ runner.os }}-asdf-
-
-      - name: Install asdf
-        uses: asdf-vm/actions/install@v3.0.2
-        with:
-          asdf_branch: v0.13.1
-
       - name: Configure Management Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets.MGMT_ROLE_ARN }}
           role-session-name: github-actions-ci-${{ inputs.environment }}-${{ github.run_id}}
-
-      - name: Install zip
-        run: sudo apt-get install zip
 
       - name: Setup Python environment
         run: |

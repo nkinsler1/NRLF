@@ -54,14 +54,6 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.merged && github.event.pull_request.base.ref || github.event.pull_request.head.ref }}
 
-      - name: Setup asdf cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.asdf
-          key: ${{ runner.os }}-asdf-${{ hashFiles('**/.tool-versions') }}
-          restore-keys: |
-            ${{ runner.os }}-asdf-
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
