@@ -52,10 +52,10 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref }}
 
-      - name: Setup Python environment
+      - name: Setup environment
         run: |
+          echo "${HOME}/.asdf/bin" >> $GITHUB_PATH
           poetry install --no-root
-          source $(poetry env info --path)/bin/activate
 
       - name: Run Linting
         run: make lint
@@ -115,6 +115,11 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref }}
 
+      - name: Setup environment
+        run: |
+          echo "${HOME}/.asdf/bin" >> $GITHUB_PATH
+          poetry install --no-root
+
       - name: Configure Management Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -137,11 +142,6 @@ jobs:
 
       - name: Retrieve Server Certificates
         run: make truststore-pull-server ENV=dev
-
-      - name: Setup Python environment
-        run: |
-          poetry install --no-root
-          source $(poetry env info --path)/bin/activate
 
       - name: Terraform Init
         run: |
@@ -197,8 +197,10 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref }}
 
-      - name: Python Dependency Install
-        run: poetry install --no-root
+      - name: Setup environment
+        run: |
+          echo "${HOME}/.asdf/bin" >> $GITHUB_PATH
+          poetry install --no-root
 
       - name: Configure Management Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -232,10 +234,10 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref }}
 
-      - name: Setup Python environment
+      - name: Setup environment
         run: |
+          echo "${HOME}/.asdf/bin" >> $GITHUB_PATH
           poetry install --no-root
-          source $(poetry env info --path)/bin/activate
 
       - name: Configure Management Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -267,10 +269,10 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref }}
 
-      - name: Setup Python environment
+      - name: Setup environment
         run: |
+          echo "${HOME}/.asdf/bin" >> $GITHUB_PATH
           poetry install --no-root
-          source $(poetry env info --path)/bin/activate
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4

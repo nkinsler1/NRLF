@@ -219,6 +219,11 @@ jobs:
         with:
           ref: ${{ github.ref }}
 
+      - name: Setup environment
+        run: |
+          echo "${HOME}/.asdf/bin" >> $GITHUB_PATH
+          poetry install --no-root
+
       - name: Restore pulled lambda artifacts
         uses: actions/cache/restore@v4
         with:
