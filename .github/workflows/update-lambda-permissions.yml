@@ -29,7 +29,7 @@ permissions:
 jobs:
   check-versions:
     name: Check versions
-    runs-on: [self-hosted, ci]
+    runs-on: codebuild-nhsd-nrlf-ci-build-project-${{ github.run_id }}-${{ github.run_attempt }}
 
     steps:
       - name: Git clone - ${{ github.ref }}
@@ -90,7 +90,7 @@ jobs:
 
   build-permissions:
     name: Build permissions
-    runs-on: [self-hosted, ci]
+    runs-on: codebuild-nhsd-nrlf-ci-build-project-${{ github.run_id }}-${{ github.run_attempt }}
     environment: ${{ inputs.environment }}
 
     needs: [check-versions]
@@ -142,7 +142,7 @@ jobs:
 
   pull-deployed-lambdas:
     name: Pull deployed lambdas
-    runs-on: [self-hosted, ci]
+    runs-on: codebuild-nhsd-nrlf-ci-build-project-${{ github.run_id }}-${{ github.run_attempt }}
     environment: ${{ inputs.environment }}
 
     needs: [check-versions]
@@ -181,7 +181,7 @@ jobs:
 
   terraform-plan:
     name: Plan changes
-    runs-on: [self-hosted, ci]
+    runs-on: codebuild-nhsd-nrlf-ci-build-project-${{ github.run_id }}-${{ github.run_attempt }}
     environment: ${{ inputs.environment }}
 
     needs: [build-permissions, pull-deployed-lambdas]
@@ -256,7 +256,7 @@ jobs:
 
   terraform-apply:
     name: Apply permissions
-    runs-on: [self-hosted, ci]
+    runs-on: codebuild-nhsd-nrlf-ci-build-project-${{ github.run_id }}-${{ github.run_attempt }}
     environment: ${{ inputs.environment }}
 
     needs: terraform-plan

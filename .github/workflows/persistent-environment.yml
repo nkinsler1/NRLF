@@ -22,7 +22,7 @@ permissions:
 jobs:
   build:
     name: Build - ${{ inputs.branch_name }}
-    runs-on: [self-hosted, ci]
+    runs-on: codebuild-nhsd-nrlf-ci-build-project-${{ github.run_id }}-${{ github.run_attempt }}
 
     steps:
       - name: Git clone - ${{ inputs.branch_name }}
@@ -91,7 +91,7 @@ jobs:
     name: Terraform Plan - ${{ inputs.environment }}
     needs: [build]
     environment: ${{ inputs.environment }}
-    runs-on: [self-hosted, ci]
+    runs-on: codebuild-nhsd-nrlf-ci-build-project-${{ github.run_id }}-${{ github.run_attempt }}
 
     steps:
       - name: Git clone - ${{ inputs.branch_name }}
@@ -170,7 +170,7 @@ jobs:
   terraform-apply:
     name: Terraform Apply - ${{ inputs.environment }}
     needs: [terraform-plan]
-    runs-on: [self-hosted, ci]
+    runs-on: codebuild-nhsd-nrlf-ci-build-project-${{ github.run_id }}-${{ github.run_attempt }}
     environment: ${{ inputs.environment }}
 
     steps:
@@ -252,7 +252,7 @@ jobs:
   activate-stack:
     name: Activate - ${{ inputs.environment }}
     needs: [terraform-apply]
-    runs-on: [self-hosted, ci]
+    runs-on: codebuild-nhsd-nrlf-ci-build-project-${{ github.run_id }}-${{ github.run_attempt }}
     environment: ${{ inputs.environment }}
 
     steps:
@@ -297,7 +297,7 @@ jobs:
   post-release-verify:
     name: Verify - ${{ inputs.environment }}
     needs: [activate-stack]
-    runs-on: [self-hosted, ci]
+    runs-on: codebuild-nhsd-nrlf-ci-build-project-${{ github.run_id }}-${{ github.run_attempt }}
     environment: ${{ inputs.environment }}
 
     steps:
@@ -342,7 +342,7 @@ jobs:
     name: Rollback - ${{ inputs.environment }}
     needs: [post-release-verify]
     if: always() && ( needs.post-release-verify.result == 'failure' )
-    runs-on: [self-hosted, ci]
+    runs-on: codebuild-nhsd-nrlf-ci-build-project-${{ github.run_id }}-${{ github.run_attempt }}
     environment: ${{ inputs.environment }}
 
     steps:

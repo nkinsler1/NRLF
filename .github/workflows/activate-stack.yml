@@ -23,7 +23,7 @@ permissions:
 jobs:
   activate-stack:
     name: Activate ${{ inputs.stack_name }} for ${{ inputs.environment }}
-    runs-on: [self-hosted, ci]
+    runs-on: codebuild-nhsd-nrlf-ci-build-project-${{ github.run_id }}-${{ github.run_attempt }}
     environment: ${{ inputs.environment }}
 
     steps:

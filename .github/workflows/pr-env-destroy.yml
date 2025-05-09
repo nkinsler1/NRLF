@@ -19,7 +19,7 @@ permissions:
 jobs:
   set-environment-id:
     name: Set Environment ID
-    runs-on: [self-hosted, ci]
+    runs-on: codebuild-nhsd-nrlf-ci-build-project-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - name: Set a ID based on the branch name
         id: set_environment_id
@@ -46,7 +46,7 @@ jobs:
     name: Destroy PR Environment
     needs: [set-environment-id]
     environment: pull-request
-    runs-on: [self-hosted, ci]
+    runs-on: codebuild-nhsd-nrlf-ci-build-project-${{ github.run_id }}-${{ github.run_attempt }}
 
     steps:
       - name: Git Clone - ${{ github.event.pull_request.head.ref }}
