@@ -8,4 +8,8 @@ resource "aws_instance" "web" {
 
   user_data = file("./modules/web/userdata.tpl")
 
+  tags = {
+    Name = "${var.naming_prefix}-ec2"
+  }
+
 }

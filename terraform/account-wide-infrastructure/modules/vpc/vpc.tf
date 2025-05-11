@@ -3,18 +3,18 @@ resource "aws_vpc" "app_vpc" {
   cidr_block           = var.vpc_cidr_block
   enable_dns_hostnames = var.enable_dns_hostnames
 
-  tags = merge(var.common_tags, {
+  tags = {
     Name = "${var.name_prefix}-vpc"
-  })
+  }
 }
 
 # Create the internet gateway
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.app_vpc.id
 
-  tags = merge(var.common_tags, {
+  tags = {
     Name = "${var.name_prefix}-igw"
-  })
+  }
 }
 
 # Create the public subnet
@@ -24,9 +24,9 @@ resource "aws_subnet" "public_subnet" {
   map_public_ip_on_launch = true
   availability_zone       = var.aws_azs
 
-  tags = merge(var.common_tags, {
+  tags = {
     Name = "${var.name_prefix}-pubsubnet"
-  })
+  }
 
 }
 
