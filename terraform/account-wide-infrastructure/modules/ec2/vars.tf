@@ -3,6 +3,5 @@ variable "name_prefix" {
   description = "The prefix to apply to all resources in the module."
 }
 variable "instance_type" {}
-variable "instance_key" {}
 variable "security_groups" {}
 variable "subnet_id" {}

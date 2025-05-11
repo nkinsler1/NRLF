@@ -11,7 +11,6 @@ module "vpc" {
 module "web" {
   source        = "../modules/ec2"
   instance_type = var.instance_type
-  instance_key  = var.instance_key
   name_prefix   = "nhsd-nrlf--dev"
 
   subnet_id       = module.vpc.subnet_id
