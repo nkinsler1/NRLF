@@ -17,7 +17,7 @@ variable "devsandbox_api_domain_name" {
 variable "aws_azs" {
   type        = string
   description = "AWS Availability Zones"
-  default     = "eu-west-1a"
+  default     = "eu-west-2a"
 }
 
 variable "enable_dns_hostnames" {
@@ -45,5 +45,5 @@ variable "instance_type" {
 }
 
 variable "instance_key" {
-  default = "WorkshopKeyPair"
+  default = "PowerBIGateway"
 }

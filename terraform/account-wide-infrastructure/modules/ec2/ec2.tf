@@ -6,10 +6,10 @@ resource "aws_instance" "web" {
   subnet_id       = var.subnet_id
   security_groups = var.security_groups
 
-  user_data = file("./modules/web/userdata.tpl")
+  user_data = file("${path.module}/scripts/user_data.tpl")
 
   tags = {
-    Name = "${var.naming_prefix}-ec2"
+    Name = "${var.name_prefix}-ec2"
   }
 
 }

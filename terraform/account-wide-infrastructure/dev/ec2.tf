@@ -1,6 +1,5 @@
 module "vpc" {
   source                        = "../modules/vpc"
-  aws_region                    = var.aws_region
   vpc_cidr_block                = var.vpc_cidr_block
   enable_dns_hostnames          = var.enable_dns_hostnames
   vpc_public_subnets_cidr_block = var.vpc_public_subnets_cidr_block
