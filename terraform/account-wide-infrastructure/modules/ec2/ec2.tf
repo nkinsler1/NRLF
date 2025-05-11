@@ -1,10 +1,11 @@
 # Create the Linux EC2 Web server
 resource "aws_instance" "web" {
-  ami             = data.aws_ami.windows-2019.id
-  instance_type   = var.instance_type
-  key_name        = aws_key_pair.ec2_key_pair.key_name
-  subnet_id       = var.subnet_id
-  security_groups = var.security_groups
+  associate_public_ip_address = false
+  ami                         = data.aws_ami.windows-2019.id
+  instance_type               = var.instance_type
+  key_name                    = aws_key_pair.ec2_key_pair.key_name
+  subnet_id                   = var.subnet_id
+  security_groups             = var.security_groups
 
   user_data = file("${path.module}/scripts/user_data.tpl")
 
