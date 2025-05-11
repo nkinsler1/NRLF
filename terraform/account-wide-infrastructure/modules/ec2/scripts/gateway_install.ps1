@@ -10,9 +10,9 @@ catch {
 }
 
 # Replace with your desired values
-$GatewayName = "MyGatewayCluster"
-$GatewayMemberName = "MyGatewayMember"
-$GatewayAdminUser = "user@example.com" # Optional, replace with user's email
+$GatewayName = "AthenaCluster"
+$GatewayMemberName = "AthenaClusterMember"
+$GatewayAdminUser = "jack.leary1@nhs.net"l
 
 # 1. Add a new gateway cluster
 Write-Host "Adding a new gateway cluster..."
