@@ -9,7 +9,7 @@ catch {
     return
 }
 
-# Replace with your desired values
+# Set vars
 $GatewayName = "AthenaCluster"
 $GatewayMemberName = "AthenaClusterMember"
 $GatewayAdminUser = "jack.leary1@nhs.net"l
