@@ -1,16 +1,9 @@
-variable "aws_region" {
-  description = "Default region where to deploy resources"
+variable "name_prefix" {
   type        = string
+  description = "The prefix to apply to all resources in the module."
 }
-
-## Account
-variable "account_name" {
-  description = "Account where to deploy VPC"
-  type        = string
-}
-
-## Account
-variable "db_sg_name" {
-  description = "Name of edeal security group"
-  type        = string
-}
+variable "common_tags" {}
+variable "instance_type" {}
+variable "instance_key" {}
+variable "security_groups" {}
+variable "subnet_id" {}
