@@ -65,7 +65,7 @@ attempts and error responses, in accordance with SAR requirements.
 - Message body is not FHIR-compliant (expected response: 400)
 - Message body does not meet the NRL business logic profile (expected response: 400 or 422), e.g.
   - A mandatory field such as ‘context.practiceSetting’, ‘author’, or ‘category’ is missing.
-  - A mandatory field has an invalid value, e.g. a
+  - A mandatory field has an invalid value, e.g. an ’author’ with an invalid system identifier (i.e. not https://fhir.nhs.uk/Id/ods-organization-code)
   - The category does not match the type (e.g. a Mental Health Crisis Plan is submitted in the
     ‘Observations’ category instead of ‘Care plan’) or uses the wrong system (i.e. not SNOMED)
   - The display value on a mandatory codeable concept does not match the expected text in the ValueSet
