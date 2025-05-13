@@ -23,8 +23,8 @@ update/supersede and delete pointers.
 | **Step** | **Detailed instructions** | **Evidence required** |**Expected outcome** |
 |----------|---------------------------|-----------------------|---------------------|
 | 1        | Authenticate as a valid organisation with a valid access token. | | |
-| 3        | Send a GET request for the pointer created in TC-01 using the ID generated and recorded. | Save an extract or screenshot of the audit logs for this request in the appropriate folder.  | Audit logs show:<br> <ul> <li>HTTP request body</li> <li>HTTP request URL</li> <li>HTTP verb</li> <li>ODS code of sender</li> <li>NHS number of patient</li> <li>Request date-time</li> <li>Request ID</li> <li>Correlation ID?</li> </ul> |
-| 4        | View the pointer received in the response.                                               | Save an extract or screenshot of the audit logs for this response in the appropriate folder. | Audit logs show:<br> <ul> <li>HTTP response body (a DocumentReference)</li> <li>HTTP response code (200)</li> <li>Response datetime</li> <li>The pointer ID (found in the location header)</li> <li>Correlation ID?</li> </ul>             |
+| 2        | Send a GET request for the pointer created in TC-01 using the ID generated and recorded. | Save an extract or screenshot of the audit logs for this request in the appropriate folder.  | Audit logs show:<br> <ul> <li>HTTP request body</li> <li>HTTP request URL</li> <li>HTTP verb</li> <li>ODS code of sender</li> <li>NHS number of patient</li> <li>Request date-time</li> <li>Request ID</li> <li>Correlation ID?</li> </ul> |
+| 3        | View the pointer received in the response.                                               | Save an extract or screenshot of the audit logs for this response in the appropriate folder. | Audit logs show:<br> <ul> <li>HTTP response body (a DocumentReference)</li> <li>HTTP response code (200)</li> <li>Response datetime</li> <li>The pointer ID (found in the location header)</li> <li>Correlation ID?</li> </ul>             |
 
 ---
 
