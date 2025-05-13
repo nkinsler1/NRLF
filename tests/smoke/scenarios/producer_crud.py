@@ -18,7 +18,9 @@ def test_producer_crud(
 
     try:
         # Create
-        create_response = producer_client.create(test_docref.model_dump())
+        create_response = producer_client.create(
+            test_docref.model_dump(exclude_none=True)
+        )
         assert create_response.ok
         created_id = create_response.headers["Location"].split("/")[-1]
 
@@ -29,7 +31,7 @@ def test_producer_crud(
 
         # Update
         updated_docref = {
-            **test_docref.model_dump(),
+            **test_docref.model_dump(exclude_none=True),
             "id": created_id,
         }
         updated_docref["content"][0]["attachment"][

@@ -40,7 +40,7 @@ def test_update_document_reference_happy_path(repository: DocumentPointerReposit
     event = create_test_api_gateway_event(
         headers=create_headers(),
         path_parameters={"id": "Y05868-99999-99999-999999"},
-        body=doc_ref.model_dump_json(),
+        body=doc_ref.model_dump_json(exclude_none=True),
     )
 
     result = handler(event, create_mock_context())
@@ -109,7 +109,7 @@ def test_update_document_reference_happy_path_with_ssp(
     event = create_test_api_gateway_event(
         headers=create_headers(),
         path_parameters={"id": "Y05868-99999-99999-999999"},
-        body=doc_ref.model_dump_json(),
+        body=doc_ref.model_dump_json(exclude_none=True),
     )
 
     result = handler(event, create_mock_context())
@@ -420,7 +420,7 @@ def test_update_document_reference_id_mismatch():
     body = result.pop("body")
 
     assert result == {
-        "statusCode": "400",
+        "statusCode": "422",
         "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
@@ -431,12 +431,12 @@ def test_update_document_reference_id_mismatch():
         "issue": [
             {
                 "severity": "error",
-                "code": "invalid",
+                "code": "business-rule",
                 "details": {
                     "coding": [
                         {
-                            "code": "BAD_REQUEST",
-                            "display": "Bad request",
+                            "code": "UNPROCESSABLE_ENTITY",
+                            "display": "Unprocessable Entity",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
                     ]
@@ -462,7 +462,7 @@ def test_update_document_reference_invalid_resource():
     body = result.pop("body")
 
     assert result == {
-        "statusCode": "400",
+        "statusCode": "422",
         "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
@@ -473,12 +473,12 @@ def test_update_document_reference_invalid_resource():
         "issue": [
             {
                 "severity": "error",
-                "code": "required",
+                "code": "business-rule",
                 "details": {
                     "coding": [
                         {
-                            "code": "INVALID_RESOURCE",
-                            "display": "Invalid validation of resource",
+                            "code": "UNPROCESSABLE_ENTITY",
+                            "display": "Unprocessable Entity",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
                     ]
@@ -580,18 +580,13 @@ def test_update_document_reference_immutable_fields(repository):
     repository.create(doc_pointer)
 
     doc_ref.type = CodeableConcept(
-        id=None,
         coding=[
             Coding(
-                id=None,
                 system="http://snomed.info/sct",
-                version=None,
                 code="861421000000109",
                 display="End of life care coordination summary",
-                userSelected=None,
             )
         ],
-        text=None,
     )
 
     event = create_test_api_gateway_event(
@@ -605,7 +600,7 @@ def test_update_document_reference_immutable_fields(repository):
     body = result.pop("body")
 
     assert result == {
-        "statusCode": "400",
+        "statusCode": "422",
         "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
@@ -616,12 +611,12 @@ def test_update_document_reference_immutable_fields(repository):
         "issue": [
             {
                 "severity": "error",
-                "code": "invalid",
+                "code": "business-rule",
                 "details": {
                     "coding": [
                         {
-                            "code": "BAD_REQUEST",
-                            "display": "Bad request",
+                            "code": "UNPROCESSABLE_ENTITY",
+                            "display": "Unprocessable Entity",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
                     ]
@@ -701,7 +696,7 @@ def test_update_document_reference_with_no_context_related_for_ssp_url(repositor
     body = result.pop("body")
 
     assert result == {
-        "statusCode": "400",
+        "statusCode": "422",
         "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
@@ -712,12 +707,12 @@ def test_update_document_reference_with_no_context_related_for_ssp_url(repositor
         "issue": [
             {
                 "severity": "error",
-                "code": "required",
+                "code": "business-rule",
                 "details": {
                     "coding": [
                         {
-                            "code": "INVALID_RESOURCE",
-                            "display": "Invalid validation of resource",
+                            "code": "UNPROCESSABLE_ENTITY",
+                            "display": "Unprocessable Entity",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
                     ]
@@ -755,7 +750,7 @@ def test_create_document_reference_with_no_asid_in_for_ssp_url(
     body = result.pop("body")
 
     assert result == {
-        "statusCode": "400",
+        "statusCode": "422",
         "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
@@ -767,12 +762,12 @@ def test_create_document_reference_with_no_asid_in_for_ssp_url(
         "issue": [
             {
                 "severity": "error",
-                "code": "required",
+                "code": "business-rule",
                 "details": {
                     "coding": [
                         {
-                            "code": "INVALID_RESOURCE",
-                            "display": "Invalid validation of resource",
+                            "code": "UNPROCESSABLE_ENTITY",
+                            "display": "Unprocessable Entity",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
                     ]
@@ -810,7 +805,7 @@ def test_create_document_reference_with_invalid_asid_for_ssp_url(
     body = result.pop("body")
 
     assert result == {
-        "statusCode": "400",
+        "statusCode": "422",
         "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
@@ -822,12 +817,12 @@ def test_create_document_reference_with_invalid_asid_for_ssp_url(
         "issue": [
             {
                 "severity": "error",
-                "code": "value",
+                "code": "business-rule",
                 "details": {
                     "coding": [
                         {
-                            "code": "INVALID_IDENTIFIER_VALUE",
-                            "display": "Invalid identifier value",
+                            "code": "UNPROCESSABLE_ENTITY",
+                            "display": "Unprocessable Entity",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
                     ]
@@ -861,7 +856,7 @@ def test_update_document_reference_with_meta_lastupdated_ignored(
     event = create_test_api_gateway_event(
         headers=create_headers(),
         path_parameters={"id": "Y05868-99999-99999-999999"},
-        body=doc_ref.model_dump_json(),
+        body=doc_ref.model_dump_json(exclude_none=True),
     )
 
     result = handler(event, create_mock_context())
@@ -931,7 +926,7 @@ def test_update_document_reference_with_invalid_date_ignored(
     event = create_test_api_gateway_event(
         headers=create_headers(),
         path_parameters={"id": "Y05868-99999-99999-999999"},
-        body=doc_ref.model_dump_json(),
+        body=doc_ref.model_dump_json(exclude_none=True),
     )
 
     result = handler(event, create_mock_context())

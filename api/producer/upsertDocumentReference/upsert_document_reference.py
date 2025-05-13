@@ -71,7 +71,7 @@ def _check_permissions(
             ods_code_parts=metadata.ods_code_parts,
             custodian_parts=custodian_parts,
         )
-        return SpineErrorResponse.BAD_REQUEST(
+        return SpineErrorResponse.UNPROCESSABLE_ENTITY(
             diagnostics="The custodian of the provided DocumentReference does not match the expected ODS code for this organisation",
             expression="custodian.identifier.value",
         )
@@ -204,10 +204,11 @@ def _raise_operation_outcome_error(diagnostics, idx):
     """
     raise OperationOutcomeError(
         severity="error",
-        code="invalid",
-        details=SpineErrorConcept.from_code("BAD_REQUEST"),
+        code="business-rule",
+        details=SpineErrorConcept.from_code("UNPROCESSABLE_ENTITY"),
         diagnostics=diagnostics,
         expression=[f"relatesTo[{idx}].target.identifier.value"],
+        status_code="422",
     )
 
 
@@ -228,7 +229,7 @@ def handler(
 
     if not result.is_valid:
         logger.log(LogReference.PROUPSERT002)
-        return Response.from_issues(issues=result.issues, statusCode="400")
+        return Response.from_issues(issues=result.issues, statusCode="422")
 
     core_model = _create_core_model(result.resource, metadata)
 
@@ -238,7 +239,7 @@ def handler(
             ods_code_parts=metadata.ods_code_parts,
             producer_id=core_model.producer_id,
         )
-        return SpineErrorResponse.BAD_REQUEST(
+        return SpineErrorResponse.UNPROCESSABLE_ENTITY(
             diagnostics="The id of the provided DocumentReference does not include the expected ODS code for this organisation"
         )
 
