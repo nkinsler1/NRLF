@@ -6,3 +6,12 @@ data "aws_ami" "windows-2019" {
     values = ["Windows_Server-2019-English-Full-Base*"]
   }
 }
+
+data "aws_ami" "PowerBI_Gateway" {
+  most_recent = true
+  owners      = ["self"]
+  filter {
+    name   = "name"
+    values = ["PowerBI_Gateway"]
+  }
+}
