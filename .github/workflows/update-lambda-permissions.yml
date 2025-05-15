@@ -37,10 +37,10 @@ jobs:
         with:
           ref: ${{ github.ref }}
 
-      - name: Setup Python environment
+      - name: Setup environment
         run: |
+          echo "${HOME}/.asdf/bin" >> $GITHUB_PATH
           poetry install --no-root
-          source $(poetry env info --path)/bin/activate
 
       - name: Configure Management Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -85,10 +85,10 @@ jobs:
         with:
           ref: ${{ github.ref }}
 
-      - name: Setup Python environment
+      - name: Setup environment
         run: |
+          echo "${HOME}/.asdf/bin" >> $GITHUB_PATH
           poetry install --no-root
-          source $(poetry env info --path)/bin/activate
 
       - name: Configure Management Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -160,10 +160,10 @@ jobs:
         with:
           ref: ${{ github.ref }}
 
-      - name: Setup Python environment
+      - name: Setup environment
         run: |
+          echo "${HOME}/.asdf/bin" >> $GITHUB_PATH
           poetry install --no-root
-          source $(poetry env info --path)/bin/activate
 
       - name: Restore pulled lambda artifacts
         uses: actions/cache/restore@v4

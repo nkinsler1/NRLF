@@ -283,11 +283,6 @@ jobs:
           role-to-assume: ${{ secrets.MGMT_ROLE_ARN }}
           role-session-name: github-actions-ci-${{ inputs.environment }}-${{ github.run_id}}
 
-      - name: Setup Python environment
-        run: |
-          poetry install --no-root
-          source $(poetry env info --path)/bin/activate
-
       - name: Deactivate Stack
         run: |
           inactive_stack_name=$(poetry run python ./scripts/get_env_config.py inactive-stack ${{ inputs.environment }})
