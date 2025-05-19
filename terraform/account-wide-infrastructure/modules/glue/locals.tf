@@ -3,11 +3,11 @@ locals {
     transition_storage = {
       infrequent_access = {
         storage_class = "STANDARD_IA"
-        days          = 150
+        days          = 2
       }
       glacier = {
         storage_class = "GLACIER"
-        days          = 200
+        days          = 7
       }
     }
 
