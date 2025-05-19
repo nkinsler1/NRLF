@@ -140,7 +140,7 @@ def test_delete_document_reference_not_exists(repository: DocumentPointerReposit
     body = result.pop("body")
 
     assert result == {
-        "statusCode": "404",
+        "statusCode": "200",
         "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
@@ -150,14 +150,14 @@ def test_delete_document_reference_not_exists(repository: DocumentPointerReposit
         "resourceType": "OperationOutcome",
         "issue": [
             {
-                "severity": "error",
-                "code": "not-found",
+                "severity": "information",
+                "code": "informational",
                 "details": {
                     "coding": [
                         {
-                            "code": "NO_RECORD_FOUND",
-                            "display": "No record found",
-                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                            "code": "RESOURCE_DELETED",
+                            "display": "Resource deleted",
+                            "system": "https://fhir.nhs.uk/ValueSet/NRL-ResponseCode",
                         }
                     ]
                 },

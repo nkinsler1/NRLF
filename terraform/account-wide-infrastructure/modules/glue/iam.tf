@@ -63,7 +63,6 @@ data "aws_iam_policy_document" "glue_service" {
 
     resources = [
       "arn:aws:logs:*:*:*:/aws-glue/*",
-      # "arn:aws:logs:*:*:*:/customlogs/*"
     ]
 
     effect = "Allow"
@@ -79,6 +78,28 @@ data "aws_iam_policy_document" "glue_service" {
     ]
 
     effect = "Allow"
+  }
+
+  statement {
+    actions = [
+      "cloudwatch:Get*",
+      "cloudwatch:List*",
+      "cloudwatch:Put*",
+    ]
+    resources = [
+      "*"
+    ]
+    effect = "Allow"
+  }
+
+  statement {
+    actions = [
+      "iam:PassRole",
+    ]
+    effect = "Allow"
+    resources = [
+      "arn:aws:iam::*:role/AWSGlueServiceRole*"
+    ]
   }
 }
 

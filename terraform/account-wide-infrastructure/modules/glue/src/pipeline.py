@@ -1,6 +1,7 @@
+import time
+
 import boto3
 from instances import GlueContextSingleton, LoggerSingleton
-from pyspark.sql.functions import col
 
 
 class LogPipeline:
@@ -9,7 +10,7 @@ class LogPipeline:
         spark_context,
         source_path,
         target_path,
-        schemas,
+        host_prefixes,
         job_name,
         partition_cols=[],
         transformations=[],
@@ -20,7 +21,7 @@ class LogPipeline:
         self.logger = LoggerSingleton().logger
         self.source_path = source_path
         self.target_path = target_path
-        self.schemas = schemas
+        self.host_prefixes = host_prefixes
         self.partition_cols = partition_cols
         self.transformations = transformations
         self.glue = boto3.client(
@@ -28,16 +29,17 @@ class LogPipeline:
             region_name="eu-west-2",
             endpoint_url="https://glue.eu-west-2.amazonaws.com",
         )
+        self.job_name = job_name
         self.name_prefix = "-".join(job_name.split("-")[:4])
 
     def run(self):
         """Runs ETL"""
         try:
             self.logger.info("ETL Process started.")
-            data = self.extract()
+            data = self.extract_dynamic()
             self.logger.info(f"Data extracted from {self.source_path}.")
             for name, df in data.items():
-                data[name] = self.transform(df)
+                data[name] = self.transform(df, name)
             self.logger.info("Data transformed successfully.")
             self.load(data)
             self.logger.info(f"Data loaded into {self.target_path}.")
@@ -47,20 +49,51 @@ class LogPipeline:
             self.logger.error(f"ETL process failed: {e}")
             raise e
 
-    def extract(self):
+    def get_last_run(self):
+        self.logger.info("Retrieving last successful runtime.")
+        all_runs = self.glue.get_job_runs(JobName=self.job_name)
+        if not all_runs["JobRuns"]:
+            return None
+
+        for run in all_runs["JobRuns"]:
+            if run["JobRunState"] == "SUCCEEDED":
+                return time.mktime(run["StartedOn"].timetuple())
+
+        return None
+
+    def extract_dynamic(self):
         """Extract JSON data from S3"""
-        self.logger.info(f"Extracting data from {self.source_path} as JSON")
+        last_runtime = self.get_last_run()
         data = {}
-        for name, schema in self.schemas.items():
-            data[name] = (
-                self.spark.read.option("recursiveFileLookup", "true")
-                .schema(schema)
-                .json(self.source_path)
-            ).where(col("host").contains(name))
+        data_source = self.glue_context.getSource("s3", paths=[self.source_path])
+        data_source.setFormat("json")
+        self.logger.info(f"Extracting data from {self.source_path} as JSON")
+        for name in self.host_prefixes:
+            if last_runtime:
+                data[name] = self.glue_context.create_dynamic_frame.from_options(
+                    connection_type="s3",
+                    connection_options={"paths": [self.source_path], "recurse": True},
+                    format="json",
+                ).filter(
+                    f=lambda x, n=name: (x["host"].endswith(n))
+                    and (x["time"] > last_runtime)
+                )
+
+            else:
+                data[name] = self.glue_context.create_dynamic_frame.from_options(
+                    connection_type="s3",
+                    connection_options={"paths": [self.source_path], "recurse": True},
+                    format="json",
+                ).filter(f=lambda x, n=name: x["host"].endswith(n))
+
         return data
 
-    def transform(self, dataframe):
+    def transform(self, dataframe, name):
         """Apply a list of transformations on the dataframe"""
+        self.spark.conf.set("spark.sql.caseSensitive", True)
+        dataframe = (
+            dataframe.relationalize("root", f"./tmp/{name}").select("root").toDF()
+        )
         for transformation in self.transformations:
             self.logger.info(f"Applying transformation: {transformation.__name__}")
             dataframe = transformation(dataframe)
@@ -71,9 +104,12 @@ class LogPipeline:
         self.logger.info(f"Loading data into {self.target_path} as Parquet")
         for name, dataframe in data.items():
             name = name.replace("--", "_")
-            dataframe.write.mode("append").partitionBy(*self.partition_cols).parquet(
-                f"{self.target_path}{name}"
-            )
+            try:
+                dataframe.coalesce(1).write.mode("append").partitionBy(
+                    *self.partition_cols
+                ).parquet(f"{self.target_path}{name}")
+            except:
+                self.logger.info(f"{name} dataframe has no rows. Skipping.")
 
     def trigger_crawler(self):
         self.glue.start_crawler(Name=f"{self.name_prefix}-log-crawler")

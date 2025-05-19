@@ -10,6 +10,7 @@ from api.producer.createDocumentReference.create_document_reference import (
     _set_create_time_fields,
     handler,
 )
+from nrlf.core.constants import SNOMED_SYSTEM_URL
 from nrlf.core.dynamodb.repository import DocumentPointer, DocumentPointerRepository
 from nrlf.producer.fhir.r4.model import (
     DocumentReferenceRelatesTo,
@@ -151,6 +152,71 @@ def test_create_document_reference_happy_path_with_ssp(
         },
         "date": "2024-03-21T12:34:56.789Z",
         "id": "Y05868-00000000-0000-0000-0000-000000000001",
+    }
+
+
+@mock_aws
+@mock_repository
+@freeze_time("2024-03-21T12:34:56.789")
+@freeze_uuid("00000000-0000-0000-0000-000000000001")
+def test_create_document_reference_without_related_value_exception(
+    repository: DocumentPointerRepository,
+):
+    doc_ref = load_document_reference("Y05868-736253002-Valid-with-ssp-content")
+    doc_ref.context = {
+        "practiceSetting": {
+            "coding": [
+                {
+                    "system": SNOMED_SYSTEM_URL,
+                    "code": "788002001",
+                    "display": "Adult mental health service",
+                }
+            ]
+        },
+        "sourcePatientInfo": {
+            "identifier": {
+                "system": "https://fhir.nhs.uk/Id/nhs-number",
+                "value": "6700028191",
+            }
+        },
+        "related": [{"identifier": {"system": "https://fhir.nhs.uk/Id/nhsSpineASID"}}],
+    }
+
+    event = create_test_api_gateway_event(
+        headers=create_headers(),
+        body=doc_ref.model_dump_json(exclude_none=True),
+    )
+
+    result = handler(event, create_mock_context())
+    body = result.pop("body")
+
+    assert result == {
+        "statusCode": "422",
+        "headers": default_response_headers(),
+        "isBase64Encoded": False,
+    }
+
+    parsed_body = json.loads(body)
+
+    assert parsed_body == {
+        "resourceType": "OperationOutcome",
+        "issue": [
+            {
+                "severity": "error",
+                "code": "business-rule",
+                "details": {
+                    "coding": [
+                        {
+                            "code": "UNPROCESSABLE_ENTITY",
+                            "display": "Unprocessable Entity",
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                        }
+                    ]
+                },
+                "diagnostics": "Invalid ASID value ''. A single ASID consisting of 12 digits can be provided in the context.related field.",
+                "expression": ["context.related[0].identifier.value"],
+            }
+        ],
     }
 
 
@@ -318,6 +384,50 @@ def test_create_document_reference_invalid_body():
     }
 
 
+def test_create_document_reference_empty_fields_in_body():
+    doc_ref = load_document_reference("Y05868-736253002-Valid")
+    doc_ref.author = []
+    doc_ref.custodian = {"identifier": {}, "reference": None}
+    doc_ref.category = [{"coding": [{"system": "", "code": None}]}]
+    doc_ref.text = ""
+
+    event = create_test_api_gateway_event(
+        headers=create_headers(),
+        body=doc_ref.model_dump_json(exclude_none=True),
+    )
+    result = handler(event, create_mock_context())
+    body = result.pop("body")
+
+    assert result == {
+        "statusCode": "400",
+        "headers": default_response_headers(),
+        "isBase64Encoded": False,
+    }
+
+    parsed_body = json.loads(body)
+
+    assert parsed_body == {
+        "resourceType": "OperationOutcome",
+        "issue": [
+            {
+                "severity": "error",
+                "code": "invalid",
+                "details": {
+                    "coding": [
+                        {
+                            "code": "MESSAGE_NOT_WELL_FORMED",
+                            "display": "Message not well formed",
+                            "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
+                        }
+                    ],
+                },
+                "diagnostics": "Request body could not be parsed (DocumentReference: Value error, The following fields are empty: text, author, custodian.reference, custodian.identifier, category[0].coding[0].system, category[0].coding[0].code)",
+                "expression": ["DocumentReference"],
+            }
+        ],
+    }
+
+
 def test_create_document_reference_invalid_resource():
     doc_ref = load_document_reference("Y05868-736253002-Valid")
     doc_ref.custodian = None
@@ -331,7 +441,7 @@ def test_create_document_reference_invalid_resource():
     body = result.pop("body")
 
     assert result == {
-        "statusCode": "400",
+        "statusCode": "422",
         "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
@@ -342,12 +452,12 @@ def test_create_document_reference_invalid_resource():
         "issue": [
             {
                 "severity": "error",
-                "code": "required",
+                "code": "business-rule",
                 "details": {
                     "coding": [
                         {
-                            "code": "INVALID_RESOURCE",
-                            "display": "Invalid validation of resource",
+                            "code": "UNPROCESSABLE_ENTITY",
+                            "display": "Unprocessable Entity",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
                     ],
@@ -372,7 +482,7 @@ def test_create_document_reference_with_no_custodian():
     body = result.pop("body")
 
     assert result == {
-        "statusCode": "400",
+        "statusCode": "422",
         "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
@@ -383,12 +493,12 @@ def test_create_document_reference_with_no_custodian():
         "issue": [
             {
                 "severity": "error",
-                "code": "required",
+                "code": "business-rule",
                 "details": {
                     "coding": [
                         {
-                            "code": "INVALID_RESOURCE",
-                            "display": "Invalid validation of resource",
+                            "code": "UNPROCESSABLE_ENTITY",
+                            "display": "Unprocessable Entity",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
                     ],
@@ -497,7 +607,7 @@ def test_create_document_reference_invalid_custodian_id():
     body = result.pop("body")
 
     assert result == {
-        "statusCode": "400",
+        "statusCode": "422",
         "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
@@ -509,12 +619,12 @@ def test_create_document_reference_invalid_custodian_id():
         "issue": [
             {
                 "severity": "error",
-                "code": "invalid",
+                "code": "business-rule",
                 "details": {
                     "coding": [
                         {
-                            "code": "BAD_REQUEST",
-                            "display": "Bad request",
+                            "code": "UNPROCESSABLE_ENTITY",
+                            "display": "Unprocessable Entity",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
                     ]
@@ -541,7 +651,7 @@ def test_create_document_reference_invalid_pointer_type():
     body = result.pop("body")
 
     assert result == {
-        "statusCode": "400",
+        "statusCode": "422",
         "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
@@ -553,12 +663,12 @@ def test_create_document_reference_invalid_pointer_type():
         "issue": [
             {
                 "severity": "error",
-                "code": "value",
+                "code": "business-rule",
                 "details": {
                     "coding": [
                         {
-                            "code": "INVALID_RESOURCE",
-                            "display": "Invalid validation of resource",
+                            "code": "UNPROCESSABLE_ENTITY",
+                            "display": "Unprocessable Entity",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
                     ]
@@ -635,7 +745,7 @@ def test_create_document_reference_invalid_category_type():
     body = result.pop("body")
 
     assert result == {
-        "statusCode": "400",
+        "statusCode": "422",
         "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
@@ -647,12 +757,12 @@ def test_create_document_reference_invalid_category_type():
         "issue": [
             {
                 "severity": "error",
-                "code": "value",
+                "code": "business-rule",
                 "details": {
                     "coding": [
                         {
-                            "code": "INVALID_RESOURCE",
-                            "display": "Invalid validation of resource",
+                            "code": "UNPROCESSABLE_ENTITY",
+                            "display": "Unprocessable Entity",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
                     ]
@@ -715,9 +825,7 @@ def test_create_document_reference_cannot_set_status_to_not_current(repository):
 def test_create_document_reference_no_relatesto_target():
     doc_ref = load_document_reference("Y05868-736253002-Valid")
     doc_ref.relatesTo = [
-        DocumentReferenceRelatesTo(
-            code="transforms", target=Reference(reference=None, identifier=None)
-        )
+        DocumentReferenceRelatesTo(code="transforms", target=Reference())
     ]
 
     event = create_test_api_gateway_event(
@@ -745,14 +853,14 @@ def test_create_document_reference_no_relatesto_target():
                 "details": {
                     "coding": [
                         {
-                            "code": "BAD_REQUEST",
-                            "display": "Bad request",
+                            "code": "MESSAGE_NOT_WELL_FORMED",
+                            "display": "Message not well formed",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
-                    ]
+                    ],
                 },
-                "diagnostics": "No identifier value provided for relatesTo target",
-                "expression": ["relatesTo[0].target.identifier.value"],
+                "diagnostics": "Request body could not be parsed (DocumentReference: Value error, The following fields are empty: relatesTo[0].target)",
+                "expression": ["DocumentReference"],
             }
         ],
     }
@@ -763,9 +871,7 @@ def test_create_document_reference_invalid_relatesto_target_producer_id():
     doc_ref.relatesTo = [
         DocumentReferenceRelatesTo(
             code="transforms",
-            target=Reference(
-                reference=None, identifier=Identifier(value="X26-99999-99999-999999")
-            ),
+            target=Reference(identifier=Identifier(value="X26-99999-99999-999999")),
         )
     ]
 
@@ -778,7 +884,7 @@ def test_create_document_reference_invalid_relatesto_target_producer_id():
     body = result.pop("body")
 
     assert result == {
-        "statusCode": "400",
+        "statusCode": "422",
         "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
@@ -790,12 +896,12 @@ def test_create_document_reference_invalid_relatesto_target_producer_id():
         "issue": [
             {
                 "severity": "error",
-                "code": "invalid",
+                "code": "business-rule",
                 "details": {
                     "coding": [
                         {
-                            "code": "BAD_REQUEST",
-                            "display": "Bad request",
+                            "code": "UNPROCESSABLE_ENTITY",
+                            "display": "Unprocessable Entity",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
                     ]
@@ -815,7 +921,6 @@ def test_create_document_reference_invalid_relatesto_not_exists(repository):
         DocumentReferenceRelatesTo(
             code="transforms",
             target=Reference(
-                reference=None,
                 identifier=Identifier(value="Y05868-123456-123456-123456"),
             ),
         )
@@ -830,7 +935,7 @@ def test_create_document_reference_invalid_relatesto_not_exists(repository):
     body = result.pop("body")
 
     assert result == {
-        "statusCode": "400",
+        "statusCode": "422",
         "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
@@ -842,12 +947,12 @@ def test_create_document_reference_invalid_relatesto_not_exists(repository):
         "issue": [
             {
                 "severity": "error",
-                "code": "invalid",
+                "code": "business-rule",
                 "details": {
                     "coding": [
                         {
-                            "code": "BAD_REQUEST",
-                            "display": "Bad request",
+                            "code": "UNPROCESSABLE_ENTITY",
+                            "display": "Unprocessable Entity",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
                     ]
@@ -876,9 +981,7 @@ def test_create_document_reference_invalid_relatesto_nhs_number(
     doc_ref.relatesTo = [
         DocumentReferenceRelatesTo(
             code="transforms",
-            target=Reference(
-                reference=None, identifier=Identifier(value="Y05868-99999-99999-999999")
-            ),
+            target=Reference(identifier=Identifier(value="Y05868-99999-99999-999999")),
         )
     ]
 
@@ -891,7 +994,7 @@ def test_create_document_reference_invalid_relatesto_nhs_number(
     body = result.pop("body")
 
     assert result == {
-        "statusCode": "400",
+        "statusCode": "422",
         "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
@@ -903,12 +1006,12 @@ def test_create_document_reference_invalid_relatesto_nhs_number(
         "issue": [
             {
                 "severity": "error",
-                "code": "invalid",
+                "code": "business-rule",
                 "details": {
                     "coding": [
                         {
-                            "code": "BAD_REQUEST",
-                            "display": "Bad request",
+                            "code": "UNPROCESSABLE_ENTITY",
+                            "display": "Unprocessable Entity",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
                     ]
@@ -938,9 +1041,7 @@ def test_create_document_reference_invalid_relatesto_type(
     doc_ref.relatesTo = [
         DocumentReferenceRelatesTo(
             code="transforms",
-            target=Reference(
-                reference=None, identifier=Identifier(value="Y05868-99999-99999-999999")
-            ),
+            target=Reference(identifier=Identifier(value="Y05868-99999-99999-999999")),
         )
     ]
 
@@ -955,7 +1056,7 @@ def test_create_document_reference_invalid_relatesto_type(
     body = result.pop("body")
 
     assert result == {
-        "statusCode": "400",
+        "statusCode": "422",
         "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
@@ -967,12 +1068,12 @@ def test_create_document_reference_invalid_relatesto_type(
         "issue": [
             {
                 "severity": "error",
-                "code": "invalid",
+                "code": "business-rule",
                 "details": {
                     "coding": [
                         {
-                            "code": "BAD_REQUEST",
-                            "display": "Bad request",
+                            "code": "UNPROCESSABLE_ENTITY",
+                            "display": "Unprocessable Entity",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
                     ]
@@ -1002,7 +1103,7 @@ def test_create_document_reference_with_no_context_related_for_ssp_url(
     body = result.pop("body")
 
     assert result == {
-        "statusCode": "400",
+        "statusCode": "422",
         "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
@@ -1014,12 +1115,12 @@ def test_create_document_reference_with_no_context_related_for_ssp_url(
         "issue": [
             {
                 "severity": "error",
-                "code": "required",
+                "code": "business-rule",
                 "details": {
                     "coding": [
                         {
-                            "code": "INVALID_RESOURCE",
-                            "display": "Invalid validation of resource",
+                            "code": "UNPROCESSABLE_ENTITY",
+                            "display": "Unprocessable Entity",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
                     ]
@@ -1056,7 +1157,7 @@ def test_create_document_reference_with_no_asid_in_for_ssp_url(
     body = result.pop("body")
 
     assert result == {
-        "statusCode": "400",
+        "statusCode": "422",
         "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
@@ -1068,12 +1169,12 @@ def test_create_document_reference_with_no_asid_in_for_ssp_url(
         "issue": [
             {
                 "severity": "error",
-                "code": "required",
+                "code": "business-rule",
                 "details": {
                     "coding": [
                         {
-                            "code": "INVALID_RESOURCE",
-                            "display": "Invalid validation of resource",
+                            "code": "UNPROCESSABLE_ENTITY",
+                            "display": "Unprocessable Entity",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
                     ]
@@ -1110,7 +1211,7 @@ def test_create_document_reference_with_invalid_asid_for_ssp_url(
     body = result.pop("body")
 
     assert result == {
-        "statusCode": "400",
+        "statusCode": "422",
         "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
@@ -1122,12 +1223,12 @@ def test_create_document_reference_with_invalid_asid_for_ssp_url(
         "issue": [
             {
                 "severity": "error",
-                "code": "value",
+                "code": "business-rule",
                 "details": {
                     "coding": [
                         {
-                            "code": "INVALID_IDENTIFIER_VALUE",
-                            "display": "Invalid identifier value",
+                            "code": "UNPROCESSABLE_ENTITY",
+                            "display": "Unprocessable Entity",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
                     ]
@@ -1154,9 +1255,7 @@ def test_create_document_reference_supersede_deletes_old_pointers_replace(
     doc_ref.relatesTo = [
         DocumentReferenceRelatesTo(
             code="replaces",
-            target=Reference(
-                reference=None, identifier=Identifier(value="Y05868-99999-99999-999999")
-            ),
+            target=Reference(identifier=Identifier(value="Y05868-99999-99999-999999")),
         )
     ]
 
@@ -1215,9 +1314,7 @@ def test_create_document_reference_supersede_succeeds_with_toggle(
     doc_ref.relatesTo = [
         DocumentReferenceRelatesTo(
             code="replaces",
-            target=Reference(
-                reference=None, identifier=Identifier(value="Y05868-99999-99999-000000")
-            ),
+            target=Reference(identifier=Identifier(value="Y05868-99999-99999-000000")),
         )
     ]
 
@@ -1275,9 +1372,7 @@ def test_create_document_reference_supersede_fails_without_toggle(
     doc_ref.relatesTo = [
         DocumentReferenceRelatesTo(
             code="replaces",
-            target=Reference(
-                reference=None, identifier=Identifier(value="Y05868-99999-99999-000000")
-            ),
+            target=Reference(identifier=Identifier(value="Y05868-99999-99999-000000")),
         )
     ]
 
@@ -1290,7 +1385,7 @@ def test_create_document_reference_supersede_fails_without_toggle(
     body = result.pop("body")
 
     assert result == {
-        "statusCode": "400",
+        "statusCode": "422",
         "headers": default_response_headers(),
         "isBase64Encoded": False,
     }
@@ -1302,12 +1397,12 @@ def test_create_document_reference_supersede_fails_without_toggle(
         "issue": [
             {
                 "severity": "error",
-                "code": "invalid",
+                "code": "business-rule",
                 "details": {
                     "coding": [
                         {
-                            "code": "BAD_REQUEST",
-                            "display": "Bad request",
+                            "code": "UNPROCESSABLE_ENTITY",
+                            "display": "Unprocessable Entity",
                             "system": "https://fhir.nhs.uk/ValueSet/Spine-ErrorOrWarningCode-1",
                         }
                     ]
@@ -1334,9 +1429,7 @@ def test_create_document_reference_create_relatesto_not_replaces(
     doc_ref.relatesTo = [
         DocumentReferenceRelatesTo(
             code="transforms",
-            target=Reference(
-                reference=None, identifier=Identifier(value="Y05868-99999-99999-999999")
-            ),
+            target=Reference(identifier=Identifier(value="Y05868-99999-99999-999999")),
         )
     ]
 

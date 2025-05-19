@@ -43,7 +43,10 @@ Now log on to AWS web console and manually add the aws account ids to each respe
 - `nhsd-nrlf--mgmt--mgmt-account-id`
 - `nhsd-nrlf--mgmt--prod-account-id`
 - `nhsd-nrlf--mgmt--test-account-id`
+- `nhsd-nrlf--mgmt--test-backup-account-id`
 - `nhsd-nrlf--mgmt--dev-account-id`
+
+Generate a Github PAT for the NRLF source repo and add it to the `nhsd-nrlf--codebuild-github-pat` secret following the documentation on [AWS Codebuild Access Tokens for Github](https://docs.aws.amazon.com/codebuild/latest/userguide/access-tokens-github.html). This is required for codebuild to be used for Github Self-Hosted Runners.
 
 ### Create trust role for `mgmt` for your `prod`, `test` and `dev` accounts
 

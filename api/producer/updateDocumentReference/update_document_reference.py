@@ -41,7 +41,7 @@ def handler(
 
     if body.id != path.id:
         logger.log(LogReference.PROUPDATE001, body_id=body.id, path_id=path.id)
-        return SpineErrorResponse.BAD_REQUEST(
+        return SpineErrorResponse.UNPROCESSABLE_ENTITY(
             diagnostics="The document id in the path does not match the document id in the body"
         )
 
@@ -52,7 +52,7 @@ def handler(
 
     if not result.is_valid:
         logger.log(LogReference.PROUPDATE003)
-        return Response.from_issues(statusCode="400", issues=result.issues)
+        return Response.from_issues(statusCode="422", issues=result.issues)
 
     update_time = create_fhir_instant()
     document_reference = _set_update_time_fields(
@@ -118,7 +118,7 @@ def handler(
     for field in immutable_fields:
         if getattr(result.resource, field) != getattr(existing_resource, field):
             logger.log(LogReference.PROUPDATE006, field=field)
-            return SpineErrorResponse.BAD_REQUEST(
+            return SpineErrorResponse.UNPROCESSABLE_ENTITY(
                 diagnostics=f"The field '{field}' is immutable and cannot be updated",
                 expression=field,
             )

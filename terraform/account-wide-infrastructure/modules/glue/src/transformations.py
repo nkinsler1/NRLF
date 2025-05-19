@@ -1,43 +1,70 @@
 from pyspark.sql.functions import (
+    coalesce,
     col,
+    concat,
     from_unixtime,
+    lit,
     regexp_replace,
     to_date,
     to_timestamp,
+    when,
 )
-from pyspark.sql.types import StructType
+from pyspark.sql.types import NullType
 
 
-def flatten_df(df):
-    def flatten(schema, prefix=""):
-        """
-        Recursively traverse the schema to extract all nested fields.
-        """
-        fields = []
-        for field in schema.fields:
-            name = f"{prefix}.{field.name}" if prefix else field.name
-            if isinstance(field.dataType, StructType):
-                fields += flatten(field.dataType, name)
-            else:
-                alias_name = name.replace(".", "_")
-                fields.append((name, alias_name))
-        return fields
+def resolve_dupes(df):
+    drop = []
+    for i in range(len(df.columns)):
+        for j in range(i + 1, len(df.columns)):
+            if df.columns[i].lower() == df.columns[j].lower():
+                df = df.withColumn(
+                    df.columns[i].lower() + "_",
+                    when(
+                        col(df.columns[i]).isNull() | col(df.columns[j]).isNull(),
+                        coalesce(col(df.columns[i]), col(df.columns[j])),
+                    ).otherwise(
+                        concat(col(df.columns[i]), lit(","), col(df.columns[j]))
+                    ),
+                )
+                drop.extend([df.columns[i], df.columns[j]])
+    df = df.drop(*drop)
 
-    flat_columns = flatten(df.schema)
+    return df
 
-    return df.select([col(c).alias(n) for c, n in flat_columns])
+
+def rename_cols(df):
+    for col_name in df.columns:
+        df = df.withColumnRenamed(col_name, col_name.replace(".", "_"))
+    return df
 
 
 def dtype_conversion(df):
-    df = (
-        df.withColumn(
-            "event_timestamp_cleaned", regexp_replace(col("event_timestamp"), ",", ".")
+    try:
+        df = (
+            df.withColumn(
+                "event_timestamp_cleaned",
+                regexp_replace(col("event_timestamp"), ",", "."),
+            )
+            .withColumn(
+                "event_timestamp",
+                to_timestamp(
+                    col("event_timestamp_cleaned"), "yyyy-MM-dd HH:mm:ss.SSSZ"
+                ),
+            )
+            .withColumn("time", from_unixtime(col("time")).cast("timestamp"))
+            .withColumn("date", to_date(col("time")))
         )
-        .withColumn(
-            "event_timestamp",
-            to_timestamp(col("event_timestamp_cleaned"), "yyyy-MM-dd HH:mm:ss.SSSZ"),
-        )
-        .withColumn("time", from_unixtime(col("time")).cast("timestamp"))
-        .withColumn("date", to_date(col("time")))
-    )
-    return df.drop("event_timestamp_cleaned")
+
+        df = df.drop("event_timestamp_cleaned")
+    except:
+        ...
+
+    select_exprs = []
+    for column_name in df.columns:
+        column_type = df.schema[column_name].dataType
+        if isinstance(column_type, NullType):
+            select_exprs.append(col(column_name).cast("string").alias(column_name))
+        else:
+            select_exprs.append(col(column_name))
+
+    return df.select(*select_exprs)
