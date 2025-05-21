@@ -22,7 +22,7 @@ permissions:
 jobs:
   build:
     name: Build - ${{ inputs.branch_name }}
-    runs-on: [self-hosted, ci]
+    runs-on: codebuild-nhsd-nrlf-ci-build-project-${{ github.run_id }}-${{ github.run_attempt }}
 
     steps:
       - name: Git clone - ${{ inputs.branch_name }}
@@ -30,26 +30,10 @@ jobs:
         with:
           ref: ${{ inputs.branch_name }}
 
-      - name: Setup asdf cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.asdf
-          key: ${{ runner.os }}-asdf-${{ hashFiles('**/.tool-versions') }}
-          restore-keys: |
-            ${{ runner.os }}-asdf-
-
-      - name: Install asdf
-        uses: asdf-vm/actions/install@v3.0.2
-        with:
-          asdf_branch: v0.13.1
-
-      - name: Install zip
-        run: sudo apt-get install zip
-
-      - name: Setup Python environment
+      - name: Setup environment
         run: |
+          echo "${HOME}/.asdf/bin" >> $GITHUB_PATH
           poetry install --no-root
-          source $(poetry env info --path)/bin/activate
 
       - name: Run Linting
         run: make lint
@@ -91,7 +75,7 @@ jobs:
     name: Terraform Plan - ${{ inputs.environment }}
     needs: [build]
     environment: ${{ inputs.environment }}
-    runs-on: [self-hosted, ci]
+    runs-on: codebuild-nhsd-nrlf-ci-build-project-${{ github.run_id }}-${{ github.run_attempt }}
 
     steps:
       - name: Git clone - ${{ inputs.branch_name }}
@@ -99,18 +83,10 @@ jobs:
         with:
           ref: ${{ inputs.branch_name }}
 
-      - name: Setup asdf cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.asdf
-          key: ${{ runner.os }}-asdf-${{ hashFiles('**/.tool-versions') }}
-          restore-keys: |
-            ${{ runner.os }}-asdf-
-
-      - name: Install asdf
-        uses: asdf-vm/actions/install@v3.0.2
-        with:
-          asdf_branch: v0.13.1
+      - name: Setup environment
+        run: |
+          echo "${HOME}/.asdf/bin" >> $GITHUB_PATH
+          poetry install --no-root
 
       - name: Configure Management Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -129,14 +105,6 @@ jobs:
         with:
           name: build-artifacts
           path: dist
-
-      - name: Install zip
-        run: sudo apt-get install zip
-
-      - name: Setup Python environment
-        run: |
-          poetry install --no-root
-          source $(poetry env info --path)/bin/activate
 
       - name: Restore NRLF permissions cache
         uses: actions/cache/restore@v4
@@ -170,7 +138,7 @@ jobs:
   terraform-apply:
     name: Terraform Apply - ${{ inputs.environment }}
     needs: [terraform-plan]
-    runs-on: [self-hosted, ci]
+    runs-on: codebuild-nhsd-nrlf-ci-build-project-${{ github.run_id }}-${{ github.run_attempt }}
     environment: ${{ inputs.environment }}
 
     steps:
@@ -179,18 +147,10 @@ jobs:
         with:
           ref: ${{ inputs.branch_name }}
 
-      - name: Setup asdf cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.asdf
-          key: ${{ runner.os }}-asdf-${{ hashFiles('**/.tool-versions') }}
-          restore-keys: |
-            ${{ runner.os }}-asdf-
-
-      - name: Install asdf
-        uses: asdf-vm/actions/install@v3.0.2
-        with:
-          asdf_branch: v0.13.1
+      - name: Setup environment
+        run: |
+          echo "${HOME}/.asdf/bin" >> $GITHUB_PATH
+          poetry install --no-root
 
       - name: Download build artifacts
         uses: actions/download-artifact@v4
@@ -220,14 +180,6 @@ jobs:
           account=$(echo '${{ inputs.environment }}' | cut -d '-' -f1)
           make truststore-pull-server ENV=${account}
 
-      - name: Install zip
-        run: sudo apt-get install zip
-
-      - name: Setup Python environment
-        run: |
-          poetry install --no-root
-          source $(poetry env info --path)/bin/activate
-
       - name: Terraform Init
         run: |
           inactive_stack=$(poetry run python ./scripts/get_env_config.py inactive-stack ${{ inputs.environment }})
@@ -252,7 +204,7 @@ jobs:
   activate-stack:
     name: Activate - ${{ inputs.environment }}
     needs: [terraform-apply]
-    runs-on: [self-hosted, ci]
+    runs-on: codebuild-nhsd-nrlf-ci-build-project-${{ github.run_id }}-${{ github.run_attempt }}
     environment: ${{ inputs.environment }}
 
     steps:
@@ -261,18 +213,10 @@ jobs:
         with:
           ref: ${{ inputs.branch_name }}
 
-      - name: Setup asdf cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.asdf
-          key: ${{ runner.os }}-asdf-${{ hashFiles('**/.tool-versions') }}
-          restore-keys: |
-            ${{ runner.os }}-asdf-
-
-      - name: Install asdf
-        uses: asdf-vm/actions/install@v3.0.2
-        with:
-          asdf_branch: v0.13.1
+      - name: Setup environment
+        run: |
+          echo "${HOME}/.asdf/bin" >> $GITHUB_PATH
+          poetry install --no-root
 
       - name: Configure Management Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -280,14 +224,6 @@ jobs:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets.MGMT_ROLE_ARN }}
           role-session-name: github-actions-ci-${{ inputs.environment }}-${{ github.run_id}}
-
-      - name: Install zip
-        run: sudo apt-get install zip
-
-      - name: Setup Python environment
-        run: |
-          poetry install --no-root
-          source $(poetry env info --path)/bin/activate
 
       - name: Activate Stack
         run: |
@@ -297,7 +233,7 @@ jobs:
   post-release-verify:
     name: Verify - ${{ inputs.environment }}
     needs: [activate-stack]
-    runs-on: [self-hosted, ci]
+    runs-on: codebuild-nhsd-nrlf-ci-build-project-${{ github.run_id }}-${{ github.run_attempt }}
     environment: ${{ inputs.environment }}
 
     steps:
@@ -306,18 +242,10 @@ jobs:
         with:
           ref: ${{ inputs.branch_name }}
 
-      - name: Setup asdf cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.asdf
-          key: ${{ runner.os }}-asdf-${{ hashFiles('**/.tool-versions') }}
-          restore-keys: |
-            ${{ runner.os }}-asdf-
-
-      - name: Install asdf
-        uses: asdf-vm/actions/install@v3.0.2
-        with:
-          asdf_branch: v0.13.1
+      - name: Setup environment
+        run: |
+          echo "${HOME}/.asdf/bin" >> $GITHUB_PATH
+          poetry install --no-root
 
       - name: Configure Management Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -325,14 +253,6 @@ jobs:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets.MGMT_ROLE_ARN }}
           role-session-name: github-actions-ci-${{ inputs.environment }}-${{ github.run_id}}
-
-      - name: Install zip
-        run: sudo apt-get install zip
-
-      - name: Setup Python environment
-        run: |
-          poetry install --no-root
-          source $(poetry env info --path)/bin/activate
 
       - name: "Smoke Test"
         run: |
@@ -342,7 +262,7 @@ jobs:
     name: Rollback - ${{ inputs.environment }}
     needs: [post-release-verify]
     if: always() && ( needs.post-release-verify.result == 'failure' )
-    runs-on: [self-hosted, ci]
+    runs-on: codebuild-nhsd-nrlf-ci-build-project-${{ github.run_id }}-${{ github.run_attempt }}
     environment: ${{ inputs.environment }}
 
     steps:
@@ -351,18 +271,10 @@ jobs:
         with:
           ref: ${{ inputs.branch_name }}
 
-      - name: Setup asdf cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.asdf
-          key: ${{ runner.os }}-asdf-${{ hashFiles('**/.tool-versions') }}
-          restore-keys: |
-            ${{ runner.os }}-asdf-
-
-      - name: Install asdf
-        uses: asdf-vm/actions/install@v3.0.2
-        with:
-          asdf_branch: v0.13.1
+      - name: Setup environment
+        run: |
+          echo "${HOME}/.asdf/bin" >> $GITHUB_PATH
+          poetry install --no-root
 
       - name: Configure Management Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -370,14 +282,6 @@ jobs:
           aws-region: eu-west-2
           role-to-assume: ${{ secrets.MGMT_ROLE_ARN }}
           role-session-name: github-actions-ci-${{ inputs.environment }}-${{ github.run_id}}
-
-      - name: Install zip
-        run: sudo apt-get install zip
-
-      - name: Setup Python environment
-        run: |
-          poetry install --no-root
-          source $(poetry env info --path)/bin/activate
 
       - name: Deactivate Stack
         run: |
