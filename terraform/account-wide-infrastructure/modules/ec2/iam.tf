@@ -105,6 +105,6 @@ resource "aws_iam_role_policy_attachment" "ec2_role_policy_ssm" {
 }
 
 resource "aws_iam_instance_profile" "powerbi_profile" {
-  name = "powerbi_profile"
+  name = "${var.name_prefix}-powerbi_instance_profile"
   role = aws_iam_role.ec2_service_role.name
 }

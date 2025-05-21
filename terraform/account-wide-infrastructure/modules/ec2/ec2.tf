@@ -15,18 +15,16 @@ resource "aws_instance" "web" {
 
 }
 
-# Key pair for RDP access
 resource "tls_private_key" "instance_key_pair" {
   algorithm = "RSA"
 }
 
 resource "aws_key_pair" "ec2_key_pair" {
-  key_name   = "PowerBI-GateWay-Key"
+  key_name   = "${var.name_prefix}_PowerBI-GateWay-Key"
   public_key = tls_private_key.instance_key_pair.public_key_openssh
 }
 
-# Saving Key Pair for ssh login for Client if needed
-resource "local_file" "ssh_key" {
+resource "local_file" "ssh_key_priv" {
   filename = "${path.module}/keys/${aws_key_pair.ec2_key_pair.key_name}.pem"
   content  = tls_private_key.instance_key_pair.private_key_pem
 }
