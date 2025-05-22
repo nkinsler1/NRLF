@@ -225,6 +225,7 @@ class DocumentPointerRepository(Repository[DocumentPointer]):
         pointer_types: Optional[List[str]] = [],
         categories: Optional[List[str]] = [],
     ) -> Iterator[DocumentPointer]:
+        """"""
         logger.log(
             LogReference.REPOSITORY020,
             nhs_number=nhs_number,

@@ -444,7 +444,7 @@ class DocumentReferenceValidator:
         category_id = f"{category_coding.system}|{category_coding.code}"
 
         if type_id not in PointerTypes.list() or category_id not in Categories.list():
-            return
+            return  # No point mapping to an unexisting/unsupported type/category
 
         if type_id.startswith("https://nicip.nhs.uk|"):
             allowed_categories = TYPE_CATEGORIES.get(type_id, set())
