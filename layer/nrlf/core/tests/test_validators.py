@@ -1161,6 +1161,8 @@ def test_validate_content_format_invalid_code_for_structured_document():
     validator = DocumentReferenceValidator()
     document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
 
+    document_ref_data["content"][0]["attachment"]["contentType"] = "application/json"
+
     document_ref_data["content"][0]["format"] = {
         "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
         "code": "urn:nhs-ic:record-contact",
