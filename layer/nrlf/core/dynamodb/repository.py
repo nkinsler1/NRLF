@@ -226,6 +226,7 @@ class DocumentPointerRepository(Repository[DocumentPointer]):
             nhs_number=nhs_number,
             custodian=custodian,
             pointer_types=pointer_types,
+            categories=categories,
         )
 
         key_conditions = ["patient_key = :patient_key"]
@@ -233,34 +234,8 @@ class DocumentPointerRepository(Repository[DocumentPointer]):
         expression_names = {}
         expression_values = {":patient_key": f"P#{nhs_number}"}
 
-        if len(pointer_types) == 1:
-            # Optimisation for single pointer type
-            category_id, type_id = _get_sk_ids_for_type(pointer_types[0])
-            patient_sort = f"C#{category_id}#T#{type_id}"
-            key_conditions.append("begins_with(patient_sort, :patient_sort)")
-            expression_values[":patient_sort"] = patient_sort
-        else:
-            # Handle single/multiple categories and pointer types with filter expressions
-            if len(categories) == 1:
-                split_category = categories[0].split("|")
-                category_id = (
-                    SYSTEM_SHORT_IDS[split_category[0]] + "-" + split_category[1]
-                )
-                patient_sort = f"C#{category_id}"
-                key_conditions.append("begins_with(patient_sort, :patient_sort)")
-                expression_values[":patient_sort"] = patient_sort
-
-            if len(categories) > 1:
-                expression_names["#category"] = "category"
-                category_filters = [
-                    f"#category = :category_{i}" for i in range(len(categories))
-                ]
-                category_filter_values = {
-                    f":category_{i}": categories[i] for i in range(len(categories))
-                }
-                filter_expressions.append(f"({' OR '.join(category_filters)})")
-                expression_values.update(category_filter_values)
-
+        # Add pointer_types filter if provided
+        if pointer_types:
             expression_names["#pointer_type"] = "type"
             types_filters = [
                 f"#pointer_type = :type_{i}" for i in range(len(pointer_types))
@@ -270,6 +245,18 @@ class DocumentPointerRepository(Repository[DocumentPointer]):
             }
             filter_expressions.append(f"({' OR '.join(types_filters)})")
             expression_values.update(types_filter_values)
+
+        # Add categories filter if provided
+        if categories:
+            expression_names["#category"] = "category"
+            category_filters = [
+                f"#category = :category_{i}" for i in range(len(categories))
+            ]
+            category_filter_values = {
+                f":category_{i}": categories[i] for i in range(len(categories))
+            }
+            filter_expressions.append(f"({' OR '.join(category_filters)})")
+            expression_values.update(category_filter_values)
 
         if custodian:
             logger.log(
