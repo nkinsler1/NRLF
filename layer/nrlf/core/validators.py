@@ -434,7 +434,7 @@ class DocumentReferenceValidator:
 
     def _validate_type_category_mapping(self, model: DocumentReference):
         """
-        Validate the type field matches the expected category
+        Validate the type field matches one of the expected categories.
         """
         logger.log(LogReference.VALIDATOR001, step="type_category_mapping")
 
@@ -444,16 +444,29 @@ class DocumentReferenceValidator:
         category_id = f"{category_coding.system}|{category_coding.code}"
 
         if type_id not in PointerTypes.list() or category_id not in Categories.list():
-            return  # No point mapping to an unexisting/unsupported type/category
+            return
 
-        type_category = TYPE_CATEGORIES.get(type_id)
-        if type_category != category_id:
-            self.result.add_error(
-                issue_code="business-rule",
-                error_code="UNPROCESSABLE_ENTITY",
-                diagnostics=f"The Category code of the provided document '{category_id}' must match the allowed category for pointer type '{type_id}' with a category value of '{type_category}'",
-                field="category.coding[0].code",
-            )
+        if type_id.startswith("https://nicip.nhs.uk|"):
+            allowed_categories = TYPE_CATEGORIES.get(type_id, set())
+            if category_id not in allowed_categories:
+                self.result.add_error(
+                    issue_code="business-rule",
+                    error_code="UNPROCESSABLE_ENTITY",
+                    diagnostics=(
+                        f"The Category code of the provided document '{category_id}' must match "
+                        f"one of the allowed categories for pointer type '{type_id}': {allowed_categories}"
+                    ),
+                    field="category.coding[0].code",
+                )
+        else:
+            type_category = TYPE_CATEGORIES.get(type_id)
+            if type_category != category_id:
+                self.result.add_error(
+                    issue_code="business-rule",
+                    error_code="UNPROCESSABLE_ENTITY",
+                    diagnostics=f"The Category code of the provided document '{category_id}' must match the allowed category for pointer type '{type_id}' with a category value of '{type_category}'",
+                    field="category.coding[0].code",
+                )
 
     def _validate_content_format(self, model: DocumentReference):
         """

@@ -25,8 +25,8 @@ def test_pointer_types(pointer_type):
 
 @pytest.mark.parametrize("category", Categories)
 def test_pointer_category_has_types(category):
-    assert (
-        category.value in TYPE_CATEGORIES.values()
+    assert any(
+        category.value in cat_set for cat_set in TYPE_CATEGORIES.values()
     ), f"Pointer category {category.value} is not used by any type"
 
 
@@ -42,11 +42,17 @@ def test_type_category_type_is_known(type):
     assert type in PointerTypes.list(), f"Unknown type {type} used in TYPE_CATEGORIES"
 
 
-@pytest.mark.parametrize("category", TYPE_CATEGORIES.values())
-def test_type_category_category_is_known(category):
-    assert (
-        category in Categories.list()
-    ), f"Unknown category {category} used in TYPE_CATEGORIES"
+@pytest.mark.parametrize("cat_set", TYPE_CATEGORIES.values())
+def test_type_category_category_is_known(cat_set):
+    if isinstance(cat_set, (set, list, tuple)):
+        for category in cat_set:
+            assert (
+                category in Categories.list()
+            ), f"Unknown category {category} used in TYPE_CATEGORIES"
+    else:
+        assert (
+            cat_set in Categories.list()
+        ), f"Unknown category {cat_set} used in TYPE_CATEGORIES"
 
 
 @pytest.mark.parametrize("category", Categories)

@@ -180,8 +180,14 @@ TYPE_CATEGORIES = {
     PointerTypes.SUMMARY_RECORD.value: Categories.CLINICAL_NOTE.value,
     #
     # Imaging
-    PointerTypes.MRA_UPPER_LIMB_ARTERY.value: Categories.DIAGNOSTIC_STUDIES_REPORT.value,
-    PointerTypes.MRI_AXILLA_BOTH.value: Categories.DIAGNOSTIC_PROCEDURE.value,
+    PointerTypes.MRA_UPPER_LIMB_ARTERY.value: {
+        Categories.DIAGNOSTIC_STUDIES_REPORT.value,
+        Categories.DIAGNOSTIC_PROCEDURE.value,
+    },
+    PointerTypes.MRI_AXILLA_BOTH.value: {
+        Categories.DIAGNOSTIC_PROCEDURE.value,
+        Categories.DIAGNOSTIC_STUDIES_REPORT.value,
+    },
 }
 
 PRACTICE_SETTING_VALUE_SET_URL = (

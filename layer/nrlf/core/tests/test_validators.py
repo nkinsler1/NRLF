@@ -397,8 +397,11 @@ def test_validate_category_coding_display_mismatch(
     matching_type_str = next(
         (
             type_str
-            for type_str in TYPE_CATEGORIES
-            if TYPE_CATEGORIES[type_str] == category_str
+            for type_str, cat_val in TYPE_CATEGORIES.items()
+            if (
+                (isinstance(cat_val, set) and category_str in cat_val)
+                or (isinstance(cat_val, str) and cat_val == category_str)
+            )
         ),
         None,
     )
@@ -417,11 +420,12 @@ def test_validate_category_coding_display_mismatch(
         }
 
     result = validator.validate(document_ref_data)
-
+    expected_issues = 2 if type_code == "https://nicip.nhs.uk|" else 1
+    issue_number = 1 if type_code == "https://nicip.nhs.uk|" else 0
     assert result.is_valid is False
     assert result.resource.id == "Y05868-99999-99999-999999"
-    assert len(result.issues) == 1
-    assert result.issues[0].model_dump(exclude_none=True) == {
+    assert len(result.issues) == expected_issues
+    assert result.issues[issue_number].model_dump(exclude_none=True) == {
         "severity": "error",
         "code": "business-rule",
         "details": {
@@ -603,10 +607,15 @@ def test_validate_type_coding_display_mismatch(type_str: str, display: str):
     }
 
     # Find the category string that matches the category code to avoid that error
-    category_str = TYPE_CATEGORIES[type_str]
+    category_val = TYPE_CATEGORIES[type_str]
+    if isinstance(category_val, set):
+        category_str = next(iter(category_val))
+    else:
+        category_str = category_val
     category_parts = category_str.split("|")
     category_system = category_parts[0]
     category_code = category_parts[1]
+
     document_ref_data["category"][0] = {
         "coding": [
             {
