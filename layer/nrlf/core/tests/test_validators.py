@@ -1397,6 +1397,7 @@ def test_validate_content_invalid_content_type():
     [
         ("urn:nhs-ic:record-contact", "Contact details (HTTP Unsecured)"),
         ("urn:nhs-ic:unstructured", "Unstructured Document"),
+        ("urn:nhs-ic:structured", "Structured Document"),
     ],
 )
 def test_validate_nrl_format_code_valid_match(format_code, format_display):
