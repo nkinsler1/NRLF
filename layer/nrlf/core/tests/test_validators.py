@@ -1385,7 +1385,7 @@ def test_validate_content_invalid_content_type():
                 }
             ]
         },
-        "diagnostics": "Invalid contentType: invalid/type. Must be 'application/pdf' or 'text/html'",
+        "diagnostics": "Invalid contentType: invalid/type. Must be 'application/pdf', 'text/html' or 'application/fhir+json'",
         "expression": ["content[0].attachment.contentType"],
     }
 
@@ -1415,27 +1415,34 @@ def test_validate_nrl_format_code_valid_match(format_code, format_display):
 
 
 @pytest.mark.parametrize(
-    "format_code, format_display, expected_display",
+    "content_type, format_code, format_display, expected_display",
     [
         (
+            "application/pdf",
             "urn:nhs-ic:unstructured",
             "Contact details (HTTP Unsecured)",
             "Unstructured Document",
         ),
         (
+            "text/html",
             "urn:nhs-ic:record-contact",
             "Unstructured Document",
             "Contact details (HTTP Unsecured)",
         ),
+        (
+            "application/fhir+json",
+            "urn:nhs-ic:structured",
+            "Unstructured Document",
+            "Structured Document",
+        ),
     ],
 )
 def test_validate_nrl_format_code_display_mismatch(
-    format_code, format_display, expected_display
+    content_type, format_code, format_display, expected_display
 ):
     validator = DocumentReferenceValidator()
     document_ref_data = load_document_reference_json("Y05868-736253002-Valid")
-    if format_code == "urn:nhs-ic:record-contact":
-        document_ref_data["content"][0]["attachment"]["contentType"] = "text/html"
+    document_ref_data["content"][0]["attachment"]["contentType"] = content_type
 
     document_ref_data["content"][0]["format"] = {
         "system": "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode",
