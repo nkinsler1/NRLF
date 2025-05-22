@@ -674,3 +674,16 @@ CONTENT_STABILITY_SYSTEM_URL = (
     "https://fhir.nhs.uk/England/CodeSystem/England-NRLContentStability"
 )
 CONTENT_FORMAT_CODE_URL = "https://fhir.nhs.uk/England/CodeSystem/England-NRLFormatCode"
+CONTENT_FORMAT_CODE_MAP = {
+    "urn:nhs-ic:record-contact": "Contact details (HTTP Unsecured)",
+    "urn:nhs-ic:unstructured": "Unstructured Document",
+    "urn:nhs-ic:structured": "Structured Document",
+}
+
+ATTACHMENT_CONTENT_TYPES = {
+    "application/pdf",
+    "text/html",
+    "application/json",
+    "application/fhir+json",
+    "application/json+fhir",
+}
