@@ -38,6 +38,47 @@ def _get_sk_ids_for_type(pointer_type: str) -> tuple[str, str]:
     return category_id, type_id
 
 
+def _get_categories_for_pointer_types(pointer_types: list[str]) -> set[str]:
+    """Return all unique categories for the given pointer types."""
+    category_set = set()
+    for pointer_type in pointer_types:
+        if pointer_type in TYPE_CATEGORIES:
+            cats = TYPE_CATEGORIES[pointer_type]
+            if isinstance(cats, str):
+                category_set.add(cats)
+            else:
+                category_set.update(cats)
+    return category_set
+
+
+def _build_filter_expressions(
+    pointer_types, categories, expression_names, expression_values
+):
+    """Build DynamoDB filter expressions for pointer_types and categories."""
+    filter_expressions = []
+    if pointer_types:
+        expression_names["#pointer_type"] = "type"
+        types_filters = [
+            f"#pointer_type = :type_{i}" for i in range(len(pointer_types))
+        ]
+        types_filter_values = {
+            f":type_{i}": pointer_types[i] for i in range(len(pointer_types))
+        }
+        filter_expressions.append(f"({' OR '.join(types_filters)})")
+        expression_values.update(types_filter_values)
+    if categories:
+        expression_names["#category"] = "category"
+        category_filters = [
+            f"#category = :category_{i}" for i in range(len(categories))
+        ]
+        category_filter_values = {
+            f":category_{i}": categories[i] for i in range(len(categories))
+        }
+        filter_expressions.append(f"({' OR '.join(category_filters)})")
+        expression_values.update(category_filter_values)
+    return filter_expressions
+
+
 class Repository(ABC, Generic[RepositoryModel]):
     ITEM_TYPE: Type[RepositoryModel]
 
@@ -163,7 +204,7 @@ class DocumentPointerRepository(Repository[DocumentPointer]):
 
         if len(pointer_types) == 1:
             # Optimisation for single pointer type
-            category_id, type_id = _get_sk_ids_for_type(pointer_types[0])[0]
+            category_id, type_id = _get_sk_ids_for_type(pointer_types[0])
             patient_sort = f"C#{category_id}#T#{type_id}"
             key_conditions.append("begins_with(patient_sort, :patient_sort)")
             expression_values[":patient_sort"] = patient_sort
@@ -225,7 +266,6 @@ class DocumentPointerRepository(Repository[DocumentPointer]):
         pointer_types: Optional[List[str]] = [],
         categories: Optional[List[str]] = [],
     ) -> Iterator[DocumentPointer]:
-        """"""
         logger.log(
             LogReference.REPOSITORY020,
             nhs_number=nhs_number,
@@ -239,67 +279,23 @@ class DocumentPointerRepository(Repository[DocumentPointer]):
         expression_names = {}
         expression_values = {":patient_key": f"P#{nhs_number}"}
 
-        # If both categories and pointer_types are provided, filter on both
+        # Determine which filters to apply
         if pointer_types and categories:
-            expression_names["#pointer_type"] = "type"
-            expression_names["#category"] = "category"
-            types_filters = [
-                f"#pointer_type = :type_{i}" for i in range(len(pointer_types))
-            ]
-            types_filter_values = {
-                f":type_{i}": pointer_types[i] for i in range(len(pointer_types))
-            }
-            category_filters = [
-                f"#category = :category_{i}" for i in range(len(categories))
-            ]
-            category_filter_values = {
-                f":category_{i}": categories[i] for i in range(len(categories))
-            }
-            filter_expressions.append(f"({' OR '.join(types_filters)})")
-            filter_expressions.append(f"({' OR '.join(category_filters)})")
-            expression_values.update(types_filter_values)
-            expression_values.update(category_filter_values)
-
-        # If only pointer_types are provided, retrieve all categories for each type and filter on both
+            # Use both pointer_types and categories as filters
+            filter_expressions = _build_filter_expressions(
+                pointer_types, categories, expression_names, expression_values
+            )
         elif pointer_types and not categories:
-            expression_names["#pointer_type"] = "type"
-            expression_names["#category"] = "category"
-            types_filters = []
-            category_filters = []
-            types_filter_values = {}
-            category_filter_values = {}
-            category_set = set()
-            for i, pointer_type in enumerate(pointer_types):
-                types_filters.append(f"#pointer_type = :type_{i}")
-                types_filter_values[f":type_{i}"] = pointer_type
-                # Get all categories for this type, handling both set and string
-                if pointer_type in TYPE_CATEGORIES:
-                    cats = TYPE_CATEGORIES[pointer_type]
-                    if isinstance(cats, str):
-                        category_set.add(cats)
-                    else:
-                        category_set.update(cats)
-            for j, cat in enumerate(category_set):
-                category_filters.append(f"#category = :category_{j}")
-                category_filter_values[f":category_{j}"] = cat
-            if types_filters:
-                filter_expressions.append(f"({' OR '.join(types_filters)})")
-            if category_filters:
-                filter_expressions.append(f"({' OR '.join(category_filters)})")
-            expression_values.update(types_filter_values)
-            expression_values.update(category_filter_values)
-
-        # If only categories are provided, filter on categories
+            # Get all categories for these pointer_types
+            all_categories = list(_get_categories_for_pointer_types(pointer_types))
+            filter_expressions = _build_filter_expressions(
+                pointer_types, all_categories, expression_names, expression_values
+            )
         elif categories and not pointer_types:
-            expression_names["#category"] = "category"
-            category_filters = [
-                f"#category = :category_{i}" for i in range(len(categories))
-            ]
-            category_filter_values = {
-                f":category_{i}": categories[i] for i in range(len(categories))
-            }
-            filter_expressions.append(f"({' OR '.join(category_filters)})")
-            expression_values.update(category_filter_values)
+            # Only categories provided
+            filter_expressions = _build_filter_expressions(
+                [], categories, expression_names, expression_values
+            )
 
         if custodian:
             logger.log(
