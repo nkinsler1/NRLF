@@ -236,15 +236,22 @@ class DocumentPointerRepository(Repository[DocumentPointer]):
 
         # Add pointer_types filter if provided
         if pointer_types:
-            expression_names["#pointer_type"] = "type"
-            types_filters = [
-                f"#pointer_type = :type_{i}" for i in range(len(pointer_types))
-            ]
-            types_filter_values = {
-                f":type_{i}": pointer_types[i] for i in range(len(pointer_types))
-            }
-            filter_expressions.append(f"({' OR '.join(types_filters)})")
-            expression_values.update(types_filter_values)
+            if len(pointer_types) == 1:
+                # Optimisation for single pointer type
+                category_id, type_id = _get_sk_ids_for_type(pointer_types[0])
+                patient_sort = f"C#{category_id}#T#{type_id}"
+                key_conditions.append("begins_with(patient_sort, :patient_sort)")
+                expression_values[":patient_sort"] = patient_sort
+            else:
+                expression_names["#pointer_type"] = "type"
+                types_filters = [
+                    f"#pointer_type = :type_{i}" for i in range(len(pointer_types))
+                ]
+                types_filter_values = {
+                    f":type_{i}": pointer_types[i] for i in range(len(pointer_types))
+                }
+                filter_expressions.append(f"({' OR '.join(types_filters)})")
+                expression_values.update(types_filter_values)
 
         # Add categories filter if provided
         if categories:
