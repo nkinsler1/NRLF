@@ -10,6 +10,7 @@ module "vpc" {
 
 module "ec2" {
   source             = "../modules/ec2"
+  use_custom_ami     = true
   instance_type      = var.instance_type
   name_prefix        = "nhsd-nrlf--dev"
   target_bucket_arn  = module.dev-glue.target_bucket_arn
@@ -24,8 +25,23 @@ module "ec2" {
 
 module "powerbi_gw_instance" {
   source             = "../modules/ec2"
+  use_custom_ami     = true
   instance_type      = var.instance_type
   name_prefix        = "nhsd-nrlf--dev-powerbi-gw"
+  target_bucket_arn  = module.dev-glue.target_bucket_arn
+  glue_kms_key_arn   = module.dev-glue.aws_kms_key_arn
+  athena_kms_key_arn = module.dev-athena.kms_key_arn
+  athena_bucket_arn  = module.dev-athena.bucket_arn
+
+  subnet_id       = module.vpc.private_subnet_id
+  security_groups = [module.vpc.powerbi_gw_security_group_id]
+}
+
+module "powerbi_gw_instance_v2" {
+  source             = "../modules/ec2"
+  use_custom_ami     = false
+  instance_type      = var.instance_type
+  name_prefix        = "nhsd-nrlf--dev-powerbi-gw-v2"
   target_bucket_arn  = module.dev-glue.target_bucket_arn
   glue_kms_key_arn   = module.dev-glue.aws_kms_key_arn
   athena_kms_key_arn = module.dev-athena.kms_key_arn

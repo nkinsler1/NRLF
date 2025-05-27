@@ -1,7 +1,7 @@
 resource "aws_instance" "web" {
   #   associate_public_ip_address =
   iam_instance_profile = aws_iam_instance_profile.powerbi_profile.name
-  ami                  = data.aws_ami.PowerBI_Gateway.id
+  ami                  = local.selected_ami_id
   instance_type        = var.instance_type
   key_name             = aws_key_pair.ec2_key_pair.key_name
   subnet_id            = var.subnet_id

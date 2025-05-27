@@ -49,3 +49,9 @@ variable "instance_type" {
   description = "Type for EC2 Instance"
   default     = "t2.micro"
 }
+
+variable "use_custom_ami" {
+  type        = bool
+  description = "Use custom image"
+  default     = false
+}
