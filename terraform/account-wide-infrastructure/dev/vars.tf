@@ -38,8 +38,20 @@ variable "vpc_public_subnets_cidr_block" {
   default     = "10.0.0.0/24"
 }
 
+variable "vpc_private_subnets_cidr_block" {
+  type        = string
+  description = "CIDR Block for Private Subnets in VPC"
+  default     = "10.0.1.0/24"
+}
+
 variable "instance_type" {
   type        = string
   description = "Type for EC2 Instance"
   default     = "t2.micro"
+}
+
+variable "use_custom_ami" {
+  type        = bool
+  description = "Use custom image"
+  default     = false
 }

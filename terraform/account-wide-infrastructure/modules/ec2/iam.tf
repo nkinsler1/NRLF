@@ -94,12 +94,17 @@ resource "aws_iam_policy" "ec2_service" {
   policy = data.aws_iam_policy_document.ec2_service.json
 }
 
-resource "aws_iam_role_policy_attachment" "ec2_service" {
+resource "aws_iam_role_policy_attachment" "ec2_role_policy" {
   role       = aws_iam_role.ec2_service_role.name
   policy_arn = aws_iam_policy.ec2_service.arn
 }
 
+resource "aws_iam_role_policy_attachment" "ec2_role_policy_ssm" {
+  role       = aws_iam_role.ec2_service_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
 resource "aws_iam_instance_profile" "powerbi_profile" {
-  name = "powerbi_profile"
+  name = "${var.name_prefix}-powerbi_instance_profile"
   role = aws_iam_role.ec2_service_role.name
 }
