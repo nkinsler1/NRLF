@@ -1,11 +1,11 @@
 resource "aws_instance" "web" {
-  #   associate_public_ip_address =
-  iam_instance_profile = aws_iam_instance_profile.powerbi_profile.name
-  ami                  = local.selected_ami_id
-  instance_type        = var.instance_type
-  key_name             = aws_key_pair.ec2_key_pair.key_name
-  subnet_id            = var.subnet_id
-  security_groups      = var.security_groups
+  associate_public_ip_address = false
+  iam_instance_profile        = aws_iam_instance_profile.powerbi_profile.name
+  ami                         = local.selected_ami_id
+  instance_type               = var.instance_type
+  key_name                    = aws_key_pair.ec2_key_pair.key_name
+  subnet_id                   = var.subnet_id
+  security_groups             = var.security_groups
 
   user_data = file("${path.module}/scripts/user_data.tpl")
 
