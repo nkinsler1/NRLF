@@ -77,37 +77,6 @@ resource "aws_route_table_association" "private_rt_asso" {
   route_table_id = aws_route_table.private_rt.id
 }
 
-resource "aws_security_group" "sg" {
-  name        = "allow_ssh_http"
-  description = "Allow ssh http inbound traffic"
-  vpc_id      = aws_vpc.app_vpc.id
-
-  ingress {
-    from_port        = 3389
-    to_port          = 3389
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
-  ingress {
-    description      = "HTTP from VPC"
-    from_port        = 80
-    to_port          = 80
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
-  egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-}
-
 resource "aws_security_group" "powerbi_gw_sg" {
   name        = "powerbi-gw-sg"
   description = "Only allow egress traffic"
