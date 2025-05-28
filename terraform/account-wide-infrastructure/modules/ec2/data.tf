@@ -12,6 +12,6 @@ data "aws_ami" "PowerBI_Gateway" {
   owners      = ["self"]
   filter {
     name   = "name"
-    values = ["PowerBI_Gateway"]
+    values = ["PowerBI_GW"]
   }
 }
