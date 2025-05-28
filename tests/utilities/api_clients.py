@@ -56,7 +56,7 @@ def retry_if(status_codes: list[int]) -> Callable[..., Any]:
             print(  # noqa: T201
                 f"All attempts failed with responses: {attempt_responses}"
             )
-            raise Exception(
+            raise RuntimeError(
                 f"Function failed after retries with responses: {attempt_responses}"
             )
 
