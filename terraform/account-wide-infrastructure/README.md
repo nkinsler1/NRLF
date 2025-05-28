@@ -124,6 +124,20 @@ $ terraform apply \
 
 Replacing AWS_ACCOUNT_ID with the AWS account number of your account.
 
+### Reporting Resources
+
+If deploying the EC2 set up to a new environment, these steps need to be followed:
+
+1. Run the below CLI command, and RDP into the newly created EC2 instance (localhost:13389)
+
+```
+aws ssm start-session --target <AMI> --document-name AWS-StartPortForwardingSession --parameters "localPortNumber=13389,portNumber=3389"
+```
+
+2. Install Athena ODBC driver and Power BI personal on premesis gateway
+3. Configure ODBC driver to connect to relevant Athena instance and log in to the gateway using NHS email
+4. Log into power bi and test the refresh on the relevant data sources
+
 ## Tear down account wide resources
 
 WARNING - This action will destroy all account-wide resources from the AWS account. This should
