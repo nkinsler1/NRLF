@@ -1,4 +1,5 @@
 import json
+import logging
 from typing import Any, Callable
 
 import requests
@@ -7,6 +8,8 @@ from requests import Response
 
 from nrlf.core.constants import Categories, PointerTypes
 from nrlf.core.model import ConnectionMetadata
+
+logger = logging.getLogger(__name__)
 
 
 class ClientConfig(BaseModel):
@@ -44,18 +47,16 @@ def retry_if(status_codes: list[int]) -> Callable[..., Any]:
     def wrapped_func(func: Callable[..., Response]) -> Callable[..., Response]:
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             attempt_responses: list[Response] = []
-            for attempt in range(2):
+            for attempt in range(3):
                 response = func(*args, **kwargs)
                 if not response.status_code or response.status_code not in status_codes:
                     return response
                 attempt_responses.append(response)
-                print(  # noqa: T201
-                    f"Retrying due to {response.status_code} error in attempt {attempt + 1}..."
+                logger.warning(
+                    f"Attempt {attempt + 1} failed with status code {response.status_code}"
                 )
 
-            print(  # noqa: T201
-                f"All attempts failed with responses: {attempt_responses}"
-            )
+            logger.error(f"All attempts failed with responses: {attempt_responses}")
             raise RuntimeError(
                 f"Function failed after retries with responses: {attempt_responses}"
             )
