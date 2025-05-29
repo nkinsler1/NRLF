@@ -1,8 +1,6 @@
 
 
 <powershell>
-C:\ProgramData\Amazon\EC2-Windows\Launch\Scripts\InitializeInstance.ps1
-
 Install-WindowsFeature -name Web-Server -IncludeManagementTools
 
 $instanceId   = (Invoke-WebRequest -Uri  http://169.254.169.254/latest/meta-data/instance-id -UseBasicParsing).content
