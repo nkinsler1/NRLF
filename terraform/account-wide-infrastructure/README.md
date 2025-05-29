@@ -134,7 +134,7 @@ If deploying the EC2 set up to a new environment, these steps need to be followe
 aws ssm start-session --target <AMI> --document-name AWS-StartPortForwardingSession --parameters "localPortNumber=13389,portNumber=3389"
 ```
 
-2. Install Athena ODBC driver and Power BI personal on premesis gateway
+2. Install Athena ODBC driver and Power BI personal on premises gateway
 3. Configure ODBC driver to connect to relevant Athena instance and log in to the gateway using NHS email
 4. Log into power bi and test the refresh on the relevant data sources
 
