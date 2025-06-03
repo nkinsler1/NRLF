@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import Annotated, List, Literal, Optional
+from typing import Annotated, List, Literal, Optional, Union
 
 from pydantic import (
     ConfigDict,
@@ -757,11 +757,11 @@ class BundleEntry(Parent):
     fullUrl: Annotated[
         Optional[StrictStr],
         Field(
-            description="The Absolute URL for the resource.  The fullUrl SHALL NOT disagree with the id in the resource &ndash; i.e. if the fullUrl is not a urn:uuid, the URL shall be version&ndash;independent URL consistent with the Resource.id. The fullUrl is a version independent reference to the resource. The fullUrl element SHALL have a value except that: \n* fullUrl can be empty on a POST (although it does not need to when specifying a temporary id for reference in the bundle)\n* Results from operations might involve resources that are not identified."
+            description="The Absolute URL for the resource. The fullUrl SHALL NOT disagree with the id in the resource &ndash; i.e. if the fullUrl is not a urn:uuid, the URL shall be version&ndash;independent URL consistent with the Resource.id. The fullUrl is a version independent reference to the resource. The fullUrl element SHALL have a value except that: \n* fullUrl can be empty on a POST (although it does not need to when specifying a temporary id for reference in the bundle)\n* Results from operations might involve resources that are not identified."
         ),
     ] = None
     resource: Annotated[
-        Optional[DocumentReference],
+        Optional[Union[DocumentReference, OperationOutcome]],
         Field(
             description="The Resource for the entry. The purpose/meaning of the resource is determined by the Bundle.type."
         ),
@@ -775,7 +775,7 @@ class BundleEntry(Parent):
     request: Annotated[
         Optional[BundleEntryRequest],
         Field(
-            description="Additional information about how this entry should be processed as part of a transaction or batch.  For history, it shows how the entry was processed to create the version contained in the entry."
+            description="Additional information about how this entry should be processed as part of a transaction or batch. For history, it shows how the entry was processed to create the version contained in the entry."
         ),
     ] = None
     response: Annotated[
