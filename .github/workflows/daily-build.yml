@@ -39,13 +39,7 @@ jobs:
         run: make test
 
       - name: Build Project
-        run: |
-          echo "PATH: ${PATH}"
-          echo "HOME: ${HOME}"
-          echo "python: $(which python)"
-          echo "asdf: $(which asdf)"
-          echo "/usr/local/bin: $(ls -la /usr/local/bin)"
-          make build
+        run: make build
 
       - name: Configure Management Credentials
         uses: aws-actions/configure-aws-credentials@v4

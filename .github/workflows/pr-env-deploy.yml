@@ -19,7 +19,7 @@ permissions:
 jobs:
   set-environment-id:
     name: Set Environment ID
-    runs-on: [self-hosted, ci]
+    runs-on: codebuild-nhsd-nrlf-ci-build-project-${{ github.run_id }}-${{ github.run_attempt }}
     environment: pull-request
     steps:
       - name: Set a ID based on the branch name
@@ -44,7 +44,7 @@ jobs:
 
   build:
     name: Build Application
-    runs-on: [self-hosted, ci]
+    runs-on: codebuild-nhsd-nrlf-ci-build-project-${{ github.run_id }}-${{ github.run_attempt }}
     environment: pull-request
     steps:
       - name: Git Clone - ${{ github.event.pull_request.head.ref }}
@@ -52,26 +52,10 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref }}
 
-      - name: Setup asdf cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.asdf
-          key: ${{ runner.os }}-asdf-${{ hashFiles('**/.tool-versions') }}
-          restore-keys: |
-            ${{ runner.os }}-asdf-
-
-      - name: Install asdf
-        uses: asdf-vm/actions/install@v3.0.2
-        with:
-          asdf_branch: v0.13.1
-
-      - name: Install zip
-        run: sudo apt-get install zip
-
-      - name: Setup Python environment
+      - name: Setup environment
         run: |
+          echo "${HOME}/.asdf/bin" >> $GITHUB_PATH
           poetry install --no-root
-          source $(poetry env info --path)/bin/activate
 
       - name: Run Linting
         run: make lint
@@ -121,7 +105,7 @@ jobs:
 
   deploy:
     name: Deploy PR Environment
-    runs-on: [self-hosted, ci]
+    runs-on: codebuild-nhsd-nrlf-ci-build-project-${{ github.run_id }}-${{ github.run_attempt }}
     environment: pull-request
     needs: [set-environment-id, build]
 
@@ -131,18 +115,10 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref }}
 
-      - name: Setup asdf cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.asdf
-          key: ${{ runner.os }}-asdf-${{ hashFiles('**/.tool-versions') }}
-          restore-keys: |
-            ${{ runner.os }}-asdf-
-
-      - name: Install asdf
-        uses: asdf-vm/actions/install@v3.0.2
-        with:
-          asdf_branch: v0.13.1
+      - name: Setup environment
+        run: |
+          echo "${HOME}/.asdf/bin" >> $GITHUB_PATH
+          poetry install --no-root
 
       - name: Configure Management Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -166,14 +142,6 @@ jobs:
 
       - name: Retrieve Server Certificates
         run: make truststore-pull-server ENV=dev
-
-      - name: Install zip
-        run: sudo apt-get install zip
-
-      - name: Setup Python environment
-        run: |
-          poetry install --no-root
-          source $(poetry env info --path)/bin/activate
 
       - name: Terraform Init
         run: |
@@ -221,7 +189,7 @@ jobs:
     name: Run Integration Tests
     needs: [set-environment-id, deploy]
     environment: pull-request
-    runs-on: [self-hosted, ci]
+    runs-on: codebuild-nhsd-nrlf-ci-build-project-${{ github.run_id }}-${{ github.run_attempt }}
 
     steps:
       - name: Git Clone - ${{ github.event.pull_request.head.ref }}
@@ -229,21 +197,10 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref }}
 
-      - name: Setup asdf cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.asdf
-          key: ${{ runner.os }}-asdf-${{ hashFiles('**/.tool-versions') }}
-          restore-keys: |
-            ${{ runner.os }}-asdf-
-
-      - name: Install asdf and tools
-        uses: asdf-vm/actions/install@v3.0.2
-        with:
-          asdf_branch: v0.13.1
-
-      - name: Python Dependency Install
-        run: poetry install --no-root
+      - name: Setup environment
+        run: |
+          echo "${HOME}/.asdf/bin" >> $GITHUB_PATH
+          poetry install --no-root
 
       - name: Configure Management Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -270,30 +227,17 @@ jobs:
     name: Run Smoke Tests
     needs: [set-environment-id, integration-test]
     environment: pull-request
-    runs-on: [self-hosted, ci]
+    runs-on: codebuild-nhsd-nrlf-ci-build-project-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - name: Git Clone - ${{ github.event.pull_request.head.ref }}
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.ref }}
 
-      - name: Setup asdf cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.asdf
-          key: ${{ runner.os }}-asdf-${{ hashFiles('**/.tool-versions') }}
-          restore-keys: |
-            ${{ runner.os }}-asdf-
-
-      - name: Install asdf and tools
-        uses: asdf-vm/actions/install@v3.0.2
-        with:
-          asdf_branch: v0.13.1
-
-      - name: Setup Python environment
+      - name: Setup environment
         run: |
+          echo "${HOME}/.asdf/bin" >> $GITHUB_PATH
           poetry install --no-root
-          source $(poetry env info --path)/bin/activate
 
       - name: Configure Management Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -317,7 +261,7 @@ jobs:
     name: Run Performance Tests
     needs: [set-environment-id, integration-test]
     environment: pull-request
-    runs-on: [self-hosted, ci]
+    runs-on: codebuild-nhsd-nrlf-ci-build-project-${{ github.run_id }}-${{ github.run_attempt }}
 
     steps:
       - name: Git Clone - ${{ github.event.pull_request.head.ref }}
@@ -325,23 +269,10 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref }}
 
-      - name: Setup asdf cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.asdf
-          key: ${{ runner.os }}-asdf-${{ hashFiles('**/.tool-versions') }}
-          restore-keys: |
-            ${{ runner.os }}-asdf-
-
-      - name: Install asdf and tools
-        uses: asdf-vm/actions/install@v3.0.2
-        with:
-          asdf_branch: v0.13.1
-
-      - name: Setup Python environment
+      - name: Setup environment
         run: |
+          echo "${HOME}/.asdf/bin" >> $GITHUB_PATH
           poetry install --no-root
-          source $(poetry env info --path)/bin/activate
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4

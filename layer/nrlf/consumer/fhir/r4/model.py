@@ -246,11 +246,19 @@ class NRLFormatCode(Coding):
         Field(description="The system URL for the NRLF Format Code."),
     ]
     code: Annotated[
-        Literal["urn:nhs-ic:record-contact", "urn:nhs-ic:unstructured"],
+        Literal[
+            "urn:nhs-ic:record-contact",
+            "urn:nhs-ic:unstructured",
+            "urn:nhs-ic:structured",
+        ],
         Field(description="The code representing the format of the document."),
     ]
     display: Annotated[
-        Literal["Contact details (HTTP Unsecured)", "Unstructured Document"],
+        Literal[
+            "Contact details (HTTP Unsecured)",
+            "Unstructured Document",
+            "Structured Document",
+        ],
         Field(description="The display text for the code."),
     ]
 

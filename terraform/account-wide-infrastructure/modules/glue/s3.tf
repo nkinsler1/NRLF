@@ -59,14 +59,6 @@ resource "aws_s3_bucket_lifecycle_configuration" "source-data-bucket-lifecycle" 
     id     = "bucket-versioning-rule"
     status = "Enabled"
 
-    transition {
-      days          = local.s3.transition_storage.infrequent_access.days
-      storage_class = local.s3.transition_storage.infrequent_access.storage_class
-    }
-    transition {
-      days          = local.s3.transition_storage.glacier.days
-      storage_class = local.s3.transition_storage.glacier.storage_class
-    }
     expiration {
       days = local.s3.expiration.days
     }
