@@ -324,9 +324,9 @@ $ make test-smoke-public
 
 If the API changes, the API documentation needs to be updated in the appropriate API repo. This is done by making changes to the API specification `.yaml` files in each repo.
 
-For Consumer API changes, update (NRL Consumer API - consumer.yaml)[https://github.com/NHSDigital/nrl-consumer-api/blob/master/specification/record-locator/consumer.yaml]
+For Consumer API changes, update [NRL Consumer API - consumer.yaml](https://github.com/NHSDigital/nrl-consumer-api/blob/master/specification/record-locator/consumer.yaml)
 
-For Producer API changes, update (NRL Producer API - producer.yaml)[https://github.com/NHSDigital/nrl-producer-api/blob/master/specification/record-locator/producer.yaml]
+For Producer API changes, update [NRL Producer API - producer.yaml](https://github.com/NHSDigital/nrl-producer-api/blob/master/specification/record-locator/producer.yaml)
 
 Changes to the files in those repos will be reflected when each one is released. See the documentation in each repo for this process.
 
