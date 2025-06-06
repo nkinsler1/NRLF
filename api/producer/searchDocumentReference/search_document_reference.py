@@ -2,12 +2,16 @@ from pydantic import ValidationError
 
 from nrlf.core.codes import SpineErrorConcept
 from nrlf.core.decorators import DocumentPointerRepository, request_handler
-from nrlf.core.errors import OperationOutcomeError
 from nrlf.core.logger import LogReference, logger
 from nrlf.core.model import ConnectionMetadata, ProducerRequestParams
 from nrlf.core.response import Response, SpineErrorResponse
 from nrlf.core.validators import validate_category, validate_type
-from nrlf.producer.fhir.r4.model import Bundle, DocumentReference
+from nrlf.producer.fhir.r4.model import (
+    Bundle,
+    DocumentReference,
+    OperationOutcome,
+    OperationOutcomeIssue,
+)
 
 
 @request_handler(params=ProducerRequestParams)
@@ -105,12 +109,20 @@ def handler(
             logger.log(
                 LogReference.PROSEARCH005, error=str(exc), document=result.document
             )
-            raise OperationOutcomeError(
-                status_code="500",
-                severity="error",
-                code="exception",
-                details=SpineErrorConcept.from_code("INTERNAL_SERVER_ERROR"),
-                diagnostics="An error occurred whilst parsing the document reference search results",
+            operation_outcome = OperationOutcome(
+                resourceType="OperationOutcome",
+                issue=[
+                    OperationOutcomeIssue(
+                        severity="error",
+                        code="exception",
+                        details=SpineErrorConcept.from_code("INTERNAL_SERVER_ERROR"),
+                        diagnostics="An error occurred whilst parsing the document reference search results",
+                    )
+                ],
+            )
+            bundle["total"] += 1
+            bundle["entry"].append(
+                {"resource": operation_outcome.model_dump(exclude_none=True)}
             )
 
     response = Response.from_resource(Bundle.model_validate(bundle))
