@@ -1,13 +1,14 @@
 import time
 
 import boto3
-from instances import GlueContextSingleton, LoggerSingleton
 
 
 class LogPipeline:
     def __init__(
         self,
-        spark_context,
+        glue_context,
+        spark,
+        logger,
         source_path,
         target_path,
         host_prefixes,
@@ -16,9 +17,9 @@ class LogPipeline:
         transformations=[],
     ):
         """Initialize Glue context, Spark session, logger, and paths"""
-        self.glue_context = GlueContextSingleton(spark_context).context
-        self.spark = GlueContextSingleton(spark_context).spark
-        self.logger = LoggerSingleton().logger
+        self.glue_context = glue_context
+        self.spark = spark
+        self.logger = logger
         self.source_path = source_path
         self.target_path = target_path
         self.host_prefixes = host_prefixes
