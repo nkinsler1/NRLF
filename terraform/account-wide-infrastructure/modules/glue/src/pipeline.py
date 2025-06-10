@@ -106,6 +106,9 @@ class LogPipeline:
         for name, dataframe in data.items():
             name = name.replace("--", "_")
             try:
+                self.logger.info(
+                    f"Attempting to load dataframe {name} into {self.target_path}{name}"
+                )
                 dataframe.coalesce(1).write.mode("append").partitionBy(
                     *self.partition_cols
                 ).parquet(f"{self.target_path}{name}")
