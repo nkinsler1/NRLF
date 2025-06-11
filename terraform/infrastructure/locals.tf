@@ -22,20 +22,17 @@ locals {
   dynamodb_timeout_seconds = "3"
 
   is_sandbox_env = length(regexall("-sandbox-", local.stack_name)) > 0
-  is_dev_env     = var.account_name == "dev" || var.account_name == "int"
 
   environment   = local.is_sandbox_env ? "${var.account_name}-sandbox" : var.account_name
   shared_prefix = "${local.project}--${local.environment}"
   public_domain = local.is_sandbox_env ? var.public_sandbox_domain : var.public_domain
 
   # Logic / vars for reporting
-  reporting_bucket_arn = local.is_dev_env && !local.is_sandbox_env ? data.aws_s3_bucket.source-data-bucket[0].arn : null
-  reporting_kms_arn    = local.is_dev_env && !local.is_sandbox_env ? data.aws_kms_key.glue[0].arn : null
-  firehose_lambda_subscriptions = local.is_dev_env && !local.is_sandbox_env ? [
+  reporting_bucket_arn = data.aws_s3_bucket.source-data-bucket[0].arn
+  reporting_kms_arn    = data.aws_kms_key.glue[0].arn
+  firehose_lambda_subscriptions = [
     module.firehose__processor.firehose_subscription,
     module.firehose__processor.firehose_reporting_subscription
-    ] : [
-    module.firehose__processor.firehose_subscription
   ]
 
   # Logic / vars for splunk environment

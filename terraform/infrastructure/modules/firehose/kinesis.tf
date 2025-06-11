@@ -58,7 +58,6 @@ resource "aws_kinesis_firehose_delivery_stream" "firehose" {
 }
 
 resource "aws_kinesis_firehose_delivery_stream" "reporting_stream" {
-  count       = var.reporting_infra_toggle ? 1 : 0
   name        = "${var.prefix}--cloudwatch-reporting-delivery-stream"
   destination = "extended_s3"
 
