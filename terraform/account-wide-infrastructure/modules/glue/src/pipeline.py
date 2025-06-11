@@ -97,7 +97,7 @@ class LogPipeline:
         )
         for transformation in self.transformations:
             self.logger.info(f"Applying transformation: {transformation.__name__}")
-            dataframe = transformation(dataframe)
+            dataframe = transformation(dataframe, self.logger)
         return dataframe
 
     def load(self, data):
