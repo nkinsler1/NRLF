@@ -45,8 +45,20 @@ variable "instance_type" {
   default     = "t2.micro"
 }
 
-variable "use_custom_ami" {
+variable "enable_powerbi_auto_push" {
   type        = bool
-  description = "Use custom image"
+  description = "Enable automatic pushing of info into PowerBI"
   default     = false
+}
+
+variable "powerbi_gw_instance_type" {
+  type        = string
+  description = "Type for PowerBI GW EC2 Instance"
+  default     = "t2.micro"
+}
+
+variable "use_powerbi_gw_custom_ami" {
+  type        = bool
+  description = "Use custom image for PowerBI GW instance"
+  default     = true
 }
