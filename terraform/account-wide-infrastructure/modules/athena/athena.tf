@@ -20,13 +20,13 @@ resource "aws_athena_workgroup" "athena" {
 resource "aws_athena_named_query" "rep_consumer" {
   name      = "rep_consumer"
   workgroup = aws_athena_workgroup.athena.id
-  database  = module.dev-glue.glue_database
+  database  = var.glue_database
   query     = file("${path.module}/sql/rep_consumer.sql")
 }
 
 resource "aws_athena_named_query" "rep_producer" {
   name      = "rep_producer"
   workgroup = aws_athena_workgroup.athena.id
-  database  = module.dev-glue.glue_database
+  database  = var.glue_database
   query     = file("${path.module}/sql/rep_producer.sql")
 }
