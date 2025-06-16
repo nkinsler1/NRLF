@@ -14,7 +14,7 @@ module "powerbi_gw_instance" {
   source             = "../modules/powerbi-gw-ec2"
   use_custom_ami     = var.use_powerbi_gw_custom_ami
   instance_type      = var.powerbi_gw_instance_type
-  name_prefix        = "nhsd-nrlf--dev-powerbi-gw-v2"
+  name_prefix        = "nhsd-nrlf--dev-powerbi-gw"
   target_bucket_arn  = module.dev-glue.target_bucket_arn
   glue_kms_key_arn   = module.dev-glue.aws_kms_key_arn
   athena_kms_key_arn = module.dev-athena.kms_key_arn

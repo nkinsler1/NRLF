@@ -1,13 +1,11 @@
-resource "aws_instance" "web" {
+resource "aws_instance" "powerbi_gw" {
   associate_public_ip_address = false
   iam_instance_profile        = aws_iam_instance_profile.powerbi_profile.name
   ami                         = local.selected_ami_id
   instance_type               = var.instance_type
   key_name                    = aws_key_pair.ec2_key_pair.key_name
   subnet_id                   = var.subnet_id
-  # TODO WORK OUT WHY THIS IS HAVING SUCH AN ISSUE.....
-  #security_groups             = var.security_groups
-  vpc_security_group_ids = var.security_groups
+  vpc_security_group_ids      = var.security_groups
 
   user_data = file("${path.module}/scripts/user_data.tpl")
 
