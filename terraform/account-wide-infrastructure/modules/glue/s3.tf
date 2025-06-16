@@ -56,11 +56,15 @@ resource "aws_s3_bucket_lifecycle_configuration" "source-data-bucket-lifecycle" 
 
 
   rule {
-    id     = "bucket-versioning-rule"
+    id     = "object-auto-delete-rule"
     status = "Enabled"
 
     expiration {
       days = local.s3.expiration.days
+    }
+
+    noncurrent_version_expiration {
+      noncurrent_days = local.s3.expiration.days
     }
   }
 }
