@@ -47,7 +47,7 @@ variable "vpc_private_subnets_cidr_block" {
 variable "enable_powerbi_auto_push" {
   type        = bool
   description = "Enable automatic pushing of info into PowerBI"
-  default     = false
+  default     = true
 }
 
 variable "powerbi_gw_instance_type" {

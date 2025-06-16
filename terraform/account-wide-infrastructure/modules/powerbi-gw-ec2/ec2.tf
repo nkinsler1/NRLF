@@ -5,7 +5,9 @@ resource "aws_instance" "web" {
   instance_type               = var.instance_type
   key_name                    = aws_key_pair.ec2_key_pair.key_name
   subnet_id                   = var.subnet_id
-  security_groups             = var.security_groups
+  # TODO WORK OUT WHY THIS IS HAVING SUCH AN ISSUE.....
+  #security_groups             = var.security_groups
+  vpc_security_group_ids = var.security_groups
 
   user_data = file("${path.module}/scripts/user_data.tpl")
 
