@@ -15,5 +15,5 @@ resource "aws_cloudwatch_log_group" "firehose_reporting" {
 
 resource "aws_cloudwatch_log_stream" "firehose_reporting" {
   name           = "${var.prefix}-firehose-reporting"
-  log_group_name = aws_cloudwatch_log_group.firehose_reporting[0].name
+  log_group_name = aws_cloudwatch_log_group.firehose_reporting.name
 }

@@ -21,6 +21,12 @@ variable "enable_dns_hostnames" {
   default     = true
 }
 
+variable "enable_reporting" {
+  type        = bool
+  description = "Enable account-wide reporting services in the prod account"
+  default     = false
+}
+
 variable "vpc_cidr_block" {
   type        = string
   description = "Base CIDR Block for VPC"

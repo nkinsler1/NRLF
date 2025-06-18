@@ -1,4 +1,4 @@
-module "qa-glue" {
+/*module "qa-glue" {
   source         = "../modules/glue"
   name_prefix    = "nhsd-nrlf--qa"
   python_version = 3
@@ -19,5 +19,12 @@ module "int-sandbox-glue" {
 module "ref-glue" {
   source         = "../modules/glue"
   name_prefix    = "nhsd-nrlf--ref"
+  python_version = 3
+}*/
+
+module "test-glue" {
+  is_enabled     = var.enable_reporting
+  source         = "../modules/glue"
+  name_prefix    = "nhsd-nrlf--test"
   python_version = 3
 }

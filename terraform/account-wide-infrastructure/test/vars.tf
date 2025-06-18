@@ -29,6 +29,12 @@ variable "ref_api_domain_name" {
   default     = "ref.api.record-locator.ref.national.nhs.uk"
 }
 
+variable "enable_reporting" {
+  type        = bool
+  description = "Enable account-wide reporting services in the test account"
+  default     = false
+}
+
 variable "aws_azs" {
   type        = string
   description = "AWS Availability Zones"

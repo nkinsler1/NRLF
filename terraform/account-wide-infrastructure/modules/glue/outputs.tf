@@ -23,5 +23,5 @@ output "glue_crawler_name" {
 }
 
 output "glue_database" {
-  value = aws_glue_catalog_database.log_database.name
+  value = var.is_enabled ? aws_glue_catalog_database.log_database[0].name : ""
 }

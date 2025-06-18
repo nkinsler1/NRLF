@@ -35,6 +35,13 @@ variable "error_prefix" {
   default = "errors"
 }
 
+
+variable "enable_reporting_stream" {
+  type        = bool
+  description = "Enable the reporting delivery stream"
+  default     = false
+
+}
 variable "reporting_bucket_arn" {
   type    = string
   default = null

@@ -1,4 +1,4 @@
-module "qa-athena" {
+/*module "qa-athena" {
   source             = "../modules/athena"
   name_prefix        = "nhsd-nrlf--qa"
   target_bucket_name = module.qa-glue.target_bucket_name
@@ -24,4 +24,12 @@ module "ref-athena" {
   name_prefix        = "nhsd-nrlf--ref"
   target_bucket_name = module.ref-glue.target_bucket_name
   glue_database      = module.ref-glue.glue_database
+}*/
+
+module "test-athena" {
+  count              = var.enable_reporting ? 1 : 0
+  source             = "../modules/athena"
+  name_prefix        = "nhsd-nrlf--test"
+  target_bucket_name = module.test-glue.target_bucket_name
+  glue_database      = module.test-glue.glue_database
 }

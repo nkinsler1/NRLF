@@ -14,6 +14,12 @@ variable "devsandbox_api_domain_name" {
   default     = "dev-sandbox.api.record-locator.dev.national.nhs.uk"
 }
 
+variable "enable_reporting" {
+  type        = bool
+  description = "Enable account-wide reporting services in the dev account"
+  default     = false
+}
+
 variable "aws_azs" {
   type        = string
   description = "AWS Availability Zones"

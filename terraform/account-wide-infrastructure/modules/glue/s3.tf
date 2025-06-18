@@ -62,17 +62,13 @@ resource "aws_s3_bucket_lifecycle_configuration" "source-data-bucket-lifecycle" 
     expiration {
       days = local.s3.expiration.days
     }
-
-    noncurrent_version_expiration {
-      noncurrent_days = local.s3.expiration.days
-    }
   }
 }
 
 resource "aws_s3_bucket_versioning" "source-data-bucket-versioning" {
   bucket = aws_s3_bucket.source-data-bucket.id
   versioning_configuration {
-    status = "Enabled"
+    status = "Disabled"
   }
 }
 

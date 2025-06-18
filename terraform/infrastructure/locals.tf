@@ -4,6 +4,7 @@ locals {
   stack_name          = terraform.workspace
   deletion_protection = var.deletion_protection
   prefix              = "${local.project}--${local.stack_name}"
+  account_prefix      = "${local.project}--${var.aws_account_name}"
 
   kms = {
     deletion_window_in_days = 7
@@ -28,8 +29,8 @@ locals {
   public_domain = local.is_sandbox_env ? var.public_sandbox_domain : var.public_domain
 
   # Logic / vars for reporting
-  reporting_bucket_arn = data.aws_s3_bucket.source-data-bucket[0].arn
-  reporting_kms_arn    = data.aws_kms_key.glue[0].arn
+  reporting_bucket_arn = data.aws_s3_bucket.source-data-bucket.arn
+  reporting_kms_arn    = data.aws_kms_key.glue.arn
   firehose_lambda_subscriptions = [
     module.firehose__processor.firehose_subscription,
     module.firehose__processor.firehose_reporting_subscription
