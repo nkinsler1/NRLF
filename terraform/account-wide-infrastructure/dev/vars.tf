@@ -17,7 +17,7 @@ variable "devsandbox_api_domain_name" {
 variable "enable_reporting" {
   type        = bool
   description = "Enable account-wide reporting services in the dev account"
-  default     = false
+  default     = true
 }
 
 variable "aws_azs" {
