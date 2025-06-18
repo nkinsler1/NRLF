@@ -6,6 +6,8 @@ locals {
   prefix              = "${local.project}--${local.stack_name}"
   account_prefix      = "${local.project}--${var.aws_account_name}"
 
+  aws_account_id = data.aws_caller_identity.current.account_id
+
   kms = {
     deletion_window_in_days = 7
   }
@@ -28,21 +30,16 @@ locals {
   shared_prefix = "${local.project}--${local.environment}"
   public_domain = local.is_sandbox_env ? var.public_sandbox_domain : var.public_domain
 
-  # Logic / vars for reporting
   reporting_bucket_arn = data.aws_s3_bucket.source-data-bucket.arn
   reporting_kms_arn    = data.aws_kms_key.glue.arn
-  firehose_lambda_subscriptions = [
+  firehose_lambda_subscriptions = var.use_shared_resources ? [
     module.firehose__processor.firehose_subscription,
     module.firehose__processor.firehose_reporting_subscription
-  ]
-
-  # Logic / vars for splunk environment
+  ] : []
   splunk_environment = local.is_sandbox_env ? "${var.account_name}sandbox" : var.account_name
   splunk_index       = "aws_recordlocator_${local.splunk_environment}"
 
   log_level = var.account_name == "dev" || var.account_name == "qa" ? "DEBUG" : "INFO"
-
-  aws_account_id = data.aws_caller_identity.current.account_id
 
   auth_store_id              = var.use_shared_resources ? data.aws_s3_bucket.authorization-store[0].id : module.ephemeral-s3-permission-store[0].bucket_id
   auth_store_read_policy_arn = var.use_shared_resources ? data.aws_iam_policy.auth-store-read-policy[0].arn : module.ephemeral-s3-permission-store[0].bucket_read_policy_arn

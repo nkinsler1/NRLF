@@ -11,12 +11,6 @@ output "delivery_stream" {
   }
 }
 
-output "splunk" {
-  value = {
-    index = var.splunk_index
-  }
-}
-
 output "firehose_subscription" {
   value = {
     destination = {

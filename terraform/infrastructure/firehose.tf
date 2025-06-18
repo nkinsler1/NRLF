@@ -1,4 +1,5 @@
 module "firehose__processor" {
+  count                = var.use_shared_resources ? 1 : 0
   source               = "./modules/firehose"
   assume_account       = local.aws_account_id
   prefix               = local.prefix

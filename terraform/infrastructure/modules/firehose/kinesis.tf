@@ -68,7 +68,7 @@ resource "aws_kinesis_firehose_delivery_stream" "reporting_stream" {
     buffering_interval = 600
 
     processing_configuration {
-      enabled = var.enable_reporting_stream
+      enabled = true
 
       processors {
         type = "Decompression"
@@ -90,7 +90,7 @@ resource "aws_kinesis_firehose_delivery_stream" "reporting_stream" {
     }
 
     cloudwatch_logging_options {
-      enabled         = var.enable_reporting_stream
+      enabled         = true
       log_group_name  = aws_cloudwatch_log_group.firehose_reporting.name
       log_stream_name = aws_cloudwatch_log_stream.firehose_reporting.name
     }
