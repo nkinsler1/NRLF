@@ -32,10 +32,10 @@ locals {
 
   reporting_bucket_arn = data.aws_s3_bucket.source-data-bucket.arn
   reporting_kms_arn    = data.aws_kms_key.glue.arn
-  firehose_lambda_subscriptions = var.use_shared_resources ? [
-    module.firehose__processor[0].firehose_subscription,
-    module.firehose__processor[0].firehose_reporting_subscription
-  ] : []
+  firehose_lambda_subscriptions = var.use_shared_resources ? {
+    "splunk_subscription" : module.firehose__processor[0].firehose_subscription,
+    "reports_subscription" : module.firehose__processor[0].firehose_reporting_subscription
+  } : {}
   splunk_environment = local.is_sandbox_env ? "${var.account_name}sandbox" : var.account_name
   splunk_index       = "aws_recordlocator_${local.splunk_environment}"
 
