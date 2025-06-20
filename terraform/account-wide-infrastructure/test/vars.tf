@@ -31,7 +31,7 @@ variable "ref_api_domain_name" {
 
 variable "enable_reporting" {
   type        = bool
-  description = "Enable account-wide reporting services in the test account"
+  description = "Enable account-wide reporting processes in the test account"
   default     = false
 }
 

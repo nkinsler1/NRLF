@@ -23,7 +23,7 @@ variable "enable_dns_hostnames" {
 
 variable "enable_reporting" {
   type        = bool
-  description = "Enable account-wide reporting services in the prod account"
+  description = "Enable account-wide reporting processes in the prod account"
   default     = false
 }
 
